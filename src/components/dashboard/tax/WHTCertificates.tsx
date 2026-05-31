@@ -225,16 +225,14 @@ export function WHTCertificates() {
       </CardHeader>
       <CardContent className="space-y-3">
         <WhtDropzone onFiles={handleFiles} busy={busy} progress={progress} />
-        {verifyOpen && (
-          <WhtScanVerifyDialog
-            open={verifyOpen}
-            onOpenChange={setVerifyOpen}
-            drafts={drafts}
-            onDraftChange={handleDraftChange}
-            onConfirm={handleConfirm}
-            onSkip={handleSkip}
-          />
-        )}
+        <WhtScanVerifyDialog
+          open={verifyOpen}
+          onOpenChange={setVerifyOpen}
+          drafts={drafts}
+          onDraftChange={handleDraftChange}
+          onConfirm={handleConfirm}
+          onSkip={handleSkip}
+        />
 
         <div className="flex items-center gap-2 flex-wrap">
           <div className="relative flex-1 min-w-[180px]">
