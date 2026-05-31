@@ -1,0 +1,1 @@
+REVOKE UPDATE ON public.articles FROM sandbox_exec, postgres, authenticator, anon, authenticated, service_role;

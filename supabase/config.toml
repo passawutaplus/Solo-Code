@@ -1,0 +1,13 @@
+project_id = "jdqrrzaleapablabphmw"
+
+[functions.ai-design-chat]
+verify_jwt = false
+
+[functions.planner-ai-assist]
+verify_jwt = true
+
+[functions.ai-price-suggest]
+verify_jwt = true
+
+[functions.color-mentor]
+verify_jwt = true
