@@ -52,6 +52,7 @@ export type WhtDraft = {
   grossAmount: number;
   whtRate: number;
   whtAmount: number;
+  whtAmountTextThai: string;
   formType: WhtFormType;
 };
 
@@ -80,6 +81,7 @@ export function whtDraftFromScan(
     grossAmount: scan.grossAmount,
     whtRate: inferredRate,
     whtAmount: scan.whtAmount,
+    whtAmountTextThai: scan.whtAmountTextThai ?? "",
     formType: (scan.formType as WhtFormType) || "",
   };
 }
@@ -88,11 +90,12 @@ type Props = {
   open: boolean;
   onOpenChange: (v: boolean) => void;
   drafts: WhtDraft[];
+  onDraftChange: (index: number, draft: WhtDraft) => void;
   onConfirm: (draft: WhtDraft) => void;
   onSkip: () => void;
 };
 
-export function WhtScanVerifyDialog({ open, onOpenChange, drafts, onConfirm, onSkip }: Props) {
+export function WhtScanVerifyDialog({ open, onOpenChange, drafts, onDraftChange, onConfirm, onSkip }: Props) {
   const [idx, setIdx] = React.useState(0);
   const [zoom, setZoom] = React.useState(1);
 
@@ -103,13 +106,11 @@ export function WhtScanVerifyDialog({ open, onOpenChange, drafts, onConfirm, onS
     }
   }, [open, drafts.length]);
 
-  const [, forceUpdate] = React.useReducer((x: number) => x + 1, 0);
   const current = drafts[idx];
   if (!current) return null;
 
   function update<K extends keyof WhtDraft>(k: K, v: WhtDraft[K]) {
-    drafts[idx] = { ...current!, [k]: v };
-    forceUpdate();
+    onDraftChange(idx, { ...current, [k]: v });
   }
 
   const isPdf = current.mimeType === "application/pdf";
@@ -323,11 +324,22 @@ export function WhtScanVerifyDialog({ open, onOpenChange, drafts, onConfirm, onS
               </FieldRow>
             </div>
 
+            {current.whtAmountTextThai && (
+              <FieldRow label="ภาษีที่หัก (ข้อความภาษาไทยในใบ)">
+                <Input
+                  value={current.whtAmountTextThai}
+                  onChange={(e) => update("whtAmountTextThai", e.target.value)}
+                  className="text-sm"
+                  readOnly
+                />
+              </FieldRow>
+            )}
+
             <div className="rounded-lg bg-muted/40 p-2.5 text-[11px] text-muted-foreground space-y-1">
               <div className="flex justify-between">
                 <span>เงินสุทธิที่ได้รับ</span>
                 <span className="num font-semibold text-foreground">
-                  ฿{formatTHB(Math.max(0, current.grossAmount - current.whtAmount))}
+                  ฿{formatTHB(Math.max(0, (current.grossAmount || 0) - (current.whtAmount || 0)))}
                 </span>
               </div>
               {current.scan?.notes && (

@@ -15,7 +15,9 @@ import { escapeCSV } from "@/lib/security";
 const IncomeBreakdown = React.lazy(() =>
   import("./tax/IncomeBreakdown").then((m) => ({ default: m.IncomeBreakdown })),
 );
-import { WHTCertificates } from "./tax/WHTCertificates";
+const WHTCertificates = React.lazy(() =>
+  import("./tax/WHTCertificates").then((m) => ({ default: m.WHTCertificates })),
+);
 import { estimateTax, calcLumpSumExpense } from "./tax/taxMath";
 import { DeductionsPanel, computeActiveDeductions } from "./tax/DeductionsPanel";
 import { TaxBracketGauge, AiTaxInsight } from "./tax/TaxBracketGauge";
@@ -256,7 +258,9 @@ export function TaxTab() {
         <React.Suspense fallback={<div className="h-64 animate-pulse rounded-xl bg-muted/40" />}>
           <IncomeBreakdown />
         </React.Suspense>
-        <WHTCertificates />
+        <React.Suspense fallback={<div className="h-64 animate-pulse rounded-xl bg-muted/40" />}>
+          <WHTCertificates />
+        </React.Suspense>
       </div>
 
       {/* Tax estimator + Work expenses + Method toggle */}

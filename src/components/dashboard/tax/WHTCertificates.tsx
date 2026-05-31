@@ -17,6 +17,8 @@ import { WhtDropzone } from "./WhtDropzone";
 import { WhtScanVerifyDialog, whtDraftFromScan, type WhtDraft } from "./WhtScanVerifyDialog";
 import { compressImageFile, dataUrlToBlob } from "@/lib/imageCompress";
 
+const SIGNED_URL_TTL_SEC = 60 * 60;
+
 export function WHTCertificates() {
   const { incomes, updateIncome, addIncome } = useFinance();
   const { user } = useAuth();
@@ -28,6 +30,14 @@ export function WHTCertificates() {
   const [busy, setBusy] = React.useState(false);
   const [progress, setProgress] = React.useState<{ current: number; total: number } | null>(null);
 
+  function handleDraftChange(index: number, draft: WhtDraft) {
+    setDrafts((prev) => {
+      const next = [...prev];
+      next[index] = draft;
+      return next;
+    });
+  }
+
   async function handleFiles(files: File[]) {
     if (!user) {
       toast.error("กรุณาเข้าสู่ระบบก่อน");
@@ -35,12 +45,13 @@ export function WHTCertificates() {
     }
     setBusy(true);
     const newDrafts: WhtDraft[] = [];
+    let okCount = 0;
+    let failCount = 0;
     try {
       for (let i = 0; i < files.length; i++) {
         const f = files[i];
         setProgress({ current: i + 1, total: files.length });
         try {
-          // Compress images; PDF unchanged
           let blob: Blob = f;
           let contentType = f.type || "application/octet-stream";
           let ext = (f.name.split(".").pop() ?? "bin").toLowerCase();
@@ -55,16 +66,18 @@ export function WHTCertificates() {
             .from("wht-certificates")
             .upload(path, blob, { upsert: false, contentType });
           if (upErr) throw upErr;
-          // Signed URL so AI gateway can fetch the private file
+
           const { data: signed, error: sErr } = await supabase.storage
             .from("wht-certificates")
-            .createSignedUrl(path, 60 * 10);
+            .createSignedUrl(path, SIGNED_URL_TTL_SEC);
           if (sErr || !signed) throw sErr ?? new Error("signed url failed");
 
           try {
-            const scan = await scanFn({ data: { fileUrl: signed.signedUrl, mimeType: contentType } });
+            const scan = await scanFn({ data: { storagePath: path, mimeType: contentType } });
             newDrafts.push(whtDraftFromScan(signed.signedUrl, f.name, contentType, scan));
+            okCount++;
           } catch (e) {
+            failCount++;
             const msg = e instanceof Error ? e.message : "AI อ่านไม่สำเร็จ";
             newDrafts.push({
               fileUrl: signed.signedUrl,
@@ -87,13 +100,20 @@ export function WHTCertificates() {
             });
           }
         } catch (e) {
+          failCount++;
           toast.error(`อัปโหลด ${f.name} ไม่สำเร็จ: ${e instanceof Error ? e.message : ""}`);
         }
       }
       if (newDrafts.length > 0) {
         setDrafts(newDrafts);
         setVerifyOpen(true);
-        toast.success(`AI อ่าน ${newDrafts.length} ใบสำเร็จ · ตรวจสอบก่อนบันทึก`);
+        if (failCount === 0) {
+          toast.success(`AI อ่าน ${okCount} ใบสำเร็จ · ตรวจสอบก่อนบันทึก`);
+        } else if (okCount === 0) {
+          toast.warning(`AI อ่านไม่สำเร็จ ${failCount} ใบ · กรุณาตรวจหรือกรอกเอง`);
+        } else {
+          toast.warning(`อ่านสำเร็จ ${okCount} ใบ · ล้มเหลว ${failCount} ใบ · ตรวจสอบก่อนบันทึก`);
+        }
       }
     } finally {
       setBusy(false);
@@ -104,7 +124,6 @@ export function WHTCertificates() {
   function handleConfirm(d: WhtDraft) {
     const noteParts = [`อัปโหลดด้วย AI Scan · ${d.fileName}`];
     if (d.payeeName) noteParts.push(`ผู้ถูกหัก: ${d.payeeName}`);
-    if (d.payeeTaxId) noteParts.push(`เลขผู้เสียภาษี: ${d.payeeTaxId}`);
     if (d.formType) noteParts.push(`ฟอร์ม: ${d.formType}`);
     addIncome({
       month: (d.issueDate || new Date().toISOString()).slice(0, 7),
@@ -206,13 +225,16 @@ export function WHTCertificates() {
       </CardHeader>
       <CardContent className="space-y-3">
         <WhtDropzone onFiles={handleFiles} busy={busy} progress={progress} />
-        <WhtScanVerifyDialog
-          open={verifyOpen}
-          onOpenChange={setVerifyOpen}
-          drafts={drafts}
-          onConfirm={handleConfirm}
-          onSkip={handleSkip}
-        />
+        {verifyOpen && (
+          <WhtScanVerifyDialog
+            open={verifyOpen}
+            onOpenChange={setVerifyOpen}
+            drafts={drafts}
+            onDraftChange={handleDraftChange}
+            onConfirm={handleConfirm}
+            onSkip={handleSkip}
+          />
+        )}
 
         <div className="flex items-center gap-2 flex-wrap">
           <div className="relative flex-1 min-w-[180px]">
