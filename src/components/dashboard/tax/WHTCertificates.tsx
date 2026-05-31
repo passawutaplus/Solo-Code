@@ -82,6 +82,7 @@ export function WHTCertificates() {
               grossAmount: 0,
               whtRate: 3,
               whtAmount: 0,
+              whtAmountTextThai: "",
               formType: "",
             });
           }
