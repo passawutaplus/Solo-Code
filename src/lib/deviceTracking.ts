@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import { hasAnalyticsConsent } from "@/lib/cookieConsent";
 
 const STORAGE_KEY = "so1o.deviceTracked";
 const SESSION_ID_KEY = "so1o.sessionId";
@@ -45,6 +46,7 @@ function getOrCreateSessionId(): string {
 
 export async function trackDeviceOnce() {
   if (typeof window === "undefined") return;
+  if (!hasAnalyticsConsent()) return;
   try {
     if (sessionStorage.getItem(STORAGE_KEY)) return;
     sessionStorage.setItem(STORAGE_KEY, "1");

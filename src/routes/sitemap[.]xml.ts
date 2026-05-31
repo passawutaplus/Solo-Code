@@ -16,9 +16,11 @@ const PUBLIC_ROUTES: Array<{ path: string; changefreq: string; priority: string 
   { path: "/labs", changefreq: "monthly", priority: "0.4" },
   { path: "/admin", changefreq: "monthly", priority: "0.3" },
   { path: "/llms.txt", changefreq: "monthly", priority: "0.2" },
+  { path: "/pricing", changefreq: "monthly", priority: "0.8" },
   { path: "/privacy", changefreq: "yearly", priority: "0.3" },
   { path: "/terms", changefreq: "yearly", priority: "0.3" },
   { path: "/cookies", changefreq: "yearly", priority: "0.3" },
+  { path: "/refund", changefreq: "yearly", priority: "0.3" },
 ];
 
 function xmlEscape(s: string): string {

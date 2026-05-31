@@ -14,6 +14,8 @@ import { Loader2, Upload, LogOut, ShieldCheck, RotateCcw, Image as ImageIcon, Su
 import { compressImageFile, dataUrlToBlob } from "@/lib/imageCompress";
 import { useTheme } from "@/hooks/useTheme";
 import { InstallAppButton } from "@/components/pwa/InstallAppButton";
+import { BillingSettingsSection } from "@/components/dashboard/settings/BillingSettingsSection";
+import { AccountPrivacySection } from "@/components/dashboard/settings/AccountPrivacySection";
 
 const CURRENCIES = [
   { value: "THB", label: "฿ (THB)" },
@@ -197,6 +199,9 @@ export function SettingsTab() {
 
   return (
     <div className="space-y-4 pb-24 lg:pb-4">
+      <BillingSettingsSection />
+      <AccountPrivacySection onSignOut={signOut} />
+
       <Card className="glass border-border shadow-soft">
         <CardContent className="p-4 sm:p-5">
           <div className="flex items-center justify-between gap-3 flex-wrap">

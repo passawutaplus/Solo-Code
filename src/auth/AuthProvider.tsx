@@ -2,6 +2,8 @@ import * as React from "react";
 import type { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { trackDeviceOnce } from "@/lib/deviceTracking";
+import { CONSENT_CHANGE_EVENT, hasAnalyticsConsent } from "@/lib/cookieConsent";
+import { isEarlyAccessMode } from "@/lib/publicAccess";
 
 export type AppRole = "admin" | "user";
 
@@ -57,12 +59,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = React.useState(true);
 
   const loadProfileAndRole = React.useCallback(async (uid: string) => {
-    // Fetch in parallel; defer to avoid blocking auth callback
     const [{ data: prof }, { data: roles }] = await Promise.all([
       supabase.from("profiles").select("*").eq("user_id", uid).maybeSingle(),
       supabase.from("user_roles").select("role").eq("user_id", uid),
     ]);
-    setProfile((prof as Profile) ?? null);
+
+    let profileRow = (prof as Profile) ?? null;
+
+    // Public launch: auto-approve testers so dashboard is accessible
+    if (!isEarlyAccessMode() && profileRow && !profileRow.tester_approved) {
+      const { data: updated } = await supabase
+        .from("profiles")
+        .update({ tester_approved: true, updated_at: new Date().toISOString() })
+        .eq("user_id", uid)
+        .select("*")
+        .maybeSingle();
+      if (updated) profileRow = updated as Profile;
+    }
+
+    setProfile(profileRow);
     const isAdminRole = (roles ?? []).some((r) => r.role === "admin");
     setRole(isAdminRole ? "admin" : (roles?.[0]?.role as AppRole) ?? "user");
   }, []);
@@ -102,11 +117,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } else {
         setLoading(false);
       }
-      // Track device once per session (works for guests too)
-      void trackDeviceOnce();
+      // Track device once per session when analytics consent is granted
+      if (hasAnalyticsConsent()) void trackDeviceOnce();
     });
 
-    return () => subscription.subscription.unsubscribe();
+    const onConsent = () => {
+      if (hasAnalyticsConsent()) void trackDeviceOnce();
+    };
+    window.addEventListener(CONSENT_CHANGE_EVENT, onConsent);
+
+    return () => {
+      subscription.subscription.unsubscribe();
+      window.removeEventListener(CONSENT_CHANGE_EVENT, onConsent);
+    };
   }, [loadProfileAndRole]);
 
   const signIn = React.useCallback(async (email: string, password: string) => {

@@ -1,5 +1,6 @@
 import * as React from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { hasAnalyticsConsent } from "@/lib/cookieConsent";
 
 const STORAGE_PREFIX = "so1o.lastActivityLog.";
 // 1 ครั้ง/ชั่วโมง ตามฝั่ง DB (กัน round-trip ซ้ำๆ ฝั่ง client ด้วย)
@@ -14,7 +15,7 @@ export function useLogActivity(
   activityType: string = "page_view",
 ) {
   React.useEffect(() => {
-    if (!userId) return;
+    if (!userId || !hasAnalyticsConsent()) return;
     const key = `${STORAGE_PREFIX}${userId}.${activityType}`;
     const log = async () => {
       try {

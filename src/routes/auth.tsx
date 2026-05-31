@@ -18,6 +18,7 @@ import { PasswordInput } from "@/components/auth/PasswordInput";
 import { FreelanceFieldSelect } from "@/components/auth/FreelanceFieldSelect";
 import { cn } from "@/lib/utils";
 import { SiteFooter } from "@/components/layout/SiteFooter";
+import { isEarlyAccessMode } from "@/lib/publicAccess";
 
 const LOCKOUT_KEY = "so1o_login_lockout";
 const FAIL_KEY = "so1o_login_fails";
@@ -411,12 +412,14 @@ function SignupForm({
       </div>
 
       <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 px-3 py-2.5 space-y-2">
-        <div className="flex gap-2">
-          <Info className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
-          <p className="text-[11px] leading-relaxed text-muted-foreground">
-            <span className="font-medium text-foreground">นโยบาย Beta:</span> สิทธิ์มีจำกัด ขออนุญาตระงับสิทธิ์ผู้ที่ไม่มีความเคลื่อนไหวเกิน <span className="font-medium">7 วัน</span>
-          </p>
-        </div>
+        {isEarlyAccessMode() && (
+          <div className="flex gap-2">
+            <Info className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+            <p className="text-[11px] leading-relaxed text-muted-foreground">
+              <span className="font-medium text-foreground">นโยบาย Beta:</span> สิทธิ์มีจำกัด ขออนุญาตระงับสิทธิ์ผู้ที่ไม่มีความเคลื่อนไหวเกิน <span className="font-medium">7 วัน</span>
+            </p>
+          </div>
+        )}
         <label className="flex gap-2 items-start cursor-pointer select-none">
           <Checkbox
             checked={acceptedPolicy}
@@ -425,10 +428,12 @@ function SignupForm({
           />
           <span className="text-[11px] leading-relaxed text-foreground">
             ฉันยอมรับ{" "}
-            <a href="/privacy" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline font-medium">นโยบายความเป็นส่วนตัว</a>
+            <a href="/privacy" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline font-medium">นโยบายความเป็นส่วนตัว (PDPA)</a>
             ,{" "}
             <a href="/terms" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline font-medium">ข้อกำหนดการใช้งาน</a>
-            {" "}และนโยบายระงับสิทธิ์ Beta 7 วัน
+            {" "}และ{" "}
+            <a href="/cookies" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline font-medium">นโยบายคุกกี้</a>
+            {isEarlyAccessMode() ? " และนโยบายระงับสิทธิ์ Beta 7 วัน" : ""}
           </span>
         </label>
       </div>

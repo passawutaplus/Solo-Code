@@ -1,5 +1,6 @@
 import * as React from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { hasAnalyticsConsent } from "@/lib/cookieConsent";
 
 const STORAGE_KEY = "so1o.lastActiveBumpAt";
 const THROTTLE_MS = 5 * 60 * 1000; // 5 นาที
@@ -10,7 +11,7 @@ const THROTTLE_MS = 5 * 60 * 1000; // 5 นาที
  */
 export function useTrackActivity(userId: string | null | undefined) {
   React.useEffect(() => {
-    if (!userId) return;
+    if (!userId || !hasAnalyticsConsent()) return;
     let cancelled = false;
 
     const bump = async () => {

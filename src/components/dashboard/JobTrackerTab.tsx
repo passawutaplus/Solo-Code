@@ -2,6 +2,8 @@ import * as React from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/auth/AuthProvider";
+import { useSubscription } from "@/hooks/useSubscription";
+import { canCreateJob, countJobsCreatedThisMonth, jobLimitMessage } from "@/lib/planLimits";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -81,6 +83,7 @@ type JobEvent = {
 
 export function JobTrackerTab() {
   const { user } = useAuth();
+  const { isPro } = useSubscription();
   const qc = useQueryClient();
   const userId = user?.id;
 
@@ -98,6 +101,7 @@ export function JobTrackerTab() {
   });
 
   const refresh = () => qc.invalidateQueries({ queryKey: ["job_trackers", userId ?? "anon"] });
+  const jobsThisMonth = countJobsCreatedThisMonth(jobs);
 
   if (isLoading) {
     return (
@@ -109,6 +113,12 @@ export function JobTrackerTab() {
 
   return (
     <div className="space-y-5">
+      {!isPro && (
+        <p className="text-xs text-muted-foreground rounded-lg border border-border/60 bg-muted/30 px-3 py-2 mx-1">
+          แผน Free: สร้างงานได้ {jobsThisMonth}/3 งานในเดือนนี้ ·{" "}
+          <a href="/pricing" className="text-primary hover:underline">อัพเกรด Pro</a> ไม่จำกัด
+        </p>
+      )}
       <div className="flex flex-col sm:flex-row sm:items-center gap-3 px-1">
         <div className="flex-1 min-w-0">
           <h3 className="font-semibold text-sm sm:text-base">Job Tracker</h3>
@@ -117,6 +127,7 @@ export function JobTrackerTab() {
           </p>
         </div>
         <JobFormDialog
+          jobs={jobs}
           onSaved={refresh}
           trigger={
             <Button size="sm" className="gap-1.5 rounded-xl shrink-0">
@@ -133,7 +144,7 @@ export function JobTrackerTab() {
       ) : (
         <div className="space-y-3">
           {jobs.map((j) => (
-            <JobCard key={j.id} job={j} onChanged={refresh} />
+            <JobCard key={j.id} job={j} allJobs={jobs} onChanged={refresh} />
           ))}
         </div>
       )}
@@ -165,7 +176,7 @@ function trackUrl(token: string) {
   return `${base}/track/${token}`;
 }
 
-function JobCard({ job, onChanged }: { job: Job; onChanged: () => void }) {
+function JobCard({ job, allJobs, onChanged }: { job: Job; allJobs: Job[]; onChanged: () => void }) {
   const [busy, setBusy] = React.useState(false);
   const [open, setOpen] = React.useState(false);
   const [advanceOpen, setAdvanceOpen] = React.useState(false);
@@ -462,7 +473,7 @@ function JobCard({ job, onChanged }: { job: Job; onChanged: () => void }) {
           >
             <ExternalLink className="h-3.5 w-3.5" />
           </Button>
-          <JobFormDialog existing={job} onSaved={onChanged}
+          <JobFormDialog existing={job} jobs={allJobs} onSaved={onChanged}
             trigger={<Button size="sm" variant="outline" className="h-8 px-2"><Pencil className="h-3.5 w-3.5" /></Button>} />
           <Button size="sm" variant="outline" className="h-8 px-2 text-destructive" onClick={remove}>
             <Trash2 className="h-3.5 w-3.5" />
@@ -721,9 +732,10 @@ function AdvanceDialog({ job, open, onClose, onDone }: { job: Job; open: boolean
 }
 
 function JobFormDialog({
-  existing, onSaved, trigger,
-}: { existing?: Job; onSaved: () => void; trigger: React.ReactNode }) {
+  existing, onSaved, trigger, jobs,
+}: { existing?: Job; onSaved: () => void; trigger: React.ReactNode; jobs: Job[] }) {
   const { user } = useAuth();
+  const { isPro } = useSubscription();
   const clients = useClients();
   const quotations = useQuotations();
   const [open, setOpen] = React.useState(false);
@@ -784,6 +796,17 @@ function JobFormDialog({
   async function save() {
     if (!user) return;
     if (!form.title.trim()) { toast.error("ใส่ชื่องานก่อน"); return; }
+
+    if (!existing) {
+      const used = countJobsCreatedThisMonth(jobs);
+      if (!canCreateJob(isPro, used)) {
+        toast.error(jobLimitMessage(used), {
+          action: { label: "ดูแผน Pro", onClick: () => { window.location.href = "/pricing"; } },
+        });
+        return;
+      }
+    }
+
     setSaving(true);
     const depositAmount = form.total_amount * form.deposit_percent / 100;
     const amountDue = existing?.final_paid ? 0 : (existing?.deposit_paid ? form.total_amount - depositAmount : form.total_amount);

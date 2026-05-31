@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { Mail } from "lucide-react";
 import { LineContactChip } from "@/components/LineContactButton";
+import { CookiePreferencesLink } from "@/components/CookiePreferencesLink";
 import logoUrl from "@/assets/solo-freelancer-logo.webp";
 
 type Variant = "full" | "minimal";
@@ -21,6 +22,10 @@ function MinimalFooter({ className }: { className?: string }) {
           <Link to="/terms" className="hover:text-primary transition-colors">ข้อกำหนดการใช้งาน</Link>
           <span className="opacity-40">·</span>
           <Link to="/cookies" className="hover:text-primary transition-colors">คุกกี้</Link>
+          <span className="opacity-40">·</span>
+          <Link to="/refund" className="hover:text-primary transition-colors">คืนเงิน</Link>
+          <span className="opacity-40">·</span>
+          <CookiePreferencesLink className="hover:text-primary transition-colors" />
           <span className="opacity-40">·</span>
           <a href="mailto:hello@solofreelancer.com" className="hover:text-primary transition-colors">ติดต่อ</a>
         </nav>
@@ -93,6 +98,10 @@ function FullFooter({ className }: { className?: string }) {
             <Link to="/terms" className="hover:text-primary transition-colors">ข้อกำหนดการใช้งาน</Link>
             <span className="opacity-40">·</span>
             <Link to="/cookies" className="hover:text-primary transition-colors">นโยบายคุกกี้</Link>
+            <span className="opacity-40">·</span>
+            <Link to="/refund" className="hover:text-primary transition-colors">นโยบายคืนเงิน</Link>
+            <span className="opacity-40">·</span>
+            <CookiePreferencesLink className="hover:text-primary transition-colors" />
           </div>
           <span>Made with <span className="text-primary">♥</span> for Thai freelancers</span>
         </div>
