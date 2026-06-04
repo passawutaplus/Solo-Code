@@ -134,7 +134,14 @@ export function PreviewPanel({ q, docKind = "quotation" }: Props) {
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0 flex-1">
             {profile?.logo_url && (
-              <img src={profile.logo_url} alt="Logo" className="h-10 mb-2 object-contain"  loading="lazy" decoding="async" />
+              <img
+                src={profile.logo_url}
+                alt="Logo"
+                className="h-10 mb-2 object-contain"
+                loading="lazy"
+                decoding="async"
+                crossOrigin="anonymous"
+              />
             )}
             <h1 className="text-2xl font-bold tracking-tight text-neutral-900 leading-tight">
               {profile?.brand_name || "So1o Freelancer"}

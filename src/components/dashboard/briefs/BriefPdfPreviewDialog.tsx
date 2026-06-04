@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { ZoomIn, ZoomOut, Download } from "lucide-react";
 import { BriefPdfTemplate } from "./BriefPdfTemplate";
 import type { DesignBrief, BriefOwnerPublic } from "@/lib/briefSchema";
+import { runPrintToPdf } from "@/lib/printPdf";
 
 interface Props {
   brief: DesignBrief | null;
@@ -32,30 +33,23 @@ export function BriefPdfPreviewDialog({ brief, open, onOpenChange, autoPrint, ow
   React.useEffect(() => { if (open) setZoom(1); }, [open]);
 
   const triggerPrint = React.useCallback(() => {
-    document.body.classList.add("printing-brief");
-    const cleanup = () => {
-      document.body.classList.remove("printing-brief");
-      window.removeEventListener("afterprint", cleanup);
-    };
-    window.addEventListener("afterprint", cleanup);
-    // Two RAFs + small delay so the DOM/portal & class are applied before print.
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        window.setTimeout(() => window.print(), 250);
-      });
+    runPrintToPdf({
+      bodyClass: "printing-brief",
+      successMessage: "ส่งออก PDF สำเร็จ",
     });
   }, []);
 
   React.useEffect(() => {
     if (!open || !autoPrint || !brief) return;
-    const handleAfter = () => onOpenChange(false);
-    window.addEventListener("afterprint", handleAfter);
-    const t = window.setTimeout(triggerPrint, 250);
-    return () => {
-      window.removeEventListener("afterprint", handleAfter);
-      window.clearTimeout(t);
-    };
-  }, [open, autoPrint, brief, triggerPrint, onOpenChange]);
+    const t = window.setTimeout(() => {
+      runPrintToPdf({
+        bodyClass: "printing-brief",
+        successMessage: "ส่งออก PDF สำเร็จ",
+        onAfterPrint: () => onOpenChange(false),
+      });
+    }, 300);
+    return () => window.clearTimeout(t);
+  }, [open, autoPrint, brief, onOpenChange]);
 
   if (!brief) return null;
 

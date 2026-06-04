@@ -2,6 +2,7 @@ import * as React from "react";
 import { GripVertical } from "lucide-react";
 import { FloatingChat } from "@/components/FloatingChat";
 import { SupportFab } from "@/components/support/SupportFab";
+import { DASH_MOBILE_NAV_SPACER_PX } from "@/lib/layoutConstants";
 
 type DockPos = { x: number; y: number };
 
@@ -46,8 +47,11 @@ function defaultPos(): DockPos {
   if (typeof window === "undefined") return { x: 0, y: 0 };
   const w = window.innerWidth;
   const h = window.innerHeight;
-  // Bottom right, above bottom-nav (mobile 64px) + safe area
-  const bottomOffset = 96;
+  // Above mobile bottom nav (64px) + safe-area; extra margin on narrow viewports
+  const bottomOffset =
+    typeof window !== "undefined" && window.innerWidth < 768
+      ? DASH_MOBILE_NAV_SPACER_PX + 48
+      : 24;
   return {
     x: w - DOCK_WIDTH - MARGIN,
     y: h - DOCK_HEIGHT - bottomOffset,

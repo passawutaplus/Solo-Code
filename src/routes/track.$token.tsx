@@ -1,6 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { RouteError } from "@/components/RouteError";
 import * as React from "react";
+import { createPortal } from "react-dom";
+import { runPrintToPdf } from "@/lib/printPdf";
 import { LineHeaderButton } from "@/components/LineContactButton";
 import { getPublicTrackingJob, submitTrackingSlip, deleteTrackingSlip, replaceTrackingSlip } from "@/server/track.functions";
 import { Button } from "@/components/ui/button";
@@ -848,17 +850,135 @@ function QuotationCard({ q, job }: { q: PublicQuotation; job: Job }) {
   );
 }
 
+function TrackQuotationPrintBody({
+  q,
+  job,
+  itemsSubtotal,
+}: {
+  q: PublicQuotation;
+  job: Job;
+  itemsSubtotal: number;
+}) {
+  return (
+    <div id="quotation-print-area" className="px-6 pb-6 sm:px-10 sm:pb-10">
+      <div className="border-b-2 border-orange-500 pb-4 mb-4 flex items-start justify-between">
+        <div>
+          <h2 className="text-2xl font-bold text-orange-600">ใบเสนอราคา</h2>
+          <p className="text-xs text-muted-foreground mt-1">QUOTATION</p>
+        </div>
+        <div className="text-right text-xs">
+          <p className="font-mono font-semibold">{q.number}</p>
+          {q.start_date && (
+            <p className="text-muted-foreground mt-1">
+              วันที่: {new Date(q.start_date).toLocaleDateString("th-TH")}
+            </p>
+          )}
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4 mb-5 text-xs">
+        <div>
+          <p className="font-semibold text-muted-foreground uppercase text-[10px] tracking-wider mb-1">
+            โครงการ
+          </p>
+          <p className="text-sm font-medium">{q.project_name || "—"}</p>
+        </div>
+        <div>
+          <p className="font-semibold text-muted-foreground uppercase text-[10px] tracking-wider mb-1">
+            ลูกค้า
+          </p>
+          <p className="text-sm font-medium">{job.client_name || "—"}</p>
+        </div>
+      </div>
+
+      <table className="w-full text-sm border-collapse mb-5">
+        <thead>
+          <tr className="bg-orange-50 text-orange-700 text-xs">
+            <th className="text-left font-semibold py-2 px-3 border border-orange-200">รายการ</th>
+            <th className="text-center font-semibold py-2 px-3 border border-orange-200 w-16">จำนวน</th>
+            <th className="text-right font-semibold py-2 px-3 border border-orange-200 w-28">ราคา/หน่วย</th>
+            <th className="text-right font-semibold py-2 px-3 border border-orange-200 w-28">รวม</th>
+          </tr>
+        </thead>
+        <tbody>
+          {q.items.map((it, i) => (
+            <tr key={i}>
+              <td className="py-2 px-3 border border-orange-100">{it.name || `รายการ ${i + 1}`}</td>
+              <td className="py-2 px-3 border border-orange-100 text-center font-mono">
+                {it.quantity} {it.unit || ""}
+              </td>
+              <td className="py-2 px-3 border border-orange-100 text-right font-mono">
+                ฿{it.unitPrice.toLocaleString("th-TH")}
+              </td>
+              <td className="py-2 px-3 border border-orange-100 text-right font-mono">
+                ฿{(it.quantity * it.unitPrice).toLocaleString("th-TH")}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      <div className="ml-auto max-w-xs text-sm space-y-1">
+        <div className="flex justify-between">
+          <span className="text-muted-foreground">รวมรายการ</span>
+          <span className="font-mono">฿{itemsSubtotal.toLocaleString("th-TH")}</span>
+        </div>
+        {q.vat_enabled && q.totals.vatAmount > 0 && (
+          <div className="flex justify-between">
+            <span className="text-muted-foreground">VAT {q.vat_rate}%</span>
+            <span className="font-mono">฿{q.totals.vatAmount.toLocaleString("th-TH")}</span>
+          </div>
+        )}
+        {q.wht_enabled && q.totals.whtAmount > 0 && (
+          <div className="flex justify-between text-rose-600">
+            <span>หัก ณ ที่จ่าย {q.wht_rate}%</span>
+            <span className="font-mono">−฿{q.totals.whtAmount.toLocaleString("th-TH")}</span>
+          </div>
+        )}
+        <div className="flex justify-between text-orange-700 font-bold text-lg pt-2 border-t-2 border-orange-300">
+          <span>ยอดสุทธิ</span>
+          <span className="font-mono">฿{q.totals.grandTotal.toLocaleString("th-TH")}</span>
+        </div>
+        <div className="flex justify-between text-xs text-muted-foreground">
+          <span>มัดจำ ({q.deposit_percent}%)</span>
+          <span className="font-mono">฿{q.totals.depositAmount.toLocaleString("th-TH")}</span>
+        </div>
+      </div>
+
+      {(q.payment_terms || q.notes) && (
+        <div className="mt-6 pt-4 border-t border-orange-100 text-xs space-y-2">
+          {q.payment_terms && (
+            <div>
+              <p className="font-semibold text-orange-700 mb-1">เงื่อนไขการชำระ</p>
+              <p className="text-muted-foreground whitespace-pre-wrap">{q.payment_terms}</p>
+            </div>
+          )}
+          {q.notes && (
+            <div>
+              <p className="font-semibold text-orange-700 mb-1">หมายเหตุ</p>
+              <p className="text-muted-foreground whitespace-pre-wrap">{q.notes}</p>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function QuotationFullDialog({
   q, job, open, onOpenChange,
 }: { q: PublicQuotation; job: Job; open: boolean; onOpenChange: (o: boolean) => void }) {
   const itemsSubtotal = q.totals.itemsSubtotal ?? q.items.reduce((s, it) => s + it.quantity * it.unitPrice, 0);
+  const handlePrint = () => {
+    runPrintToPdf({ bodyClass: "printing-track", successMessage: "ส่งออก PDF สำเร็จ" });
+  };
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl max-h-[92vh] overflow-y-auto p-0">
         <DialogHeader className="px-5 pt-5 pb-2 print:hidden flex flex-row items-center justify-between space-y-0 gap-2">
           <DialogTitle className="text-sm">ใบเสนอราคาฉบับเต็ม · {q.number}</DialogTitle>
           <div className="flex items-center gap-2">
-            <Button size="sm" className="gap-1.5 bg-orange-600 hover:bg-orange-700" onClick={() => window.print()}>
+            <Button size="sm" className="gap-1.5 bg-orange-600 hover:bg-orange-700" onClick={handlePrint}>
               <Printer className="h-3.5 w-3.5" /> พิมพ์ / บันทึก PDF
             </Button>
             <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => onOpenChange(false)} aria-label="ปิด">
@@ -867,92 +987,17 @@ function QuotationFullDialog({
           </div>
         </DialogHeader>
 
-        <div id="quotation-print-area" className="px-6 pb-6 sm:px-10 sm:pb-10 print:px-0 print:pb-0">
-          <div className="border-b-2 border-orange-500 pb-4 mb-4 flex items-start justify-between">
-            <div>
-              <h2 className="text-2xl font-bold text-orange-600">ใบเสนอราคา</h2>
-              <p className="text-xs text-muted-foreground mt-1">QUOTATION</p>
-            </div>
-            <div className="text-right text-xs">
-              <p className="font-mono font-semibold">{q.number}</p>
-              {q.start_date && <p className="text-muted-foreground mt-1">วันที่: {new Date(q.start_date).toLocaleDateString("th-TH")}</p>}
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4 mb-5 text-xs">
-            <div>
-              <p className="font-semibold text-muted-foreground uppercase text-[10px] tracking-wider mb-1">โครงการ</p>
-              <p className="text-sm font-medium">{q.project_name || "—"}</p>
-            </div>
-            <div>
-              <p className="font-semibold text-muted-foreground uppercase text-[10px] tracking-wider mb-1">ลูกค้า</p>
-              <p className="text-sm font-medium">{job.client_name || "—"}</p>
-            </div>
-          </div>
-
-          <table className="w-full text-sm border-collapse mb-5">
-            <thead>
-              <tr className="bg-orange-50 text-orange-700 text-xs">
-                <th className="text-left font-semibold py-2 px-3 border border-orange-200">รายการ</th>
-                <th className="text-center font-semibold py-2 px-3 border border-orange-200 w-16">จำนวน</th>
-                <th className="text-right font-semibold py-2 px-3 border border-orange-200 w-28">ราคา/หน่วย</th>
-                <th className="text-right font-semibold py-2 px-3 border border-orange-200 w-28">รวม</th>
-              </tr>
-            </thead>
-            <tbody>
-              {q.items.map((it, i) => (
-                <tr key={i}>
-                  <td className="py-2 px-3 border border-orange-100">{it.name || `รายการ ${i + 1}`}</td>
-                  <td className="py-2 px-3 border border-orange-100 text-center font-mono">{it.quantity} {it.unit || ""}</td>
-                  <td className="py-2 px-3 border border-orange-100 text-right font-mono">฿{it.unitPrice.toLocaleString("th-TH")}</td>
-                  <td className="py-2 px-3 border border-orange-100 text-right font-mono">฿{(it.quantity * it.unitPrice).toLocaleString("th-TH")}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-
-          <div className="ml-auto max-w-xs text-sm space-y-1">
-            <div className="flex justify-between"><span className="text-muted-foreground">รวมรายการ</span><span className="font-mono">฿{itemsSubtotal.toLocaleString("th-TH")}</span></div>
-            {q.vat_enabled && q.totals.vatAmount > 0 && (
-              <div className="flex justify-between"><span className="text-muted-foreground">VAT {q.vat_rate}%</span><span className="font-mono">฿{q.totals.vatAmount.toLocaleString("th-TH")}</span></div>
-            )}
-            {q.wht_enabled && q.totals.whtAmount > 0 && (
-              <div className="flex justify-between text-rose-600"><span>หัก ณ ที่จ่าย {q.wht_rate}%</span><span className="font-mono">−฿{q.totals.whtAmount.toLocaleString("th-TH")}</span></div>
-            )}
-            <div className="flex justify-between text-orange-700 font-bold text-lg pt-2 border-t-2 border-orange-300">
-              <span>ยอดสุทธิ</span><span className="font-mono">฿{q.totals.grandTotal.toLocaleString("th-TH")}</span>
-            </div>
-            <div className="flex justify-between text-xs text-muted-foreground">
-              <span>มัดจำ ({q.deposit_percent}%)</span><span className="font-mono">฿{q.totals.depositAmount.toLocaleString("th-TH")}</span>
-            </div>
-          </div>
-
-          {(q.payment_terms || q.notes) && (
-            <div className="mt-6 pt-4 border-t border-orange-100 text-xs space-y-2">
-              {q.payment_terms && (
-                <div>
-                  <p className="font-semibold text-orange-700 mb-1">เงื่อนไขการชำระ</p>
-                  <p className="text-muted-foreground whitespace-pre-wrap">{q.payment_terms}</p>
-                </div>
-              )}
-              {q.notes && (
-                <div>
-                  <p className="font-semibold text-orange-700 mb-1">หมายเหตุ</p>
-                  <p className="text-muted-foreground whitespace-pre-wrap">{q.notes}</p>
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-
-        <style>{`
-          @media print {
-            body * { visibility: hidden !important; }
-            #quotation-print-area, #quotation-print-area * { visibility: visible !important; }
-            #quotation-print-area { position: absolute; left: 0; top: 0; width: 100%; }
-          }
-        `}</style>
+        <TrackQuotationPrintBody q={q} job={job} itemsSubtotal={itemsSubtotal} />
       </DialogContent>
+
+      {open &&
+        typeof document !== "undefined" &&
+        createPortal(
+          <div className="track-print-only">
+            <TrackQuotationPrintBody q={q} job={job} itemsSubtotal={itemsSubtotal} />
+          </div>,
+          document.body,
+        )}
     </Dialog>
   );
 }

@@ -17,6 +17,7 @@ import {
 import { ReferenceUploader } from "@/components/dashboard/briefs/ReferenceUploader";
 import { ConfirmBriefDialog } from "@/components/dashboard/briefs/ConfirmBriefDialog";
 import { BriefPdfTemplate } from "@/components/dashboard/briefs/BriefPdfTemplate";
+import { runPrintToPdf } from "@/lib/printPdf";
 import { RouteError } from "@/components/RouteError";
 
 export const Route = createFileRoute("/brief/$token")({
@@ -127,11 +128,7 @@ function PublicBriefPage() {
   };
 
   const exportPdf = () => {
-    document.body.classList.add("printing-brief");
-    setTimeout(() => {
-      window.print();
-      setTimeout(() => document.body.classList.remove("printing-brief"), 500);
-    }, 50);
+    runPrintToPdf({ bodyClass: "printing-brief", successMessage: "ส่งออก PDF สำเร็จ" });
   };
 
   return (

@@ -15,6 +15,7 @@ import { ShareTrackerDialog } from "./ShareTrackerDialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/auth/AuthProvider";
 import { toast } from "sonner";
+import { cssAboveMobileBottomNav, DASH_MOBILE_STICKY_ACTION_PX } from "@/lib/layoutConstants";
 
 interface Props {
   id: string;
@@ -248,7 +249,7 @@ export function QuotationEditor({ id, onBack }: Props) {
   });
 
   return (
-    <div className="space-y-3 pb-32 lg:pb-3" style={{ paddingBottom: "calc(8rem + env(safe-area-inset-bottom, 0px))" }}>
+    <div className="space-y-3 quotation-editor-root lg:pb-3">
       <StickyToolbar
         offsetTop={60}
         leading={
@@ -323,8 +324,11 @@ export function QuotationEditor({ id, onBack }: Props) {
 
       {/* Sticky bottom action bar — mobile only, ensures Download/Next-step always reachable */}
       <div
-        className="no-print lg:hidden fixed bottom-0 left-0 right-0 z-30 border-t border-border/60 bg-background/95 backdrop-blur px-3 py-2 flex items-center gap-2 shadow-[0_-4px_12px_-6px_rgba(0,0,0,0.15)]"
-        style={{ paddingBottom: "calc(0.5rem + env(safe-area-inset-bottom, 0px))" }}
+        className="no-print lg:hidden fixed inset-x-0 z-[45] border-t border-border/60 bg-background/95 backdrop-blur px-3 py-2 flex items-center gap-2 shadow-[0_-4px_12px_-6px_rgba(0,0,0,0.15)]"
+        style={{
+          bottom: cssAboveMobileBottomNav(0),
+          paddingBottom: "max(0.5rem, env(safe-area-inset-bottom, 0px))",
+        }}
       >
         {nextStep && (
           <Button
@@ -415,6 +419,8 @@ function Column({ title, children }: { title: string; children: React.ReactNode 
 function SwitchBtn({ active, onClick, icon, label }: { active: boolean; onClick: () => void; icon: React.ReactNode; label: string }) {
   return (
     <button
+      type="button"
+      data-compact-touch
       onClick={onClick}
       className={`flex flex-col items-center gap-0.5 rounded-lg py-1.5 text-[10px] font-medium transition-all ${
         active ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
@@ -463,8 +469,8 @@ function StepNav({
     <>
       {/* Mobile */}
       <div
-        className="no-print lg:hidden fixed right-3 z-40 flex gap-2"
-        style={{ bottom: "calc(4.5rem + env(safe-area-inset-bottom, 0px))" }}
+        className="no-print lg:hidden fixed right-3 z-[50] flex gap-2"
+        style={{ bottom: cssAboveMobileBottomNav(DASH_MOBILE_STICKY_ACTION_PX + 12) }}
       >
         <button
           onClick={() => mIdx > 0 && setMobileView(MOBILE_STEPS[mIdx - 1])}

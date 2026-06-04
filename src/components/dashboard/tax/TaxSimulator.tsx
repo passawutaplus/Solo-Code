@@ -396,29 +396,11 @@ export function TaxSimulator({ open, onOpenChange, currentIncome }: Props) {
     if (!reportRef.current) return;
     setExporting(true);
     try {
-      const [{ default: html2canvas }, { default: jsPDF }] = await Promise.all([
-        import("html2canvas"),
-        import("jspdf"),
-      ]);
-      const canvas = await html2canvas(reportRef.current, {
-        scale: 2,
-        backgroundColor: "#ffffff",
-        useCORS: true,
-      });
-      const imgData = canvas.toDataURL("image/png");
-      const pdf = new jsPDF({ orientation: "p", unit: "mm", format: "a4" });
-      const pageW = pdf.internal.pageSize.getWidth();
-      const pageH = pdf.internal.pageSize.getHeight();
-      const ratio = canvas.height / canvas.width;
-      let imgW = pageW - 16;
-      let imgH = imgW * ratio;
-      if (imgH > pageH - 16) {
-        imgH = pageH - 16;
-        imgW = imgH / ratio;
-      }
-      const x = (pageW - imgW) / 2;
-      pdf.addImage(imgData, "PNG", x, 8, imgW, imgH);
-      pdf.save(`tax-sandbox-${new Date().toISOString().slice(0, 10)}.pdf`);
+      const { exportElementToPdfA4 } = await import("@/lib/printPdf");
+      await exportElementToPdfA4(
+        reportRef.current,
+        `tax-sandbox-${new Date().toISOString().slice(0, 10)}.pdf`,
+      );
       toast.success("ดาวน์โหลด PDF เรียบร้อย");
     } catch (e) {
       toast.error("ส่งออก PDF ไม่สำเร็จ", {
@@ -898,7 +880,7 @@ export function TaxSimulator({ open, onOpenChange, currentIncome }: Props) {
 
           {/* RIGHT — Results */}
           <div className="space-y-3 lg:sticky lg:top-2 self-start">
-            <div ref={reportRef} className="space-y-3 bg-white p-1">
+            <div ref={reportRef} data-pdf-export-root className="space-y-3 bg-white p-1">
               <div className="rounded-2xl border-2 border-primary/30 bg-primary/5 p-5 text-center space-y-1">
                 <p className="text-xs text-muted-foreground">ภาษีที่ต้องชำระ (ประมาณการ)</p>
                 <p className="num text-4xl font-bold text-primary leading-none">

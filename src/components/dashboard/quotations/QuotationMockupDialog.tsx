@@ -1,4 +1,5 @@
 import * as React from "react";
+import { createPortal } from "react-dom";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -9,6 +10,7 @@ import { QuotationTimelineAppendix } from "./QuotationTimelineAppendix";
 import { BriefPdfTemplate } from "@/components/dashboard/briefs/BriefPdfTemplate";
 import { supabase } from "@/integrations/supabase/client";
 import { sanitizeBriefDesignDirection, type DesignBrief } from "@/lib/briefSchema";
+import { runPrintToPdf } from "@/lib/printPdf";
 import { useAuth } from "@/auth/AuthProvider";
 import type { Quotation, DocKind } from "@/store/quotations";
 
@@ -27,6 +29,54 @@ interface Props {
 
 // A4 portrait at 96dpi ≈ 1123px tall. Subtract a small printer margin buffer.
 const A4_PAGE_PX = 1100;
+
+function MockupPrintPayload({
+  q,
+  docKind,
+  includeTimeline,
+  includeBrief,
+  brief,
+  briefLoading,
+  briefError,
+}: {
+  q: Quotation;
+  docKind: DocKind;
+  includeTimeline: boolean;
+  includeBrief: boolean;
+  brief: DesignBrief | null;
+  briefLoading: boolean;
+  briefError: boolean;
+}) {
+  return (
+    <div className="mockup-print-root bg-white" style={{ width: "min(800px, 100%)" }}>
+      <div className="p-2">
+        <PreviewPanel q={q} docKind={docKind} />
+      </div>
+      {includeTimeline && (
+        <div className="quotation-print-appendix mt-6 border-t-4 border-dashed border-primary/30 pt-4">
+          <QuotationTimelineAppendix q={q} />
+        </div>
+      )}
+      {includeBrief && brief && (
+        <div className="quotation-print-appendix mt-6 border-t-4 border-dashed border-primary/30 pt-4">
+          <div style={{ padding: "32px 36px" }}>
+            <BriefPdfTemplate brief={brief} />
+          </div>
+        </div>
+      )}
+      {includeBrief && q.briefId && briefLoading && (
+        <div className="quotation-print-appendix mt-6 p-6 text-center text-xs text-muted-foreground">
+          กำลังโหลดใบบรีฟ...
+        </div>
+      )}
+      {includeBrief && q.briefId && briefError && (
+        <div className="quotation-print-appendix mt-6 p-6 text-center text-xs text-destructive">
+          โหลดใบบรีฟไม่สำเร็จ — PDF จะมีเฉพาะใบเสนอราคา
+        </div>
+      )}
+    </div>
+  );
+}
 
 export function QuotationMockupDialog({
   q,
@@ -120,35 +170,16 @@ export function QuotationMockupDialog({
 
   const runPrint = React.useCallback(
     (source: "auto" | "manual") => {
-      document.body.classList.add("printing-mockup");
-      let completed = false;
-      const cleanup = () => {
-        document.body.classList.remove("printing-mockup");
-        window.removeEventListener("afterprint", onAfter);
-      };
-      const onAfter = () => {
-        completed = true;
-        cleanup();
-        toast.success("ส่งออก PDF สำเร็จ", {
-          description: pageCount ? `เอกสารทั้งหมด ~${pageCount} หน้า` : undefined,
-        });
-        if (source === "auto") onOpenChange(false);
-      };
-      window.addEventListener("afterprint", onAfter);
-      window.setTimeout(() => {
-        try {
-          window.print();
-        } catch (err) {
-          cleanup();
-          toast.error("พิมพ์ PDF ไม่สำเร็จ", {
-            description: err instanceof Error ? err.message : "เบราว์เซอร์ไม่ตอบสนอง ลองอีกครั้ง",
-          });
-        }
-        // Safety: if afterprint never fires (some browsers when user cancels quickly)
-        window.setTimeout(() => {
-          if (!completed) cleanup();
-        }, 60000);
-      }, source === "auto" ? 300 : 200);
+      runPrintToPdf({
+        bodyClass: "printing-mockup",
+        showHint: source === "manual",
+        successMessage: pageCount
+          ? `ส่งออก PDF สำเร็จ (~${pageCount} หน้า)`
+          : "ส่งออก PDF สำเร็จ",
+        onAfterPrint: () => {
+          if (source === "auto") onOpenChange(false);
+        },
+      });
     },
     [onOpenChange, pageCount],
   );
@@ -225,46 +256,41 @@ export function QuotationMockupDialog({
         <div className="flex-1 overflow-auto bg-muted/40 p-6 flex justify-center items-start">
           <div
             ref={printRootRef}
-            data-mockup-print
-            className="mockup-print-root bg-white shadow-2xl rounded-sm origin-top transition-transform"
+            className="shadow-2xl rounded-sm origin-top transition-transform"
             style={{
               transform: `scale(${zoom})`,
               width: "min(800px, 100%)",
             }}
           >
-            <div className="p-2">
-              <PreviewPanel q={q} docKind={docKind} />
-            </div>
-
-            {/* Print-only appendices — preview shows them inline so user sees the bundle */}
-            {includeTimeline && (
-              <div className="quotation-print-appendix mt-6 border-t-4 border-dashed border-primary/30 pt-4">
-                <QuotationTimelineAppendix q={q} />
-              </div>
-            )}
-
-            {includeBrief && brief && (
-              <div className="quotation-print-appendix mt-6 border-t-4 border-dashed border-primary/30 pt-4">
-                <div style={{ padding: "32px 36px" }}>
-                  <BriefPdfTemplate brief={brief} />
-                </div>
-              </div>
-            )}
-
-            {includeBrief && q.briefId && briefLoading && (
-              <div className="quotation-print-appendix mt-6 p-6 text-center text-xs text-muted-foreground">
-                กำลังโหลดใบบรีฟ...
-              </div>
-            )}
-
-            {includeBrief && q.briefId && briefError && (
-              <div className="quotation-print-appendix mt-6 p-6 text-center text-xs text-destructive">
-                โหลดใบบรีฟไม่สำเร็จ — PDF จะมีเฉพาะใบเสนอราคา
-              </div>
-            )}
+            <MockupPrintPayload
+              q={q}
+              docKind={docKind}
+              includeTimeline={includeTimeline}
+              includeBrief={includeBrief}
+              brief={brief}
+              briefLoading={briefLoading}
+              briefError={briefError}
+            />
           </div>
         </div>
       </DialogContent>
+
+      {open &&
+        typeof document !== "undefined" &&
+        createPortal(
+          <div className="mockup-print-only">
+            <MockupPrintPayload
+              q={q}
+              docKind={docKind}
+              includeTimeline={includeTimeline}
+              includeBrief={includeBrief}
+              brief={brief}
+              briefLoading={briefLoading}
+              briefError={briefError}
+            />
+          </div>,
+          document.body,
+        )}
     </Dialog>
   );
 }

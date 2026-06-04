@@ -18,8 +18,32 @@
 - [ ] 1280×800 (laptop)
 - [ ] 1920×1080 (desktop)
 
+## Landing หน้าแรก (mockup redesign)
+
+- [ ] Hero 2 คอลัมน์: รูป + การ์ดล็อกอิน (OAuth + อีเมล) บน desktop / stack บนมือถือ
+- [ ] Quotation demo: แก้รายการ · VAT/WHT · ปุ่ม CTA ไป `/apply` หรือ `/dashboard?tab=finance&sub=quotations` (ไม่มี PDF บน landing)
+- [ ] Nav: ฟีเจอร์ · ราคา `#pricing` · Labs · เข้าสู่ระบบ
+- [ ] Pricing 3 แผนบนหน้าแรกตรงกับ `/pricing` (Free / Pro 249 / In-House 599)
+- [ ] Fair Price calculator ใน `<details>` เปิด/ปิดได้
+- [ ] Mentor chat scroll จาก Feature Assistant cards
+- [ ] Placeholder assets (hero, dashboard GIF) — แทนที่เมื่อมีไฟล์จริง
+
+## PDF / พิมพ์ (ทุกจุดที่ส่งออก)
+
+- [ ] **ใบเสนอราคา (แดชบอร์ด)** — Mockup dialog → บันทึก PDF → เนื้อหาครบ (ใบเสนอ + บรีฟ/ไทม์ไลน์ถ้าเลือก) หลายหน้าไม่ซ้ำ/ไม่ขาด
+- [ ] **Smart Brief (แดชบอร์ด)** — พรีวิว PDF → บันทึก PDF → หน้าปก + เนื้อหา
+- [ ] **บรีฟลูกค้า** `/brief/:token` → ดาวน์โหลด/พิมพ์ PDF
+- [ ] **ติดตามงาน** `/track/:token` → ดู PDF ใบเสนอราคาฉบับเต็ม → พิมพ์
+- [ ] **Tax Sandbox** — ส่งออก PDF (รายงานยาวหลายหน้าไม่ถูกตัด)
+- [ ] **iOS Safari** — เลือก «บันทึกเป็น PDF» ในกล่องพิมพ์ (มี toast แนะนำ)
+- [ ] **Android Chrome** — เลือกเป้าหมาย PDF / Save as PDF
+- [ ] โลโก้บนใบเสนอราคาแสดงใน PDF (ถ้าไม่ขึ้น ตรวจ CORS ที่ storage)
+
 ## Universal cross-platform (PWA)
 
+- [ ] ติดตั้ง PWA แล้วเปิดจากไอคอน (standalone) — safe-area ไม่ double-pad กับ browser chrome
+- [ ] iPhone: ติดตั้งผ่าน Safari เท่านั้น (Chrome iOS ไม่รองรับ Add to Home Screen)
+- [ ] แก้ใบเสนอราคาบนมือถือ: แถบ "บันทึก PDF" อยู่เหนือ BottomNav ไม่ถูกบัง
 - [ ] Touch targets ≥ 44×44
 - [ ] Important actions visible without hover (touch devices ไม่มี hover)
 - [ ] `env(safe-area-inset-*)` ทำงานบน iPhone notch / Dynamic Island

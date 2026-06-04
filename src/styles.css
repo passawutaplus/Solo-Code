@@ -322,10 +322,10 @@ body.dash-sidebar-gradient [data-sidebar="sidebar"] [data-sidebar="group-label"]
   @page { margin: 14mm; size: A4; }
 
   /* ─── Legacy quotation-only print (no mockup dialog, no brief) ─── */
-  body:not(.printing-brief):not(.printing-mockup) * { visibility: hidden !important; }
-  body:not(.printing-brief):not(.printing-mockup) #quotation-printable,
-  body:not(.printing-brief):not(.printing-mockup) #quotation-printable * { visibility: visible !important; }
-  body:not(.printing-brief):not(.printing-mockup) #quotation-printable {
+  body:not(.printing-brief):not(.printing-mockup):not(.printing-track) * { visibility: hidden !important; }
+  body:not(.printing-brief):not(.printing-mockup):not(.printing-track) #quotation-printable,
+  body:not(.printing-brief):not(.printing-mockup):not(.printing-track) #quotation-printable * { visibility: visible !important; }
+  body:not(.printing-brief):not(.printing-mockup):not(.printing-track) #quotation-printable {
     position: absolute !important;
     left: 0; top: 0;
     width: 100% !important;
@@ -338,32 +338,29 @@ body.dash-sidebar-gradient [data-sidebar="sidebar"] [data-sidebar="group-label"]
     color: #1f2937 !important;
     font-size: 11pt !important;
   }
-  body:not(.printing-brief):not(.printing-mockup) #quotation-printable .receipt-edge { display: none !important; }
-  body:not(.printing-brief):not(.printing-mockup) #quotation-printable > div > div { page-break-inside: avoid; }
+  body:not(.printing-brief):not(.printing-mockup):not(.printing-track) #quotation-printable .receipt-edge { display: none !important; }
+  body:not(.printing-brief):not(.printing-mockup):not(.printing-track) #quotation-printable > div > div { page-break-inside: avoid; }
 
-  /* ─── Mockup dialog print (quotation + optional brief / timeline) ───
-     Uses display:none on siblings instead of visibility+position:absolute,
-     because position:absolute breaks multi-page flow in Chrome/Edge:
-     the appendix pages (brief / timeline) get clipped or the first page
-     gets duplicated. display:none on everything except the mockup root
-     keeps the dialog content in normal flow so it paginates correctly. */
-  body.printing-mockup > *:not(:has(.mockup-print-root)) { display: none !important; }
-  body.printing-mockup .editor-inline-preview { display: none !important; }
+}
 
-  /* Within the dialog portal, strip dialog chrome (overlay, header, scroll
-     wrapper) so only the printable content remains in flow. */
-  body.printing-mockup [data-radix-dialog-overlay],
-  body.printing-mockup [data-state][data-side],
-  body.printing-mockup .dialog-no-print { display: none !important; }
+/* Quotation mockup — print payload portaled to <body> (no :has() — Safari-safe) */
+.mockup-print-only { display: none; }
 
-  /* Reset the dialog containers so they don't impose width / height / overflow
-     constraints that break pagination. */
-  body.printing-mockup [role="dialog"],
-  body.printing-mockup [role="dialog"] > *,
-  body.printing-mockup .mockup-print-root,
-  body.printing-mockup .mockup-print-root > * {
+@media print {
+  body.printing-mockup > *:not(.mockup-print-only) { display: none !important; }
+  body.printing-mockup .mockup-print-only {
+    display: block !important;
     position: static !important;
-    inset: auto !important;
+    width: 100% !important;
+    height: auto !important;
+    overflow: visible !important;
+    background: #fff !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  body.printing-mockup .mockup-print-only .mockup-print-root,
+  body.printing-mockup .mockup-print-only .mockup-print-root > * {
+    position: static !important;
     max-width: none !important;
     max-height: none !important;
     width: 100% !important;
@@ -377,13 +374,6 @@ body.dash-sidebar-gradient [data-sidebar="sidebar"] [data-sidebar="group-label"]
     padding: 0 !important;
     margin: 0 !important;
   }
-
-  /* Hide the dialog header (close button, zoom controls, title) when printing */
-  body.printing-mockup [role="dialog"] > header,
-  body.printing-mockup [role="dialog"] [data-radix-dialog-title],
-  body.printing-mockup [role="dialog"] button[aria-label] { display: none !important; }
-
-  /* The quotation block inside the mockup */
   body.printing-mockup #quotation-printable {
     box-shadow: none !important;
     border: none !important;
@@ -396,8 +386,6 @@ body.dash-sidebar-gradient [data-sidebar="sidebar"] [data-sidebar="group-label"]
   }
   body.printing-mockup #quotation-printable .receipt-edge { display: none !important; }
   body.printing-mockup #quotation-printable > div > div { page-break-inside: avoid; }
-
-  /* Each appendix starts on a fresh page */
   body.printing-mockup .quotation-print-appendix {
     display: block !important;
     page-break-before: always !important;
@@ -405,6 +393,28 @@ body.dash-sidebar-gradient [data-sidebar="sidebar"] [data-sidebar="group-label"]
     border: none !important;
     margin: 0 !important;
     padding: 0 !important;
+  }
+}
+
+/* Client track — full quotation dialog print */
+.track-print-only { display: none; }
+
+@media print {
+  body.printing-track > *:not(.track-print-only) { display: none !important; }
+  body.printing-track .track-print-only {
+    display: block !important;
+    position: static !important;
+    width: 100% !important;
+    height: auto !important;
+    overflow: visible !important;
+    background: #fff !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  body.printing-track #quotation-print-area {
+    box-shadow: none !important;
+    padding: 0 !important;
+    max-width: 100% !important;
   }
 }
 
@@ -771,6 +781,13 @@ body {
 .safe-x { padding-left: env(safe-area-inset-left); padding-right: env(safe-area-inset-right); }
 .safe-y { padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); }
 
+/* Mobile dashboard: scroll padding + fixed bars above BottomNav (64px + safe-area) */
+@media (max-width: 1023px) {
+  .quotation-editor-root {
+    padding-bottom: calc(4rem + 52px + 1rem + env(safe-area-inset-bottom, 0px));
+  }
+}
+
 /* iOS: prevent automatic zoom when focusing form fields (font-size must be >= 16px on mobile) */
 @media (max-width: 767px) {
   input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
@@ -782,9 +799,9 @@ body {
 
 /* Touch devices: enforce >= 44px hit targets per Apple/Google HIG */
 @media (pointer: coarse) {
-  button,
-  a[role="button"],
-  [role="button"],
+  button:not([data-compact-touch]),
+  a[role="button"]:not([data-compact-touch]),
+  [role="button"]:not([data-compact-touch]),
   input[type="button"],
   input[type="submit"],
   input[type="reset"] {
