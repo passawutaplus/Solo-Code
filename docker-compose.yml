@@ -25,7 +25,7 @@ services:
       STRIPE_LIVE_API_KEY: ${STRIPE_LIVE_API_KEY:-}
     restart: unless-stopped
 
-  # Optional: hot-reload dev server (port 8080 per Lovable config)
+  # Optional: hot-reload dev server
   dev:
     profiles: ["dev"]
     image: oven/bun:1.2

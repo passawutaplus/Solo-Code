@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { type StripeEnv, verifyWebhook, createStripeClient } from "@/lib/stripe.server";
 import { CREDITS_PER_PRICE } from "@/lib/stripe";
+import { syncAnthemFromSo1oUserFull } from "@/lib/ecosystemSync.server";
 
 let _supabase: SupabaseClient | null = null;
 function getSupabase(): SupabaseClient {
@@ -137,7 +138,9 @@ async function logPaymentNotification(opts: {
 }
 
 async function syncTier(userId: string) {
-  await getSupabase().rpc("sync_user_tier", { _user_id: userId });
+  const sb = getSupabase();
+  await sb.rpc("sync_user_tier", { _user_id: userId });
+  await syncAnthemFromSo1oUserFull(sb, userId);
 }
 
 async function handleSubscriptionUpsert(

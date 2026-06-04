@@ -16,19 +16,31 @@ export function getConnectionApiKey(env: StripeEnv): string {
     : getEnv("STRIPE_LIVE_API_KEY");
 }
 
-export function createStripeClient(env: StripeEnv): Stripe {
-  const connectionApiKey = getConnectionApiKey(env);
-  const lovableApiKey = getEnv("LOVABLE_API_KEY");
+function useDirectStripe(): boolean {
+  const flag = process.env.STRIPE_USE_DIRECT;
+  if (flag === "true" || flag === "1") return true;
+  if (flag === "false" || flag === "0") return false;
+  return !process.env.LOVABLE_API_KEY;
+}
 
-  return new Stripe(connectionApiKey, {
-    apiVersion: "2026-03-25.dahlia" as any,
+export function createStripeClient(env: StripeEnv): Stripe {
+  const secretKey = getConnectionApiKey(env);
+  const apiVersion = "2026-03-25.dahlia" as Stripe.LatestApiVersion;
+
+  if (useDirectStripe()) {
+    return new Stripe(secretKey, { apiVersion });
+  }
+
+  const lovableApiKey = getEnv("LOVABLE_API_KEY");
+  return new Stripe(secretKey, {
+    apiVersion,
     httpClient: Stripe.createFetchHttpClient((url, init) => {
       const gatewayUrl = url.toString().replace("https://api.stripe.com", GATEWAY_STRIPE_BASE);
       return fetch(gatewayUrl, {
         ...init,
         headers: {
           ...Object.fromEntries(new Headers(init?.headers).entries()),
-          "X-Connection-Api-Key": connectionApiKey,
+          "X-Connection-Api-Key": secretKey,
           "Lovable-API-Key": lovableApiKey,
         },
       });

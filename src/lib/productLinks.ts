@@ -1,3 +1,12 @@
 /** External products in the So1o ecosystem (not hosted in this app). */
-export const ANTHEM_SHOWCASE_URL = "https://anthem-freelancehub.lovable.app/";
+export const ANTHEM_SHOWCASE_URL =
+  (import.meta.env.VITE_ANTHEM_APP_URL as string | undefined) ?? "http://localhost:8081/";
+
 export const FREE_QUOTATION_URL = "https://freelance-invoice-taupe.vercel.app/";
+
+/**
+ * Target Supabase project for unified auth (Anthem backend per docs/schema-reorganize).
+ * Set VITE_SUPABASE_* in both apps to the same project when consolidating accounts.
+ */
+export const UNIFIED_SUPABASE_PROJECT_ID =
+  (import.meta.env.VITE_UNIFIED_SUPABASE_PROJECT_ID as string | undefined) ?? "";

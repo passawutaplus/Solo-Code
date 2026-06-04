@@ -36,11 +36,13 @@ export const PLANS: Plan[] = [
     monthly: 249,
     yearly: 2388,
     features: [
+      "ปลดล็อก So1o My Desk + an1hem บัญชีเดียวกัน",
       "Job Tracker ไม่จำกัด",
       "AI Mentor ขั้นสูงไม่จำกัด",
       "Content Planner + AI Assist",
       "Design Brief แบบมืออาชีพ",
       "Public Tracking Links ไม่จำกัด",
+      "โชว์เคส an1hem เต็มรูปแบบ (ฟีเจอร์ Pro กำลังขยาย)",
       "Export PDF + Custom Branding",
       "Priority Support",
     ],

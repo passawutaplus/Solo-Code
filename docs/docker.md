@@ -1,6 +1,6 @@
 # Docker
 
-รัน So1o Freelancer ใน container แบบ **Node SSR** (ไม่ใช่ Cloudflare Workers — production บน Lovable ยัง deploy แบบ Worker ได้ตามเดิม)
+รัน So1o Freelancer ใน container แบบ **Node SSR** (production บน VPS ใช้ `docker-compose.yml` ที่ root ของ monorepo — ดู `docs/deploy-vps.md`)
 
 ## ความต้องการ
 
@@ -35,8 +35,8 @@ docker compose --profile dev up dev
 ## สคริปต์ local (ไม่ใช้ Docker)
 
 ```bash
-npm run build:docker
-npm run start:docker
+npm run build          # same config as Docker (vite.docker.config.ts)
+npm run start:docker   # serve dist/server on :3000
 ```
 
 ## โครงสร้าง

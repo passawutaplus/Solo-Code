@@ -9,14 +9,14 @@ import { setResponseHeader, getRequest } from "@tanstack/react-start/server";
  * supported way to mutate the outgoing Response (mutating result.response.headers
  * does NOT work for streamed SSR responses).
  *
- * CSP whitelist: self + Google Fonts + Google Analytics/GTM + Supabase (Lovable Cloud).
+ * CSP whitelist: self + Google Fonts + GA + Supabase (+ optional VPS extra origins).
  */
 
 // CSP allowlist
 const SUPABASE_HOST = "https://*.supabase.co";
 const SUPABASE_WS = "wss://*.supabase.co";
-const LOVABLE_HOST = "https://*.lovable.app https://*.lovable-project.com";
-const LOVABLE_STORAGE = "https://storage.googleapis.com";
+const EXTRA_CONNECT = process.env.CSP_CONNECT_SRC_EXTRA ?? "";
+const EXTRA_FRAME_ANCESTORS = process.env.CSP_FRAME_ANCESTORS_EXTRA ?? "";
 const GOOGLE_FONTS_CSS = "https://fonts.googleapis.com";
 const GOOGLE_FONTS_FILES = "https://fonts.gstatic.com";
 const GA_HOSTS =
@@ -29,14 +29,12 @@ const CSP_DIRECTIVES = [
   `style-src 'self' 'unsafe-inline' ${GOOGLE_FONTS_CSS}`,
   `font-src 'self' data: ${GOOGLE_FONTS_FILES}`,
   `img-src 'self' data: blob: https:`,
-  `connect-src 'self' ${SUPABASE_HOST} ${SUPABASE_WS} ${LOVABLE_HOST} ${LOVABLE_STORAGE} ${GA_HOSTS}`,
-  `media-src 'self' blob: ${SUPABASE_HOST} ${LOVABLE_STORAGE}`,
+  `connect-src 'self' ${SUPABASE_HOST} ${SUPABASE_WS} ${EXTRA_CONNECT} ${GA_HOSTS}`.replace(/\s+/g, " ").trim(),
+  `media-src 'self' blob: ${SUPABASE_HOST}`,
   `object-src 'none'`,
   `base-uri 'self'`,
   `form-action 'self'`,
-  // Allow self + Lovable preview/editor/published origins to embed the app in an iframe.
-  // (Lovable's preview renders the app inside an iframe — `'none'` would refuse to connect.)
-  `frame-ancestors 'self' https://*.lovable.app https://*.lovable.dev https://*.lovableproject.com https://*.lovable-project.com https://lovable.dev`,
+  `frame-ancestors 'self' ${EXTRA_FRAME_ANCESTORS}`.replace(/\s+/g, " ").trim(),
   `frame-src 'self' https://www.youtube.com https://player.vimeo.com`,
   `upgrade-insecure-requests`,
 ].join("; ");

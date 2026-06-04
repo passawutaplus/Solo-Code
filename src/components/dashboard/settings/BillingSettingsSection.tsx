@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { useSubscription } from "@/hooks/useSubscription";
+import { ANTHEM_SHOWCASE_URL } from "@/lib/productLinks";
 import { createPortalSession } from "@/utils/payments.functions";
 import { getStripeEnvironment } from "@/lib/stripe";
 import { toast } from "sonner";
@@ -51,7 +52,16 @@ export function BillingSettingsSection() {
               แผนและการชำระเงิน
             </h3>
             <p className="text-xs text-muted-foreground mt-1">
-              จัดการ subscription, ใบแจ้งหนี้ และวิธีชำระเงิน
+              Pro ปลดล็อกทั้ง So1o My Desk และ{" "}
+              <a
+                href={ANTHEM_SHOWCASE_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary hover:underline font-medium"
+              >
+                an1hem
+              </a>{" "}
+              บัญชีเดียวกัน
             </p>
           </div>
           {isLoading ? (

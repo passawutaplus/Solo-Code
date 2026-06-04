@@ -2,15 +2,11 @@ import * as React from "react";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { lovable } from "@/integrations/lovable";
+import { signInWithOAuth } from "@/integrations/oauth";
 import { cn } from "@/lib/utils";
 
 async function handleOAuth(provider: "google" | "apple", redirectTo?: string) {
-  const result = await lovable.auth.signInWithOAuth(provider, {
-    redirect_uri:
-      redirectTo ??
-      (typeof window !== "undefined" ? window.location.origin + "/dashboard" : undefined),
-  });
+  const result = await signInWithOAuth(provider, { redirectTo });
   if (result.error) {
     toast.error(result.error.message || `เข้าสู่ระบบด้วย ${provider} ไม่สำเร็จ`);
   }

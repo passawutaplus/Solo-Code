@@ -11,6 +11,8 @@ import {
   Plus,
   Zap,
   Users,
+  LayoutGrid,
+  ExternalLink,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -22,6 +24,7 @@ import { useSubscription } from "@/hooks/useSubscription";
 import { createCheckoutSession, createPortalSession } from "@/utils/payments.functions";
 import { getStripeEnvironment, PRICE_IDS, CREDITS_PER_PRICE } from "@/lib/stripe";
 import { PLANS, type BillingCycle as Cycle } from "@/data/plans";
+import { ANTHEM_SHOWCASE_URL } from "@/lib/productLinks";
 
 export const Route = createFileRoute("/pricing")({
   head: () => ({
@@ -201,6 +204,41 @@ function PricingPage() {
               </code>{" "}
               ตอน checkout (ต้องใส่บัตรเครดิตเพื่อยืนยันตัวตน · ยกเลิกได้ทุกเมื่อ)
             </p>
+          </div>
+        </div>
+
+        {/* Ecosystem — one subscription, two apps */}
+        <div className="mb-10 max-w-3xl mx-auto rounded-2xl border border-primary/25 bg-gradient-to-br from-primary/10 via-card to-card p-5 sm:p-6 shadow-sm">
+          <div className="flex items-start gap-3">
+            <div className="shrink-0 rounded-xl bg-primary/15 p-2.5">
+              <LayoutGrid className="h-5 w-5 text-primary" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-[10px] uppercase tracking-wider font-semibold text-primary">
+                บัญชีเดียว · สมัครครั้งเดียว
+              </p>
+              <h2 className="mt-1 text-lg sm:text-xl font-bold tracking-tight">
+                So1o Pro ปลดล็อกทั้งหลังบ้านและ an1hem
+              </h2>
+              <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
+                <strong className="text-foreground font-medium">So1o Freelancer (My Desk)</strong> คือหลังบ้านสำหรับฟรีแลนซ์ —
+                ออกใบเสนอราคา จัดการลูกค้า การเงิน บันทึกงาน Brief และ Labs ·{" "}
+                <strong className="text-foreground font-medium">an1hem</strong> คือหน้าร้องโชว์ผลงานและรับงานจากชุมชน
+                ลงผลงานใน an1hem มีคนติดต่อจ้าง → ไปทำใบเสนอราคาที่ So1o · งานลูกค้าเสร็จที่หลังบ้าน → นำผลงานมาโพสต์ใน an1hem ต่อ
+              </p>
+              <p className="mt-2 text-xs text-muted-foreground">
+                เมื่อคุณสมัคร Pro ที่หน้านี้ สิทธิ์จะผูกกับบัญชีของคุณและใช้ได้ทั้งสองแอป (อนาคตจะเชื่อมข้อมูล การเงิน และฟีเจอร์ร่วมกันเพิ่มเติม)
+              </p>
+              <a
+                href={ANTHEM_SHOWCASE_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-3 inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
+              >
+                เปิด an1hem Showcase
+                <ExternalLink className="h-3.5 w-3.5" />
+              </a>
+            </div>
           </div>
         </div>
 
@@ -398,6 +436,22 @@ function PricingPage() {
                           <Loader2 className="h-4 w-4 animate-spin" />
                         ) : (
                           "จัดการ Subscription"
+                        )}
+                      </Button>
+                    ) : plan.id === "pro" ? (
+                      <Button
+                        onClick={() => handleCheckoutPlan("pro")}
+                        disabled={loadingId === "pro"}
+                        className={cn(
+                          "w-full",
+                          plan.highlighted &&
+                            "bg-gradient-to-r from-primary to-orange-400 text-white hover:opacity-90 border-0",
+                        )}
+                      >
+                        {loadingId === "pro" ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          plan.cta
                         )}
                       </Button>
                     ) : (

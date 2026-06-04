@@ -42,7 +42,7 @@ export function useSubscription() {
         supabase
           .from("profiles")
           .select("subscription_tier, subscription_seats")
-          .eq("id", userId!)
+          .eq("user_id", userId!)
           .maybeSingle(),
         supabase
           .from("user_credits")
@@ -84,7 +84,7 @@ export function useSubscription() {
       )
       .on(
         "postgres_changes",
-        { event: "UPDATE", schema: "public", table: "profiles", filter: `id=eq.${userId}` },
+        { event: "UPDATE", schema: "public", table: "profiles", filter: `user_id=eq.${userId}` },
         invalidate,
       )
       .subscribe();
