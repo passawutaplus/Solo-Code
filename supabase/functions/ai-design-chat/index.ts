@@ -1,7 +1,14 @@
 // So1o Mentor Chat — supports authenticated users AND anonymous guests (5/day each)
 // Streams the AI response back as Server-Sent Events so the client can render
-// tokens progressively and abort instantly.
+// tokens progressively and abort instantly. Uses Google Gemini directly.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+import {
+  defaultFastModel,
+  geminiGenerateText,
+  geminiStreamAsSo1oSse,
+  getGeminiApiKey,
+  GeminiError,
+} from "../_shared/gemini.ts";
 
 const ALLOWED_ORIGINS = [
   "https://solofreelancer.com",
@@ -44,8 +51,13 @@ Deno.serve(async (req) => {
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
     const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY")!;
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) return jsonResp(req, { error: "AI not configured" }, 500);
+    let geminiKey: string;
+    try {
+      geminiKey = getGeminiApiKey();
+    } catch {
+      return jsonResp(req, { error: "AI not configured" }, 500);
+    }
+    const geminiModel = defaultFastModel();
 
     const admin = createClient(SUPABASE_URL, SERVICE_KEY);
     const today = new Date().toISOString().slice(0, 10);
@@ -111,68 +123,61 @@ Deno.serve(async (req) => {
       userMsgWithContext = `[Price Guide ล่าสุด — งาน: ${jobType}, ${days} วัน, ความยาก: ${complexity}, แนะนำ ฿${recommended} (ตลาด ฿${marketAvgMin}-฿${marketAvgMax})]\n\n${message}`;
     }
 
-    const aiResp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${LOVABLE_API_KEY}`, "Content-Type": "application/json" },
-      body: JSON.stringify({
-        model: "google/gemini-3.1-flash-lite-preview",
-        stream,
-        messages: [
-          { role: "system", content: SYSTEM_PROMPT },
-          ...historyMsgs,
-          { role: "user", content: userMsgWithContext },
-        ],
-      }),
-    });
-
-    if (aiResp.status === 429) return jsonResp(req, { error: "rate_limited" }, 429);
-    if (aiResp.status === 402) return jsonResp(req, { error: "ai_credits_exhausted" }, 402);
-    if (!aiResp.ok || !aiResp.body) {
-      const t = await aiResp.text().catch(() => "");
-      console.error("AI gateway error", aiResp.status, t);
-      return jsonResp(req, { error: "ai_error" }, 500);
-    }
+    const chatMessages = [
+      { role: "system" as const, content: SYSTEM_PROMPT },
+      ...historyMsgs.map((h) => ({
+        role: h.role === "assistant" ? ("assistant" as const) : ("user" as const),
+        content: h.content,
+      })),
+      { role: "user" as const, content: userMsgWithContext },
+    ];
 
     // ---- Non-streaming fallback ----
     if (!stream) {
-      const aiJson = await aiResp.json();
-      const reply = String(aiJson?.choices?.[0]?.message?.content ?? "").trim();
-      await persistAndBump(admin, { userId, guestKey, message, reply, usedToday, totalEver, today, ip });
-      return jsonResp(req, { reply, used: usedToday + 1, limit: effectiveLimit, guest: !userId });
+      try {
+        const reply = await geminiGenerateText(geminiKey, geminiModel, { messages: chatMessages });
+        await persistAndBump(admin, { userId, guestKey, message, reply, usedToday, totalEver, today, ip });
+        return jsonResp(req, { reply, used: usedToday + 1, limit: effectiveLimit, guest: !userId });
+      } catch (e) {
+        if (e instanceof GeminiError && e.status === 429) {
+          return jsonResp(req, { error: "rate_limited" }, 429);
+        }
+        console.error("gemini error", e);
+        return jsonResp(req, { error: "ai_error" }, 500);
+      }
     }
 
     // ---- SSE Streaming ----
     let fullReply = "";
     const encoder = new TextEncoder();
-    const decoder = new TextDecoder();
+    const geminiBody = geminiStreamAsSo1oSse(geminiKey, geminiModel, chatMessages);
 
     const out = new ReadableStream({
       async start(controller) {
-        // first line: meta event with quota
         controller.enqueue(encoder.encode(`event: meta\ndata: ${JSON.stringify({ used: usedToday + 1, limit: effectiveLimit })}\n\n`));
 
-        const reader = aiResp.body!.getReader();
-        let buffer = "";
+        const reader = geminiBody.getReader();
+        const decoder = new TextDecoder();
+        let sseBuffer = "";
         try {
           while (true) {
             const { value, done } = await reader.read();
             if (done) break;
-            buffer += decoder.decode(value, { stream: true });
-            const lines = buffer.split("\n");
-            buffer = lines.pop() ?? "";
+            controller.enqueue(value);
+            sseBuffer += decoder.decode(value, { stream: true });
+            const lines = sseBuffer.split("\n");
+            sseBuffer = lines.pop() ?? "";
             for (const line of lines) {
-              const trimmed = line.trim();
-              if (!trimmed.startsWith("data:")) continue;
-              const payload = trimmed.slice(5).trim();
-              if (payload === "[DONE]") continue;
+              if (!line.startsWith("data:")) continue;
+              const payload = line.slice(5).trim();
+              if (!payload) continue;
               try {
                 const j = JSON.parse(payload);
-                const delta = j?.choices?.[0]?.delta?.content ?? "";
-                if (delta) {
-                  fullReply += delta;
-                  controller.enqueue(encoder.encode(`data: ${JSON.stringify({ delta })}\n\n`));
-                }
-              } catch (_) { /* ignore parse errors */ }
+                const delta = j?.delta ?? "";
+                if (delta) fullReply += delta;
+              } catch {
+                /* ignore */
+              }
             }
           }
           controller.enqueue(encoder.encode(`event: done\ndata: ${JSON.stringify({ used: usedToday + 1, limit: effectiveLimit })}\n\n`));
@@ -180,7 +185,6 @@ Deno.serve(async (req) => {
           console.error("stream read error", e);
         } finally {
           controller.close();
-          // Persist whatever we got — even on abort
           // @ts-ignore EdgeRuntime exists in Supabase Edge runtime
           (globalThis.EdgeRuntime?.waitUntil ?? ((p: Promise<unknown>) => p))(
             persistAndBump(admin, { userId, guestKey, message, reply: fullReply, usedToday, totalEver, today, ip }),
@@ -188,7 +192,6 @@ Deno.serve(async (req) => {
         }
       },
       cancel() {
-        // client aborted — still persist partial
         // @ts-ignore
         (globalThis.EdgeRuntime?.waitUntil ?? ((p: Promise<unknown>) => p))(
           persistAndBump(admin, { userId, guestKey, message, reply: fullReply, usedToday, totalEver, today, ip }),

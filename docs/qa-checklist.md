@@ -25,15 +25,15 @@
 - [ ] **Track ใบเสนอราคาเต็ม** — ปุ่มพิมพ์ + ปิด ไม่ซ้อน X ซ้ำ
 - [ ] Dialog p-0 อื่นๆ (Supplier, WHT scan, Color Lab) — หัวข้อไม่ถูก X บัง
 
-## Landing หน้าแรก (mockup redesign)
+## Landing หน้าแรก
 
-- [ ] Hero 2 คอลัมน์: รูป + การ์ดล็อกอิน (OAuth + อีเมล) บน desktop / stack บนมือถือ
-- [ ] Quotation demo: แก้รายการ · VAT/WHT · ปุ่ม CTA ไป `/apply` หรือ `/dashboard?tab=finance&sub=quotations` (ไม่มี PDF บน landing)
-- [ ] Nav: ฟีเจอร์ · ราคา `#pricing` · Labs · เข้าสู่ระบบ
-- [ ] Pricing 3 แผนบนหน้าแรกตรงกับ `/pricing` (Free / Pro 249 / In-House 599)
-- [ ] Fair Price calculator ใน `<details>` เปิด/ปิดได้
-- [ ] Mentor chat scroll จาก Feature Assistant cards
-- [ ] Placeholder assets (hero, dashboard GIF) — แทนที่เมื่อมีไฟล์จริง
+- [ ] Nav: logo · theme toggle · เมนูมือถือ (sheet) · ลิงก์เข้าสู่ระบบ / แดชบอร์ด
+- [ ] Hero: ข้อความหลัก · progress Early Access · CTA ไป `/auth` หรือ `/dashboard`
+- [ ] Fair Price calculator แสดงบนหน้า (ไม่ซ่อนใน accordion)
+- [ ] ลิงก์ใบเสนอราคาฟรี / an1hem Showcase ทำงาน
+- [ ] AI Mentor chat โหลดและส่งข้อความได้ (แขก/ล็อกอิน)
+- [ ] Blog insights + footer minimal
+- [ ] หน้า `/pricing` แผนราคาตรงกับ `src/data/plans.ts` (แยกจาก landing)
 
 ## PDF / พิมพ์ (ทุกจุดที่ส่งออก)
 

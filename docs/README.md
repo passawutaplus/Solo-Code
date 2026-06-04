@@ -22,6 +22,7 @@
 | [`test-accounts.md`](./test-accounts.md) | QA / Pentester | Role matrix + credentials placeholder |
 | [`e2e-playwright.md`](./e2e-playwright.md) | QA | วิธีรัน Playwright |
 | [`docker.md`](./docker.md) | Dev / Ops | รันใน Docker (production SSR) |
+| [`ai-gemini.md`](./ai-gemini.md) | Dev / Ops | ตั้งค่า Gemini + deploy Edge Functions |
 
 ## ⚡ Quick start (dev)
 
@@ -37,9 +38,9 @@ bun run test       # vitest (unit)
 - **Framework:** TanStack Start v1 (React 19, Vite 7, SSR-capable, Cloudflare Worker target)
 - **State:** Server → React Query · Client → Zustand · Forms → Zod
 - **Styling:** Tailwind v4 (`src/styles.css`) + shadcn/ui + Lucide
-- **Backend:** Lovable Cloud (Supabase managed) — schema `public`
-- **AI:** Lovable AI Gateway (default `google/gemini-3.1-flash-lite-preview`)
-- **Auth:** Supabase Auth (email/password + Google OAuth via Lovable broker)
+- **Backend:** Supabase (Postgres + Auth + Storage + Edge Functions)
+- **AI:** Google Gemini (`GEMINI_API_KEY`) — Edge Functions + TanStack server functions
+- **Auth:** Supabase Auth (email/password + Google OAuth)
 
 ## 🔒 Sensitive boundaries
 

@@ -110,8 +110,6 @@ export const chatWithAgent = createServerFn({ method: "POST" })
     const { supabase, userId } = context as { supabase: any; userId: string };
     await assertAdmin(supabase, userId);
 
-    const apiKey = process.env.LOVABLE_API_KEY;
-    if (!apiKey) throw new Error("LOVABLE_API_KEY not configured");
 
     // Load agent
     const { data: agent, error: agentErr } = await supabase
@@ -166,33 +164,17 @@ export const chatWithAgent = createServerFn({ method: "POST" })
       { role: "user", content: data.message },
     ];
 
-    // Call Lovable AI Gateway
-    const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: agent.model,
-        messages,
-        temperature: Number(agent.temperature) || 0.7,
-        max_completion_tokens: agent.max_tokens || 1200,
-      }),
+    const { geminiChat, normalizeGeminiModel } = await import("@/lib/geminiServer");
+    const { text: reply } = await geminiChat({
+      model: normalizeGeminiModel(agent.model as string),
+      messages: messages.map((m) => ({
+        role: m.role as "system" | "user" | "assistant",
+        content: m.content as string,
+      })),
+      temperature: Number(agent.temperature) || 0.7,
+      maxOutputTokens: Number(agent.max_tokens) || 1200,
     });
-
-    if (!res.ok) {
-      const txt = await res.text().catch(() => "");
-      if (res.status === 429)
-        throw new Error("AI ใช้งานหนาแน่นเกินไป กรุณาลองใหม่อีกครั้ง");
-      if (res.status === 402)
-        throw new Error("เครดิต AI หมด กรุณาเติมที่ Lovable Cloud");
-      throw new Error(`AI ไม่ตอบสนอง (${res.status}) ${txt.slice(0, 120)}`);
-    }
-
-    const json = await res.json();
-    const reply: string = json?.choices?.[0]?.message?.content ?? "";
-    const tokensUsed: number = json?.usage?.total_tokens ?? 0;
+    const tokensUsed = 0;
 
     // Insert assistant message
     const { data: assistantMsg, error: msgErr } = await supabase

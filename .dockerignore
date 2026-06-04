@@ -20,4 +20,3 @@ playwright-report
 !docs/**/*.md
 agent-transcripts
 assets
-src/assets/landing/hero-mockup-reference.png

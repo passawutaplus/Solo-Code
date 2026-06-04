@@ -74,7 +74,7 @@ export function FloatingChat({ inline = false }: { inline?: boolean } = {}) {
     setBody("");
     try {
       const { data, error } = await supabase.functions.invoke("ai-design-chat", {
-        body: { message: text },
+        body: { message: text, stream: false },
       });
       if (error) {
         // Try to extract structured error

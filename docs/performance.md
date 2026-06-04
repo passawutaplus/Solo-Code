@@ -66,7 +66,7 @@ function MyPage() { ... }  // ✅ split อัตโนมัติ
 
 ## AI cost control
 
-- Default model: `google/gemini-3.1-flash-lite-preview`
+- Default model: `gemini-2.0-flash-lite` (override via `GEMINI_MODEL_FAST` / `GEMINI_MODEL`)
 - คำตอบ AI cap ที่ 800 คำ/ครั้ง
 - Context caching เปิดเมื่อ > 32k tokens
 - ใช้ `supabase/functions/_shared/ai-quota.ts` คุม rate limit

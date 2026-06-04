@@ -1,6 +1,7 @@
-// Lovable AI Gateway — caption + hashtag generation for Content Planner 2.0
+// Google Gemini — caption + hashtag generation for Content Planner 2.0
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 import { checkAiQuota, isProUser } from "../_shared/ai-quota.ts";
+import { defaultFastModel, geminiGenerateText, getGeminiApiKey, GeminiError } from "../_shared/gemini.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -19,7 +20,6 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    // Require an authenticated Supabase user — prevents anonymous AI credit abuse.
     const authHeader = req.headers.get("Authorization");
     if (!authHeader || authHeader.endsWith("undefined") || authHeader.endsWith("null")) {
       return new Response(JSON.stringify({ error: "unauthorized" }), {
@@ -47,7 +47,6 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Daily quota guard (Denial-of-Wallet protection)
     const pro = await isProUser(u.user.id);
     const quota = await checkAiQuota(u.user.id, "planner_ai_assist", pro);
     if (!quota.allowed) {
@@ -61,8 +60,7 @@ Deno.serve(async (req) => {
     }
 
     const body: Body = await req.json();
-    const apiKey = Deno.env.get("LOVABLE_API_KEY");
-    if (!apiKey) throw new Error("LOVABLE_API_KEY not configured");
+    const geminiKey = getGeminiApiKey();
 
     const lang = body.language ?? "th";
     const platformList = (body.platforms ?? []).join(", ") || "general";
@@ -81,48 +79,26 @@ Deno.serve(async (req) => {
       userPrompt = `Topic: ${body.topic}\nMood: ${mood}\nPlatforms: ${platformList}\n\nReturn 10-12 mixed TH/EN hashtags as JSON: {"hashtags":["#tag1","#tag2",...]}`;
     }
 
-    const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "google/gemini-2.5-flash-lite",
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: userPrompt },
-        ],
-        response_format: { type: "json_object" },
-        max_tokens: 800,
-      }),
+    const content = await geminiGenerateText(geminiKey, defaultFastModel(), {
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: userPrompt },
+      ],
+      json: true,
+      maxOutputTokens: 800,
     });
-
-    if (res.status === 429) {
-      return new Response(JSON.stringify({ error: "ใช้งานบ่อยเกินไป รอสักครู่แล้วลองใหม่" }), {
-        status: 429,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-    if (res.status === 402) {
-      return new Response(JSON.stringify({ error: "เครดิต AI หมด กรุณาเติมเครดิตใน Workspace" }), {
-        status: 402,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-    if (!res.ok) {
-      const txt = await res.text();
-      throw new Error(`AI gateway error ${res.status}: ${txt}`);
-    }
-
-    const data = await res.json();
-    const content = data.choices?.[0]?.message?.content ?? "{}";
     const parsed = JSON.parse(content);
 
     return new Response(JSON.stringify(parsed), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e) {
+    if (e instanceof GeminiError && e.status === 429) {
+      return new Response(JSON.stringify({ error: "ใช้งานบ่อยเกินไป รอสักครู่แล้วลองใหม่" }), {
+        status: 429,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
     const msg = e instanceof Error ? e.message : String(e);
     console.error("planner-ai-assist error:", msg);
     return new Response(JSON.stringify({ error: "internal_error" }), {

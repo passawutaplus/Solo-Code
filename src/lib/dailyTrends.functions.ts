@@ -67,8 +67,7 @@ function todayISO(): string {
 }
 
 async function generateTrendsViaAI(): Promise<DailyTrendItem[]> {
-  const apiKey = process.env.LOVABLE_API_KEY;
-  if (!apiKey) return FALLBACK_TRENDS;
+  if (!process.env.GEMINI_API_KEY) return FALLBACK_TRENDS;
 
   const dateStr = new Date().toLocaleDateString("th-TH", { year: "numeric", month: "long", day: "numeric" });
   const systemPrompt = `คุณคือ Senior Art Director ที่อัปเดตเทรนด์ design/branding/AI tools รายวันสำหรับฟรีแลนซ์ไทย
@@ -84,26 +83,18 @@ async function generateTrendsViaAI(): Promise<DailyTrendItem[]> {
   const userPrompt = `วันที่ ${dateStr} — ขอเทรนด์ design/AI tools ล่าสุดที่ฟรีแลนซ์ไทยควรรู้วันนี้ 6 หัวข้อ`;
 
   try {
-    const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Lovable-API-Key": apiKey,
-      },
-      body: JSON.stringify({
-        model: "google/gemini-3-flash-preview",
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: userPrompt },
-        ],
-        temperature: 0.8,
-      }),
+    const { geminiChat, defaultModel } = await import("@/lib/geminiServer");
+    const { text } = await geminiChat({
+      model: defaultModel(),
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: userPrompt },
+      ],
+      temperature: 0.8,
+      maxOutputTokens: 2048,
     });
-
-    if (!res.ok) return FALLBACK_TRENDS;
-    const data = await res.json();
-    const text: string = data?.choices?.[0]?.message?.content ?? "";
     const cleaned = text.replace(/```json\s*|\s*```/g, "").trim();
+    if (!cleaned) return FALLBACK_TRENDS;
     const start = cleaned.indexOf("[");
     const end = cleaned.lastIndexOf("]");
     if (start < 0 || end < 0) return FALLBACK_TRENDS;

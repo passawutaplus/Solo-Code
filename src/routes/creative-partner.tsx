@@ -99,7 +99,9 @@ function CreativePartnerPage() {
     setMessages((prev) => [...prev, { id: tempId, role: "user", content: text, created_at: new Date().toISOString() }]);
     setBody("");
     try {
-      const { data, error } = await supabase.functions.invoke("ai-design-chat", { body: { message: text } });
+      const { data, error } = await supabase.functions.invoke("ai-design-chat", {
+        body: { message: text, stream: false },
+      });
       if (error) {
         const msg = error.message ?? "ส่งไม่สำเร็จ";
         if (msg.includes("limit_reached") || msg.includes("429")) {

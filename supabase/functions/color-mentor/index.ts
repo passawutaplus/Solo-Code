@@ -1,9 +1,15 @@
 // Color Mentor — analyzes a hex color and returns complementary colors + mood
-// Uses Lovable AI Gateway with Gemini 3.1 Flash Lite for cost efficiency.
+// Uses Google Gemini directly.
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 import { checkAiQuota, isProUser } from "../_shared/ai-quota.ts";
+import {
+  defaultFastModel,
+  geminiGenerateWithFunction,
+  getGeminiApiKey,
+  GeminiError,
+} from "../_shared/gemini.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -16,7 +22,6 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    // Require an authenticated Supabase user — prevents anonymous AI credit abuse.
     const authHeader = req.headers.get("Authorization");
     if (!authHeader || authHeader.endsWith("undefined") || authHeader.endsWith("null")) {
       return new Response(JSON.stringify({ error: "unauthorized" }), {
@@ -44,7 +49,6 @@ serve(async (req) => {
       });
     }
 
-    // Daily quota guard (Denial-of-Wallet protection)
     const pro = await isProUser(u.user.id);
     const quota = await checkAiQuota(u.user.id, "color_mentor", pro);
     if (!quota.allowed) {
@@ -66,88 +70,46 @@ serve(async (req) => {
     }
     const normalized = hex.startsWith("#") ? hex.toUpperCase() : `#${hex.toUpperCase()}`;
 
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
-
+    const geminiKey = getGeminiApiKey();
     const systemPrompt = `คุณคือ "So1o Mentor" Senior Art Director ฟรีแลนซ์ไทย
 ผู้ใช้จะส่งรหัสสี HEX มาให้คุณวิเคราะห์
-ตอบกลับในรูปแบบ tool call เท่านั้น โดย:
+ตอบกลับในรูปแบบ function call เท่านั้น โดย:
 - complementary: 3 hex codes (รูปแบบ #RRGGBB) ที่จับคู่กับสีนี้แล้วงานดูดี ไม่ซ้ำกับสีเดิม
 - mood: 1 ประโยคสั้น ๆ บอกอารมณ์/ความรู้สึกของสีนี้ (≤ 30 คำ ภาษาไทย)
 - tip: 1 ประโยคแนะนำการใช้งานสำหรับฟรีแลนซ์ (≤ 30 คำ ภาษาไทย)
 ห้ามใส่อารัมภบท ห้ามตอบยาวเกิน`;
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "google/gemini-3.1-flash-lite-preview",
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: `วิเคราะห์สี ${normalized}` },
-        ],
-        tools: [
-          {
-            type: "function",
-            function: {
-              name: "color_mentor_reply",
-              description: "Return complementary colors, mood, and a usage tip.",
-              parameters: {
-                type: "object",
-                properties: {
-                  complementary: {
-                    type: "array",
-                    items: { type: "string", pattern: "^#[0-9A-Fa-f]{6}$" },
-                    minItems: 1,
-                    maxItems: 4,
-                  },
-                  mood: { type: "string", maxLength: 200 },
-                  tip: { type: "string", maxLength: 200 },
-                },
-                required: ["complementary", "mood", "tip"],
-                additionalProperties: false,
-              },
-            },
+    const parsed = await geminiGenerateWithFunction(geminiKey, defaultFastModel(), {
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: `วิเคราะห์สี ${normalized}` },
+      ],
+      functionName: "color_mentor_reply",
+      description: "Return complementary colors, mood, and a usage tip.",
+      functionSchema: {
+        type: "object",
+        properties: {
+          complementary: {
+            type: "array",
+            items: { type: "string" },
           },
-        ],
-        tool_choice: { type: "function", function: { name: "color_mentor_reply" } },
-      }),
+          mood: { type: "string" },
+          tip: { type: "string" },
+        },
+        required: ["complementary", "mood", "tip"],
+      },
     });
 
-    if (response.status === 429) {
+    return new Response(JSON.stringify(parsed), {
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  } catch (e) {
+    if (e instanceof GeminiError && e.status === 429) {
       return new Response(JSON.stringify({ error: "ใช้งาน AI บ่อยเกินไป กรุณารอสักครู่" }), {
         status: 429,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
-    if (response.status === 402) {
-      return new Response(JSON.stringify({ error: "เครดิต AI หมด — เติมเครดิตที่ Settings > Workspace > Usage" }), {
-        status: 402,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-    if (!response.ok) {
-      const t = await response.text();
-      console.error("AI gateway error:", response.status, t);
-      return new Response(JSON.stringify({ error: "AI gateway error" }), {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
-    const json = await response.json();
-    const toolCall = json?.choices?.[0]?.message?.tool_calls?.[0];
-    if (!toolCall?.function?.arguments) {
-      throw new Error("AI ไม่ได้ตอบกลับในรูปแบบที่ถูกต้อง");
-    }
-    const parsed = JSON.parse(toolCall.function.arguments);
-    return new Response(JSON.stringify(parsed), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
-  } catch (e) {
     console.error("color-mentor error:", e);
     return new Response(JSON.stringify({ error: "internal_error" }), {
       status: 500,

@@ -1,6 +1,7 @@
-// AI Price Suggest — Lovable AI reasoning + market band (with admin override + feedback weighting)
+// AI Price Suggest — Gemini reasoning + market band (with admin override + feedback weighting)
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 import { checkAiQuota, isProUser } from "../_shared/ai-quota.ts";
+import { defaultFastModel, geminiGenerateText, getGeminiApiKey } from "../_shared/gemini.ts";
 
 const ALLOWED_ORIGINS = [
   "https://solofreelancer.com",
@@ -35,7 +36,12 @@ Deno.serve(async (req) => {
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
     const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY")!;
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+    let geminiKey: string | null = null;
+    try {
+      geminiKey = getGeminiApiKey();
+    } catch {
+      geminiKey = null;
+    }
 
     const userClient = createClient(SUPABASE_URL, ANON_KEY, {
       global: { headers: { Authorization: authHeader } },
@@ -124,7 +130,7 @@ Deno.serve(async (req) => {
     let reasoning =
       "ราคานี้คำนวณจากเวลาทำงาน + ความยาก + ค่าเฉลี่ยตลาด เผื่อต่อนิดหน่อยให้ลูกค้าเลือกได้ครับ\nนี่เป็นเพียงคำแนะนำเบื้องต้น โปรดพิจารณาหน้างานจริงอีกครั้งนะครับ";
 
-    if (LOVABLE_API_KEY) {
+    if (geminiKey) {
       try {
         const userMsg = `งานประเภท: ${jobType}
 ระยะเวลา: ${days} วัน
@@ -136,25 +142,13 @@ Deno.serve(async (req) => {
 
 ช่วยอธิบายเหตุผลของราคาแนะนำให้ฟรีแลนซ์ฟัง สั้นๆ มั่นใจ`;
 
-        const aiResp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${LOVABLE_API_KEY}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            model: "google/gemini-3.1-flash-lite-preview",
-            messages: [
-              { role: "system", content: SYSTEM_PROMPT },
-              { role: "user", content: userMsg },
-            ],
-          }),
+        const r = await geminiGenerateText(geminiKey, defaultFastModel(), {
+          messages: [
+            { role: "system", content: SYSTEM_PROMPT },
+            { role: "user", content: userMsg },
+          ],
         });
-        if (aiResp.ok) {
-          const aiJson = await aiResp.json();
-          const r = String(aiJson?.choices?.[0]?.message?.content ?? "").trim();
-          if (r) reasoning = r;
-        }
+        if (r) reasoning = r;
       } catch (e) {
         console.error("ai reasoning error", e);
       }
