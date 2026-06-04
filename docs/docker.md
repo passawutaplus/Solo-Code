@@ -52,3 +52,35 @@ npm run start:docker   # serve dist/server on :3000
 
 - Server-only secrets (`SUPABASE_SERVICE_ROLE_KEY`, `GEMINI_API_KEY`, Stripe) อ่านตอน runtime ผ่าน `process.env` — ส่งผ่าน `environment` ใน compose ได้
 - Healthcheck: `GET /` ทุก 30 วินาที
+
+## Troubleshooting: build ล้มด้วย `JavaScript heap out of memory`
+
+ขั้น SSR ของ Vite (`building ssr environment`) ใช้ RAM สูงมาก บน droplet **1 GB** มักไม่พอแม้ client build จะผ่านแล้ว
+
+**วิธีที่ 1 — เพิ่ม swap บน VPS (แนะนำถ้ายัง build บนเครื่อง)**
+
+```bash
+sudo fallocate -l 2G /swapfile
+sudo chmod 600 /swapfile
+sudo mkswap /swapfile
+sudo swapon /swapfile
+echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
+free -h   # ควรเห็น Swap > 0
+cd ~/Solo-Code && docker compose build --no-cache app && docker compose up -d
+```
+
+**วิธีที่ 2 — build ที่เครื่อง RAM มากกว่า แล้วส่ง image ขึ้น server**
+
+```bash
+# บน laptop / CI
+docker compose build app
+docker save solo-code-app -o solo-code-app.tar
+scp solo-code-app.tar root@YOUR_SERVER:~
+# บน VPS
+docker load -i solo-code-app.tar
+docker compose up -d
+```
+
+**วิธีที่ 3 — อัปเกรด droplet เป็น 2 GB RAM** ถ้าไม่อยากพึ่ง swap
+
+`Dockerfile` ตั้ง `NODE_OPTIONS=--max-old-space-size=2048` ใน stage build แล้ว — ยังต้องมี RAM+swap รวมพออย่างน้อย ~2.5 GB ช่วง build
