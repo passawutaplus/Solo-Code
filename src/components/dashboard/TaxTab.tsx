@@ -4,28 +4,28 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { StatCard } from "./StatCard";
-import { AddIncomeModal, AddExpenseModal, EditExpenseButton } from "./Modals";
+import { AddExpenseModal, EditExpenseButton } from "./Modals";
 import { useFinance } from "@/store/finance";
-import { useQuotations, computeTotals } from "@/store/quotations";
-import { formatTHB, VAT_THRESHOLD } from "@/data/mockData";
-import { Download, Coins, Receipt, Calculator, AlertCircle, Sparkles, RefreshCw, Paperclip, Trash2 } from "lucide-react";
-import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, CartesianGrid } from "recharts";
+import { formatTHB } from "@/data/mockData";
+import { Download, Receipt, Calculator, AlertCircle, Sparkles, Paperclip, Trash2, FlaskConical, Coins, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
-import { escapeCSV } from "@/lib/security";
-const IncomeBreakdown = React.lazy(() =>
-  import("./tax/IncomeBreakdown").then((m) => ({ default: m.IncomeBreakdown })),
-);
-const WHTCertificates = React.lazy(() =>
-  import("./tax/WHTCertificates").then((m) => ({ default: m.WHTCertificates })),
-);
-import { estimateTax, calcLumpSumExpense } from "./tax/taxMath";
-import { DeductionsPanel, computeActiveDeductions } from "./tax/DeductionsPanel";
+import { FinanceMoneyNav, type FinanceMoneySub } from "./FinanceMoneyNav";
+import { useTaxEstimate } from "./tax/useTaxEstimate";
+import { exportIncomeCsv } from "./tax/exportIncomeCsv";
+import { DeductionsPanel } from "./tax/DeductionsPanel";
 import { TaxBracketGauge, AiTaxInsight } from "./tax/TaxBracketGauge";
 import { TaxDisclaimer, TaxFilingReminder } from "./tax/TaxDisclaimer";
 import { TaxSimulator } from "./tax/TaxSimulator";
-import { FlaskConical } from "lucide-react";
 
-export function TaxTab() {
+const WHTCertificates = React.lazy(() =>
+  import("./tax/WHTCertificates").then((m) => ({ default: m.WHTCertificates })),
+);
+
+type Props = {
+  onNavigate: (sub: FinanceMoneySub) => void;
+};
+
+export function TaxTab({ onNavigate }: Props) {
   const {
     incomes,
     workExpenses,
@@ -34,123 +34,25 @@ export function TaxTab() {
     deductionAmounts,
     expenseMethod,
     setExpenseMethod,
-    upsertIncomeFromQuotation,
   } = useFinance();
-  const { list: quotationsList } = useQuotations();
-  const [resyncing, setResyncing] = React.useState(false);
+  const {
+    est,
+    lumpSumPreview,
+    taxOwed,
+    refund,
+    vatPct,
+    totalWorkExp,
+    personalDeduction,
+    activeDeductions,
+  } = useTaxEstimate();
   const [simOpen, setSimOpen] = React.useState(false);
-
-  function handleResyncAll() {
-    const completed = quotationsList.filter((q) => q.status === "completed");
-    if (completed.length === 0) {
-      toast.info("ยังไม่มีใบเสนอราคาที่เสร็จสิ้น");
-      return;
-    }
-    setResyncing(true);
-    let count = 0;
-    for (const q of completed) {
-      const totals = computeTotals(q);
-      const monthSrc = q.paidAt || q.receiptIssuedAt || q.updatedAt || new Date().toISOString();
-      upsertIncomeFromQuotation({
-        sourceQuotationId: q.id,
-        month: monthSrc.slice(0, 7),
-        client: q.clientName || "ลูกค้า",
-        gross: totals.preTax,
-        withholding: totals.withholdingAmount,
-        incomeType: "freelance",
-        whtRate: q.whtEnabled ? q.whtRate : 0,
-        certificateReceived: false,
-        note: `จาก ${q.number}${q.invoiceNumber ? ` / ${q.invoiceNumber}` : ""}${q.receiptNumber ? ` / ${q.receiptNumber}` : ""}`,
-      });
-      count++;
-    }
-    setTimeout(() => setResyncing(false), 800);
-    toast.success(`กำลังซิงค์ ${count} ใบงานเข้าหมวดภาษี...`);
-  }
-
-  const totalWorkExp = workExpenses.reduce((s, i) => s + i.amount, 0);
-  const personalDeduction = 60000;
-  const activeDeductions = React.useMemo(
-    () => computeActiveDeductions(deductions, deductionAmounts),
-    [deductions, deductionAmounts],
-  );
-
-  const est = React.useMemo(
-    () =>
-      estimateTax({
-        incomes,
-        workExpensesTotal: totalWorkExp,
-        expenseMethod,
-        personalDeduction,
-        activeDeductions,
-      }),
-    [incomes, totalWorkExp, expenseMethod, activeDeductions],
-  );
-
-  const lumpSumPreview = React.useMemo(() => calcLumpSumExpense(incomes), [incomes]);
-  const taxOwed = Math.max(0, est.diff);
-  const refund = Math.max(0, -est.diff);
-  const vatPct = Math.min(100, (est.totalGross / VAT_THRESHOLD) * 100);
-
-  // monthly bar chart
-  const monthlyIncome = React.useMemo(() => {
-    const map: Record<string, number> = {};
-    for (const i of incomes) map[i.month] = (map[i.month] || 0) + i.gross;
-    return Object.entries(map)
-      .sort(([a], [b]) => a.localeCompare(b))
-      .slice(-6)
-      .map(([month, gross]) => ({
-        month: new Date(`${month}-01`).toLocaleDateString("th-TH", { month: "short" }),
-        gross,
-      }));
-  }, [incomes]);
-
-  function exportCSV() {
-    const headers = ["เดือน", "ลูกค้า", "ประเภท", "ยอด Gross", "อัตรา WHT", "หัก ณ ที่จ่าย", "เลขใบ 50ทวิ", "ได้รับใบ"];
-    const rows = incomes.map((i) => [
-      i.month,
-      i.client,
-      i.incomeType ?? "freelance",
-      i.gross,
-      `${i.whtRate ?? 3}%`,
-      i.withholding.toFixed(2),
-      i.certificateNo ?? "",
-      i.certificateReceived ? "Y" : "N",
-    ]);
-    const csv = [headers, ...rows].map((r) => r.map(escapeCSV).join(",")).join("\n");
-    const blob = new Blob([`\uFEFF${csv}`], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `income-summary-${new Date().getFullYear()}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
-    toast.success("ดาวน์โหลด CSV รายได้เรียบร้อย");
-  }
 
   const gaugeAngle = (vatPct / 100) * 180;
 
-  const completedCount = quotationsList.filter((q) => q.status === "completed").length;
-  const syncedCount = incomes.filter((i) => i.sourceQuotationId).length;
-  const outOfSync = completedCount > syncedCount;
-
   return (
     <div className="space-y-5">
-      <TaxDisclaimer />
-      <TaxFilingReminder />
-      {/* Header bar — sync status + actions */}
-      <div className="flex flex-wrap items-center justify-between gap-2 rounded-2xl glass border border-border p-3">
-        <div className="flex items-center gap-2 text-xs">
-          <Sparkles className="h-4 w-4 text-primary" />
-          <span className="text-muted-foreground">ซิงค์รายได้จากใบเสนอราคา:</span>
-          <span className="num font-semibold">{syncedCount}</span>
-          <span className="text-muted-foreground">/ {completedCount} ใบ</span>
-          {outOfSync && (
-            <Badge variant="outline" className="ml-1 bg-warning/15 text-warning-foreground border-warning/30 text-[10px]">
-              ไม่ตรงกัน
-            </Badge>
-          )}
-        </div>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <FinanceMoneyNav active="tax" onNavigate={onNavigate} />
         <div className="flex items-center gap-2">
           <Button
             onClick={() => setSimOpen(true)}
@@ -158,39 +60,45 @@ export function TaxTab() {
             className="gap-1.5 h-8 bg-primary hover:bg-primary/90"
             title="ทดลองวางแผนภาษีโดยไม่กระทบข้อมูลจริง"
           >
-            <FlaskConical className="h-3.5 w-3.5" /> โหมดจำลองวางแผนภาษี
-          </Button>
-          <Button
-            onClick={handleResyncAll}
-            variant="outline"
-            size="sm"
-            disabled={resyncing}
-            className="gap-1.5 h-8"
-            title="ดึงข้อมูลจากใบเสนอราคาที่เสร็จสิ้นทั้งหมดเข้าหมวดภาษีอีกครั้ง"
-          >
-            <RefreshCw className={`h-3.5 w-3.5 ${resyncing ? "animate-spin" : ""}`} />
-            Resync รายได้ทั้งหมด
-          </Button>
-          <Button onClick={exportCSV} variant="outline" size="sm" className="gap-1.5 h-8">
-            <Download className="h-3.5 w-3.5" /> CSV
+            <FlaskConical className="h-3.5 w-3.5" /> โหมดจำลอง
           </Button>
         </div>
       </div>
 
-      {/* KPIs */}
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard accent label="รายได้รวม (ปีนี้)" value={`฿${formatTHB(est.totalGross)}`} sub={`${incomes.length} ใบงาน`} icon={<Coins className="h-5 w-5" />} />
-        <StatCard label="หัก ณ ที่จ่ายสะสม" value={`฿${formatTHB(est.totalWithheld)}`} sub="ใช้เครดิตภาษี" icon={<Receipt className="h-5 w-5" />} />
+      <TaxDisclaimer />
+      <TaxFilingReminder />
+
+      <button
+        type="button"
+        onClick={() => onNavigate("income")}
+        className="w-full flex items-center justify-between gap-3 rounded-2xl glass border border-border px-4 py-3 text-left hover:border-primary/30 transition-colors"
+      >
+        <div className="flex items-center gap-2 min-w-0">
+          <Coins className="h-4 w-4 text-primary shrink-0" />
+          <div className="min-w-0">
+            <p className="text-xs text-muted-foreground">จากรายได้ที่บันทึก</p>
+            <p className="num text-sm font-semibold">
+              ฿{formatTHB(est.totalGross)} <span className="text-muted-foreground font-normal">({incomes.length} รายการ)</span>
+            </p>
+          </div>
+        </div>
+        <span className="inline-flex items-center gap-1 text-xs font-medium text-primary shrink-0">
+          จัดการรายได้ <ArrowRight className="h-3.5 w-3.5" />
+        </span>
+      </button>
+
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         <StatCard label="ภาษีประมาณการ" value={`฿${formatTHB(est.estimatedTax)}`} sub={`เงินได้สุทธิ ฿${formatTHB(est.netIncome)}`} icon={<Calculator className="h-5 w-5" />} />
         <StatCard
+          accent
           label={taxOwed > 0 ? "ต้องจ่ายเพิ่ม" : "ขอคืนได้"}
           value={`฿${formatTHB(Math.abs(est.diff))}`}
           sub={taxOwed > 0 ? "ยื่น ภงด.90/91" : "รอคืนภาษี"}
           icon={<AlertCircle className="h-5 w-5" />}
         />
+        <StatCard label="หัก ณ ที่จ่ายสะสม" value={`฿${formatTHB(est.totalWithheld)}`} sub="เครดิตภาษีจากรายได้" icon={<Receipt className="h-5 w-5" />} />
       </div>
 
-      {/* VAT gauge + Monthly income */}
       <div className="grid gap-4 lg:grid-cols-2">
         <Card className="animate-fade-up">
           <CardHeader className="pb-2">
@@ -203,13 +111,13 @@ export function TaxTab() {
                 <path
                   d="M 20 100 A 80 80 0 0 1 180 100"
                   fill="none"
-                  stroke="url(#g)"
+                  stroke="url(#taxGaugeGrad)"
                   strokeWidth="14"
                   strokeLinecap="round"
                   strokeDasharray={`${(gaugeAngle / 180) * 251} 251`}
                 />
                 <defs>
-                  <linearGradient id="g" x1="0" x2="1">
+                  <linearGradient id="taxGaugeGrad" x1="0" x2="1">
                     <stop offset="0" stopColor="oklch(0.7 0.15 65)" />
                     <stop offset="1" stopColor="var(--color-primary)" />
                   </linearGradient>
@@ -229,41 +137,11 @@ export function TaxTab() {
           </CardContent>
         </Card>
 
-        <Card className="animate-fade-up">
-          <CardHeader className="pb-2 flex flex-row items-center justify-between">
-            <CardTitle className="text-base">รายได้รายเดือน</CardTitle>
-            <AddIncomeModal />
-          </CardHeader>
-          <CardContent>
-            <div className="h-[180px]">
-              <ResponsiveContainer>
-                <BarChart data={monthlyIncome}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" vertical={false} />
-                  <XAxis dataKey="month" tick={{ fontSize: 11, fill: "var(--color-muted-foreground)" }} axisLine={false} tickLine={false} />
-                  <YAxis tick={{ fontSize: 10, fill: "var(--color-muted-foreground)" }} axisLine={false} tickLine={false} tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`} />
-                  <Tooltip
-                    contentStyle={{ borderRadius: 12, border: "1px solid var(--color-border)", background: "var(--color-card)" }}
-                    formatter={(v: number) => `฿${formatTHB(v)}`}
-                  />
-                  <Bar dataKey="gross" fill="var(--color-primary)" radius={[8, 8, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Income breakdown + WHT certs */}
-      <div className="grid gap-4 lg:grid-cols-2">
-        <React.Suspense fallback={<div className="h-64 animate-pulse rounded-xl bg-muted/40" />}>
-          <IncomeBreakdown />
-        </React.Suspense>
         <React.Suspense fallback={<div className="h-64 animate-pulse rounded-xl bg-muted/40" />}>
           <WHTCertificates />
         </React.Suspense>
       </div>
 
-      {/* Tax estimator + Work expenses + Method toggle */}
       <div className="grid gap-4 lg:grid-cols-3">
         <Card className="animate-fade-up border-border/60">
           <CardHeader className="pb-2 flex flex-row items-start justify-between gap-2">
@@ -279,11 +157,11 @@ export function TaxTab() {
           </CardHeader>
           <CardContent className="space-y-2">
             <p className="num text-xl font-semibold">฿{formatTHB(totalWorkExp)}</p>
-            <p className="text-[11px] text-muted-foreground mb-2">ใช้เมื่อเลือก "หักจริง" ในวิธีหักค่าใช้จ่าย</p>
+            <p className="text-[11px] text-muted-foreground mb-2">ใช้เมื่อเลือก &quot;หักจริง&quot; ในวิธีหักค่าใช้จ่าย</p>
             <div className="space-y-1 max-h-48 overflow-auto pr-1">
               {workExpenses.length === 0 && (
                 <p className="text-[11px] text-muted-foreground py-3 text-center border border-dashed border-border/60 rounded-lg">
-                  ยังไม่มีรายการ — กด "เพิ่มรายจ่าย" เพื่อเริ่มเก็บบิล
+                  ยังไม่มีรายการ — กด &quot;เพิ่มรายจ่าย&quot; เพื่อเริ่มเก็บบิล
                 </p>
               )}
               {workExpenses.map((w) => (
@@ -327,7 +205,6 @@ export function TaxTab() {
           </CardContent>
         </Card>
 
-
         <Card className="animate-fade-up border-border/60">
           <CardHeader className="pb-2">
             <CardTitle className="text-base flex items-center gap-2">
@@ -337,6 +214,7 @@ export function TaxTab() {
           <CardContent className="space-y-3">
             <div className="grid grid-cols-2 gap-2">
               <button
+                type="button"
                 onClick={() => setExpenseMethod("lumpsum")}
                 className={`rounded-xl border p-3 text-left transition-all ${
                   expenseMethod === "lumpsum"
@@ -348,6 +226,7 @@ export function TaxTab() {
                 <p className="num text-xs text-muted-foreground">฿{formatTHB(lumpSumPreview)}</p>
               </button>
               <button
+                type="button"
                 onClick={() => setExpenseMethod("actual")}
                 className={`rounded-xl border p-3 text-left transition-all ${
                   expenseMethod === "actual"
@@ -379,8 +258,8 @@ export function TaxTab() {
           <CardContent className="space-y-2">
             <Row label="รายได้รวม" value={`฿${formatTHB(est.totalGross)}`} />
             <Row label="− ค่าใช้จ่าย" value={`฿${formatTHB(est.expenseDeduction)}`} />
-            <Row label="− ลดหย่อนส่วนตัว" value={`฿${formatTHB(est.personalDeduction)}`} />
-            <Row label="− ลดหย่อนอื่น ๆ" value={`฿${formatTHB(est.activeDeductions)}`} />
+            <Row label="− ลดหย่อนส่วนตัว" value={`฿${formatTHB(personalDeduction)}`} />
+            <Row label="− ลดหย่อนอื่น ๆ" value={`฿${formatTHB(activeDeductions)}`} />
             <div className="border-t border-primary/20 pt-2 space-y-2">
               <Row label="เงินได้สุทธิ" value={`฿${formatTHB(est.netIncome)}`} bold />
               <TaxBracketGauge netIncome={est.netIncome} estimatedTax={est.estimatedTax} />
@@ -397,16 +276,15 @@ export function TaxTab() {
               />
             </div>
             <TaxDisclaimer compact />
-            <Button onClick={exportCSV} className="w-full gap-1.5 mt-2" size="sm">
+            <Button onClick={() => exportIncomeCsv(incomes)} variant="outline" className="w-full gap-1.5 mt-2" size="sm">
               <Download className="h-3.5 w-3.5" /> Export CSV (รายได้)
             </Button>
           </CardContent>
         </Card>
       </div>
 
-      {/* Deductions */}
       <DeductionsPanel totalIncome={est.totalGross} />
-      <GiveFeedbackButton feature="tax" label="ภาษีและรายได้" />
+      <GiveFeedbackButton feature="tax" label="ภาษี" />
       <TaxSimulator open={simOpen} onOpenChange={setSimOpen} currentIncome={est.totalGross} />
     </div>
   );

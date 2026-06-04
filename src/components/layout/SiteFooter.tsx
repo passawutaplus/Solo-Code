@@ -3,6 +3,7 @@ import { Mail } from "lucide-react";
 import { LineContactChip } from "@/components/LineContactButton";
 import { CookiePreferencesLink } from "@/components/CookiePreferencesLink";
 import logoUrl from "@/assets/solo-freelancer-logo.webp";
+import { ANTHEM_SHOWCASE_URL } from "@/lib/productLinks";
 
 type Variant = "full" | "minimal";
 
@@ -64,6 +65,11 @@ function FullFooter({ className }: { className?: string }) {
               <li><a href="/#features" className="hover:text-primary transition-colors">ฟีเจอร์ทั้งหมด</a></li>
               <li><Link to="/dashboard" className="hover:text-primary transition-colors">Dashboard</Link></li>
               <li><Link to="/labs" className="hover:text-primary transition-colors">Color Lab</Link></li>
+              <li>
+                <a href={ANTHEM_SHOWCASE_URL} target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">
+                  an1hem Showcase
+                </a>
+              </li>
             </ul>
           </div>
 

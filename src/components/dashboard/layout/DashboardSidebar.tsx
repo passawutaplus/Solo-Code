@@ -11,6 +11,7 @@ import {
   ListTodo,
   MessageSquare,
   Calculator,
+  Coins,
   CreditCard,
   Users,
   Truck,
@@ -19,6 +20,10 @@ import {
   Rocket,
   Sparkles,
   CheckCircle2,
+  ChevronRight,
+  Briefcase,
+  Wallet,
+  Database,
 } from "lucide-react";
 import {
   Sidebar,
@@ -26,13 +31,17 @@ import {
   SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
   useSidebar,
 } from "@/components/ui/sidebar";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { cn } from "@/lib/utils";
 import logoUrl from "@/assets/solo-freelancer-logo.webp";
 import { useSubscription } from "@/hooks/useSubscription";
 
@@ -50,14 +59,17 @@ interface NavLeaf {
   section: DashSection;
   sub?: string;
 }
+
 interface NavGroup {
   label: string;
+  icon: React.ComponentType<{ className?: string }>;
   items: NavLeaf[];
 }
 
 const GROUPS: NavGroup[] = [
   {
     label: "My Life",
+    icon: Compass,
     items: [
       { label: "ข่าวสาร & เทรนด์", icon: Newspaper, section: "trends" },
       { label: "Inspire", icon: Compass, section: "inspire" },
@@ -65,6 +77,7 @@ const GROUPS: NavGroup[] = [
   },
   {
     label: "Working",
+    icon: Briefcase,
     items: [
       { label: "Smart Brief", icon: Lightbulb, section: "planner", sub: "briefs" },
       { label: "Quotation", icon: FileText, section: "finance", sub: "quotations" },
@@ -73,6 +86,7 @@ const GROUPS: NavGroup[] = [
   },
   {
     label: "Planner",
+    icon: CalendarDays,
     items: [
       { label: "Content", icon: CalendarDays, section: "planner", sub: "content" },
       { label: "To Do List", icon: ListTodo, section: "planner", sub: "projects" },
@@ -80,14 +94,17 @@ const GROUPS: NavGroup[] = [
     ],
   },
   {
-    label: "Finance & Tax",
+    label: "การเงิน",
+    icon: Wallet,
     items: [
-      { label: "ภาษีและรายได้", icon: Calculator, section: "finance", sub: "tax" },
+      { label: "รายได้", icon: Coins, section: "finance", sub: "income" },
+      { label: "ภาษี", icon: Calculator, section: "finance", sub: "tax" },
       { label: "Subscription", icon: CreditCard, section: "finance", sub: "subs" },
     ],
   },
   {
     label: "My Data",
+    icon: Database,
     items: [
       { label: "Client", icon: Users, section: "mydata", sub: "clients" },
       { label: "Suppliers", icon: Truck, section: "mydata", sub: "suppliers" },
@@ -96,6 +113,11 @@ const GROUPS: NavGroup[] = [
   },
 ];
 
+const MENU_BTN =
+  "gap-2.5 text-white hover:bg-white/15 hover:text-white data-[active=true]:bg-white/25 data-[active=true]:text-white";
+
+const SUB_BTN =
+  "text-white/90 hover:bg-white/15 hover:text-white data-[active=true]:bg-white/20 data-[active=true]:text-white border-white/20";
 
 const SIDEBAR_STYLE = {
   "--sidebar-background": "transparent",
@@ -106,19 +128,115 @@ const SIDEBAR_STYLE = {
   "--sidebar-ring": "rgba(255,255,255,0.4)",
 } as React.CSSProperties;
 
+function groupHasActiveItem(
+  group: NavGroup,
+  active: DashSection,
+  activeSub?: string,
+): boolean {
+  return group.items.some(
+    (leaf) => active === leaf.section && (leaf.sub ? activeSub === leaf.sub : true),
+  );
+}
+
+function NavCollapsibleGroup({
+  group,
+  collapsed,
+  active,
+  activeSub,
+  setActive,
+}: {
+  group: NavGroup;
+  collapsed: boolean;
+  active: DashSection;
+  activeSub?: string;
+  setActive: (s: DashSection, sub?: string) => void;
+}) {
+  const hasActiveChild = groupHasActiveItem(group, active, activeSub);
+  const [open, setOpen] = React.useState(hasActiveChild);
+  const GroupIcon = group.icon;
+
+  React.useEffect(() => {
+    if (hasActiveChild) setOpen(true);
+  }, [hasActiveChild]);
+
+  const isLeafActive = (leaf: NavLeaf) =>
+    active === leaf.section && (leaf.sub ? activeSub === leaf.sub : true);
+
+  if (collapsed) {
+    const target = group.items.find((leaf) => isLeafActive(leaf)) ?? group.items[0];
+    return (
+      <SidebarMenuItem>
+        <SidebarMenuButton
+          isActive={hasActiveChild}
+          onClick={() => setActive(target.section, target.sub)}
+          tooltip={group.label}
+          className={MENU_BTN}
+        >
+          <GroupIcon className="h-4 w-4 shrink-0" />
+        </SidebarMenuButton>
+      </SidebarMenuItem>
+    );
+  }
+
+  return (
+    <Collapsible open={open} onOpenChange={setOpen} className="group/collapsible">
+      <SidebarMenuItem>
+        <CollapsibleTrigger asChild>
+          <SidebarMenuButton
+            isActive={hasActiveChild}
+            className={cn(MENU_BTN, "w-full")}
+            tooltip={group.label}
+          >
+            <GroupIcon className="h-4 w-4 shrink-0" />
+            <span className="text-xs font-medium truncate flex-1 text-left">{group.label}</span>
+            <ChevronRight
+              className={cn(
+                "h-3.5 w-3.5 shrink-0 text-white/70 transition-transform duration-200",
+                "group-data-[state=open]/collapsible:rotate-90",
+              )}
+            />
+          </SidebarMenuButton>
+        </CollapsibleTrigger>
+        <CollapsibleContent>
+          <SidebarMenuSub className="border-white/20 mx-0 translate-x-0 px-1">
+            {group.items.map((leaf) => {
+              const Icon = leaf.icon;
+              const activeLeaf = isLeafActive(leaf);
+              return (
+                <SidebarMenuSubItem key={leaf.label}>
+                  <SidebarMenuSubButton
+                    asChild
+                    size="sm"
+                    isActive={activeLeaf}
+                    className={SUB_BTN}
+                  >
+                    <button
+                      type="button"
+                      onClick={() => setActive(leaf.section, leaf.sub)}
+                      className="w-full"
+                    >
+                      <Icon className="h-3.5 w-3.5 shrink-0 opacity-80" />
+                      <span>{leaf.label}</span>
+                    </button>
+                  </SidebarMenuSubButton>
+                </SidebarMenuSubItem>
+              );
+            })}
+          </SidebarMenuSub>
+        </CollapsibleContent>
+      </SidebarMenuItem>
+    </Collapsible>
+  );
+}
+
 export function DashboardSidebar({ active, activeSub, setActive }: DashboardSidebarProps) {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
 
-  // Toggle a body class so the gradient also reaches the mobile Sheet drawer
-  // (which is rendered in a portal outside this component's DOM tree).
   React.useEffect(() => {
     document.body.classList.add("dash-sidebar-gradient");
     return () => document.body.classList.remove("dash-sidebar-gradient");
   }, []);
-
-  const isLeafActive = (leaf: NavLeaf) =>
-    active === leaf.section && (leaf.sub ? activeSub === leaf.sub : true);
 
   return (
     <Sidebar collapsible="icon" className="border-r-0" style={SIDEBAR_STYLE}>
@@ -138,8 +256,7 @@ export function DashboardSidebar({ active, activeSub, setActive }: DashboardSide
         </div>
       </SidebarHeader>
 
-      <SidebarContent className="gap-1">
-        {/* Dashboard — direct */}
+      <SidebarContent className="gap-0.5">
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
@@ -148,64 +265,38 @@ export function DashboardSidebar({ active, activeSub, setActive }: DashboardSide
                   isActive={active === "overview"}
                   onClick={() => setActive("overview")}
                   tooltip="Dashboard"
-                  className="gap-2.5 text-white hover:bg-white/15 hover:text-white data-[active=true]:bg-white/25 data-[active=true]:text-white"
+                  className={cn(MENU_BTN, "font-semibold")}
                 >
                   <LayoutDashboard className="h-4 w-4 shrink-0" />
-                  {!collapsed && <span className="text-xs font-semibold">Dashboard</span>}
+                  {!collapsed && <span className="text-xs">Dashboard</span>}
                 </SidebarMenuButton>
               </SidebarMenuItem>
+
+              {GROUPS.map((group) => (
+                <NavCollapsibleGroup
+                  key={group.label}
+                  group={group}
+                  collapsed={collapsed}
+                  active={active}
+                  activeSub={activeSub}
+                  setActive={setActive}
+                />
+              ))}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
-
-
-        {GROUPS.map((group) => (
-          <SidebarGroup key={group.label}>
-            {!collapsed && (
-              <SidebarGroupLabel className="text-white/75 uppercase tracking-wider text-[10px]">
-                {group.label}
-              </SidebarGroupLabel>
-            )}
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {group.items.map((leaf) => {
-                  const Icon = leaf.icon;
-                  const activeLeaf = isLeafActive(leaf);
-                  return (
-                    <SidebarMenuItem key={leaf.label}>
-                      <SidebarMenuButton
-                        isActive={activeLeaf}
-                        onClick={() => setActive(leaf.section, leaf.sub)}
-                        tooltip={leaf.label}
-                        className="gap-2.5 text-white hover:bg-white/15 hover:text-white data-[active=true]:bg-white/25 data-[active=true]:text-white"
-                      >
-                        <Icon className="h-4 w-4 shrink-0" />
-                        {!collapsed && (
-                          <span className="text-xs font-medium truncate">{leaf.label}</span>
-                        )}
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  );
-                })}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        ))}
       </SidebarContent>
 
       <SidebarFooter className="border-t border-white/15 gap-2">
-        {/* Pro Plan card — links to /pricing or shows Pro badge */}
         <ProPlanCard collapsed={collapsed} />
 
-
-        {/* Settings */}
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton
               isActive={active === "settings"}
               onClick={() => setActive("settings")}
               tooltip="Setting"
-              className="gap-2.5 text-white hover:bg-white/15 hover:text-white data-[active=true]:bg-white/25 data-[active=true]:text-white"
+              className={MENU_BTN}
             >
               <Settings className="h-4 w-4 shrink-0" />
               {!collapsed && <span className="text-xs font-medium">Setting</span>}

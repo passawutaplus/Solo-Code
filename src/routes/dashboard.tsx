@@ -87,7 +87,8 @@ const SUB_TITLES: Partial<Record<DashSection, Record<string, string>>> = {
   finance: {
     quotations: "Quotation",
     jobs: "Job Tracker",
-    tax: "ภาษีและรายได้",
+    income: "รายได้",
+    tax: "ภาษี",
     subs: "Subscription",
   },
   planner: {
@@ -216,7 +217,10 @@ function Dashboard() {
                     )}
                     {section === "finance" && (
                       <React.Suspense fallback={<FinanceSkeleton />}>
-                        <FinanceTab sub={(sub as any) ?? "quotations"} />
+                        <FinanceTab
+                          sub={(sub as any) ?? "quotations"}
+                          onMoneySubChange={(s) => updateSection("finance", s)}
+                        />
                       </React.Suspense>
                     )}
                     {section === "planner" && (

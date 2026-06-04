@@ -12,7 +12,7 @@ import {
   Sparkles,
   Users,
   FileText,
-  Wallet,
+  Coins,
   CalendarDays,
   MessageSquare,
   Receipt,
@@ -31,7 +31,9 @@ import {
   Menu,
   BookOpen,
   Mail,
+  LayoutGrid,
 } from "lucide-react";
+import { ANTHEM_SHOWCASE_URL, FREE_QUOTATION_URL } from "@/lib/productLinks";
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { NotificationBell } from "@/components/NotificationBell";
 import { LineHeaderButton, LineContactChip } from "@/components/LineContactButton";
@@ -59,7 +61,7 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "บริหารพอร์ต ลูกค้า ใบเสนอราคา การเงินและภาษี พร้อมฟีดผลงานสไตล์ Pinterest — ครบในที่เดียวสำหรับฟรีแลนซ์ไทย",
+          "หลังบ้านครบวงจรสำหรับฟรีแลนซ์ไทย — ลูกค้า ใบเสนอราคา การเงิน ภาษี Smart Brief และ Creative Labs",
       },
       { property: "og:title", content: "So1o Freelancer — หลังบ้านครบวงจรสำหรับฟรีแลนซ์" },
       {
@@ -117,8 +119,8 @@ const FEATURES = [
   { icon: Users, title: "Clients CRM", desc: "บันทึกประวัติการติดต่อ และรายละเอียดงาน เพื่อให้คุณดูแลลูกค้าได้อย่างมืออาชีพ" },
   { icon: Truck, title: "Suppliers Hub", desc: "รวมข้อมูล จัดเก็บเอกสาร PDF ตัวอย่างงาน และลิงก์อ้างอิง เพื่อให้ใช้งานได้อย่างรวดเร็ว" },
   { icon: FileText, title: "Quotations & Invoices", desc: "สร้างใบเสนอราคา และใบแจ้งหนี้ได้อย่างรวดเร็ว ลูกค้าได้ทันที เพิ่มความน่าเชื่อถือ" },
-  { icon: Wallet, title: "Finance Tracker", desc: "จดรายรับ-รายจ่าย ภาพรวมแบบเรียลไทม์ ช่วยให้คุณวางแผนการเงินได้แม่นยำขึ้น" },
-  { icon: Receipt, title: "Tax & WHT", desc: "จัดการภาษีฟรีแลนซ์อย่างเป็นระบบ คำนวณภาษี และจัดเก็บเอกสาร 50 ทวิ ในที่เดียว" },
+  { icon: Coins, title: "รายได้", desc: "ซิงค์รายได้จากใบเสนอราคา กราฟรายเดือน และส่งออก CSV — เชื่อมกับหน้าภาษีอัตโนมัติ" },
+  { icon: Receipt, title: "ภาษี & 50 ทวิ", desc: "ประมาณการภาษี หักเหมา/จริง ลดหย่อน ใบ 50 ทวิ และโหมดจำลองวางแผน" },
   { icon: MessageSquare, title: "Feedback Hub", desc: "จัดการ Feedback จากลูกค้าอย่างเป็นระบบ แยกเป็นรอบชัดเจน ลดความสับสน ไม่พลาด" },
   { icon: CalendarDays, title: "Content Planner", desc: "วางแผน จัดตารางงาน อย่างมีประสิทธิภาพ ช่วยให้บริหารการโพสต์โซเชียลได้ต่อเนื่อง" },
 ];
@@ -128,8 +130,6 @@ const STEPS = [
   { n: "02", t: "รับสิทธิ์ Tester", d: "เข้าใช้งานหลังบ้านได้ทันทีหลังตอบแบบฟอร์ม จำกัด 100 user แรก" },
   { n: "03", t: "ใช้งาน + ให้ฟีดแบ็ก", d: "ทดลองทุกฟีเจอร์ พร้อมรับสิทธิพิเศษเมื่อเปิดตัวจริง" },
 ];
-
-const FREE_QUOTATION_URL = "https://freelance-invoice-taupe.vercel.app/";
 
 function CalculatorSection({ remaining }: { remaining: number }) {
   return (
@@ -209,6 +209,7 @@ function Landing() {
           <nav className="hidden md:flex items-center gap-5 text-sm text-muted-foreground">
             <a href="#calculator" className="hover:text-foreground transition-colors">คำนวณราคา</a>
             <a href="#features" className="hover:text-foreground transition-colors">ฟีเจอร์</a>
+            <a href="#showcase" className="hover:text-foreground transition-colors">โชว์เคส</a>
             <a href="#how" className="hover:text-foreground transition-colors">วิธีใช้</a>
           </nav>
 
@@ -265,6 +266,17 @@ function Landing() {
                   </a>
                   <a href="#features" className="px-3 py-2.5 rounded-lg hover:bg-accent transition-colors flex items-center gap-2.5">
                     <Sparkles className="h-4 w-4 text-primary" /> ฟีเจอร์
+                  </a>
+                  <a href="#showcase" className="px-3 py-2.5 rounded-lg hover:bg-accent transition-colors flex items-center gap-2.5">
+                    <LayoutGrid className="h-4 w-4 text-primary" /> โชว์เคสผลงาน
+                  </a>
+                  <a
+                    href={ANTHEM_SHOWCASE_URL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-3 py-2.5 rounded-lg hover:bg-accent transition-colors flex items-center gap-2.5"
+                  >
+                    <ExternalLink className="h-4 w-4 text-primary" /> an1hem Showcase
                   </a>
                   <a href="#how" className="px-3 py-2.5 rounded-lg hover:bg-accent transition-colors flex items-center gap-2.5">
                     <ListChecks className="h-4 w-4 text-primary" /> วิธีใช้
@@ -355,6 +367,16 @@ function Landing() {
               <Sparkles className="h-4 w-4 text-primary" />
               So1o Creative Partner AI
             </Link>
+            <a
+              href={ANTHEM_SHOWCASE_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 rounded-full border-2 border-border bg-card/80 backdrop-blur text-foreground px-6 py-3 text-sm font-semibold shadow-soft hover:border-primary/40 hover:bg-card transition-all"
+            >
+              <LayoutGrid className="h-4 w-4 text-primary" />
+              โชว์เคสผลงาน an1hem
+              <ExternalLink className="h-3.5 w-3.5 opacity-60" />
+            </a>
           </div>
           <p className="mt-3 text-[11px] text-muted-foreground">
             ใช้งานฟรีไม่จำกัด แม้สมัครเป็นผู้ทดลองไม่ทัน — เราจะค่อยๆ อัปเดตฟีเจอร์ที่พร้อมแล้วให้ใช้ในอนาคต
@@ -401,6 +423,48 @@ function Landing() {
                 <p className="mt-1.5 text-sm text-muted-foreground leading-relaxed">{f.desc}</p>
               </div>
             ))}
+          </div>
+        </section>
+
+        {/* an1hem — external community showcase */}
+        <section id="showcase" className="mx-auto max-w-6xl px-4 pb-14 sm:pb-20">
+          <div className="rounded-3xl border border-border bg-gradient-to-br from-card via-card to-primary/5 p-6 sm:p-10 shadow-soft">
+            <div className="flex flex-col lg:flex-row lg:items-center gap-8">
+              <div className="flex-1 min-w-0">
+                <div className="inline-flex items-center gap-1.5 rounded-full border border-primary/25 bg-primary/10 px-3 py-1 text-[11px] font-semibold text-primary">
+                  <LayoutGrid className="h-3 w-3" /> ผลิตภัณฑ์แยกในระบบ So1o
+                </div>
+                <h3 className="mt-4 text-2xl sm:text-3xl font-bold tracking-tight">
+                  ฟีดผลงานชุมชนฟรีแลนซ์
+                  <span className="text-muted-foreground font-semibold"> สไตล์ Pinterest</span>
+                </h3>
+                <p className="mt-3 text-sm sm:text-base text-muted-foreground leading-relaxed max-w-xl">
+                  <strong className="text-foreground font-medium">an1hem</strong> คือแพลตฟอร์มโชว์เคสและค้นพบผลงานของครีเอทีฟ —
+                  ไม่ได้อยู่ใน My Desk แต่เชื่อมกับ ecosystem เดียวกัน โพสต์ผลงาน ดูแรงบันดาลใจ และเชื่อมกับชุมชนฟรีแลนซ์ไทย
+                </p>
+                <p className="mt-2 text-xs text-muted-foreground">
+                  So1o Freelancer = หลังบ้านงาน · an1hem = หน้าร้านโชว์ผลงาน
+                </p>
+              </div>
+              <div className="shrink-0 flex flex-col sm:flex-row lg:flex-col gap-3">
+                <a
+                  href={ANTHEM_SHOWCASE_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center gap-2 rounded-full bg-gradient-primary text-primary-foreground px-6 py-3 text-sm font-semibold shadow-elevated hover:opacity-90 transition-opacity"
+                >
+                  เปิด an1hem Showcase
+                  <ExternalLink className="h-4 w-4" />
+                </a>
+                <Link
+                  to={user ? "/dashboard" : "/apply"}
+                  className="inline-flex items-center justify-center gap-2 rounded-full border border-border bg-card px-6 py-3 text-sm font-semibold hover:bg-muted/50 transition-colors"
+                >
+                  ไปหลังบ้าน My Desk
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+              </div>
+            </div>
           </div>
         </section>
 

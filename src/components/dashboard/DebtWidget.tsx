@@ -33,7 +33,7 @@ export function DebtWidget({ onGo }: { onGo: (tab: string, sub?: string) => void
             <AlertTriangle className={`h-4 w-4 ${overdue.length > 0 ? "text-destructive" : "text-muted-foreground"}`} />
             สถานะการเก็บเงิน
           </CardTitle>
-          <Button size="sm" variant="ghost" onClick={() => onGo("finance")} className="h-7 text-xs">ดูทั้งหมด</Button>
+          <Button size="sm" variant="ghost" onClick={() => onGo("finance", "quotations")} className="h-7 text-xs">ดูใบเสนอราคา</Button>
         </CardHeader>
         <CardContent className="space-y-4 flex-1">
           <div className="grid grid-cols-3 gap-2">

@@ -1,5 +1,5 @@
 import * as React from "react";
-import { LayoutDashboard, FileText, CalendarRange, Wallet, Settings } from "lucide-react";
+import { LayoutDashboard, FileText, CalendarRange, Coins, Settings } from "lucide-react";
 import type { DashSection } from "./DashboardSidebar";
 
 const ITEMS: Array<{
@@ -12,7 +12,7 @@ const ITEMS: Array<{
   { key: "overview", label: "Dashboard", section: "overview", Icon: LayoutDashboard },
   { key: "quotations", label: "Quotation", section: "finance", sub: "quotations", Icon: FileText },
   { key: "planner", label: "Planner", section: "planner", sub: "content", Icon: CalendarRange },
-  { key: "tax", label: "Tax", section: "finance", sub: "tax", Icon: Wallet },
+  { key: "income", label: "รายได้", section: "finance", sub: "income", Icon: Coins },
   { key: "settings", label: "ตั้งค่า", section: "settings", Icon: Settings },
 ];
 

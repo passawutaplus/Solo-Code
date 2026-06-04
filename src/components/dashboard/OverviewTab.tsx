@@ -104,6 +104,7 @@ export function OverviewTab({ onGo }: OverviewTabProps) {
         income={monthIncome}
         pct={goalPct}
         remaining={goalRemaining}
+        onGoIncome={() => onGo("finance", "income")}
         onSave={(g) => {
           finance.setMonthlyGoal(g);
           toast.success(g > 0 ? `บันทึกเป้าหมาย ฿${fmt(g)}/เดือนแล้ว` : "ปิดการใช้งานเป้าหมายรายได้");
@@ -116,7 +117,7 @@ export function OverviewTab({ onGo }: OverviewTabProps) {
           accent
           label="รายได้เดือนนี้"
           value={`฿${fmt(monthIncome)}`}
-          sub={goal > 0 ? `${goalPct}% ของเป้า ฿${fmt(goal)}` : "ตั้งเป้ารายได้ในแท็บ Finance"}
+          sub={goal > 0 ? `${goalPct}% ของเป้า ฿${fmt(goal)}` : "ตั้งเป้าได้ในการ์ดด้านบน"}
           icon={<TrendingUp className="h-5 w-5" />}
         />
         <StatCard
@@ -221,8 +222,15 @@ function FeatureCard({
 }
 
 function MonthlyGoalCard({
-  goal, income, pct, remaining, onSave,
-}: { goal: number; income: number; pct: number; remaining: number; onSave: (g: number) => void }) {
+  goal, income, pct, remaining, onSave, onGoIncome,
+}: {
+  goal: number;
+  income: number;
+  pct: number;
+  remaining: number;
+  onSave: (g: number) => void;
+  onGoIncome: () => void;
+}) {
   const [editing, setEditing] = React.useState(false);
   const [draft, setDraft] = React.useState(String(goal || ""));
   const fmt = (n: number) => new Intl.NumberFormat("th-TH", { maximumFractionDigits: 0 }).format(n);
@@ -270,6 +278,9 @@ function MonthlyGoalCard({
             </div>
           </div>
           <div className="flex items-center gap-2 shrink-0">
+            <Button variant="ghost" size="sm" onClick={onGoIncome} className="h-8 text-xs">
+              หน้ารายได้ <ArrowRight className="h-3.5 w-3.5 ml-0.5" />
+            </Button>
             {!editing ? (
               <Button variant="outline" size="sm" onClick={() => setEditing(true)} className="h-8">
                 <Pencil className="h-3.5 w-3.5" />

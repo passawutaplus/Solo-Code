@@ -92,7 +92,7 @@ const PLANS: Plan[] = [
   {
     id: "inhouse",
     name: "In-House (Team)",
-    tagline: "สำหรับทีมและบริษัท · คิดรายที่นั่ง",
+    tagline: "สำหรับทีมและบริษัท · คิดรายที่นั่ง (workspace กำลังพัฒนา)",
     monthly: 599,
     yearly: 5750,
     features: [
@@ -321,6 +321,13 @@ function PricingPage() {
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-20">
                     <Badge className="bg-gradient-to-r from-primary to-orange-400 text-white border-0 shadow-md gap-1 px-3 py-1">
                       <Sparkles className="h-3 w-3" /> แนะนำ
+                    </Badge>
+                  </div>
+                )}
+                {isInhouse && (
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-20">
+                    <Badge variant="outline" className="bg-card text-muted-foreground border-border shadow-sm text-[10px]">
+                      ทีม · เร็วๆ นี้
                     </Badge>
                   </div>
                 )}

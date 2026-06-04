@@ -246,7 +246,7 @@ export function SettingsTab() {
           <div className="flex items-center justify-between mb-5">
             <div>
               <h2 className="text-sm font-semibold tracking-tight">ตั้งค่าโปรไฟล์ร้าน</h2>
-              <p className="text-xs text-muted-foreground">ข้อมูลนี้จะแสดงในใบเสนอราคาและพอร์ตของคุณ</p>
+              <p className="text-xs text-muted-foreground">ข้อมูลนี้จะแสดงในใบเสนอราคาและเอกสารที่ส่งให้ลูกค้า</p>
             </div>
             {isAdmin && (
               <span className="inline-flex items-center gap-1 text-[10px] font-medium bg-foreground text-background px-2 py-1 rounded-full">
@@ -359,7 +359,7 @@ export function SettingsTab() {
               <p className="text-[10px] text-muted-foreground">จะปรากฏในใบเสนอราคา · ไม่เกิน 500KB</p>
             </div>
 
-            <Field label="Social / Portfolio (ลิงก์เดียว)">
+            <Field label="ลิงก์โซเชียล / โชว์เคสภายนอก (เช่น an1hem, Behance)">
               <Input value={form.social_link} onChange={(e) => setField("social_link", e.target.value)} maxLength={300} placeholder="เช่น https://instagram.com/your_handle" inputMode="url" />
             </Field>
 

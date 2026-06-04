@@ -7,6 +7,7 @@
 
 | Doc | สำหรับ | สรุป |
 |---|---|---|
+| [`ROADMAP.md`](./ROADMAP.md) | Product / Dev | Roadmap รายไตรมาส + เทียบคู่แข่ง |
 | [`architecture.md`](./architecture.md) | Dev | ภาพรวม stack + data flow |
 | [`folder-structure.md`](./folder-structure.md) | Dev | นิยาม 3 layer: core / features / server |
 | [`conventions.md`](./conventions.md) | Dev | กฎการเขียนโค้ด (naming, types, imports) |
