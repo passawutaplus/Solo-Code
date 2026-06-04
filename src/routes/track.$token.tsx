@@ -13,11 +13,11 @@ import { Progress } from "@/components/ui/progress";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogCloseButton, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
   Loader2, Lock, Unlock, Download, Upload, CheckCircle2, Receipt, Copy, Hash, RefreshCw,
   LayoutDashboard, Wallet, Clock, FolderOpen, FileText, ClipboardList, ChevronDown,
-  Printer, X, Trash2, RotateCw,
+  Printer, Trash2, RotateCw,
 } from "lucide-react";
 import { toast } from "sonner";
 import { celebrateFromEdges as celebrate } from "@/lib/celebrate";
@@ -974,16 +974,14 @@ function QuotationFullDialog({
   };
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl max-h-[92vh] overflow-y-auto p-0">
-        <DialogHeader className="px-5 pt-5 pb-2 print:hidden flex flex-row items-center justify-between space-y-0 gap-2">
-          <DialogTitle className="text-sm">ใบเสนอราคาฉบับเต็ม · {q.number}</DialogTitle>
-          <div className="flex items-center gap-2">
+      <DialogContent showCloseButton={false} className="max-w-3xl max-h-[92vh] overflow-y-auto p-0">
+        <DialogHeader className="px-5 pt-5 pb-2 print:hidden flex flex-row items-center justify-between space-y-0 gap-3">
+          <DialogTitle className="text-sm min-w-0 flex-1 pr-2">ใบเสนอราคาฉบับเต็ม · {q.number}</DialogTitle>
+          <div className="flex items-center gap-2 shrink-0">
             <Button size="sm" className="gap-1.5 bg-orange-600 hover:bg-orange-700" onClick={handlePrint}>
               <Printer className="h-3.5 w-3.5" /> พิมพ์ / บันทึก PDF
             </Button>
-            <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => onOpenChange(false)} aria-label="ปิด">
-              <X className="h-4 w-4" />
-            </Button>
+            <DialogCloseButton />
           </div>
         </DialogHeader>
 

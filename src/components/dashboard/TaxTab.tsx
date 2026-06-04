@@ -157,11 +157,11 @@ export function TaxTab({ onNavigate }: Props) {
           </CardHeader>
           <CardContent className="space-y-2">
             <p className="num text-xl font-semibold">฿{formatTHB(totalWorkExp)}</p>
-            <p className="text-[11px] text-muted-foreground mb-2">ใช้เมื่อเลือก &quot;หักจริง&quot; ในวิธีหักค่าใช้จ่าย</p>
+            <p className="text-[11px] text-muted-foreground mb-2">ใช้เมื่อเลือก "หักจริง" ในวิธีหักค่าใช้จ่าย</p>
             <div className="space-y-1 max-h-48 overflow-auto pr-1">
               {workExpenses.length === 0 && (
                 <p className="text-[11px] text-muted-foreground py-3 text-center border border-dashed border-border/60 rounded-lg">
-                  ยังไม่มีรายการ — กด &quot;เพิ่มรายจ่าย&quot; เพื่อเริ่มเก็บบิล
+                  ยังไม่มีรายการ — กด "เพิ่มรายจ่าย" เพื่อเริ่มเก็บบิล
                 </p>
               )}
               {workExpenses.map((w) => (

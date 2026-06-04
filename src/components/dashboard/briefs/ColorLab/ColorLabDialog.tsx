@@ -22,7 +22,7 @@ export function ColorLabDialog({ open, onOpenChange, initialHex = "#FF6B00", onA
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto p-0">
-        <DialogHeader className="p-5 pb-3 border-b">
+        <DialogHeader className="p-5 pb-3 pr-12 sm:pr-14 border-b">
           <DialogTitle className="flex items-center gap-2 text-lg">
             <FlaskConical className="h-5 w-5 text-primary" />
             So1o Color Lab

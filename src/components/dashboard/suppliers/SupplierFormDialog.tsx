@@ -159,7 +159,7 @@ export function SupplierFormDialog({
   return (
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
       <DialogContent className="max-w-2xl max-h-[92vh] p-0 gap-0 overflow-hidden bg-card">
-        <DialogHeader className="px-6 pt-6 pb-4 border-b border-border/60">
+        <DialogHeader className="px-6 pt-6 pb-4 pr-12 sm:pr-14 border-b border-border/60">
           <DialogTitle className="text-lg font-semibold tracking-tight">
             {supplier ? "แก้ไข Supplier" : "เพิ่ม Supplier ใหม่"}
           </DialogTitle>

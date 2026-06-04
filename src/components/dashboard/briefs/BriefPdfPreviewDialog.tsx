@@ -1,6 +1,6 @@
 import * as React from "react";
 import { createPortal } from "react-dom";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogCloseButton, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { ZoomIn, ZoomOut, Download } from "lucide-react";
 import { BriefPdfTemplate } from "./BriefPdfTemplate";
@@ -56,12 +56,15 @@ export function BriefPdfPreviewDialog({ brief, open, onOpenChange, autoPrint, ow
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="max-w-[min(96vw,920px)] h-[92vh] p-0 overflow-hidden rounded-2xl flex flex-col">
-          <DialogHeader className="no-print px-4 py-3 border-b flex-row items-center justify-between gap-2 space-y-0">
-            <DialogTitle className="text-sm font-semibold truncate">
+        <DialogContent
+          showCloseButton={false}
+          className="max-w-[min(96vw,920px)] h-[92vh] p-0 overflow-hidden rounded-2xl flex flex-col"
+        >
+          <DialogHeader className="no-print px-4 py-3 border-b flex flex-row items-center justify-between gap-3 space-y-0">
+            <DialogTitle className="text-sm font-semibold truncate min-w-0 flex-1">
               พรีวิว PDF · {brief.title}
             </DialogTitle>
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1.5 shrink-0">
               <Button size="sm" variant="ghost" className="h-8 w-8 p-0"
                 onClick={() => setZoom((z) => Math.max(0.5, z - 0.1))} title="ย่อ">
                 <ZoomOut className="h-4 w-4" />
@@ -73,11 +76,12 @@ export function BriefPdfPreviewDialog({ brief, open, onOpenChange, autoPrint, ow
               </Button>
               <Button
                 size="sm"
-                className="h-8 gap-1 ml-2 bg-primary hover:bg-primary/90"
+                className="h-8 gap-1 bg-primary hover:bg-primary/90"
                 onClick={triggerPrint}
               >
                 <Download className="h-3.5 w-3.5" /> บันทึก PDF
               </Button>
+              <DialogCloseButton />
             </div>
           </DialogHeader>
 

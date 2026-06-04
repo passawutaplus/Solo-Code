@@ -86,7 +86,8 @@ export function SupportFab({ inline = false }: { inline?: boolean } = {}) {
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetContent
           side="right"
-          className="p-0 w-full sm:max-w-[400px] sm:right-6 sm:bottom-6 sm:top-auto sm:h-[640px] sm:max-h-[calc(100vh-3rem)] sm:rounded-2xl border-0 overflow-hidden shadow-2xl flex flex-col bg-white [&>button.absolute]:hidden"
+          showCloseButton={false}
+          className="p-0 w-full sm:max-w-[400px] sm:right-6 sm:bottom-6 sm:top-auto sm:h-[640px] sm:max-h-[calc(100vh-3rem)] sm:rounded-2xl border-0 overflow-hidden shadow-2xl flex flex-col bg-white"
         >
           {/* Header — orange gradient */}
           <div

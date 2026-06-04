@@ -31,7 +31,7 @@ export function SupplierPreviewDialog({ open, supplier, onClose, useHiddenFields
   return (
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
       <DialogContent className="max-w-2xl max-h-[92vh] overflow-y-auto p-0 gap-0 bg-gradient-to-br from-muted/20 via-background to-primary-soft/20">
-        <DialogHeader className="px-6 pt-5 pb-3 border-b border-border/40">
+        <DialogHeader className="px-6 pt-5 pb-3 pr-12 sm:pr-14 border-b border-border/40">
           <DialogTitle className="flex items-center gap-2 text-sm">
             <Eye className="h-4 w-4 text-primary" />
             พรีวิว — {supplier.name}

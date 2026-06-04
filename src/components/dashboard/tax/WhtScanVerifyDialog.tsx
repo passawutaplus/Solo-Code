@@ -133,7 +133,7 @@ export function WhtScanVerifyDialog({ open, onOpenChange, drafts, onDraftChange,
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-5xl p-0 gap-0 max-h-[92vh] flex flex-col">
-        <DialogHeader className="px-5 py-3 border-b">
+        <DialogHeader className="px-5 py-3 pr-12 sm:pr-14 border-b">
           <DialogTitle className="flex items-center gap-2 text-base">
             <Sparkles className="h-4 w-4 text-primary" />
             ตรวจสอบข้อมูลที่ AI อ่านได้

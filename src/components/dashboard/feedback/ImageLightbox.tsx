@@ -32,7 +32,10 @@ export function ImageLightbox({
 
   return (
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="max-w-[96vw] sm:max-w-[90vw] h-[90vh] p-0 bg-black/95 border-0 [&>button.absolute]:hidden flex items-center justify-center">
+      <DialogContent
+        showCloseButton={false}
+        className="max-w-[96vw] sm:max-w-[90vw] h-[90vh] p-0 bg-black/95 border-0 flex items-center justify-center"
+      >
         <button
           type="button"
           onClick={onClose}

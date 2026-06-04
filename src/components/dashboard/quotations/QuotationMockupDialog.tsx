@@ -1,6 +1,6 @@
 import * as React from "react";
 import { createPortal } from "react-dom";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogCloseButton, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ZoomIn, ZoomOut, Download, FileText } from "lucide-react";
@@ -205,8 +205,11 @@ export function QuotationMockupDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[min(96vw,920px)] h-[92vh] p-0 overflow-hidden rounded-2xl flex flex-col">
-        <DialogHeader className="no-print px-4 py-3 border-b flex flex-row items-center justify-between gap-2 space-y-0 flex-wrap">
+      <DialogContent
+        showCloseButton={false}
+        className="max-w-[min(96vw,920px)] h-[92vh] p-0 overflow-hidden rounded-2xl flex flex-col"
+      >
+        <DialogHeader className="no-print px-4 py-3 border-b flex flex-row items-center justify-between gap-3 space-y-0 flex-wrap">
           <div className="flex items-center gap-2 min-w-0 flex-1">
             <DialogTitle className="text-sm font-semibold truncate">
               ตัวอย่างเอกสาร · {q.number}
@@ -223,7 +226,7 @@ export function QuotationMockupDialog({
               </span>
             )}
           </div>
-          <div className="flex items-center gap-1 shrink-0">
+          <div className="flex items-center gap-1.5 shrink-0 ml-auto">
             <Button
               size="sm"
               variant="ghost"
@@ -245,11 +248,12 @@ export function QuotationMockupDialog({
             </Button>
             <Button
               size="sm"
-              className="h-8 gap-1 ml-2 bg-primary hover:bg-primary/90"
+              className="h-8 gap-1 bg-primary hover:bg-primary/90"
               onClick={() => runPrint("manual")}
             >
               <Download className="h-3.5 w-3.5" /> บันทึก PDF
             </Button>
+            <DialogCloseButton />
           </div>
         </DialogHeader>
 
