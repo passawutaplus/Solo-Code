@@ -6,8 +6,10 @@
   "scripts": {
     "dev": "vite dev",
     "build": "vite build",
+    "build:docker": "vite build --config vite.docker.config.ts",
     "build:dev": "vite build --mode development",
     "preview": "vite preview",
+    "start:docker": "node scripts/docker-serve.mjs",
     "lint": "eslint .",
     "format": "prettier --write ."
   },

@@ -21,6 +21,7 @@
 | [`qa-onboarding.md`](./qa-onboarding.md) | QA นอก | Clone → run → bug report |
 | [`test-accounts.md`](./test-accounts.md) | QA / Pentester | Role matrix + credentials placeholder |
 | [`e2e-playwright.md`](./e2e-playwright.md) | QA | วิธีรัน Playwright |
+| [`docker.md`](./docker.md) | Dev / Ops | รันใน Docker (production SSR) |
 
 ## ⚡ Quick start (dev)
 
