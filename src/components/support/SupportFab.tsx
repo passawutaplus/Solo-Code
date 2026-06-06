@@ -1,7 +1,10 @@
 import * as React from "react";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { X, ArrowLeft, MessageCircle, BookOpen, Lightbulb, Sparkles } from "lucide-react";
+import { X, ArrowLeft, MessageCircle, BookOpen, Lightbulb, Sparkles, Ticket, ClipboardList } from "lucide-react";
+import { CreateTicketForm } from "./CreateTicketSheet";
+import { MyTicketsPanel } from "./MyTicketsPanel";
+import { useMyTickets } from "@/store/supportTickets";
 import { useAuth } from "@/auth/AuthProvider";
 import { supabase } from "@/integrations/supabase/client";
 import { SupportChat } from "./SupportChat";
@@ -10,7 +13,7 @@ import { SupportSuggest } from "./SupportSuggest";
 import { SupportChangelog } from "./SupportChangelog";
 import so1oLogoMark from "@/assets/so1o-logo-mark.png";
 
-type View = "home" | "chat" | "faq" | "suggest" | "changelog";
+type View = "home" | "chat" | "faq" | "suggest" | "changelog" | "create_ticket" | "my_tickets";
 
 const VIEW_TITLES: Record<View, string> = {
   home: "มีอะไรให้เราช่วยไหม?",
@@ -18,6 +21,8 @@ const VIEW_TITLES: Record<View, string> = {
   faq: "คำถามที่พบบ่อย",
   suggest: "เสนอแนะฟีเจอร์ใหม่",
   changelog: "อัปเดตล่าสุด",
+  create_ticket: "แจ้งปัญหา / บั๊ก",
+  my_tickets: "ตั๋วของฉัน",
 };
 
 export function SupportFab({ inline = false }: { inline?: boolean } = {}) {
@@ -25,6 +30,8 @@ export function SupportFab({ inline = false }: { inline?: boolean } = {}) {
   const [open, setOpen] = React.useState(false);
   const [view, setView] = React.useState<View>("home");
   const [unread, setUnread] = React.useState(0);
+  const [selectedTicketId, setSelectedTicketId] = React.useState<string | null>(null);
+  const { openCount } = useMyTickets();
 
   // Count unread admin messages
   React.useEffect(() => {
@@ -55,8 +62,19 @@ export function SupportFab({ inline = false }: { inline?: boolean } = {}) {
   }, [user]);
 
   React.useEffect(() => {
-    if (open) setView("home");
+    if (open) {
+      setView("home");
+      setSelectedTicketId(null);
+    }
   }, [open]);
+
+  const goBack = () => {
+    if (view === "my_tickets" && selectedTicketId) {
+      setSelectedTicketId(null);
+      return;
+    }
+    setView("home");
+  };
 
   return (
     <>
@@ -98,7 +116,7 @@ export function SupportFab({ inline = false }: { inline?: boolean } = {}) {
               <div className="flex items-center gap-2">
                 {view !== "home" && (
                   <button
-                    onClick={() => setView("home")}
+                    onClick={goBack}
                     className="h-8 w-8 -ml-1 rounded-full hover:bg-white/15 flex items-center justify-center transition"
                     aria-label="ย้อนกลับ"
                   >
@@ -127,11 +145,18 @@ export function SupportFab({ inline = false }: { inline?: boolean } = {}) {
 
           {/* Body */}
           <div className="flex-1 overflow-hidden bg-white">
-            {view === "home" && <HomeView setView={setView} unread={unread} />}
+            {view === "home" && <HomeView setView={setView} unread={unread} openCount={openCount} />}
             {view === "chat" && <SupportChat />}
             {view === "faq" && <SupportFaq />}
             {view === "suggest" && <SupportSuggest />}
             {view === "changelog" && <SupportChangelog />}
+            {view === "create_ticket" && <CreateTicketForm prefill={{ source: "support_hub" }} />}
+            {view === "my_tickets" && (
+              <MyTicketsPanel
+                selectedId={selectedTicketId}
+                onSelectTicket={setSelectedTicketId}
+              />
+            )}
           </div>
         </SheetContent>
       </Sheet>
@@ -139,10 +164,54 @@ export function SupportFab({ inline = false }: { inline?: boolean } = {}) {
   );
 }
 
-function HomeView({ setView, unread }: { setView: (v: View) => void; unread: number }) {
+function HomeView({
+  setView,
+  unread,
+  openCount,
+}: {
+  setView: (v: View) => void;
+  unread: number;
+  openCount: number;
+}) {
   return (
     <div className="p-4 space-y-3 overflow-y-auto h-full">
-      {/* Primary action */}
+      <button
+        onClick={() => setView("create_ticket")}
+        className="w-full text-left rounded-xl border-2 border-[#FF5F05] bg-gradient-to-br from-[#FF5F05]/5 to-orange-50 p-4 hover:shadow-md transition-all group"
+      >
+        <div className="flex items-start gap-3">
+          <div className="h-10 w-10 rounded-full bg-[#FF5F05]/15 flex items-center justify-center shrink-0">
+            <Ticket className="h-5 w-5 text-[#FF5F05]" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="font-semibold text-gray-900">แจ้งปัญหา / บั๊ก</div>
+            <div className="text-xs text-gray-500 mt-0.5">ได้เลขตั๋ว TKT-xxxx ติดตามสถานะได้</div>
+          </div>
+        </div>
+      </button>
+
+      <button
+        onClick={() => setView("my_tickets")}
+        className="w-full text-left rounded-xl border border-gray-200 bg-white p-3 hover:border-[#FF5F05]/40 hover:shadow-sm transition-all"
+      >
+        <div className="flex items-center gap-3">
+          <div className="h-8 w-8 rounded-lg bg-orange-50 flex items-center justify-center shrink-0">
+            <ClipboardList className="h-4 w-4 text-[#FF5F05]" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="text-sm font-medium text-gray-900 flex items-center gap-2">
+              ตั๋วของฉัน
+              {openCount > 0 && (
+                <span className="inline-flex min-w-5 h-5 px-1.5 rounded-full bg-[#FF5F05] text-white text-[10px] font-bold items-center justify-center">
+                  {openCount}
+                </span>
+              )}
+            </div>
+            <div className="text-[11px] text-gray-500">ดูสถานะและความคืบหน้า</div>
+          </div>
+        </div>
+      </button>
+
       <button
         onClick={() => setView("chat")}
         className="w-full text-left rounded-xl border border-[#FF5F05]/30 bg-white p-4 hover:border-[#FF5F05] hover:shadow-md transition-all group"

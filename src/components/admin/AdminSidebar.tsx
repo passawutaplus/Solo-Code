@@ -16,6 +16,7 @@ import {
   CreditCard,
   Megaphone,
   MessageSquare,
+  Ticket,
   LineChart,
   BookOpen,
   Smartphone,
@@ -44,6 +45,7 @@ export type AdminSection =
   | "early_access"
   | "users"
   | "chat"
+  | "tickets"
   | "announcements"
   | "banners"
   | "articles"
@@ -61,6 +63,7 @@ interface SectionItem {
   label: string;
   icon: React.ComponentType<{ className?: string }>;
   sub: string;
+  badge?: number;
 }
 
 const GROUPS: { label: string; items: SectionItem[] }[] = [
@@ -76,6 +79,7 @@ const GROUPS: { label: string; items: SectionItem[] }[] = [
     items: [
       { id: "users", label: "Users & Growth", icon: Users, sub: "สมาชิก / สิทธิ์" },
       { id: "chat", label: "แชทผู้ใช้", icon: MessageSquare, sub: "ตอบกลับผู้ใช้" },
+      { id: "tickets", label: "Tickets", icon: Ticket, sub: "ตั๋วแจ้งปัญหา" },
     ],
   },
   {
@@ -111,11 +115,13 @@ export function AdminSidebar({
   setActive,
   onRefresh,
   refreshing,
+  ticketBadge = 0,
 }: {
   active: AdminSection;
   setActive: (s: AdminSection) => void;
   onRefresh: () => void;
   refreshing: boolean;
+  ticketBadge?: number;
 }) {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
@@ -170,6 +176,7 @@ export function AdminSidebar({
                 {g.items.map((s) => {
                   const Icon = s.icon;
                   const isActive = active === s.id;
+                  const badge = s.id === "tickets" ? ticketBadge : s.badge;
                   return (
                     <SidebarMenuItem key={s.id}>
                       <SidebarMenuButton
@@ -180,8 +187,15 @@ export function AdminSidebar({
                       >
                         <Icon className="h-4 w-4 shrink-0" />
                         {!collapsed && (
-                          <div className="flex flex-col items-start min-w-0">
-                            <span className="text-xs font-medium truncate">{s.label}</span>
+                          <div className="flex flex-col items-start min-w-0 flex-1">
+                            <span className="text-xs font-medium truncate flex items-center gap-1.5 w-full">
+                              {s.label}
+                              {badge != null && badge > 0 && (
+                                <span className="ml-auto inline-flex min-w-4 h-4 px-1 rounded-full bg-[#FF5F05] text-white text-[9px] font-bold items-center justify-center">
+                                  {badge > 99 ? "99+" : badge}
+                                </span>
+                              )}
+                            </span>
                             <span className="text-[9px] text-muted-foreground truncate">{s.sub}</span>
                           </div>
                         )}

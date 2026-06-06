@@ -11,6 +11,7 @@ import { ShieldCheck, LogOut, Loader2 } from "lucide-react";
 import { AdminSidebar, type AdminSection } from "@/components/admin/AdminSidebar";
 import { LineHeaderButton } from "@/components/LineContactButton";
 import { useAdminMetrics } from "@/components/admin/useAdminMetrics";
+import { useAllTickets } from "@/store/supportTickets";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 // Lazy-load heavy section panels — only fetch the chunk when the tab is opened.
@@ -40,6 +41,9 @@ const AnnouncementsSection = React.lazy(() =>
 );
 const AdminChatSection = React.lazy(() =>
   import("@/components/admin/AdminChatSection").then((m) => ({ default: m.AdminChatSection })),
+);
+const AdminTicketsSection = React.lazy(() =>
+  import("@/components/admin/AdminTicketsSection").then((m) => ({ default: m.AdminTicketsSection })),
 );
 const ActivityAnalyticsSection = React.lazy(() =>
   import("@/components/admin/ActivityAnalyticsSection").then((m) => ({
@@ -104,6 +108,8 @@ function AdminPage() {
   const [active, setActive] = React.useState<AdminSection>("overview");
   const m = useAdminMetrics();
   const isMobile = useIsMobile();
+  const { newCount, criticalCount } = useAllTickets();
+  const ticketBadge = newCount + criticalCount;
 
   return (
     <SidebarProvider defaultOpen={!isMobile}>
@@ -120,6 +126,7 @@ function AdminPage() {
           setActive={setActive}
           onRefresh={m.refresh}
           refreshing={m.loading}
+          ticketBadge={ticketBadge}
         />
 
         <div className="flex-1 flex flex-col min-w-0 relative z-10">
@@ -161,6 +168,7 @@ function AdminPage() {
                 {active === "early_access" && <EarlyAccessSection />}
                 {active === "users" && <UsersSection m={m} />}
                 {active === "chat" && <AdminChatSection />}
+                {active === "tickets" && <AdminTicketsSection />}
                 {active === "announcements" && <AnnouncementsSection />}
                 {active === "banners" && <BannersHubSection />}
                 {active === "articles" && <ArticlesSection />}
