@@ -17,6 +17,7 @@ import {
   Circle,
   Repeat,
   Flag,
+  Wallet,
   StickyNote,
 } from "lucide-react";
 import { format } from "date-fns";
@@ -81,14 +82,17 @@ export function TimelinePanel({ q, patch }: Props) {
 
   // Build full timeline view (start, revisions, end)
   const timelineEvents = React.useMemo(() => {
-    const events: { date?: string; label: string; type: "start" | "revision" | "end" }[] = [];
+    const events: { date?: string; label: string; type: "deposit" | "start" | "revision" | "end" }[] = [];
+    if (q.depositDueDate) {
+      events.push({ date: q.depositDueDate, label: "ชำระมัดจำก่อนเริ่มงาน", type: "deposit" });
+    }
     if (q.startDate) events.push({ date: q.startDate, label: "เริ่มงาน", type: "start" });
     revisionDates.forEach((d, i) => {
       events.push({ date: d, label: `ส่งแก้ไขครั้งที่ ${i + 1}`, type: "revision" });
     });
     if (q.endDate) events.push({ date: q.endDate, label: "ส่งมอบ / จบงาน", type: "end" });
     return events.sort((a, b) => (a.date ?? "").localeCompare(b.date ?? ""));
-  }, [q.startDate, q.endDate, revisionDates]);
+  }, [q.startDate, q.endDate, q.depositDueDate, revisionDates]);
 
   const enabled = q.timelineEnabled !== false;
 
@@ -158,6 +162,7 @@ export function TimelinePanel({ q, patch }: Props) {
               {timelineEvents.map((e, i) => (
                 <div key={i} className="flex items-center justify-between text-[11px]">
                   <span className="flex items-center gap-1.5">
+                    {e.type === "deposit" && <Wallet className="h-3 w-3 text-orange-500" />}
                     {e.type === "start" && <CircleDot className="h-3 w-3 text-primary" />}
                     {e.type === "revision" && <Repeat className="h-3 w-3 text-amber-500" />}
                     {e.type === "end" && <Flag className="h-3 w-3 text-emerald-600" />}

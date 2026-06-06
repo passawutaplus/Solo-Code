@@ -9,8 +9,11 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import type { SavedClient } from "@/store/clients";
-import { Field, SectionTitle } from "./shared";
+import { Field, SectionTitle, INDUSTRY_PRESETS, PAYMENT_TERM_LABELS } from "./shared";
 import { PhoneInput } from "@/components/ui/phone-input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { mergeFieldClass } from "@/lib/formFieldStyles";
 
 type Draft = Omit<SavedClient, "id" | "createdAt">;
 
@@ -45,6 +48,10 @@ export function ClientFormDialog({
   const [draft, setDraft] = React.useState<Draft>(EMPTY_DRAFT);
   const [tagInput, setTagInput] = React.useState("");
   const [touched, setTouched] = React.useState(false);
+  const [industryCustom, setIndustryCustom] = React.useState("");
+  const industryIsOther =
+    !!draft.industry &&
+    !INDUSTRY_PRESETS.slice(0, -1).includes(draft.industry as (typeof INDUSTRY_PRESETS)[number]);
 
   React.useEffect(() => {
     if (editing === "new") setDraft(EMPTY_DRAFT);
@@ -54,6 +61,14 @@ export function ClientFormDialog({
     }
     setTagInput("");
     setTouched(false);
+    if (editing === "new") {
+      setIndustryCustom("");
+    } else if (editing && editing.industry) {
+      const preset = INDUSTRY_PRESETS.slice(0, -1) as readonly string[];
+      setIndustryCustom(preset.includes(editing.industry) ? "" : editing.industry);
+    } else {
+      setIndustryCustom("");
+    }
   }, [editing]);
 
   const upd = <K extends keyof Draft>(k: K, v: Draft[K]) =>
@@ -121,25 +136,62 @@ export function ClientFormDialog({
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <Field label="ชื่อ / ชื่อบริษัท *" icon={UserIcon}>
+              <Field label="ชื่อ / ชื่อบริษัท" icon={UserIcon} required>
                 <Input
                   value={draft.name}
                   onChange={(e) => upd("name", e.target.value)}
                   onBlur={() => setTouched(true)}
                   placeholder={draft.type === "company" ? "บริษัท นิมบัส จำกัด" : "คุณสมชาย ใจดี"}
+                  maxLength={80}
                   aria-invalid={!!nameError}
-                  className={nameError ? "border-destructive focus-visible:ring-destructive" : ""}
+                  className={mergeFieldClass(
+                    nameError ? "border-destructive focus-visible:ring-destructive" : "",
+                    draft.name,
+                  )}
                 />
                 {nameError && (
                   <p className="text-[11px] text-destructive mt-1">{nameError}</p>
                 )}
               </Field>
               <Field label="ประเภทธุรกิจ / สายงาน" icon={Briefcase}>
-                <Input
-                  value={draft.industry ?? ""}
-                  onChange={(e) => upd("industry", e.target.value)}
-                  placeholder="คาเฟ่, สตาร์ทอัป, อีคอมเมิร์ซ..."
-                />
+                <Select
+                  value={
+                    draft.industry && INDUSTRY_PRESETS.includes(draft.industry as (typeof INDUSTRY_PRESETS)[number])
+                      ? draft.industry
+                      : draft.industry
+                        ? "อื่นๆ"
+                        : ""
+                  }
+                  onValueChange={(v) => {
+                    if (v === "อื่นๆ") {
+                      upd("industry", industryCustom || "");
+                    } else {
+                      upd("industry", v);
+                      setIndustryCustom("");
+                    }
+                  }}
+                >
+                  <SelectTrigger className={mergeFieldClass("", draft.industry)}>
+                    <SelectValue placeholder="เลือกประเภทธุรกิจ" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {INDUSTRY_PRESETS.map((p) => (
+                      <SelectItem key={p} value={p}>{p}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {(draft.industry === "อื่นๆ" || industryIsOther) && (
+                  <Input
+                    className={mergeFieldClass("mt-1.5", industryCustom || draft.industry)}
+                    value={industryCustom || (industryIsOther ? draft.industry : "")}
+                    onChange={(e) => {
+                      setIndustryCustom(e.target.value);
+                      upd("industry", e.target.value);
+                    }}
+                    placeholder="ระบุประเภทธุรกิจเอง"
+                    maxLength={60}
+                  />
+                )}
               </Field>
             </div>
           </section>
@@ -156,7 +208,13 @@ export function ClientFormDialog({
                 />
               </Field>
               <Field label="LINE ID" icon={MessageCircle}>
-                <Input value={draft.lineId ?? ""} onChange={(e) => upd("lineId", e.target.value)} placeholder="@nimbus.co" />
+                <Input
+                  value={draft.lineId ?? ""}
+                  onChange={(e) => upd("lineId", e.target.value)}
+                  placeholder="@nimbus.co"
+                  maxLength={50}
+                  className={mergeFieldClass("", draft.lineId)}
+                />
               </Field>
               <Field label="อีเมล" icon={Mail}>
                 <Input
@@ -165,15 +223,25 @@ export function ClientFormDialog({
                   onChange={(e) => upd("email", e.target.value)}
                   onBlur={() => setTouched(true)}
                   placeholder="hello@brand.com"
+                  maxLength={120}
                   aria-invalid={!!emailError}
-                  className={emailError ? "border-destructive focus-visible:ring-destructive" : ""}
+                  className={mergeFieldClass(
+                    emailError ? "border-destructive focus-visible:ring-destructive" : "",
+                    draft.email,
+                  )}
                 />
                 {emailError && (
                   <p className="text-[11px] text-destructive mt-1">{emailError}</p>
                 )}
               </Field>
               <Field label="Social (IG / FB / X)" icon={Hash}>
-                <Input value={draft.social ?? ""} onChange={(e) => upd("social", e.target.value)} placeholder="@brand หรือ URL" />
+                <Input
+                  value={draft.social ?? ""}
+                  onChange={(e) => upd("social", e.target.value)}
+                  placeholder="@brand หรือ URL"
+                  maxLength={120}
+                  className={mergeFieldClass("", draft.social)}
+                />
               </Field>
             </div>
 
@@ -205,7 +273,13 @@ export function ClientFormDialog({
             <SectionTitle>ข้อมูลออกใบเสร็จ (ไม่บังคับ)</SectionTitle>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <Field label="เลขผู้เสียภาษี" icon={Hash}>
-                <Input value={draft.taxId ?? ""} onChange={(e) => upd("taxId", e.target.value)} placeholder="0-1055-12345-67-8" />
+                <Input
+                  value={draft.taxId ?? ""}
+                  onChange={(e) => upd("taxId", e.target.value)}
+                  placeholder="0-1055-12345-67-8"
+                  maxLength={20}
+                  className={mergeFieldClass("", draft.taxId)}
+                />
               </Field>
               <Field label="งบประมาณทั่วไป (บาท)" icon={Wallet}>
                 <Input
@@ -220,23 +294,31 @@ export function ClientFormDialog({
               <Textarea rows={2} value={draft.address ?? ""} onChange={(e) => upd("address", e.target.value)} placeholder="123/45 ถ.พระราม 9 เขตห้วยขวาง กรุงเทพฯ 10310" />
             </Field>
             <Field label="เงื่อนไขชำระเงิน" icon={Wallet}>
-              <div className="flex gap-1.5 flex-wrap">
-                {["100%", "50/50", "30/70", "Net 7", "Net 15", "Net 30"].map((t) => {
-                  const active = draft.paymentTerms === t;
-                  return (
-                    <button
-                      key={t}
-                      type="button"
-                      onClick={() => upd("paymentTerms", t)}
-                      className={`text-[11px] font-semibold px-3 py-1 rounded-full border transition-all ${
-                        active ? "bg-primary text-primary-foreground border-primary" : "border-border bg-card hover:border-primary"
-                      }`}
-                    >
-                      {t}
-                    </button>
-                  );
-                })}
-              </div>
+              <TooltipProvider delayDuration={200}>
+                <div className="flex gap-1.5 flex-wrap">
+                  {Object.keys(PAYMENT_TERM_LABELS).map((t) => {
+                    const active = draft.paymentTerms === t;
+                    return (
+                      <Tooltip key={t}>
+                        <TooltipTrigger asChild>
+                          <button
+                            type="button"
+                            onClick={() => upd("paymentTerms", t)}
+                            className={`text-[11px] font-semibold px-3 py-1 rounded-full border transition-all ${
+                              active ? "bg-primary text-primary-foreground border-primary" : "border-border bg-card hover:border-primary"
+                            }`}
+                          >
+                            {t}
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent side="bottom" className="max-w-[220px] text-xs">
+                          {PAYMENT_TERM_LABELS[t]}
+                        </TooltipContent>
+                      </Tooltip>
+                    );
+                  })}
+                </div>
+              </TooltipProvider>
             </Field>
           </section>
 

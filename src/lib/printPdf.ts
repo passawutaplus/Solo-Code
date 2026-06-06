@@ -39,6 +39,8 @@ export function preparePrintImages(root: HTMLElement | null) {
 
 export type RunPrintToPdfOptions = {
   bodyClass: PrintBodyClass;
+  /** CSS selector for print payload root — must exist in DOM before printing. */
+  printRootSelector?: string;
   /** Delay before window.print() — Safari/iOS needs more time after DOM updates. */
   delayMs?: number;
   onAfterPrint?: () => void;
@@ -49,12 +51,46 @@ export type RunPrintToPdfOptions = {
   showHint?: boolean;
 };
 
+const DEFAULT_MOCKUP_PRINT_SELECTOR = ".mockup-print-only .mockup-print-root";
+
+/** Returns true when the off-screen print portal is mounted and has content. */
+export function isPrintRootReady(selector = DEFAULT_MOCKUP_PRINT_SELECTOR): boolean {
+  if (typeof document === "undefined") return false;
+  const root = document.querySelector(selector);
+  if (!(root instanceof HTMLElement)) return false;
+  return root.getBoundingClientRect().height > 0 || root.childElementCount > 0;
+}
+
+/** Wait until print portal is in the DOM (portal + layout). */
+export function waitForPrintRoot(
+  selector = DEFAULT_MOCKUP_PRINT_SELECTOR,
+  timeoutMs = 5000,
+): Promise<HTMLElement> {
+  return new Promise((resolve, reject) => {
+    const started = Date.now();
+    const tick = () => {
+      const el = document.querySelector(selector);
+      if (el instanceof HTMLElement && (el.getBoundingClientRect().height > 0 || el.childElementCount > 0)) {
+        resolve(el);
+        return;
+      }
+      if (Date.now() - started >= timeoutMs) {
+        reject(new Error("เนื้อหา PDF ยังไม่พร้อม — ลองอีกครั้งในไม่กี่วินาที"));
+        return;
+      }
+      requestAnimationFrame(tick);
+    };
+    tick();
+  });
+}
+
 /**
  * Opens the browser print dialog (user saves as PDF).
  * Uses body class + @media print CSS; call after print payload is in the DOM.
  */
 export function runPrintToPdf({
   bodyClass,
+  printRootSelector = DEFAULT_MOCKUP_PRINT_SELECTOR,
   delayMs,
   onAfterPrint,
   onCancel,
@@ -64,51 +100,65 @@ export function runPrintToPdf({
 }: RunPrintToPdfOptions): void {
   if (typeof window === "undefined") return;
 
-  const hint = showHint ? getPrintPdfPlatformHint() : undefined;
-  if (hint) {
-    toast.info(hint, { duration: 6000 });
-  }
+  void (async () => {
+    const hint = showHint ? getPrintPdfPlatformHint() : undefined;
+    if (hint) {
+      toast.info(hint, { duration: 6000 });
+    }
 
-  document.body.classList.add(bodyClass);
-  let completed = false;
-
-  const cleanup = () => {
-    document.body.classList.remove(bodyClass);
-    window.removeEventListener("afterprint", onAfter);
-  };
-
-  const onAfter = () => {
-    if (completed) return;
-    completed = true;
-    cleanup();
-    toast.success(successMessage);
-    onAfterPrint?.();
-  };
-
-  window.addEventListener("afterprint", onAfter);
-
-  const wait = delayMs ?? (detectMobileUa() ? 400 : 200);
-
-  window.setTimeout(() => {
+    let restoreImages = () => {};
     try {
-      window.print();
+      const root = await waitForPrintRoot(printRootSelector);
+      restoreImages = preparePrintImages(root);
     } catch (err) {
-      completed = true;
-      cleanup();
       toast.error(errorMessage, {
-        description: err instanceof Error ? err.message : "เบราว์เซอร์ไม่ตอบสนอง",
+        description: err instanceof Error ? err.message : "เนื้อหา PDF ยังไม่พร้อม",
       });
       onCancel?.();
       return;
     }
-    // Some browsers never fire afterprint when user dismisses quickly
+
+    document.body.classList.add(bodyClass);
+    let completed = false;
+
+    const cleanup = () => {
+      restoreImages();
+      document.body.classList.remove(bodyClass);
+      window.removeEventListener("afterprint", onAfter);
+    };
+
+    const onAfter = () => {
+      if (completed) return;
+      completed = true;
+      cleanup();
+      toast.success(successMessage);
+      onAfterPrint?.();
+    };
+
+    window.addEventListener("afterprint", onAfter);
+
+    const wait = delayMs ?? (detectMobileUa() ? 500 : 280);
+
     window.setTimeout(() => {
-      if (!completed) {
+      try {
+        window.print();
+      } catch (err) {
+        completed = true;
         cleanup();
+        toast.error(errorMessage, {
+          description: err instanceof Error ? err.message : "เบราว์เซอร์ไม่ตอบสนอง",
+        });
         onCancel?.();
+        return;
       }
-    }, 120_000);
-  }, wait);
+      window.setTimeout(() => {
+        if (!completed) {
+          cleanup();
+          onCancel?.();
+        }
+      }, 120_000);
+    }, wait);
+  })();
 }
 
 /** Multi-page A4 PDF via html2canvas + jsPDF (for long reports). */

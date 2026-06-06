@@ -2,6 +2,7 @@ import * as React from "react";
 import {
   CheckCircle2, Clock, AlertTriangle, AlertOctagon,
 } from "lucide-react";
+import { fieldLabelClass } from "@/lib/formFieldStyles";
 
 export const CLIENT_GRADES: Record<string, { grade: "A" | "B" | "C"; traits: string[] }> = {
   "Nimbus Co.": { grade: "A", traits: ["จ่ายตรงเวลา", "บรีฟชัด"] },
@@ -39,18 +40,39 @@ export function SectionTitle({ children }: { children: React.ReactNode }) {
 }
 
 export function Field({
-  label, icon: Icon, children,
+  label, icon: Icon, children, required,
 }: {
-  label: string;
+  label: React.ReactNode;
   icon?: React.ElementType;
   children: React.ReactNode;
+  required?: boolean;
 }) {
   return (
     <div className="space-y-1.5">
-      <label className="text-xs font-semibold flex items-center gap-1.5">
+      <label className={fieldLabelClass(required)}>
         {Icon && <Icon className="h-3 w-3 text-muted-foreground" />} {label}
       </label>
       {children}
     </div>
   );
 }
+
+export const INDUSTRY_PRESETS = [
+  "คาเฟ่ / ร้านอาหาร",
+  "อีคอมเมิร์ซ",
+  "สตาร์ทอัป / Tech",
+  "ความงาม / สุขภาพ",
+  "การศึกษา",
+  "อสังหาริมทรัพย์",
+  "การตลาด / โฆษณา",
+  "อื่นๆ",
+] as const;
+
+export const PAYMENT_TERM_LABELS: Record<string, string> = {
+  "100%": "ชำระเต็มจำนวนก่อนเริ่มงาน",
+  "50/50": "มัดจำ 50% ก่อนเริ่ม · 50% เมื่อส่งมอบงาน",
+  "30/70": "มัดจำ 30% ก่อนเริ่ม · 70% เมื่อส่งมอบงาน",
+  "Net 7": "ชำระภายใน 7 วันหลังออกใบแจ้งหนี้",
+  "Net 15": "ชำระภายใน 15 วันหลังออกใบแจ้งหนี้",
+  "Net 30": "ชำระภายใน 30 วันหลังออกใบแจ้งหนี้",
+};

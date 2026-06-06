@@ -58,6 +58,7 @@ export interface Quotation {
   clientTaxId?: string;
   startDate?: string;
   endDate?: string;
+  depositDueDate?: string;
   items: QuotationItem[];
   addons: QuotationAddon[];
   difficulties: QuotationDifficulty[];
@@ -112,6 +113,7 @@ interface QuotationRow {
   client_tax_id: string | null;
   start_date: string | null;
   end_date: string | null;
+  deposit_due_date?: string | null;
   items: unknown;
   addons: unknown;
   difficulties: unknown;
@@ -158,6 +160,7 @@ function rowToQuotation(r: QuotationRow): Quotation {
     clientTaxId: r.client_tax_id ?? "",
     startDate: r.start_date ?? undefined,
     endDate: r.end_date ?? undefined,
+    depositDueDate: (r as QuotationRow & { deposit_due_date?: string | null }).deposit_due_date ?? undefined,
     items: (Array.isArray(r.items) ? r.items : []) as QuotationItem[],
     addons: (Array.isArray(r.addons) ? r.addons : []) as QuotationAddon[],
     difficulties: (Array.isArray(r.difficulties) ? r.difficulties : []) as QuotationDifficulty[],
@@ -206,6 +209,7 @@ function quotationToRow(q: Quotation, userId: string) {
     client_tax_id: q.clientTaxId || null,
     start_date: q.startDate || null,
     end_date: q.endDate || null,
+    deposit_due_date: q.depositDueDate || null,
     items: q.items as unknown as never,
     addons: q.addons as unknown as never,
     difficulties: q.difficulties as unknown as never,
@@ -342,7 +346,7 @@ export function useQuotations() {
       const draft: Quotation = { ...blank, ...init, number: init?.number ?? blank.number };
       const { data, error } = await supabase
         .from("quotations")
-        .insert(quotationToRow(draft, userId))
+        .insert(quotationToRow(draft, userId) as never)
         .select()
         .single();
       if (error) throw error;
@@ -358,7 +362,7 @@ export function useQuotations() {
       const merged: Quotation = { ...current, ...patch };
       const { error } = await supabase
         .from("quotations")
-        .update(quotationToRow(merged, userId))
+        .update(quotationToRow(merged, userId) as never)
         .eq("id", id);
       if (error) throw error;
     },
@@ -391,7 +395,7 @@ export function useQuotations() {
       };
       const { data, error } = await supabase
         .from("quotations")
-        .insert(quotationToRow(copy, userId))
+        .insert(quotationToRow(copy, userId) as never)
         .select()
         .single();
       if (error) throw error;

@@ -3,30 +3,46 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/auth/AuthProvider";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Sparkles, X, Send, Loader2, Zap, Palette, PenLine, Lightbulb, Wand2, Maximize2, ThumbsUp, ThumbsDown } from "lucide-react";
+import {
+  Sparkles, X, Send, Loader2, Zap, Palette, PenLine, Lightbulb, Wand2,
+  Maximize2, ThumbsUp, ThumbsDown, BarChart3, Users, AlertCircle,
+} from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { toast } from "sonner";
+import { useServerFn } from "@tanstack/react-start";
+import { aiBusinessInsights } from "@/lib/aiBusinessInsights.functions";
 
 type Msg = { id: string; role: "user" | "assistant"; content: string; created_at: string };
 
 const DAILY_LIMIT = 5;
 const MAX_CHARS = 500;
 
-const QUICK_ACTIONS: { label: string; icon: typeof Palette; prompt: string }[] = [
+type ChatMode = "design" | "business";
+
+const DESIGN_QUICK_ACTIONS: { label: string; icon: typeof Palette; prompt: string }[] = [
   { label: "ช่วยออกแบบ", icon: Wand2, prompt: "ช่วยออกแบบ [ใส่รายละเอียดงาน เช่น โลโก้ร้านกาแฟสไตล์มินิมอล] ให้หน่อย..." },
   { label: "ช่วยเลือกสี", icon: Palette, prompt: "ช่วยเลือกคู่สีสำหรับงานออกแบบ [ชื่อโปรเจกต์/แบรนด์] ให้หน่อย..." },
   { label: "ช่วยคิดแคปชัน", icon: PenLine, prompt: "ช่วยคิดแคปชันสำหรับงาน [ใส่รายละเอียดงาน] ให้หน่อย..." },
   { label: "ช่วยวางคอนเซปต์", icon: Lightbulb, prompt: "ช่วยวางคอนเซปต์งาน [ใส่บรีฟ/ประเภทธุรกิจ] ให้หน่อย..." },
 ];
 
+const BUSINESS_QUICK_ACTIONS: { label: string; icon: typeof BarChart3; prompt: string }[] = [
+  { label: "ลูกค้าท็อป 10", icon: Users, prompt: "ลูกค้า 10 คนแรกที่ทำเงินให้ฉันได้มากที่สุดคือใคร?" },
+  { label: "ทวงเงินก่อน", icon: AlertCircle, prompt: "ลูกค้าคนไหนที่ควรทวงเงินก่อน หรือ priority สูงสุดตามกำหนดชำระ?" },
+  { label: "สรุปรายได้", icon: BarChart3, prompt: "สรุปภาพรวมรายได้และใบแจ้งหนี้ค้างชำระของฉันให้หน่อย" },
+];
+
 export function FloatingChat({ inline = false }: { inline?: boolean } = {}) {
   const { user } = useAuth();
+  const businessFn = useServerFn(aiBusinessInsights);
   const [open, setOpen] = React.useState(false);
+  const [mode, setMode] = React.useState<ChatMode>("design");
   const [body, setBody] = React.useState("");
   const [sending, setSending] = React.useState(false);
   const [messages, setMessages] = React.useState<Msg[]>([]);
   const [used, setUsed] = React.useState(0);
   const scrollRef = React.useRef<HTMLDivElement>(null);
+  const quickActions = mode === "business" ? BUSINESS_QUICK_ACTIONS : DESIGN_QUICK_ACTIONS;
 
   const refreshUsage = React.useCallback(async () => {
     if (!user) return;
@@ -68,16 +84,30 @@ export function FloatingChat({ inline = false }: { inline?: boolean } = {}) {
     const text = body.trim();
     if (!text || limitReached) return;
     setSending(true);
-    // Optimistic user message
     const tempId = `tmp_${Date.now()}`;
+    const assistantTempId = `tmp_${Date.now()}_a`;
     setMessages((prev) => [...prev, { id: tempId, role: "user", content: text, created_at: new Date().toISOString() }]);
     setBody("");
     try {
+      if (mode === "business") {
+        const result = await businessFn({ data: { question: text } });
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: assistantTempId,
+            role: "assistant",
+            content: result.answer,
+            created_at: new Date().toISOString(),
+          },
+        ]);
+        setUsed((u) => Math.min(DAILY_LIMIT, u + 1));
+        return;
+      }
+
       const { data, error } = await supabase.functions.invoke("ai-design-chat", {
         body: { message: text, stream: false },
       });
       if (error) {
-        // Try to extract structured error
         const msg = error.message ?? "ส่งไม่สำเร็จ";
         if (msg.includes("limit_reached") || msg.includes("429")) {
           toast.error("ใช้ครบ 5 ครั้งแล้ววันนี้");
@@ -87,7 +117,6 @@ export function FloatingChat({ inline = false }: { inline?: boolean } = {}) {
         } else {
           toast.error(msg);
         }
-        // remove optimistic
         setMessages((prev) => prev.filter((m) => m.id !== tempId));
         return;
       }
@@ -97,11 +126,10 @@ export function FloatingChat({ inline = false }: { inline?: boolean } = {}) {
         return;
       }
       setUsed(data?.used ?? used + 1);
-      // Reload to get real IDs incl. assistant
       await loadMessages();
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "ส่งไม่สำเร็จ");
-      setMessages((prev) => prev.filter((m) => m.id !== tempId));
+      setMessages((prev) => prev.filter((m) => m.id !== tempId && m.id !== assistantTempId));
     } finally {
       setSending(false);
     }
@@ -130,7 +158,8 @@ export function FloatingChat({ inline = false }: { inline?: boolean } = {}) {
           <div className="flex items-center justify-between p-3 border-b border-border bg-gradient-to-r from-primary/10 to-transparent rounded-t-2xl">
             <div className="min-w-0">
               <div className="text-sm font-semibold flex items-center gap-1.5">
-                <Sparkles className="h-3.5 w-3.5 text-primary" /> So1o Mentor
+                <Sparkles className="h-3.5 w-3.5 text-primary" />
+                {mode === "business" ? "So1o Business AI" : "So1o Mentor"}
               </div>
               <div className="text-[10px] text-muted-foreground">
                 ใช้แล้ว {used}/{DAILY_LIMIT} วันนี้
@@ -152,7 +181,9 @@ export function FloatingChat({ inline = false }: { inline?: boolean } = {}) {
             {messages.length === 0 ? (
               <div className="text-center text-xs text-muted-foreground py-10 px-3">
                 <Sparkles className="h-6 w-6 mx-auto mb-2 text-primary/60" />
-                ถามเรื่องงานออกแบบ โลโก้ UI/UX การคิดราคา หรือคุยกับลูกค้าได้เลย
+                {mode === "business"
+                  ? "ถามข้อมูลธุรกิจจากลูกค้า รายได้ ใบแจ้งหนี้ค้างชำระ — อิงข้อมูลจริงในระบบ"
+                  : "ถามเรื่องงานออกแบบ โลโก้ UI/UX การคิดราคา หรือคุยกับลูกค้าได้เลย"}
                 <div className="mt-1 text-[10px]">จำกัด 5 คำถาม/วัน · ยาวไม่เกิน 500 ตัวอักษร</div>
               </div>
             ) : (
@@ -189,9 +220,29 @@ export function FloatingChat({ inline = false }: { inline?: boolean } = {}) {
           )}
 
           <div className="p-2 border-t border-border space-y-2">
+            <div className="flex gap-1 rounded-lg bg-muted p-0.5">
+              <button
+                type="button"
+                onClick={() => setMode("design")}
+                className={`flex-1 rounded-md py-1 text-[10px] font-medium transition-all ${
+                  mode === "design" ? "bg-background shadow-sm" : "text-muted-foreground"
+                }`}
+              >
+                ดีไซน์
+              </button>
+              <button
+                type="button"
+                onClick={() => setMode("business")}
+                className={`flex-1 rounded-md py-1 text-[10px] font-medium transition-all ${
+                  mode === "business" ? "bg-background shadow-sm" : "text-muted-foreground"
+                }`}
+              >
+                ธุรกิจ
+              </button>
+            </div>
             {!limitReached && (
               <div className="flex flex-wrap gap-1.5">
-                {QUICK_ACTIONS.map((q) => (
+                {quickActions.map((q) => (
                   <button
                     key={q.label}
                     type="button"
@@ -213,7 +264,13 @@ export function FloatingChat({ inline = false }: { inline?: boolean } = {}) {
                     send();
                   }
                 }}
-                placeholder={limitReached ? "ใช้ครบโควตาวันนี้แล้ว" : "ถามเรื่องดีไซน์..."}
+                placeholder={
+                  limitReached
+                    ? "ใช้ครบโควตาวันนี้แล้ว"
+                    : mode === "business"
+                      ? "ถามข้อมูลลูกค้า รายได้ ใบค้างชำระ..."
+                      : "ถามเรื่องดีไซน์..."
+                }
                 rows={1}
                 disabled={limitReached || sending}
                 className="min-h-9 max-h-28 text-xs resize-none flex-1"

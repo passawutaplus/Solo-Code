@@ -27,6 +27,7 @@ import {
 import { toast } from "sonner";
 import { AttachBriefDialog, type BriefSummary } from "./AttachBriefDialog";
 import { supabase } from "@/integrations/supabase/client";
+import { mergeFieldClass } from "@/lib/formFieldStyles";
 
 interface Props {
   q: Quotation;
@@ -54,6 +55,7 @@ export function SettingsPanel({ q, patch }: Props) {
   const [mode, setMode] = React.useState<"select" | "new">("select");
   const [briefDialogOpen, setBriefDialogOpen] = React.useState(false);
   const [attachedBrief, setAttachedBrief] = React.useState<{ title: string; status: string; share_token: string } | null>(null);
+  const [savingClient, setSavingClient] = React.useState(false);
 
   // Fetch attached brief summary whenever briefId changes
   React.useEffect(() => {
@@ -119,11 +121,25 @@ export function SettingsPanel({ q, patch }: Props) {
     toast.success(`เลือกลูกค้า: ${c.name}`);
   }
 
+  function clearClient() {
+    patch({
+      clientName: "",
+      clientPhone: "",
+      clientLineId: "",
+      clientEmail: "",
+      clientAddress: "",
+      clientTaxId: "",
+    });
+    toast.info("ล้างข้อมูลลูกค้าแล้ว");
+  }
+
   async function saveNewClient() {
+    if (savingClient) return;
     if (!draftClient.name.trim()) {
       toast.error("กรุณาระบุชื่อลูกค้า");
       return;
     }
+    setSavingClient(true);
     try {
       const c = await addClient({ ...draftClient, name: draftClient.name.trim() });
       applyClient(c);
@@ -131,6 +147,8 @@ export function SettingsPanel({ q, patch }: Props) {
       setMode("select");
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "บันทึกไม่สำเร็จ");
+    } finally {
+      setSavingClient(false);
     }
   }
 
@@ -138,8 +156,13 @@ export function SettingsPanel({ q, patch }: Props) {
     <div className="space-y-3 text-sm">
       {/* Project */}
       <Section icon={<Briefcase className="h-3.5 w-3.5" />} title="โครงการ">
-        <Field label="ชื่อโครงการ">
-          <Input value={q.projectName} onChange={(e) => setField("projectName", e.target.value)} maxLength={120} />
+        <Field label="ชื่อโครงการ" required>
+          <Input
+            value={q.projectName}
+            onChange={(e) => setField("projectName", e.target.value)}
+            maxLength={120}
+            className={mergeFieldClass("", q.projectName)}
+          />
         </Field>
         <Field label={<><Hash className="h-3 w-3 inline" /> เลขที่ใบเสนอราคา (อัตโนมัติ)</>}>
           <Input value={q.number} readOnly className="bg-muted/50 cursor-not-allowed num" />
@@ -239,18 +262,31 @@ export function SettingsPanel({ q, patch }: Props) {
             <p className="text-xs text-muted-foreground italic">ยังไม่ได้เลือกลูกค้า</p>
           )}
         </div>
-        <Button
-          variant="outline"
-          size="sm"
-          className="w-full h-8 text-xs gap-1.5"
-          onClick={() => {
-            setMode(clients.length > 0 ? "select" : "new");
-            setPickerOpen(true);
-          }}
-        >
-          <UserPlus className="h-3.5 w-3.5" />
-          {q.clientName ? "เปลี่ยน / เพิ่มลูกค้า" : "เลือกหรือเพิ่มลูกค้า"}
-        </Button>
+        <div className="flex gap-1.5">
+          <Button
+            variant="outline"
+            size="sm"
+            className="flex-1 h-8 text-xs gap-1.5"
+            onClick={() => {
+              setMode(clients.length > 0 ? "select" : "new");
+              setPickerOpen(true);
+            }}
+          >
+            <UserPlus className="h-3.5 w-3.5" />
+            {q.clientName ? "เปลี่ยน / เพิ่มลูกค้า" : "เลือกหรือเพิ่มลูกค้า"}
+          </Button>
+          {q.clientName && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-8 px-2 text-xs text-muted-foreground hover:text-destructive"
+              onClick={clearClient}
+              title="ล้างการเลือกลูกค้า"
+            >
+              <XIcon className="h-3.5 w-3.5" />
+            </Button>
+          )}
+        </div>
       </CollapsibleSection>
 
       {/* Difficulty (locked labels) */}
@@ -384,6 +420,25 @@ export function SettingsPanel({ q, patch }: Props) {
             ))}
           </SelectContent>
         </Select>
+        {q.paymentTerms === "ชำระมัดจำก่อนเริ่มงาน" && (
+          <Field label="วันครบกำหนดชำระมัดจำ (ก่อนเริ่มงาน)">
+            <Input
+              type="date"
+              value={q.depositDueDate ?? ""}
+              max={q.startDate || undefined}
+              onChange={(e) => setField("depositDueDate", e.target.value || undefined)}
+            />
+            <p className="text-[10px] text-muted-foreground mt-1">
+              ระบุวันที่ลูกค้าต้องจ่ายมัดจำก่อนวันเริ่มโปรเจกต์
+              {q.startDate ? ` (ต้องไม่เกิน ${q.startDate})` : ""}
+            </p>
+            {q.depositDueDate && q.startDate && q.depositDueDate > q.startDate && (
+              <p className="text-[11px] text-destructive mt-1" role="alert">
+                วันชำระมัดจำต้องไม่เกินวันเริ่มงาน
+              </p>
+            )}
+          </Field>
+        )}
       </Section>
 
       {/* Due date & late fee */}
@@ -537,8 +592,8 @@ export function SettingsPanel({ q, patch }: Props) {
               ยกเลิก
             </Button>
             {mode === "new" && (
-              <Button onClick={saveNewClient} className="bg-primary hover:bg-primary/90">
-                บันทึก & เลือก
+              <Button onClick={saveNewClient} disabled={savingClient} className="bg-primary hover:bg-primary/90">
+                {savingClient ? "กำลังบันทึก…" : "บันทึก & เลือก"}
               </Button>
             )}
           </DialogFooter>
@@ -598,10 +653,12 @@ function Section({
   );
 }
 
-function Field({ label, children }: { label: React.ReactNode; children: React.ReactNode }) {
+function Field({ label, children, required }: { label: React.ReactNode; children: React.ReactNode; required?: boolean }) {
   return (
     <div className="space-y-1">
-      <Label className="text-[11px] text-muted-foreground">{label}</Label>
+      <Label className={`text-[11px] text-muted-foreground ${required ? "after:content-['*'] after:text-destructive after:ml-0.5" : ""}`}>
+        {label}
+      </Label>
       {children}
     </div>
   );

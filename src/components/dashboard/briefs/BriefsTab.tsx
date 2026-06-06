@@ -33,6 +33,7 @@ import { ConfirmBriefDialog } from "./ConfirmBriefDialog";
 import { AiImageToBriefButton } from "./AiImageToBriefButton";
 import { QuickCapturePanel } from "./QuickCapturePanel";
 import { ClientBrandAssetsField } from "./ClientBrandAssetsField";
+import { mergeFieldClass } from "@/lib/formFieldStyles";
 
 
 function rowToBrief(r: any): DesignBrief {
@@ -171,7 +172,7 @@ export function BriefsTab() {
           </p>
 
         </div>
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1.5 flex-wrap">
           <Button variant="outline" size="sm" onClick={createBlank} className="rounded-xl">
             บรีฟเปล่า
           </Button>
@@ -179,6 +180,29 @@ export function BriefsTab() {
             <Plus className="h-4 w-4" /> สร้างบรีฟใหม่
           </Button>
         </div>
+      </div>
+
+      <div className="grid sm:grid-cols-2 gap-3">
+        <button
+          type="button"
+          onClick={create}
+          className="rounded-2xl border border-primary/40 bg-primary/5 p-4 text-left hover:border-primary transition-colors"
+        >
+          <p className="text-sm font-semibold text-primary">สร้างบรีฟใหม่ (AI Quick Capture)</p>
+          <p className="text-xs text-muted-foreground mt-1">
+            อัปโหลดแคปแชท/รูปอ้างอิง → AI สกัดข้อมูลบรีฟให้อัตโนมัติ เหมาะเมื่อคุยกับลูกค้าแล้ว
+          </p>
+        </button>
+        <button
+          type="button"
+          onClick={createBlank}
+          className="rounded-2xl border border-border bg-card p-4 text-left hover:border-primary/40 transition-colors"
+        >
+          <p className="text-sm font-semibold">บรีฟเปล่า (กรอกเอง)</p>
+          <p className="text-xs text-muted-foreground mt-1">
+            เริ่มจากฟอร์มว่าง กรอกทีละส่วนเอง เหมาะเมื่อมีบรีฟครบแล้วหรืออยากควบคุมทุกฟิลด์
+          </p>
+        </button>
       </div>
 
 
@@ -255,9 +279,9 @@ function BriefRow({
           ) : (
             <button
               type="button"
-              onClick={() => setEditing(true)}
-              className="font-medium truncate hover:underline text-left"
-              title="คลิกเพื่อเปลี่ยนชื่อ"
+              onClick={onEdit}
+              className="font-medium truncate hover:underline text-left hover:text-primary"
+              title="คลิกเพื่อเปิดบรีฟ"
             >
               {brief.title}
             </button>
@@ -517,19 +541,42 @@ function BriefEditor({ brief, onBack, onUpdate }: { brief: DesignBrief; onBack: 
         {/* Project Overview */}
         <Section title="1. ภาพรวมโปรเจกต์">
           <div className="grid sm:grid-cols-2 gap-3">
-            <Field label="ชื่อโปรเจกต์ / หัวข้องาน" full>
+            <Field label="ชื่อโปรเจกต์ / หัวข้องาน" full required>
               <Input
                 value={b.project_overview.project_name ?? ""}
                 onChange={(e) => patchSection("project_overview", { project_name: e.target.value })}
                 placeholder="เช่น รีแบรนด์ร้านกาแฟ Aroma"
+                maxLength={120}
                 disabled={locked}
+                className={mergeFieldClass("", b.project_overview.project_name)}
               />
             </Field>
             <Field label="ประเภทงาน">
-              <Select value={b.project_overview.project_type ?? ""} onValueChange={(v) => patchSection("project_overview", { project_type: v })} disabled={locked}>
-                <SelectTrigger><SelectValue placeholder="เลือกประเภทงาน" /></SelectTrigger>
+              <Select
+                value={b.project_overview.project_type ?? ""}
+                onValueChange={(v) =>
+                  patchSection("project_overview", {
+                    project_type: v,
+                    project_type_custom: v === "อื่นๆ" ? b.project_overview.project_type_custom : undefined,
+                  })
+                }
+                disabled={locked}
+              >
+                <SelectTrigger className={mergeFieldClass("", b.project_overview.project_type)}>
+                  <SelectValue placeholder="เลือกประเภทงาน" />
+                </SelectTrigger>
                 <SelectContent>{PROJECT_TYPES.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
               </Select>
+              {b.project_overview.project_type === "อื่นๆ" && (
+                <Input
+                  className={mergeFieldClass("mt-1.5", b.project_overview.project_type_custom)}
+                  value={b.project_overview.project_type_custom ?? ""}
+                  onChange={(e) => patchSection("project_overview", { project_type_custom: e.target.value })}
+                  placeholder="ระบุประเภทงานเอง"
+                  maxLength={80}
+                  disabled={locked}
+                />
+              )}
             </Field>
             <Field label="เป้าหมายของงาน">
               <Input value={b.project_overview.goal ?? ""} onChange={(e) => patchSection("project_overview", { goal: e.target.value })} placeholder="เช่น เพิ่มยอดขาย / สร้างการจดจำแบรนด์" disabled={locked} />
@@ -765,10 +812,10 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   );
 }
 
-function Field({ label, children, full }: { label: string; children: React.ReactNode; full?: boolean }) {
+function Field({ label, children, full, required }: { label: string; children: React.ReactNode; full?: boolean; required?: boolean }) {
   return (
     <div className={`space-y-1 ${full ? "sm:col-span-2" : ""}`}>
-      <Label className="text-xs">{label}</Label>
+      <Label className={`text-xs ${required ? "after:content-['*'] after:text-destructive after:ml-0.5" : ""}`}>{label}</Label>
       {children}
     </div>
   );

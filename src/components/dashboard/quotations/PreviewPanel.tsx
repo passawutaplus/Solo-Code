@@ -349,6 +349,11 @@ export function PreviewPanel({ q, docKind = "quotation" }: Props) {
               {q.depositPreset < 100 && (
                 <span className="text-neutral-600 font-normal"> (มัดจำ {q.depositPreset}%)</span>
               )}
+              {q.depositDueDate && (
+                <span className="text-neutral-600 font-normal block mt-0.5">
+                  ครบกำหนดชำระมัดจำ: {fmtThaiShort(q.depositDueDate)}
+                </span>
+              )}
             </p>
           </div>
         )}

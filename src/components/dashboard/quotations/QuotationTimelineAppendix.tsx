@@ -25,7 +25,14 @@ export function QuotationTimelineAppendix({ q }: Props) {
   const totals = computeTotals(q);
   const revisionDates = computeRevisionDates(q.startDate, q.endDate, q.revisionsCount);
 
-  const events: { date?: string; label: string; type: "start" | "revision" | "end" }[] = [];
+  const events: { date?: string; label: string; type: "deposit" | "start" | "revision" | "end" }[] = [];
+  if (q.depositDueDate) {
+    events.push({
+      date: q.depositDueDate,
+      label: `ชำระมัดจำ ${q.depositPreset}% (฿${formatBaht(totals.depositAmount)})`,
+      type: "deposit",
+    });
+  }
   if (q.startDate) events.push({ date: q.startDate, label: "เริ่มงาน", type: "start" });
   revisionDates.forEach((d, i) =>
     events.push({ date: d, label: `ส่งแก้ไขครั้งที่ ${i + 1}`, type: "revision" }),
@@ -65,6 +72,9 @@ export function QuotationTimelineAppendix({ q }: Props) {
 
       {/* Summary */}
       <section style={{ marginBottom: 18 }}>
+        {q.depositDueDate && (
+          <SummaryRow label="วันครบกำหนดชำระมัดจำ" value={fmt(q.depositDueDate)} />
+        )}
         <SummaryRow label="วันที่เริ่มงาน" value={fmt(q.startDate)} />
         <SummaryRow label="วันที่จบงาน" value={fmt(q.endDate)} />
         <SummaryRow label="จำนวนแก้ไขฟรี" value={`${q.revisionsCount || 0} ครั้ง`} />
@@ -89,6 +99,7 @@ export function QuotationTimelineAppendix({ q }: Props) {
                   <td style={td_}>{fmt(e.date)}</td>
                   <td style={td_}>{e.label}</td>
                   <td style={{ ...td_, color: "#666" }}>
+                    {e.type === "deposit" && "มัดจำ"}
                     {e.type === "start" && "เริ่มต้น"}
                     {e.type === "revision" && "รอบแก้ไข"}
                     {e.type === "end" && "ส่งมอบ"}

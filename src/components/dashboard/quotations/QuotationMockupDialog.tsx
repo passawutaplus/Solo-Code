@@ -93,6 +93,7 @@ export function QuotationMockupDialog({
   const [briefLoading, setBriefLoading] = React.useState(false);
   const [briefError, setBriefError] = React.useState(false);
   const [pageCount, setPageCount] = React.useState<number | null>(null);
+  const [printing, setPrinting] = React.useState(false);
   const printRootRef = React.useRef<HTMLDivElement | null>(null);
 
   React.useEffect(() => {
@@ -168,20 +169,32 @@ export function QuotationMockupDialog({
     };
   }, [open, zoom, brief, includeBrief, includeTimeline, q]);
 
+  const canPrint =
+    !briefLoading &&
+    !(includeBrief && q?.briefId && !brief && !briefError);
+
   const runPrint = React.useCallback(
     (source: "auto" | "manual") => {
+      if (!canPrint) {
+        toast.error("กำลังโหลดเอกสาร — รอสักครู่แล้วลองอีกครั้ง");
+        return;
+      }
+      setPrinting(true);
       runPrintToPdf({
         bodyClass: "printing-mockup",
         showHint: source === "manual",
+        delayMs: includeBrief && brief ? 450 : undefined,
         successMessage: pageCount
           ? `ส่งออก PDF สำเร็จ (~${pageCount} หน้า)`
           : "ส่งออก PDF สำเร็จ",
         onAfterPrint: () => {
+          setPrinting(false);
           if (source === "auto") onOpenChange(false);
         },
+        onCancel: () => setPrinting(false),
       });
     },
-    [onOpenChange, pageCount],
+    [onOpenChange, pageCount, canPrint, includeBrief, brief],
   );
 
   // Auto-print flow
@@ -194,7 +207,7 @@ export function QuotationMockupDialog({
     let cancelled = false;
     const t = window.setTimeout(() => {
       if (!cancelled) runPrint("auto");
-    }, 100);
+    }, 350);
     return () => {
       cancelled = true;
       window.clearTimeout(t);
@@ -250,8 +263,10 @@ export function QuotationMockupDialog({
               size="sm"
               className="h-8 gap-1 bg-primary hover:bg-primary/90"
               onClick={() => runPrint("manual")}
+              disabled={printing || !canPrint}
             >
-              <Download className="h-3.5 w-3.5" /> บันทึก PDF
+              <Download className="h-3.5 w-3.5" />
+              {printing ? "กำลังเตรียม…" : briefLoading ? "โหลดบรีฟ…" : "บันทึก PDF"}
             </Button>
             <DialogCloseButton />
           </div>

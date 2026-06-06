@@ -30,6 +30,8 @@ export interface BriefScopeItem {
 
 export interface BriefProjectOverview {
   project_type?: string; // โลโก้ / แบรนดิ้ง / Social / เว็บ / อื่นๆ
+  /** ระบุเองเมื่อ project_type = อื่นๆ */
+  project_type_custom?: string;
   project_name?: string; // ชื่อโปรเจกต์ / หัวข้องาน
   about_business?: string;
   goal?: string;

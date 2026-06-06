@@ -2,7 +2,7 @@ import * as React from "react";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
-import { ChevronsUpDown, UserPlus, Check, User as UserIcon } from "lucide-react";
+import { ChevronsUpDown, UserPlus, Check, User as UserIcon, X } from "lucide-react";
 import { useClients, type SavedClient, type SavedClientInput } from "@/store/clients";
 import { ClientFormDialog } from "@/components/dashboard/clients/ClientFormDialog";
 import type { BriefClientInfo } from "@/lib/briefSchema";
@@ -29,11 +29,14 @@ export function ClientPicker({ value, onPick, disabled }: Props) {
   const { list, add } = useClients();
   const [open, setOpen] = React.useState(false);
   const [dialogOpen, setDialogOpen] = React.useState<"new" | null>(null);
+  const [creating, setCreating] = React.useState(false);
 
   const selected = value.client_id ? list.find((c) => c.id === value.client_id) : undefined;
   const label = selected?.name || value.client_name || "เลือกลูกค้าจากรายชื่อ…";
 
   const handleCreate = async (payload: SavedClientInput) => {
+    if (creating) return;
+    setCreating(true);
     try {
       const created = await add(payload);
       onPick(clientToBriefInfo(created));
@@ -41,7 +44,21 @@ export function ClientPicker({ value, onPick, disabled }: Props) {
       toast.success("เพิ่มลูกค้าใหม่และเชื่อมกับบรีฟแล้ว");
     } catch (e) {
       toast.error((e as Error).message);
+    } finally {
+      setCreating(false);
     }
+  };
+
+  const handleClear = () => {
+    onPick({
+      client_id: undefined,
+      client_name: "",
+      brand_name: "",
+      contact_email: "",
+      contact_phone: "",
+      contact_line: "",
+    });
+    toast.info("ล้างการเลือกลูกค้าแล้ว");
   };
 
   return (
@@ -99,6 +116,19 @@ export function ClientPicker({ value, onPick, disabled }: Props) {
         >
           <UserPlus className="h-4 w-4" />
         </Button>
+        {(value.client_id || value.client_name) && (
+          <Button
+            type="button"
+            variant="outline"
+            size="icon"
+            disabled={disabled}
+            onClick={handleClear}
+            title="ล้างการเลือกลูกค้า"
+            className="text-muted-foreground hover:text-destructive"
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        )}
       </div>
 
       <ClientFormDialog
