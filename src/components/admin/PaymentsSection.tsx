@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 type PaymentRow = {
   id: string;
@@ -21,9 +22,11 @@ type PaymentRow = {
 export function PaymentsSection() {
   const [rows, setRows] = React.useState<PaymentRow[]>([]);
   const [loading, setLoading] = React.useState(true);
+  const [loadError, setLoadError] = React.useState<string | null>(null);
 
   const load = React.useCallback(async () => {
     setLoading(true);
+    setLoadError(null);
     try {
       const { data, error } = await supabase
         .from("payment_notifications")
@@ -32,8 +35,11 @@ export function PaymentsSection() {
         .limit(80);
       if (error) throw error;
       setRows((data ?? []) as PaymentRow[]);
-    } catch {
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : "โหลด payment events ไม่สำเร็จ";
+      setLoadError(msg);
       setRows([]);
+      toast.error("โหลด payment events ไม่สำเร็จ", { description: msg });
     } finally {
       setLoading(false);
     }
@@ -65,6 +71,10 @@ export function PaymentsSection() {
             <div className="flex items-center justify-center py-16 gap-2 text-muted-foreground">
               <Loader2 className="h-4 w-4 animate-spin" />
               กำลังโหลด...
+            </div>
+          ) : loadError ? (
+            <div className="text-center py-16 text-sm text-destructive px-4">
+              โหลดไม่สำเร็จ: {loadError}
             </div>
           ) : rows.length === 0 ? (
             <div className="text-center py-16 text-sm text-muted-foreground">

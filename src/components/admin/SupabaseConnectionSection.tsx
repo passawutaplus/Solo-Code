@@ -81,6 +81,37 @@ async function probeActivityFeedRpc(): Promise<{ status: ProbeStatus; detail?: s
   return { status: "error", detail: msg };
 }
 
+async function probeAdminBusinessRls(): Promise<{ status: ProbeStatus; detail?: string }> {
+  const [statsRes, quotesRes] = await Promise.all([
+    supabase.rpc("get_feature_data_stats" as never),
+    supabase.from("quotations").select("id", { count: "exact", head: true }),
+  ]);
+
+  if (quotesRes.error) {
+    const msg = quotesRes.error.message ?? "";
+    if (msg.includes("does not exist") || msg.includes("Could not find the table")) {
+      return { status: "missing", detail: msg };
+    }
+    return { status: "error", detail: msg };
+  }
+
+  const statsRows = (statsRes.data ?? []) as Array<{ table_name: string; total_records: number }>;
+  const statsTotal = Number(statsRows.find((r) => r.table_name === "quotations")?.total_records ?? 0);
+  const directCount = quotesRes.count ?? 0;
+
+  if (statsTotal > 0 && directCount < statsTotal) {
+    return {
+      status: "missing",
+      detail: `Admin เห็น ${directCount} ใบเสนอ แต่ระบบมี ${statsTotal} — รัน admin_business_rls migration`,
+    };
+  }
+
+  return {
+    status: "ok",
+    detail: statsTotal > 0 ? `admin เห็น quotations ${directCount}/${statsTotal}` : "พร้อม (ยังไม่มีใบเสนอในระบบ)",
+  };
+}
+
 async function probeQuotationContractColumns(): Promise<{ status: ProbeStatus; detail?: string }> {
   const { error } = await supabase
     .from("quotations")
@@ -137,6 +168,12 @@ export function SupabaseConnectionSection() {
       migrationFile: "20260607130000_admin_activity_feed.sql",
       status: "checking",
     },
+    {
+      id: "admin_business_rls",
+      label: "Admin business KPI RLS (quotations + finance)",
+      migrationFile: "20260609120000_admin_business_rls.sql",
+      status: "checking",
+    },
   ]);
 
   const runChecks = React.useCallback(async () => {
@@ -154,12 +191,13 @@ export function SupabaseConnectionSection() {
       setLatencyMs(Math.round(performance.now() - t0));
     }
 
-    const [contract, tickets, shared, feedbackFields, activityFeed] = await Promise.all([
+    const [contract, tickets, shared, feedbackFields, activityFeed, adminBusinessRls] = await Promise.all([
       probeQuotationContractColumns(),
       probeTable("support_tickets"),
       probeTable("shared_projects"),
       probeFeedbackTicketFields(),
       probeActivityFeedRpc(),
+      probeAdminBusinessRls(),
     ]);
 
     const contractOk = contract.status === "ok";
@@ -180,6 +218,7 @@ export function SupabaseConnectionSection() {
       { id: "feedback_ticket_fields", label: "Give Feedback → Tickets (rating + link)", migrationFile: "20260607120000_feedback_ticket_fields.sql", ...feedbackFields },
       { id: "feedback_notify", label: "แจ้งลูกค้าเมื่อแก้ฟีดแบ็ก", migrationFile: "20260607120100_ticket_feedback_notify.sql", ...feedbackNotify },
       { id: "admin_activity_feed", label: "Mission Control Activity Feed RPC", migrationFile: "20260607130000_admin_activity_feed.sql", ...activityFeed },
+      { id: "admin_business_rls", label: "Admin business KPI RLS (quotations + finance)", migrationFile: "20260609120000_admin_business_rls.sql", ...adminBusinessRls },
     ]);
 
     setLoading(false);

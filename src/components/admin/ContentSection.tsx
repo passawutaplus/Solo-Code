@@ -88,7 +88,7 @@ export function ContentSection({ m }: { m: AdminMetrics }) {
             </div>
           )}
           <p className="mt-3 text-[10px] text-muted-foreground">
-            * รายชื่อ Subscription ยอดนิยมดูได้ที่เมนู <strong>Top Subscriptions</strong>
+            * รายชื่อ Subscription ยอดนิยมดูได้ที่แท็บ <strong>Top Subscriptions</strong> ในเมนู Subscriptions
           </p>
         </CardContent>
       </Card>

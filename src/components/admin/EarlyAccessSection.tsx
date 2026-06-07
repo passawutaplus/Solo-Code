@@ -11,12 +11,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Rocket, ExternalLink, Search, Loader2, Mail, MessageCircle, FlaskConical, Copy, UserX } from "lucide-react";
+import { Link } from "@tanstack/react-router";
+import { Rocket, ExternalLink, Search, Loader2, Mail, MessageCircle, FlaskConical, Copy, UserX, MessageSquareHeart } from "lucide-react";
+import { useAllBetaFeedback } from "@/store/betaFeedback";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { getTesterSheetUrl } from "@/server/sheets-link.functions";
 import { sendTestApplicationToSheet } from "@/server/sheets.functions";
-import { BetaFeedbackPanel } from "./BetaFeedbackPanel";
 import { PresenceDot } from "./PresenceDot";
 
 const TARGET = 100;
@@ -45,6 +46,10 @@ type PendingProfile = {
 };
 
 export function EarlyAccessSection() {
+  const { items: betaItems } = useAllBetaFeedback();
+  const recentBeta = betaItems.filter(
+    (b) => Date.now() - new Date(b.createdAt).getTime() < 7 * 86_400_000,
+  ).length;
   const [apps, setApps] = React.useState<Application[]>([]);
   const [approvedCount, setApprovedCount] = React.useState(0);
   const [pending, setPending] = React.useState<PendingProfile[]>([]);
@@ -259,7 +264,32 @@ export function EarlyAccessSection() {
         </CardContent>
       </Card>
 
-      <BetaFeedbackPanel />
+      <Card>
+        <CardContent className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <div className="flex items-center gap-2">
+              <MessageSquareHeart className="h-4 w-4 text-primary" />
+              <CardTitle className="text-sm">ฟีดแบ็กจากเทสเตอร์</CardTitle>
+              <Badge variant="outline" className="text-[10px]">
+                {betaItems.length} รายการ
+              </Badge>
+              {recentBeta > 0 && (
+                <Badge className="text-[10px] bg-[#FF5F05] text-white">
+                  ใหม่ {recentBeta} / 7 วัน
+                </Badge>
+              )}
+            </div>
+            <p className="text-[11px] text-muted-foreground mt-1">
+              ดูและจัดการฟีดแบ็กทั้งหมดได้ที่เมนูตั๋ว & ฟีดแบ็ก
+            </p>
+          </div>
+          <Button asChild size="sm" variant="outline" className="h-8 shrink-0">
+            <Link to="/admin" search={{ section: "tickets" }}>
+              ไปดูฟีดแบ็ก
+            </Link>
+          </Button>
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader className="pb-3">

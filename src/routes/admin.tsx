@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { RouteError } from "@/components/RouteError";
 import * as React from "react";
 import { useAuth } from "@/auth/AuthProvider";
@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { ShieldCheck, LogOut, Loader2 } from "lucide-react";
-import { AdminSidebar, type AdminSection } from "@/components/admin/AdminSidebar";
+import { AdminSidebar, isAdminSection, type AdminSection } from "@/components/admin/AdminSidebar";
 import { LineHeaderButton } from "@/components/LineContactButton";
 import { useAdminMetrics } from "@/components/admin/useAdminMetrics";
 import { useAllTickets } from "@/store/supportTickets";
@@ -96,6 +96,12 @@ function SectionFallback() {
 
 
 export const Route = createFileRoute("/admin")({
+  validateSearch: (search: Record<string, unknown>) => {
+    const section = typeof search.section === "string" ? search.section : undefined;
+    return {
+      section: isAdminSection(section) ? section : undefined,
+    };
+  },
   head: () => ({
     meta: [
       { title: "Mission Control — Admin Monitor | So1o Freelancer" },
@@ -120,15 +126,36 @@ export const Route = createFileRoute("/admin")({
 
 function AdminPage() {
   const { profile, signOut } = useAuth();
-  const [active, setActive] = React.useState<AdminSection>("overview");
+  const navigate = useNavigate();
+  const { section: urlSection } = Route.useSearch();
+  const [active, setActive] = React.useState<AdminSection>(() => urlSection ?? "overview");
   const m = useAdminMetrics();
   const isMobile = useIsMobile();
-  const { newCount, criticalCount } = useAllTickets();
+  const { tickets } = useAllTickets();
   const { items: betaItems } = useAllBetaFeedback();
   const recentBeta = betaItems.filter(
     (b) => Date.now() - new Date(b.createdAt).getTime() < 7 * 86_400_000,
   ).length;
-  const ticketBadge = newCount + criticalCount + (recentBeta > 0 ? 1 : 0);
+  const attentionTickets = tickets.filter(
+    (t) =>
+      t.status === "new" ||
+      (t.priority === "critical" && !["closed", "wont_fix"].includes(t.status)),
+  );
+  const ticketBadge = attentionTickets.length + (recentBeta > 0 ? 1 : 0);
+
+  React.useEffect(() => {
+    if (urlSection && urlSection !== active) {
+      setActive(urlSection);
+    }
+  }, [urlSection, active]);
+
+  const handleSetActive = React.useCallback(
+    (section: AdminSection) => {
+      setActive(section);
+      void navigate({ to: "/admin", search: { section }, replace: true });
+    },
+    [navigate],
+  );
 
   return (
     <SidebarProvider defaultOpen={!isMobile}>
@@ -142,7 +169,7 @@ function AdminPage() {
 
         <AdminSidebar
           active={active}
-          setActive={setActive}
+          setActive={handleSetActive}
           onRefresh={m.refresh}
           refreshing={m.loading}
           ticketBadge={ticketBadge}

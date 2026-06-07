@@ -6,6 +6,7 @@ import { useAllTickets } from "@/store/supportTickets";
 import { useAllBetaFeedback } from "@/store/betaFeedback";
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RTooltip } from "recharts";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 import { type AdminMetrics, fmtTHB, groupByDay, activeUserIds } from "./useAdminMetrics";
 
 interface DeviceRow { device_type: string; sessions: number; pct: number }
@@ -14,6 +15,7 @@ export function OverviewSection({ m }: { m: AdminMetrics }) {
   const { tickets, newCount } = useAllTickets();
   const { items: betaItems } = useAllBetaFeedback();
   const [devices, setDevices] = React.useState<DeviceRow[]>([]);
+  const [deviceError, setDeviceError] = React.useState<string | null>(null);
   const openTickets = tickets.filter((t) => !["closed", "wont_fix"].includes(t.status)).length;
   const betaToday = betaItems.filter(
     (b) => b.createdAt.slice(0, 10) === new Date().toISOString().slice(0, 10),
@@ -21,13 +23,19 @@ export function OverviewSection({ m }: { m: AdminMetrics }) {
   React.useEffect(() => {
     (async () => {
       try {
-        const { data } = await (supabase.rpc as unknown as (
+        const { data, error } = await (supabase.rpc as unknown as (
           fn: string, args?: Record<string, unknown>,
-        ) => Promise<{ data: DeviceRow[] | null; error: unknown }>).call(
+        ) => Promise<{ data: DeviceRow[] | null; error: { message: string } | null }>).call(
           supabase, "get_device_usage_stats", { _days: 30 },
         );
+        if (error) throw new Error(error.message);
         setDevices(data ?? []);
-      } catch { /* ignore */ }
+        setDeviceError(null);
+      } catch (e) {
+        const msg = e instanceof Error ? e.message : "โหลดสถิติอุปกรณ์ไม่สำเร็จ";
+        setDeviceError(msg);
+        toast.error("โหลดสถิติอุปกรณ์ไม่สำเร็จ", { description: msg });
+      }
     })();
   }, []);
   const dev = (k: string) => devices.find((d) => d.device_type === k);
@@ -52,9 +60,15 @@ export function OverviewSection({ m }: { m: AdminMetrics }) {
   return (
     <div className="space-y-5">
       <div>
-        <h2 className="text-lg font-semibold tracking-tight">Overview</h2>
+        <h2 className="text-lg font-semibold tracking-tight">ภาพรวม</h2>
         <p className="text-xs text-muted-foreground">สรุปภาพรวมทั้งระบบใน 7-14 วันล่าสุด</p>
       </div>
+
+      {m.error && (
+        <div className="rounded-lg border border-destructive/40 bg-destructive/5 px-3 py-2 text-xs text-destructive">
+          โหลดข้อมูลบางส่วนไม่สำเร็จ — ตัวเลขอาจไม่ครบ: {m.error}
+        </div>
+      )}
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <StatCard
@@ -84,7 +98,7 @@ export function OverviewSection({ m }: { m: AdminMetrics }) {
         />
       </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 gap-3">
         <StatCard
           label="ตั๋วเปิดอยู่"
           value={openTickets}
@@ -118,9 +132,9 @@ export function OverviewSection({ m }: { m: AdminMetrics }) {
       </div>
 
       <div className="grid grid-cols-3 gap-3">
-        <MiniStat icon={Monitor} label="Desktop" value={dev("desktop") ? `${dev("desktop")!.pct}%` : "—"} sub={`${dev("desktop")?.sessions ?? 0} sessions`} />
-        <MiniStat icon={Tablet} label="Tablet" value={dev("tablet") ? `${dev("tablet")!.pct}%` : "—"} sub={`${dev("tablet")?.sessions ?? 0} sessions`} />
-        <MiniStat icon={Smartphone} label="Mobile" value={dev("mobile") ? `${dev("mobile")!.pct}%` : "—"} sub={`${dev("mobile")?.sessions ?? 0} sessions`} />
+        <MiniStat icon={Monitor} label="Desktop" value={deviceError ? "—" : dev("desktop") ? `${dev("desktop")!.pct}%` : "—"} sub={deviceError ? "โหลดไม่สำเร็จ" : `${dev("desktop")?.sessions ?? 0} sessions`} />
+        <MiniStat icon={Tablet} label="Tablet" value={deviceError ? "—" : dev("tablet") ? `${dev("tablet")!.pct}%` : "—"} sub={deviceError ? "โหลดไม่สำเร็จ" : `${dev("tablet")?.sessions ?? 0} sessions`} />
+        <MiniStat icon={Smartphone} label="Mobile" value={deviceError ? "—" : dev("mobile") ? `${dev("mobile")!.pct}%` : "—"} sub={deviceError ? "โหลดไม่สำเร็จ" : `${dev("mobile")?.sessions ?? 0} sessions`} />
       </div>
     </div>
   );

@@ -51,10 +51,16 @@ export function AdminTicketsSection() {
   React.useEffect(() => {
     let cancelled = false;
     (async () => {
-      const { data } = await (supabase.rpc as unknown as (fn: string) => Promise<{
+      const { data, error } = await (supabase.rpc as unknown as (fn: string) => Promise<{
         data: Array<{ user_id: string; email: string | null; display_name: string | null }> | null;
-      }>)("admin_list_profiles_safe");
-      if (cancelled || !data) return;
+        error: { message: string } | null;
+      }>).call(supabase, "admin_list_profiles_safe");
+      if (cancelled) return;
+      if (error) {
+        toast.error("โหลดรายชื่อผู้ใช้ไม่สำเร็จ", { description: error.message });
+        return;
+      }
+      if (!data) return;
       const map = new Map<string, string>();
       for (const p of data) {
         map.set(p.user_id, p.display_name || p.email || p.user_id.slice(0, 8));

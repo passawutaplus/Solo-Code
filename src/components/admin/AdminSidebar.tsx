@@ -5,24 +5,26 @@ import {
   LayoutDashboard,
   Users,
   Wallet,
-  
-  Activity,
+  History,
   ArrowLeft,
   ShieldCheck,
   RefreshCw,
   Database,
   Rocket,
   BarChart3,
-  CreditCard,
   Megaphone,
   MessageSquare,
   Ticket,
   LineChart,
   BookOpen,
   Smartphone,
-  Sparkles,
+  Bot,
   Image as ImageIcon,
   Link2,
+  Receipt,
+  Banknote,
+  Cpu,
+  HeartPulse,
 } from "lucide-react";
 import {
   Sidebar,
@@ -62,6 +64,33 @@ export type AdminSection =
   | "usage"
   | "supabase";
 
+export const ADMIN_SECTION_IDS: AdminSection[] = [
+  "overview",
+  "activity_feed",
+  "users",
+  "tickets",
+  "chat",
+  "early_access",
+  "feature_usage",
+  "activity",
+  "device",
+  "ai_usage",
+  "business",
+  "subscriptions",
+  "payments",
+  "announcements",
+  "banners",
+  "articles",
+  "ai_center",
+  "health",
+  "usage",
+  "supabase",
+];
+
+export function isAdminSection(value: string | undefined): value is AdminSection {
+  return !!value && ADMIN_SECTION_IDS.includes(value as AdminSection);
+}
+
 interface SectionItem {
   id: AdminSection;
   label: string;
@@ -72,56 +101,60 @@ interface SectionItem {
 
 const GROUPS: { label: string; items: SectionItem[] }[] = [
   {
-    label: "Pulse",
+    label: "ภาพรวม",
     items: [
-      { id: "overview", label: "Overview", icon: LayoutDashboard, sub: "ภาพรวมระบบ" },
-      { id: "activity_feed", label: "Activity Feed", icon: Activity, sub: "ทุกการเคลื่อนไหว" },
+      { id: "overview", label: "ภาพรวม", icon: LayoutDashboard, sub: "Overview" },
+      { id: "activity_feed", label: "ไทม์ไลน์", icon: History, sub: "Activity Feed" },
     ],
   },
   {
     label: "ผู้ใช้ & Support",
     items: [
-      { id: "users", label: "Users & Growth", icon: Users, sub: "สมาชิก / สิทธิ์" },
-      { id: "tickets", label: "Feedback & Tickets", icon: Ticket, sub: "ฟีดแบ็ก + ตั๋ว" },
-      { id: "chat", label: "แชทผู้ใช้", icon: MessageSquare, sub: "ตอบกลับผู้ใช้" },
+      { id: "users", label: "สมาชิก", icon: Users, sub: "Users & Growth" },
+      { id: "tickets", label: "ตั๋ว & ฟีดแบ็ก", icon: Ticket, sub: "Feedback & Tickets" },
+      { id: "chat", label: "แชท", icon: MessageSquare, sub: "User Chat" },
       { id: "early_access", label: "Early Access", icon: Rocket, sub: "Tester program" },
     ],
   },
   {
-    label: "พฤติกรรม",
+    label: "วิเคราะห์การใช้งาน",
     items: [
-      { id: "feature_usage", label: "Feature Usage", icon: BarChart3, sub: "ฟีเจอร์ยอดนิยม" },
-      { id: "activity", label: "Activity Stats", icon: LineChart, sub: "เข้าใช้กี่โมง/วันไหน" },
-      { id: "device", label: "อุปกรณ์ที่ใช้", icon: Smartphone, sub: "Mobile / Desktop" },
-      { id: "ai_usage", label: "AI Usage", icon: Sparkles, sub: "AI Chat quota" },
+      { id: "feature_usage", label: "ฟีเจอร์ยอดนิยม", icon: BarChart3, sub: "Feature Usage" },
+      { id: "activity", label: "รูปแบบการใช้", icon: LineChart, sub: "Activity Stats" },
+      { id: "device", label: "อุปกรณ์", icon: Smartphone, sub: "Device Analytics" },
+      { id: "ai_usage", label: "AI Quota", icon: Bot, sub: "AI Usage" },
     ],
   },
   {
     label: "ธุรกิจ",
     items: [
-      { id: "business", label: "Business KPIs", icon: Wallet, sub: "รายได้ / ใบเสนอ" },
-      { id: "subscriptions", label: "Subscriptions", icon: CreditCard, sub: "Subs + Top Apps" },
-      { id: "payments", label: "Payments", icon: CreditCard, sub: "Stripe events" },
+      { id: "business", label: "KPI", icon: Wallet, sub: "Business KPIs" },
+      { id: "subscriptions", label: "Subscriptions", icon: Receipt, sub: "Subs + Top Apps" },
+      { id: "payments", label: "Payments", icon: Banknote, sub: "Stripe events" },
     ],
   },
   {
     label: "คอนเทนต์",
     items: [
-      { id: "announcements", label: "ประกาศ", icon: Megaphone, sub: "บอกผู้ใช้ทุกคน" },
+      { id: "announcements", label: "ประกาศ", icon: Megaphone, sub: "Announcements" },
       { id: "banners", label: "แบนเนอร์", icon: ImageIcon, sub: "Login + Dashboard" },
-      { id: "articles", label: "บทความ / Blog", icon: BookOpen, sub: "Content & SEO" },
+      { id: "articles", label: "บทความ", icon: BookOpen, sub: "Blog & SEO" },
     ],
   },
   {
     label: "ระบบ",
     items: [
-      { id: "ai_center", label: "AI Center", icon: Sparkles, sub: "Control + Price + HQ" },
-      { id: "health", label: "System Health", icon: Activity, sub: "สุขภาพระบบ" },
-      { id: "usage", label: "Storage & Quota", icon: Database, sub: "ใช้พื้นที่เท่าไหร่" },
-      { id: "supabase", label: "Supabase", icon: Link2, sub: "โปรเจกต์ที่เชื่อมต่อ" },
+      { id: "ai_center", label: "AI Center", icon: Cpu, sub: "Control + Price + HQ" },
+      { id: "health", label: "สุขภาพระบบ", icon: HeartPulse, sub: "System Health" },
+      { id: "usage", label: "Storage & Quota", icon: Database, sub: "Disk usage" },
+      { id: "supabase", label: "Supabase", icon: Link2, sub: "Connected project" },
     ],
   },
 ];
+
+function groupForSection(section: AdminSection): string | undefined {
+  return GROUPS.find((g) => g.items.some((s) => s.id === section))?.label;
+}
 
 export function AdminSidebar({
   active,
@@ -139,9 +172,19 @@ export function AdminSidebar({
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
   const [openGroups, setOpenGroups] = React.useState<Record<string, boolean>>(() => {
-    // Default: only "ภาพรวม" expanded, rest collapsed to reduce clutter
-    return Object.fromEntries(GROUPS.map((g, i) => [g.label, i === 0]));
+    const activeGroup = groupForSection(active);
+    return Object.fromEntries(
+      GROUPS.map((g) => [g.label, g.label === activeGroup || g.label === "ภาพรวม"]),
+    );
   });
+
+  React.useEffect(() => {
+    const label = groupForSection(active);
+    if (label) {
+      setOpenGroups((s) => ({ ...s, [label]: true }));
+    }
+  }, [active]);
+
   const toggleGroup = (label: string) =>
     setOpenGroups((s) => ({ ...s, [label]: !s[label] }));
 

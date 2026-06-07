@@ -1,5 +1,6 @@
 import * as React from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 export interface AdminProfileRow {
   id: string;
@@ -80,7 +81,6 @@ export interface AdminMetrics {
   incomes: IncomeRow[];
   expenses: ExpenseRow[];
   subscriptions: SubscriptionRow[];
-  
   savedClients: SavedClientRow[];
   lastSeen: Map<string, Date>;
   /** AI chat usage today: user_id -> count today */
@@ -88,45 +88,52 @@ export interface AdminMetrics {
   /** AI chat usage all-time: user_id -> total count */
   aiUsageTotal: Map<string, number>;
   loading: boolean;
+  error: string | null;
   refresh: () => Promise<void>;
   lastFetched: Date | null;
 }
 
-const empty: Omit<AdminMetrics, "refresh" | "loading" | "lastFetched"> = {
+const empty: Omit<AdminMetrics, "refresh" | "loading" | "lastFetched" | "error"> = {
   profiles: [],
   adminIds: new Set(),
   quotations: [],
   incomes: [],
   expenses: [],
   subscriptions: [],
-  
   savedClients: [],
   lastSeen: new Map(),
   aiUsageToday: new Map(),
   aiUsageTotal: new Map(),
 };
 
+type RpcResult<T> = { data: T | null; error: { message: string } | null };
+
+function pickError(...results: Array<{ error: { message: string } | null }>): string | null {
+  const err = results.find((r) => r.error);
+  return err?.error?.message ?? null;
+}
+
 export function useAdminMetrics(): AdminMetrics {
   const [state, setState] = React.useState(empty);
   const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState<string | null>(null);
   const [lastFetched, setLastFetched] = React.useState<Date | null>(null);
 
   const refresh = React.useCallback(async () => {
     setLoading(true);
     try {
       const [
-        { data: ps },
-        { data: rs },
-        { data: qs },
-        { data: ins },
-        { data: exs },
-        { data: subs },
-        { data: scs },
-        { data: usage },
-        { data: aiUsage },
+        profilesRes,
+        rolesRes,
+        quotationsRes,
+        incomesRes,
+        expensesRes,
+        subscriptionsRes,
+        savedClientsRes,
+        usageRes,
+        aiUsageRes,
       ] = await Promise.all([
-        // Admin-only listing: returns non-sensitive columns only (bank/tax/phone/address excluded server-side).
-        (supabase.rpc as unknown as (fn: string) => Promise<{ data: unknown[] | null; error: { message: string } | null }>)(
+        (supabase.rpc as unknown as (fn: string) => Promise<RpcResult<unknown[]>>)(
           "admin_list_profiles_safe",
         ).then((res) => ({
           ...res,
@@ -173,6 +180,28 @@ export function useAdminMetrics(): AdminMetrics {
           .limit(2000),
       ]);
 
+      const queryError = pickError(
+        profilesRes,
+        rolesRes,
+        quotationsRes,
+        incomesRes,
+        expensesRes,
+        subscriptionsRes,
+        savedClientsRes,
+        usageRes,
+        aiUsageRes,
+      );
+
+      if (queryError) {
+        setError(queryError);
+        toast.error("โหลดข้อมูล Mission Control ไม่ครบ", { description: queryError });
+      } else {
+        setError(null);
+      }
+
+      const usage = usageRes.data;
+      const aiUsage = aiUsageRes.data;
+
       const lastSeen = new Map<string, Date>();
       (usage ?? []).forEach((u: { user_id: string; created_at: string }) => {
         if (!lastSeen.has(u.user_id)) lastSeen.set(u.user_id, new Date(u.created_at));
@@ -184,22 +213,26 @@ export function useAdminMetrics(): AdminMetrics {
       (aiUsage ?? []).forEach((r: { user_id: string; usage_date: string; count: number; total_count: number }) => {
         if (r.usage_date === today) aiUsageToday.set(r.user_id, r.count);
         const cur = aiUsageTotal.get(r.user_id) ?? 0;
-        aiUsageTotal.set(r.user_id, cur + (r.count ?? 0));
+        aiUsageTotal.set(r.user_id, Math.max(cur, r.total_count ?? 0));
       });
 
       setState({
-        profiles: (ps as AdminProfileRow[]) ?? [],
-        adminIds: new Set((rs ?? []).map((r) => r.user_id)),
-        quotations: (qs as QuotationRow[]) ?? [],
-        incomes: (ins as IncomeRow[]) ?? [],
-        expenses: (exs as ExpenseRow[]) ?? [],
-        subscriptions: (subs as SubscriptionRow[]) ?? [],
-        savedClients: (scs as SavedClientRow[]) ?? [],
+        profiles: (profilesRes.data as AdminProfileRow[]) ?? [],
+        adminIds: new Set((rolesRes.data ?? []).map((r) => r.user_id)),
+        quotations: (quotationsRes.data as QuotationRow[]) ?? [],
+        incomes: (incomesRes.data as IncomeRow[]) ?? [],
+        expenses: (expensesRes.data as ExpenseRow[]) ?? [],
+        subscriptions: (subscriptionsRes.data as SubscriptionRow[]) ?? [],
+        savedClients: (savedClientsRes.data as SavedClientRow[]) ?? [],
         lastSeen,
         aiUsageToday,
         aiUsageTotal,
       });
       setLastFetched(new Date());
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : "Unknown error";
+      setError(msg);
+      toast.error("โหลดข้อมูล Mission Control ล้มเหลว", { description: msg });
     } finally {
       setLoading(false);
     }
@@ -209,7 +242,7 @@ export function useAdminMetrics(): AdminMetrics {
     refresh();
   }, [refresh]);
 
-  return { ...state, loading, refresh, lastFetched };
+  return { ...state, loading, error, refresh, lastFetched };
 }
 
 // ============== Helpers ==============
