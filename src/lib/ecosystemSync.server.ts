@@ -25,6 +25,11 @@ export async function syncAnthemEcosystemTier(opts: {
 }): Promise<{ ok: boolean; reason?: string }> {
   const secret = process.env.ECOSYSTEM_SYNC_SECRET;
   const anthemUrl = process.env.ANTHEM_SUPABASE_URL;
+  const soloUrl = process.env.SUPABASE_URL;
+  // Unified project: tier already on the same profiles row — no cross-project sync.
+  if (anthemUrl && soloUrl && anthemUrl.replace(/\/$/, "") === soloUrl.replace(/\/$/, "")) {
+    return { ok: true, reason: "unified_project" };
+  }
   if (!secret || !anthemUrl) {
     return { ok: false, reason: "ecosystem_env_missing" };
   }

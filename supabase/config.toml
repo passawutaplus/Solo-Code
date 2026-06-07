@@ -1,6 +1,9 @@
 # So1o production — supabase-blue-park
 project_id = "rvnzjiskqliexysicfmh"
 
+[api]
+schemas = ["public", "graphql_public", "shared", "anthem", "so1o"]
+
 [functions.ai-design-chat]
 verify_jwt = false
 
@@ -12,3 +15,18 @@ verify_jwt = true
 
 [functions.color-mentor]
 verify_jwt = true
+
+[functions.embed-project]
+verify_jwt = false
+
+[functions.similar-images]
+verify_jwt = false
+
+[functions.generate-contract]
+verify_jwt = false
+
+[functions.sync-so1o-tier]
+verify_jwt = false
+
+[functions.job-match-dispatch]
+verify_jwt = false

@@ -34,6 +34,10 @@ export function defaultModel(): string {
   return Deno.env.get("GEMINI_MODEL") ?? "gemini-2.0-flash";
 }
 
+export function defaultEmbeddingModel(): string {
+  return Deno.env.get("GEMINI_EMBEDDING_MODEL") ?? "text-embedding-004";
+}
+
 /** Map legacy Lovable gateway model ids to Gemini API model ids. */
 export function normalizeGeminiModel(model?: string, fallback?: string): string {
   if (!model?.trim()) return fallback ?? defaultFastModel();
@@ -44,6 +48,7 @@ export function normalizeGeminiModel(model?: string, fallback?: string): string 
     "gemini-3-flash-preview": "gemini-2.0-flash",
     "gemini-2.5-flash-lite": "gemini-2.0-flash-lite",
     "gemini-2.5-flash": "gemini-2.0-flash",
+    "openai/text-embedding-3-small": "text-embedding-004",
   };
   return ALIASES[m] ?? m;
 }
@@ -99,19 +104,6 @@ function extractTextFromResponse(json: Record<string, unknown>): string {
   return parts.map((p) => String(p.text ?? "")).join("");
 }
 
-function extractFunctionArgs(json: Record<string, unknown>): Record<string, unknown> {
-  const candidates = json.candidates as Array<Record<string, unknown>> | undefined;
-  const parts = (candidates?.[0]?.content as Record<string, unknown> | undefined)?.parts as
-    | Array<Record<string, unknown>>
-    | undefined;
-  for (const p of parts ?? []) {
-    const fc = p.functionCall as Record<string, unknown> | undefined;
-    if (fc?.args && typeof fc.args === "object") return fc.args as Record<string, unknown>;
-    if (fc?.name) return fc as Record<string, unknown>;
-  }
-  throw new GeminiError("AI ไม่ได้ตอบกลับในรูปแบบที่ถูกต้อง", 500);
-}
-
 async function parseGeminiError(res: Response): Promise<GeminiError> {
   const t = await res.text().catch(() => "");
   if (res.status === 429) return new GeminiError("rate_limited", 429);
@@ -142,110 +134,24 @@ export async function geminiGenerateText(
   return extractTextFromResponse(json).trim();
 }
 
-export async function geminiGenerateWithFunction(
+export async function geminiEmbedText(
   apiKey: string,
-  model: string,
-  options: {
-    messages: GeminiChatMessage[];
-    functionName: string;
-    functionSchema: Record<string, unknown>;
-    description?: string;
-  },
-): Promise<Record<string, unknown>> {
-  const tools = [
-    {
-      functionDeclarations: [
-        {
-          name: options.functionName,
-          description: options.description ?? "",
-          parameters: options.functionSchema,
-        },
-      ],
-    },
-  ];
-  const toolConfig = {
-    functionCallingConfig: {
-      mode: "ANY",
-      allowedFunctionNames: [options.functionName],
-    },
-  };
-  const url = `${GEMINI_BASE}/models/${model}:generateContent?key=${encodeURIComponent(apiKey)}`;
+  text: string,
+  model?: string,
+): Promise<number[]> {
+  const m = normalizeGeminiModel(model, defaultEmbeddingModel());
+  const url = `${GEMINI_BASE}/models/${m}:embedContent?key=${encodeURIComponent(apiKey)}`;
   const res = await fetch(url, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(
-      buildRequestBody({
-        messages: options.messages,
-        tools,
-        toolConfig,
-      }),
-    ),
+    body: JSON.stringify({
+      content: { parts: [{ text }] },
+    }),
   });
   if (!res.ok) throw await parseGeminiError(res);
   const json = (await res.json()) as Record<string, unknown>;
-  return extractFunctionArgs(json);
-}
-
-/** Stream Gemini output as So1o SSE: `data: {"delta":"..."}\n\n` */
-export function geminiStreamAsSo1oSse(
-  apiKey: string,
-  model: string,
-  messages: GeminiChatMessage[],
-): ReadableStream<Uint8Array> {
-  const url =
-    `${GEMINI_BASE}/models/${model}:streamGenerateContent?alt=sse&key=${encodeURIComponent(apiKey)}`;
-  const encoder = new TextEncoder();
-  const decoder = new TextDecoder();
-
-  return new ReadableStream({
-    async start(controller) {
-      const res = await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(buildRequestBody({ messages })),
-      });
-      if (!res.ok) {
-        const err = await parseGeminiError(res);
-        controller.enqueue(
-          encoder.encode(`event: error\ndata: ${JSON.stringify({ error: err.message })}\n\n`),
-        );
-        controller.close();
-        return;
-      }
-      if (!res.body) {
-        controller.close();
-        return;
-      }
-      const reader = res.body.getReader();
-      let buffer = "";
-      try {
-        while (true) {
-          const { value, done } = await reader.read();
-          if (done) break;
-          buffer += decoder.decode(value, { stream: true });
-          const lines = buffer.split("\n");
-          buffer = lines.pop() ?? "";
-          for (const line of lines) {
-            const trimmed = line.trim();
-            if (!trimmed.startsWith("data:")) continue;
-            const payload = trimmed.slice(5).trim();
-            if (!payload || payload === "[DONE]") continue;
-            try {
-              const j = JSON.parse(payload) as Record<string, unknown>;
-              const delta = extractTextFromResponse(j);
-              if (delta) {
-                controller.enqueue(
-                  encoder.encode(`data: ${JSON.stringify({ delta })}\n\n`),
-                );
-              }
-            } catch {
-              /* ignore partial JSON */
-            }
-          }
-        }
-      } finally {
-        controller.close();
-      }
-    },
-  });
+  const embedding = json.embedding as Record<string, unknown> | undefined;
+  const values = embedding?.values as number[] | undefined;
+  if (!values?.length) throw new GeminiError("empty embedding", 500);
+  return values;
 }
