@@ -54,7 +54,29 @@ export function QuotationsTab() {
   // Hand-off from Smart Brief → auto-create OR refresh existing linked quotation.
   // Wait until `list` is loaded (so we can detect a pre-existing quotation tied to the brief).
   const handoffConsumedRef = React.useRef(false);
+  const openIdConsumedRef = React.useRef(false);
   const listLoaded = React.useRef(false);
+
+  React.useEffect(() => {
+    if (openIdConsumedRef.current) return;
+    let id: string | null = null;
+    try {
+      id = sessionStorage.getItem("so1o.openQuotationId");
+    } catch {
+      /* noop */
+    }
+    if (!id) return;
+    const found = list.find((q) => q.id === id);
+    if (!found && list.length === 0) return;
+    openIdConsumedRef.current = true;
+    try {
+      sessionStorage.removeItem("so1o.openQuotationId");
+    } catch {
+      /* noop */
+    }
+    if (found) setEditingId(id);
+  }, [list]);
+
   React.useEffect(() => {
     // Only run once the list query has resolved (even if empty)
     if (handoffConsumedRef.current) return;

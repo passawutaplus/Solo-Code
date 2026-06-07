@@ -88,6 +88,9 @@ export interface Quotation {
   paidPartial: number;
   lastFollowupAt?: string;
   briefId?: string;
+  contractSignedAt?: string;
+  contractAccepted?: boolean;
+  contractSignerIp?: string;
   timelineEnabled: boolean;
   createdAt: string;
   updatedAt: string;
@@ -143,6 +146,9 @@ interface QuotationRow {
   paid_partial: number;
   last_followup_at: string | null;
   brief_id: string | null;
+  contract_signed_at?: string | null;
+  contract_accepted?: boolean;
+  contract_signer_ip?: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -190,6 +196,9 @@ function rowToQuotation(r: QuotationRow): Quotation {
     paidPartial: Number(r.paid_partial) || 0,
     lastFollowupAt: r.last_followup_at ?? undefined,
     briefId: r.brief_id ?? undefined,
+    contractSignedAt: r.contract_signed_at ?? undefined,
+    contractAccepted: !!r.contract_accepted,
+    contractSignerIp: r.contract_signer_ip ?? undefined,
     timelineEnabled: (r as unknown as { timeline_enabled?: boolean }).timeline_enabled ?? true,
     createdAt: r.created_at,
     updatedAt: r.updated_at,
@@ -459,6 +468,8 @@ export function useQuotations() {
       markPdfExported: (id: string) => markPdfExportedMutation.mutate(id),
       advanceStatus: (id: string, next: QuotationStatus) =>
         advanceStatusMutation.mutate({ id, next }),
+      advanceStatusAsync: (id: string, next: QuotationStatus) =>
+        advanceStatusMutation.mutateAsync({ id, next }),
     }),
     [
       list,
@@ -470,6 +481,7 @@ export function useQuotations() {
       removeMutation,
       duplicateMutation,
       markPdfExportedMutation,
+      advanceStatusMutation.mutateAsync,
       advanceStatusMutation,
     ],
   );
@@ -565,18 +577,19 @@ export function formatBaht(n: number) {
   }).format(safe);
 }
 
+/** Labels aligned with Pipeline kanban columns (ภาษาไทย). */
 export function statusLabel(s: QuotationStatus): { label: string; tone: string } {
   switch (s) {
     case "draft":
-      return { label: "ฉบับร่าง", tone: "bg-muted text-muted-foreground" };
+      return { label: "คุย/ร่าง", tone: "bg-slate-100 text-slate-700 border-slate-200" };
     case "pending_approval":
-      return { label: "รออนุมัติ", tone: "bg-amber-500/15 text-amber-600" };
+      return { label: "ส่งใบเสนอราคา", tone: "bg-blue-50 text-blue-700 border-blue-200" };
     case "pending_payment":
-      return { label: "รอเก็บเงิน", tone: "bg-blue-500/15 text-blue-600" };
+      return { label: "รอเซ็น/มัดจำ", tone: "bg-amber-50 text-amber-800 border-amber-200" };
     case "pending_receipt":
-      return { label: "รอทำใบเสร็จ", tone: "bg-violet-500/15 text-violet-600" };
+      return { label: "กำลังดำเนินงาน", tone: "bg-[#FF5F05]/10 text-[#FF5F05] border-[#FF5F05]/30" };
     case "completed":
-      return { label: "เสร็จสิ้น", tone: "bg-emerald-500/15 text-emerald-600" };
+      return { label: "ปิดงาน", tone: "bg-emerald-50 text-emerald-800 border-emerald-200" };
     case "rejected":
       return { label: "ปฏิเสธ", tone: "bg-destructive/15 text-destructive" };
     case "expired":

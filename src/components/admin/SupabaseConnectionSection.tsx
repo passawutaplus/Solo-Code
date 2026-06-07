@@ -1,0 +1,323 @@
+import * as React from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Database,
+  ExternalLink,
+  Loader2,
+  RefreshCw,
+  CheckCircle2,
+  XCircle,
+  AlertTriangle,
+  Copy,
+  Terminal,
+} from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import {
+  getSupabaseProjectInfo,
+  isProjectConfigConsistent,
+} from "@/lib/supabaseProject";
+import { toast } from "sonner";
+
+type ProbeStatus = "ok" | "missing" | "error" | "checking";
+
+interface MigrationProbe {
+  id: string;
+  label: string;
+  migrationFile: string;
+  status: ProbeStatus;
+  detail?: string;
+}
+
+const PENDING_SQL_BUNDLE = `supabase/manual/apply-all-migrations.sql`;
+
+async function probeTable(table: string): Promise<{ status: ProbeStatus; detail?: string }> {
+  const { error } = await supabase.from(table as never).select("id").limit(1);
+  if (!error) return { status: "ok" };
+  const msg = error.message ?? "";
+  if (msg.includes("does not exist") || msg.includes("Could not find the table")) {
+    return { status: "missing", detail: msg };
+  }
+  if (error.code === "PGRST301" || msg.includes("permission")) {
+    return { status: "ok", detail: "ตารางมีอยู่ (RLS จำกัดการอ่าน)" };
+  }
+  return { status: "error", detail: msg };
+}
+
+async function probeQuotationContractColumns(): Promise<{ status: ProbeStatus; detail?: string }> {
+  const { error } = await supabase
+    .from("quotations")
+    .select("contract_accepted, contract_signed_at, contract_signer_ip")
+    .limit(1);
+  if (!error) return { status: "ok" };
+  const msg = error.message ?? "";
+  if (msg.includes("contract_") || msg.includes("schema cache")) {
+    return { status: "missing", detail: "ยังไม่มีคอลัมน์ contract_* บน quotations" };
+  }
+  return { status: "error", detail: msg };
+}
+
+export function SupabaseConnectionSection() {
+  const info = React.useMemo(() => getSupabaseProjectInfo(), []);
+  const consistent = isProjectConfigConsistent(info);
+  const [connOk, setConnOk] = React.useState<boolean | null>(null);
+  const [latencyMs, setLatencyMs] = React.useState<number | null>(null);
+  const [loading, setLoading] = React.useState(true);
+  const [probes, setProbes] = React.useState<MigrationProbe[]>([
+    {
+      id: "contract",
+      label: "สัญญาจ้าง (contract_* บน quotations)",
+      migrationFile: "20260605100000_quotations_contract.sql",
+      status: "checking",
+    },
+    {
+      id: "support_tickets",
+      label: "Support Tickets MVP",
+      migrationFile: "20260604150000_support_tickets.sql",
+      status: "checking",
+    },
+    {
+      id: "shared_projects",
+      label: "Shared Squad (Phase 2 schema)",
+      migrationFile: "20260605110000_shared_projects_phase2.sql",
+      status: "checking",
+    },
+    {
+      id: "pipeline_org",
+      label: "Pipeline indexes & organization",
+      migrationFile: "20260605120000_pipeline_supabase_organization.sql",
+      status: "checking",
+    },
+  ]);
+
+  const runChecks = React.useCallback(async () => {
+    setLoading(true);
+    setConnOk(null);
+    setLatencyMs(null);
+
+    const t0 = performance.now();
+    try {
+      const { error } = await supabase.from("profiles").select("user_id").limit(1);
+      setLatencyMs(Math.round(performance.now() - t0));
+      setConnOk(!error || !error.message.includes("Failed to fetch"));
+    } catch {
+      setConnOk(false);
+      setLatencyMs(Math.round(performance.now() - t0));
+    }
+
+    const [contract, tickets, shared] = await Promise.all([
+      probeQuotationContractColumns(),
+      probeTable("support_tickets"),
+      probeTable("shared_projects"),
+    ]);
+
+    const contractOk = contract.status === "ok";
+    const pipelineOrg: { status: ProbeStatus; detail?: string } = contractOk
+      ? { status: "ok", detail: "รันร่วมกับ contract migration (ตรวจแบบย่อ)" }
+      : { status: "missing", detail: "รันหลัง contract migration" };
+
+    setProbes([
+      { id: "contract", label: "สัญญาจ้าง (contract_* บน quotations)", migrationFile: "20260605100000_quotations_contract.sql", ...contract },
+      { id: "support_tickets", label: "Support Tickets MVP", migrationFile: "20260604150000_support_tickets.sql", ...tickets },
+      { id: "shared_projects", label: "Shared Squad (Phase 2 schema)", migrationFile: "20260605110000_shared_projects_phase2.sql", ...shared },
+      { id: "pipeline_org", label: "Pipeline indexes & organization", migrationFile: "20260605120000_pipeline_supabase_organization.sql", ...pipelineOrg },
+    ]);
+
+    setLoading(false);
+  }, []);
+
+  React.useEffect(() => {
+    runChecks();
+  }, [runChecks]);
+
+  const allOk = probes.every((p) => p.status === "ok");
+  const anyMissing = probes.some((p) => p.status === "missing");
+
+  const copyRef = () => {
+    navigator.clipboard.writeText(info.projectRef);
+    toast.success("คัดลอก Project Ref แล้ว");
+  };
+
+  return (
+    <div className="space-y-5">
+      <div className="flex items-center justify-between gap-3 flex-wrap">
+        <div>
+          <h2 className="text-lg font-semibold tracking-tight flex items-center gap-2">
+            <Database className="h-5 w-5 text-primary" />
+            Supabase Connection
+          </h2>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            โปรเจกต์ที่แอปเชื่อมต่ออยู่จริง + สถานะ migrations ล่าสุด
+          </p>
+        </div>
+        <Button size="sm" variant="outline" onClick={runChecks} disabled={loading} className="h-8 gap-1.5">
+          <RefreshCw className={`h-3 w-3 ${loading ? "animate-spin" : ""}`} />
+          ตรวจสอบใหม่
+        </Button>
+      </div>
+
+      <Card className={consistent ? "border-emerald-200/60" : "border-amber-300/60"}>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm">โปรเจกต์ที่เชื่อมต่อ</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3 text-sm">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <InfoRow label="Project Ref" value={info.projectRef || "—"} mono />
+            <InfoRow label="API Host" value={info.apiHost || "—"} mono />
+            <InfoRow label="Publishable Key" value={info.hasPublishableKey ? "ตั้งค่าแล้ว" : "ไม่พบ"} />
+            <InfoRow
+              label="Key ↔ Project"
+              value={
+                info.publishableKeyRef
+                  ? info.publishableKeyRef === info.projectRef
+                    ? "ตรงกัน ✓"
+                    : `ไม่ตรง! key=${info.publishableKeyRef}`
+                  : "—"
+              }
+            />
+          </div>
+
+          <div className="flex flex-wrap gap-2 pt-1">
+            <Badge variant={consistent ? "default" : "destructive"} className="text-[10px]">
+              {consistent ? "Config สอดคล้อง" : "Config ไม่ตรงกัน — ตรวจ .env"}
+            </Badge>
+            {connOk === true && (
+              <Badge variant="outline" className="text-[10px] text-emerald-700 border-emerald-300">
+                เชื่อมต่อได้ {latencyMs != null ? `(${latencyMs}ms)` : ""}
+              </Badge>
+            )}
+            {connOk === false && (
+              <Badge variant="outline" className="text-[10px] text-red-600 border-red-300">
+                เชื่อมต่อไม่ได้
+              </Badge>
+            )}
+          </div>
+
+          <div className="flex flex-wrap gap-2">
+            <Button size="sm" variant="outline" className="h-8 gap-1.5" onClick={copyRef}>
+              <Copy className="h-3.5 w-3.5" />
+              คัดลอก Ref
+            </Button>
+            <Button size="sm" variant="outline" className="h-8 gap-1.5" asChild>
+              <a href={info.dashboardUrl} target="_blank" rel="noopener noreferrer">
+                <ExternalLink className="h-3.5 w-3.5" />
+                เปิด Supabase Dashboard
+              </a>
+            </Button>
+            <Button size="sm" variant="outline" className="h-8 gap-1.5" asChild>
+              <a
+                href={`${info.dashboardUrl}/editor`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Terminal className="h-3.5 w-3.5" />
+                SQL Editor
+              </a>
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader className="pb-2">
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-sm">สถานะ Migrations (2026-06)</CardTitle>
+            {loading ? (
+              <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+            ) : allOk ? (
+              <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+            ) : anyMissing ? (
+              <AlertTriangle className="h-4 w-4 text-amber-500" />
+            ) : (
+              <XCircle className="h-4 w-4 text-red-500" />
+            )}
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-2">
+          {probes.map((p) => (
+            <div
+              key={p.id}
+              className="flex items-start justify-between gap-3 rounded-lg border px-3 py-2 text-xs"
+            >
+              <div className="min-w-0">
+                <p className="font-medium">{p.label}</p>
+                <p className="text-[10px] text-muted-foreground font-mono truncate">
+                  {p.migrationFile}
+                </p>
+                {p.detail && (
+                  <p className="text-[10px] text-muted-foreground mt-0.5 line-clamp-2">{p.detail}</p>
+                )}
+              </div>
+              <ProbeBadge status={p.status} />
+            </div>
+          ))}
+
+          {anyMissing && (
+            <div className="mt-3 rounded-lg bg-muted/50 border border-dashed p-3 text-[11px] text-muted-foreground space-y-2">
+              <p className="font-semibold text-foreground">วิธี push migrations</p>
+              <ol className="list-decimal list-inside space-y-1">
+                <li>รัน <code className="bg-muted px-1 rounded">./scripts/install-supabase-cli.sh</code></li>
+                <li>รัน <code className="bg-muted px-1 rounded">npx supabase login</code> (หรือตั้ง <code>SUPABASE_ACCESS_TOKEN</code>)</li>
+                <li>รัน <code className="bg-muted px-1 rounded">./scripts/supabase-push-via-api.sh</code> (หรือ <code className="bg-muted px-1 rounded">supabase-push-pipeline.sh</code> ถ้ามี DB password)</li>
+                <li>
+                  หรือวาง SQL จาก{" "}
+                  <code className="bg-muted px-1 rounded">{PENDING_SQL_BUNDLE}</code> ใน Dashboard → SQL Editor
+                </li>
+              </ol>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      <Card className="border-border bg-muted/20">
+        <CardContent className="p-3.5 text-[11px] text-muted-foreground leading-relaxed">
+          <strong>หมายเหตุ:</strong> Cursor MCP อาจแสดงโปรเจกต์คนละตัวกับที่แอปใช้ — อ้างอิง Project Ref ด้านบนเท่านั้น.
+          ค่าใน <code>supabase/config.toml</code> ควรตรงกับ <code>VITE_SUPABASE_PROJECT_ID</code> ใน <code>.env</code>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+function InfoRow({
+  label,
+  value,
+  mono,
+}: {
+  label: string;
+  value: string;
+  mono?: boolean;
+}) {
+  return (
+    <div>
+      <p className="text-[10px] text-muted-foreground uppercase tracking-wide">{label}</p>
+      <p className={`font-medium truncate ${mono ? "font-mono text-xs" : ""}`}>{value}</p>
+    </div>
+  );
+}
+
+function ProbeBadge({ status }: { status: ProbeStatus }) {
+  if (status === "checking") {
+    return <Badge variant="outline" className="shrink-0 text-[9px]">กำลังตรวจ...</Badge>;
+  }
+  if (status === "ok") {
+    return (
+      <Badge className="shrink-0 text-[9px] bg-emerald-600 hover:bg-emerald-600">
+        ขึ้นแล้ว
+      </Badge>
+    );
+  }
+  if (status === "missing") {
+    return (
+      <Badge variant="outline" className="shrink-0 text-[9px] text-amber-700 border-amber-300">
+        ยังไม่รัน
+      </Badge>
+    );
+  }
+  return (
+    <Badge variant="destructive" className="shrink-0 text-[9px]">
+      ผิดพลาด
+    </Badge>
+  );
+}

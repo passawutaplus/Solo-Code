@@ -18,8 +18,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import {
   Plus, Copy, Loader2, Trash2, Pencil, ExternalLink, ArrowRight, CheckCircle2,
   UserPlus, Receipt, ChevronDown, ChevronUp, ImagePlus, AlertCircle, FileText,
-  Lock, Unlock,
+  Lock, Unlock, Kanban,
 } from "lucide-react";
+import type { FinanceSub } from "./FinanceTab";
 import { toast } from "sonner";
 import { formatTHB } from "@/data/mockData";
 import { GiveFeedbackButton } from "@/components/dashboard/GiveFeedbackButton";
@@ -81,7 +82,7 @@ type JobEvent = {
   created_at: string;
 };
 
-export function JobTrackerTab() {
+export function JobTrackerTab({ onSubChange }: { onSubChange?: (sub: FinanceSub) => void } = {}) {
   const { user } = useAuth();
   const { isPro } = useSubscription();
   const qc = useQueryClient();
@@ -126,15 +127,27 @@ export function JobTrackerTab() {
             ติดตามทุกขั้นตอนของงาน ตั้งแต่รับงานจนส่งมอบ ลูกค้าเห็นความคืบหน้าแบบเรียลไทม์ผ่านลิงก์เฉพาะของงานนั้น
           </p>
         </div>
-        <JobFormDialog
-          jobs={jobs}
-          onSaved={refresh}
-          trigger={
-            <Button size="sm" className="gap-1.5 rounded-xl shrink-0">
-              <Plus className="h-4 w-4" /> สร้างงานใหม่
+        <div className="flex items-center gap-2 shrink-0">
+          {onSubChange && (
+            <Button
+              size="sm"
+              variant="outline"
+              className="gap-1.5 rounded-xl"
+              onClick={() => onSubChange("pipeline")}
+            >
+              <Kanban className="h-4 w-4 text-[#FF5F05]" /> Pipeline
             </Button>
-          }
-        />
+          )}
+          <JobFormDialog
+            jobs={jobs}
+            onSaved={refresh}
+            trigger={
+              <Button size="sm" className="gap-1.5 rounded-xl">
+                <Plus className="h-4 w-4" /> สร้างงานใหม่
+              </Button>
+            }
+          />
+        </div>
       </div>
 
       {jobs.length === 0 ? (
@@ -747,6 +760,7 @@ function JobFormDialog({
     const totals = computeTotals(q);
     setForm((f) => ({
       ...f,
+      quotation_id: qid,
       title: q.projectName || f.title,
       client_name: q.clientName || f.client_name,
       total_amount: Math.round(totals.grandTotal),
@@ -759,6 +773,7 @@ function JobFormDialog({
   }
   const [form, setForm] = React.useState({
     title: existing?.title ?? "",
+    quotation_id: "" as string,
     client_id: existing?.client_id ?? "",
     client_name: existing?.client_name ?? "",
     total_amount: existing?.total_amount ?? 0,
@@ -797,6 +812,19 @@ function JobFormDialog({
     if (!user) return;
     if (!form.title.trim()) { toast.error("ใส่ชื่องานก่อน"); return; }
 
+    if (form.quotation_id) {
+      const q = quotations.list.find((x) => x.id === form.quotation_id);
+      const needsContract =
+        q &&
+        (q.status === "pending_payment" ||
+          q.status === "pending_receipt" ||
+          q.status === "completed");
+      if (needsContract && !q.contractAccepted) {
+        toast.error("ยืนยันสัญญาจ้างใน Pipeline ก่อนสร้าง Job Tracker จากใบเสนอราคานี้");
+        return;
+      }
+    }
+
     if (!existing) {
       const used = countJobsCreatedThisMonth(jobs);
       if (!canCreateJob(isPro, used)) {
@@ -813,6 +841,7 @@ function JobFormDialog({
     const payload = {
       ...form,
       client_id: form.client_id || null,
+      quotation_id: form.quotation_id || null,
       payment_qr_url: form.payment_qr_url || null,
       deadline: form.deadline || null,
       start_date: form.start_date || null,

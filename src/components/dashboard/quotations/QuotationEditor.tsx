@@ -171,6 +171,14 @@ export function QuotationEditor({ id, onBack }: Props) {
 
   async function handleCreateOrOpenTracker() {
     if (!q || !user) return;
+    const needsContract =
+      q.status === "pending_payment" ||
+      q.status === "pending_receipt" ||
+      q.status === "completed";
+    if (needsContract && !q.contractAccepted) {
+      toast.error("ยืนยันสัญญาจ้างก่อน — เปิดจาก Pipeline > การ์ดดีล > สัญญาจ้าง");
+      return;
+    }
     setCreatingTracker(true);
     try {
       // ดูว่ามี job tracker ของใบนี้แล้วหรือยัง

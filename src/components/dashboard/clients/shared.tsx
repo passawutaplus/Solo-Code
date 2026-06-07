@@ -3,6 +3,7 @@ import {
   CheckCircle2, Clock, AlertTriangle, AlertOctagon,
 } from "lucide-react";
 import { fieldLabelClass } from "@/lib/formFieldStyles";
+import { DEFAULT_CONTRACT_CLAUSES } from "@/lib/contractTemplates";
 
 export const CLIENT_GRADES: Record<string, { grade: "A" | "B" | "C"; traits: string[] }> = {
   "Nimbus Co.": { grade: "A", traits: ["จ่ายตรงเวลา", "บรีฟชัด"] },
@@ -11,12 +12,11 @@ export const CLIENT_GRADES: Record<string, { grade: "A" | "B" | "C"; traits: str
   "FitLab": { grade: "A", traits: ["บรีฟดี", "ตัดสินใจไว"] },
 };
 
-export const CONTRACTS = [
-  { title: "ลิขสิทธิ์งาน", detail: "งานทั้งหมดเป็นของลูกค้าเมื่อชำระครบ" },
-  { title: "จำนวนแก้ไข", detail: "ฟรี 3 ครั้ง หลังจากนั้นคิด 500 บาท/ครั้ง" },
-  { title: "การยกเลิก", detail: "เก็บมัดจำ 30% หากยกเลิกหลังเริ่มงาน" },
-  { title: "การส่งมอบ", detail: "ส่งไฟล์ผ่าน Google Drive เท่านั้น" },
-];
+/** Re-export pipeline contract clauses for client CRM display. */
+export const CONTRACTS = DEFAULT_CONTRACT_CLAUSES.map((c) => ({
+  title: c.title,
+  detail: c.body,
+}));
 
 export const GRADE_COLOR = {
   A: "bg-success/15 text-success",

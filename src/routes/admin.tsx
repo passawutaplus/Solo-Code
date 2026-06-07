@@ -30,6 +30,11 @@ const HealthSection = React.lazy(() =>
 const UsageSection = React.lazy(() =>
   import("@/components/admin/UsageSection").then((m) => ({ default: m.UsageSection })),
 );
+const SupabaseConnectionSection = React.lazy(() =>
+  import("@/components/admin/SupabaseConnectionSection").then((m) => ({
+    default: m.SupabaseConnectionSection,
+  })),
+);
 const EarlyAccessSection = React.lazy(() =>
   import("@/components/admin/EarlyAccessSection").then((m) => ({ default: m.EarlyAccessSection })),
 );
@@ -180,6 +185,7 @@ function AdminPage() {
                 {active === "ai_center" && <AiHubSection />}
                 {active === "health" && <HealthSection m={m} />}
                 {active === "usage" && <UsageSection />}
+                {active === "supabase" && <SupabaseConnectionSection />}
               </React.Suspense>
             </div>
           </main>

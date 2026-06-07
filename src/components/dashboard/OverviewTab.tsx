@@ -24,6 +24,9 @@ import { JobListWidget } from "./overview/JobListWidget";
 import { TaskListWidget } from "./overview/TaskListWidget";
 import { QuickNoteWidget } from "./overview/QuickNoteWidget";
 import { JobTrackerMiniWidget } from "./overview/JobTrackerMiniWidget";
+import { OnboardingChecklist } from "./overview/OnboardingChecklist";
+import { PipelineMiniWidget } from "./overview/PipelineMiniWidget";
+import { Kanban, FileText, Calculator } from "lucide-react";
 
 interface OverviewTabProps {
   onGo: (tab: string, sub?: string) => void;
@@ -32,6 +35,7 @@ interface OverviewTabProps {
 interface Snapshot {
   unreadNotif: number;
   clients: number;
+  quotations: number;
   recentNotif: { id: string; message: string; type: string; created_at: string; read: boolean }[];
 }
 
@@ -45,9 +49,10 @@ export function OverviewTab({ onGo }: OverviewTabProps) {
     if (!user) return;
     let cancelled = false;
     (async () => {
-      const [notifRes, clientsRes, recentRes] = await Promise.all([
+      const [notifRes, clientsRes, quotesRes, recentRes] = await Promise.all([
         supabase.from("notifications").select("id", { count: "exact", head: true }).eq("user_id", user.id).eq("read", false),
         supabase.from("saved_clients").select("id", { count: "exact", head: true }).eq("user_id", user.id),
+        supabase.from("quotations").select("id", { count: "exact", head: true }).eq("user_id", user.id),
         supabase.from("notifications").select("id,message,type,created_at,read").eq("user_id", user.id).order("created_at", { ascending: false }).limit(5),
       ]);
 
@@ -55,6 +60,7 @@ export function OverviewTab({ onGo }: OverviewTabProps) {
       setSnap({
         unreadNotif: notifRes.count || 0,
         clients: clientsRes.count || 0,
+        quotations: quotesRes.count || 0,
         recentNotif: recentRes.data || [],
       });
     })();
@@ -98,6 +104,23 @@ export function OverviewTab({ onGo }: OverviewTabProps) {
 
   return (
     <div className="space-y-4 sm:space-y-5 lg:space-y-6">
+      <OnboardingChecklist
+        onGo={onGo}
+        stats={{
+          clients: snap?.clients ?? 0,
+          quotations: snap?.quotations ?? 0,
+          jobs: jobsList.length,
+          incomes: finance.incomes.length,
+        }}
+      />
+
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <ShortcutPill icon={Kanban} label="Pipeline" onClick={() => onGo("finance", "pipeline")} />
+        <ShortcutPill icon={FileText} label="ใบเสนอราคา" onClick={() => onGo("finance", "quotations")} />
+        <ShortcutPill icon={Calculator} label="ภาษี" onClick={() => onGo("finance", "tax")} />
+        <ShortcutPill icon={Users} label="ลูกค้า" onClick={() => onGo("mydata", "clients")} />
+      </div>
+
       {/* Monthly income goal — moved to top */}
       <MonthlyGoalCard
         goal={goal}
@@ -140,8 +163,9 @@ export function OverviewTab({ onGo }: OverviewTabProps) {
         />
       </div>
 
-      {/* Job tracker + Debt collection (2-column, equal height) */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-5 items-stretch">
+      {/* Pipeline + Job tracker + Debt */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-5 items-stretch">
+        <PipelineMiniWidget onGo={onGo} />
         <JobTrackerMiniWidget onGo={onGo} />
         <DebtWidget onGo={onGo} />
       </div>

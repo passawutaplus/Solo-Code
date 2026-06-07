@@ -10,6 +10,8 @@ import { formatTHB } from "@/data/mockData";
 import { Download, Receipt, Calculator, AlertCircle, Sparkles, Paperclip, Trash2, FlaskConical, Coins, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
 import { FinanceMoneyNav, type FinanceMoneySub } from "./FinanceMoneyNav";
+import type { FinanceSub } from "./FinanceTab";
+import { useQuotations } from "@/store/quotations";
 import { useTaxEstimate } from "./tax/useTaxEstimate";
 import { exportIncomeCsv } from "./tax/exportIncomeCsv";
 import { DeductionsPanel } from "./tax/DeductionsPanel";
@@ -23,9 +25,10 @@ const WHTCertificates = React.lazy(() =>
 
 type Props = {
   onNavigate: (sub: FinanceMoneySub) => void;
+  onSubChange?: (sub: FinanceSub) => void;
 };
 
-export function TaxTab({ onNavigate }: Props) {
+export function TaxTab({ onNavigate, onSubChange }: Props) {
   const {
     incomes,
     workExpenses,
@@ -46,11 +49,31 @@ export function TaxTab({ onNavigate }: Props) {
     activeDeductions,
   } = useTaxEstimate();
   const [simOpen, setSimOpen] = React.useState(false);
+  const { list: quotations } = useQuotations();
+  const closedDeals = quotations.filter((q) => q.status === "completed").length;
 
   const gaugeAngle = (vatPct / 100) * 180;
 
   return (
     <div className="space-y-5">
+      {closedDeals > 0 && onSubChange && (
+        <button
+          type="button"
+          onClick={() => onSubChange("pipeline")}
+          className="w-full flex items-center justify-between gap-3 rounded-xl border border-emerald-200 bg-emerald-50/80 px-4 py-3 text-left hover:bg-emerald-50 transition"
+        >
+          <div>
+            <p className="text-xs font-semibold text-emerald-900">
+              ปิดงานแล้ว {closedDeals} ดีล — ดูใน Pipeline
+            </p>
+            <p className="text-[11px] text-emerald-800/80 mt-0.5">
+              รายได้จากดีลที่ปิดแล้วถูกซิงค์มาคำนวณภาษีด้านล่าง
+            </p>
+          </div>
+          <ArrowRight className="h-4 w-4 text-emerald-700 shrink-0" />
+        </button>
+      )}
+
       <div className="flex flex-wrap items-center justify-between gap-3">
         <FinanceMoneyNav active="tax" onNavigate={onNavigate} />
         <div className="flex items-center gap-2">

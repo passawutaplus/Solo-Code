@@ -22,7 +22,7 @@ import {
   Smartphone,
   Sparkles,
   Image as ImageIcon,
-  
+  Link2,
 } from "lucide-react";
 import {
   Sidebar,
@@ -56,7 +56,8 @@ export type AdminSection =
   | "device"
   | "ai_center"
   | "health"
-  | "usage";
+  | "usage"
+  | "supabase";
 
 interface SectionItem {
   id: AdminSection;
@@ -106,6 +107,7 @@ const GROUPS: { label: string; items: SectionItem[] }[] = [
       { id: "ai_center", label: "AI Center", icon: Sparkles, sub: "Control + Price + HQ" },
       { id: "health", label: "System Health", icon: Activity, sub: "Activity feed" },
       { id: "usage", label: "Storage & Quota", icon: Database, sub: "ใช้พื้นที่เท่าไหร่" },
+      { id: "supabase", label: "Supabase", icon: Link2, sub: "โปรเจกต์ที่เชื่อมต่อ" },
     ],
   },
 ];

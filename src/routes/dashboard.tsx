@@ -10,6 +10,7 @@ import { Link } from "@tanstack/react-router";
 import { FlaskConical } from "lucide-react";
 import { DashboardSidebar, type DashSection } from "@/components/dashboard/layout/DashboardSidebar";
 import { BottomNav } from "@/components/dashboard/layout/BottomNav";
+import { DashboardCommandMenu } from "@/components/dashboard/DashboardCommandMenu";
 import { NotificationBell } from "@/components/NotificationBell";
 
 import { SubscriptionStatusBanner } from "@/components/dashboard/SubscriptionStatusBanner";
@@ -85,6 +86,7 @@ const SECTION_FALLBACK: Record<DashSection, string> = {
 
 const SUB_TITLES: Partial<Record<DashSection, Record<string, string>>> = {
   finance: {
+    pipeline: "Pipeline",
     quotations: "Quotation",
     jobs: "Job Tracker",
     income: "รายได้",
@@ -220,6 +222,7 @@ function Dashboard() {
                         <FinanceTab
                           sub={(sub as any) ?? "quotations"}
                           onMoneySubChange={(s) => updateSection("finance", s)}
+                          onSubChange={(s) => updateSection("finance", s)}
                         />
                       </React.Suspense>
                     )}
@@ -251,6 +254,7 @@ function Dashboard() {
 
           {/* Mobile bottom navigation (PWA-friendly) */}
           <BottomNav active={section} activeSub={sub} onSelect={(s, nextSub) => updateSection(s, nextSub)} />
+          <DashboardCommandMenu onNavigate={updateSection} />
 
           {/* Floating chat + Support are rendered globally via DraggableFabDock in __root */}
 

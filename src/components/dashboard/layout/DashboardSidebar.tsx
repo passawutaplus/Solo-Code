@@ -24,6 +24,7 @@ import {
   Briefcase,
   Wallet,
   Database,
+  Kanban,
 } from "lucide-react";
 import {
   Sidebar,
@@ -68,29 +69,13 @@ interface NavGroup {
 
 const GROUPS: NavGroup[] = [
   {
-    label: "My Life",
-    icon: Compass,
-    items: [
-      { label: "ข่าวสาร & เทรนด์", icon: Newspaper, section: "trends" },
-      { label: "Inspire", icon: Compass, section: "inspire" },
-    ],
-  },
-  {
-    label: "Working",
+    label: "งานลูกค้า",
     icon: Briefcase,
     items: [
+      { label: "Pipeline", icon: Kanban, section: "finance", sub: "pipeline" },
       { label: "Smart Brief", icon: Lightbulb, section: "planner", sub: "briefs" },
       { label: "Quotation", icon: FileText, section: "finance", sub: "quotations" },
       { label: "Job tracker", icon: Workflow, section: "finance", sub: "jobs" },
-    ],
-  },
-  {
-    label: "Planner",
-    icon: CalendarDays,
-    items: [
-      { label: "Content", icon: CalendarDays, section: "planner", sub: "content" },
-      { label: "To Do List", icon: ListTodo, section: "planner", sub: "projects" },
-      { label: "Feedback", icon: MessageSquare, section: "planner", sub: "feedback" },
     ],
   },
   {
@@ -103,12 +88,29 @@ const GROUPS: NavGroup[] = [
     ],
   },
   {
-    label: "My Data",
+    label: "วางแผน",
+    icon: CalendarDays,
+    items: [
+      { label: "Content", icon: CalendarDays, section: "planner", sub: "content" },
+      { label: "To Do List", icon: ListTodo, section: "planner", sub: "projects" },
+      { label: "Feedback", icon: MessageSquare, section: "planner", sub: "feedback" },
+    ],
+  },
+  {
+    label: "ข้อมูล",
     icon: Database,
     items: [
       { label: "Client", icon: Users, section: "mydata", sub: "clients" },
       { label: "Suppliers", icon: Truck, section: "mydata", sub: "suppliers" },
       { label: "Assets", icon: FolderOpen, section: "mydata", sub: "assets" },
+    ],
+  },
+  {
+    label: "อื่นๆ",
+    icon: Compass,
+    items: [
+      { label: "ข่าวสาร & เทรนด์", icon: Newspaper, section: "trends" },
+      { label: "Inspire", icon: Compass, section: "inspire" },
     ],
   },
 ];
