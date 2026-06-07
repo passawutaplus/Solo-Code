@@ -330,6 +330,12 @@ export function AssetsTab() {
         <div>
           <h2 className="text-lg font-semibold tracking-tight flex items-center gap-2">
             <ShieldCheck className="h-4 w-4 text-primary" /> Assets — ศูนย์กลางทรัพยากรงานออกแบบ
+            <span className="text-[10px] font-normal text-muted-foreground ml-1">
+              · ตรวจสิทธิฟอนต์ก่อนส่งงานใน{" "}
+              <a href="/dashboard?tab=mydata&sub=legal" className="text-primary hover:underline">
+                Legal Desk
+              </a>
+            </span>
           </h2>
           <p className="text-xs text-muted-foreground mt-0.5">
             รวมฟอนต์ · สีแบรนด์ · ลิงก์ไฟล์ · โค้ดสั้น · รหัสผ่าน ของลูกค้าทุกรายในที่เดียว

@@ -418,6 +418,22 @@ body.dash-sidebar-gradient [data-sidebar="sidebar"] [data-sidebar="group-label"]
   }
 }
 
+.license-cert-print-only { display: none; }
+
+@media print {
+  body.printing-license-cert > *:not(.license-cert-print-only) { display: none !important; }
+  body.printing-license-cert .license-cert-print-only {
+    display: block !important;
+    position: static !important;
+    width: 100% !important;
+    height: auto !important;
+    overflow: visible !important;
+    background: #fff !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+}
+
 
 /* Thai vowel rendering — prevent มาตรา/สระ being clipped or overlapping */
 .thai-text,

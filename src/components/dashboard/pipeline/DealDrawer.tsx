@@ -1,7 +1,9 @@
 import * as React from "react";
 import { formatDistanceToNow } from "date-fns";
 import { th } from "date-fns/locale";
-import { X, FileText, ExternalLink, Receipt, Calculator, ScrollText } from "lucide-react";
+import { X, FileText, ExternalLink, Receipt, Calculator, ScrollText, Scale } from "lucide-react";
+import { UsageRightsBuilder } from "@/components/legal-desk/UsageRightsBuilder";
+import { useUsageRightsById } from "@/store/legalUsageRights";
 import { Button } from "@/components/ui/button";
 import { PIPELINE_LABELS, PIPELINE_COLORS, type PipelineColumn } from "@/lib/pipelineStatus";
 import { formatBaht, statusLabel } from "@/store/quotations";
@@ -25,7 +27,9 @@ export function DealDrawer({
   onOpenContract: () => void;
 }) {
   const [contractOpen, setContractOpen] = React.useState(false);
+  const [rightsOpen, setRightsOpen] = React.useState(false);
   const q = deal.quotation;
+  const { data: usageRights } = useUsageRightsById(q.usageRightsId);
   const st = statusLabel(q.status);
   const colLabel = PIPELINE_LABELS[deal.column];
   const colColor = PIPELINE_COLORS[deal.column as PipelineColumn];
@@ -59,6 +63,11 @@ export function DealDrawer({
             {q.contractAccepted && (
               <span className={cnBadge("bg-emerald-50 text-emerald-800 border-emerald-200")}>
                 สัญญายืนยันแล้ว
+              </span>
+            )}
+            {q.usageRightsId && (
+              <span className={cnBadge("bg-violet-50 text-violet-800 border-violet-200")}>
+                มีสิทธิลิขสิทธิ์
               </span>
             )}
           </div>
@@ -131,6 +140,15 @@ export function DealDrawer({
                 size="sm"
                 variant="outline"
                 className="h-8 text-xs gap-1"
+                onClick={() => setRightsOpen(true)}
+              >
+                <Scale className="h-3.5 w-3.5" />
+                ตั้งสิทธิ์ลิขสิทธิ์
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-8 text-xs gap-1"
                 onClick={() => setContractOpen(true)}
               >
                 <ScrollText className="h-3.5 w-3.5" />
@@ -138,6 +156,13 @@ export function DealDrawer({
               </Button>
             </div>
           </div>
+
+          {usageRights && (
+            <div className="rounded-lg border border-violet-200/60 bg-violet-50/50 p-3 text-[11px] text-violet-900">
+              <p className="font-semibold mb-1">สรุปสิทธิลิขสิทธิ์</p>
+              <p>{usageRights.label}</p>
+            </div>
+          )}
 
           {deal.column === "done" && deal.hasIncome && (
             <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-900">
@@ -147,10 +172,17 @@ export function DealDrawer({
         </div>
       </div>
 
+      <UsageRightsBuilder
+        open={rightsOpen}
+        onOpenChange={setRightsOpen}
+        quotation={q}
+        onSaved={onOpenContract}
+      />
       <ContractSignDialog
         open={contractOpen}
         onOpenChange={setContractOpen}
         quotation={q}
+        usageRights={usageRights ?? undefined}
         onSigned={onOpenContract}
       />
     </>

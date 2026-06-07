@@ -2,6 +2,8 @@ import * as React from "react";
 import type { Quotation, DocKind } from "@/store/quotations";
 import { computeTotals, formatBaht, computeRevisionDates } from "@/store/quotations";
 import { useAuth } from "@/auth/AuthProvider";
+import { useUsageRightsById } from "@/store/legalUsageRights";
+import { summarizeUsageRights } from "@/lib/buildCopyrightClauses";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { th } from "date-fns/locale";
@@ -49,6 +51,7 @@ const fmtThaiShort = (d?: string | Date) => {
 };
 
 export function PreviewPanel({ q, docKind = "quotation" }: Props) {
+  const { data: usageRights } = useUsageRightsById(q.usageRightsId);
   const { profile } = useAuth();
   const totals = React.useMemo(() => computeTotals(q), [q]);
   const today = new Date();
@@ -400,6 +403,23 @@ export function PreviewPanel({ q, docKind = "quotation" }: Props) {
             </div>
           </div>
         </div>
+
+        {/* ── USAGE RIGHTS ── */}
+        {usageRights && docKind === "quotation" && (
+          <div className="pt-1">
+            <p className="text-[11px] font-semibold text-neutral-700 mb-1.5">
+              สิทธิการใช้งานและลิขสิทธิ์
+            </p>
+            <ul className="space-y-1 text-[10.5px] text-neutral-700">
+              {summarizeUsageRights(usageRights).map((line) => (
+                <li key={line} className="flex items-start gap-1.5">
+                  <span className="text-neutral-400 mt-0.5">•</span>
+                  <span>{line}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
 
         {/* ── TERMS / NOTES ── */}
         {profile?.terms && (

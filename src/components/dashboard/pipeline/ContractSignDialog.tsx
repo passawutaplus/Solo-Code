@@ -14,25 +14,29 @@ import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/auth/AuthProvider";
-import { buildContractDocument, DEFAULT_CONTRACT_CLAUSES } from "@/lib/contractTemplates";
+import { buildContractClausesForQuotation, buildContractDocument } from "@/lib/contractTemplates";
+import type { UsageRightsInput } from "@/lib/usageRightsSchema";
 import type { Quotation } from "@/store/quotations";
 
 export function ContractSignDialog({
   open,
   onOpenChange,
   quotation,
+  usageRights,
   onSigned,
 }: {
   open: boolean;
   onOpenChange: (o: boolean) => void;
   quotation: Quotation;
+  usageRights?: UsageRightsInput;
   onSigned?: () => void;
 }) {
   const { user } = useAuth();
   const qc = useQueryClient();
   const [agreed, setAgreed] = React.useState(false);
   const [saving, setSaving] = React.useState(false);
-  const body = buildContractDocument(quotation);
+  const clauses = buildContractClausesForQuotation(quotation, usageRights);
+  const body = buildContractDocument(quotation, clauses, usageRights);
 
   React.useEffect(() => {
     if (!open) setAgreed(false);
@@ -83,7 +87,7 @@ export function ContractSignDialog({
           <pre className="text-xs whitespace-pre-wrap font-sans text-foreground">{body}</pre>
         </ScrollArea>
         <ul className="text-[11px] text-muted-foreground space-y-1">
-          {DEFAULT_CONTRACT_CLAUSES.map((c) => (
+          {clauses.map((c) => (
             <li key={c.id}>• {c.title}</li>
           ))}
         </ul>

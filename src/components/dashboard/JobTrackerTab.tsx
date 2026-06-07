@@ -31,6 +31,7 @@ import { JOB_STEPS, progressPercentForStep } from "./jobtracker/steps";
 import { ImageUploadField } from "./jobtracker/ImageUploadField";
 import { uploadJobTrackerImage } from "./jobtracker/uploadImage";
 import { StepComments } from "./jobtracker/StepComments";
+import { JobLicenseCertificateButton } from "@/components/legal-desk/JobLicenseCertificateButton";
 
 type JobSlip = {
   id: string;
@@ -69,6 +70,7 @@ type Job = {
   start_date: string | null;
   payment_qr_url: string | null;
   updated_at: string;
+  quotation_id: string | null;
 };
 
 type JobEvent = {
@@ -492,6 +494,10 @@ function JobCard({ job, allJobs, onChanged }: { job: Job; allJobs: Job[]; onChan
             <Trash2 className="h-3.5 w-3.5" />
           </Button>
         </div>
+
+        {job.quotation_id && (
+          <JobLicenseCertificateButton quotationId={job.quotation_id} />
+        )}
 
         {job.final_file_url && (
           <Button

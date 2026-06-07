@@ -1,5 +1,7 @@
 import type { Quotation } from "@/store/quotations";
 import { computeTotals, formatBaht } from "@/store/quotations";
+import { buildCopyrightClauses } from "@/lib/buildCopyrightClauses";
+import type { UsageRightsInput } from "@/lib/usageRightsSchema";
 
 export interface ContractClause {
   id: string;
@@ -35,7 +37,20 @@ export const DEFAULT_CONTRACT_CLAUSES: ContractClause[] = [
   },
 ];
 
-export function buildContractDocument(q: Quotation, clauses = DEFAULT_CONTRACT_CLAUSES): string {
+export function buildContractClausesForQuotation(
+  q: Quotation,
+  rights?: UsageRightsInput | null,
+): ContractClause[] {
+  if (rights) return buildCopyrightClauses(rights, q.revisionsCount);
+  return DEFAULT_CONTRACT_CLAUSES;
+}
+
+export function buildContractDocument(
+  q: Quotation,
+  clauses?: ContractClause[],
+  rights?: UsageRightsInput | null,
+): string {
+  const resolved = clauses ?? buildContractClausesForQuotation(q, rights);
   const totals = computeTotals(q);
   const lines = [
     `สัญญาจ้างบริการ — ${q.projectName}`,
@@ -47,7 +62,7 @@ export function buildContractDocument(q: Quotation, clauses = DEFAULT_CONTRACT_C
     `เงื่อนไขชำระ: ${q.paymentTerms || "ตามใบเสนอราคา"}`,
     "",
     "ข้อตกลง:",
-    ...clauses.map((c, i) => `${i + 1}. ${c.title} — ${c.body}`),
+    ...resolved.map((c, i) => `${i + 1}. ${c.title} — ${c.body}`),
     "",
     q.notes ? `หมายเหตุเพิ่มเติม: ${q.notes}` : "",
   ];

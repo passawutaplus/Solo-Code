@@ -25,6 +25,7 @@ import {
   Wallet,
   Database,
   Kanban,
+  Scale,
 } from "lucide-react";
 import {
   Sidebar,
@@ -106,6 +107,7 @@ const GROUPS: NavGroup[] = [
       { label: "Client", icon: Users, section: "mydata", sub: "clients" },
       { label: "Suppliers", icon: Truck, section: "mydata", sub: "suppliers" },
       { label: "Assets", icon: FolderOpen, section: "mydata", sub: "assets" },
+      { label: "Legal Desk", icon: Scale, section: "mydata", sub: "legal" },
     ],
   },
   {

@@ -32,6 +32,7 @@ import { Route as VisionTokenRouteImport } from './routes/vision.$token'
 import { Route as TrackTokenRouteImport } from './routes/track.$token'
 import { Route as SupplierTokenRouteImport } from './routes/supplier.$token'
 import { Route as PlannerTokenRouteImport } from './routes/planner.$token'
+import { Route as LicenseTokenRouteImport } from './routes/license.$token'
 import { Route as EmailUnsubscribeRouteImport } from './routes/email/unsubscribe'
 import { Route as BriefTokenRouteImport } from './routes/brief.$token'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
@@ -160,6 +161,11 @@ const PlannerTokenRoute = PlannerTokenRouteImport.update({
   path: '/planner/$token',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LicenseTokenRoute = LicenseTokenRouteImport.update({
+  id: '/license/$token',
+  path: '/license/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const EmailUnsubscribeRoute = EmailUnsubscribeRouteImport.update({
   id: '/email/unsubscribe',
   path: '/email/unsubscribe',
@@ -249,6 +255,7 @@ export interface FileRoutesByFullPath {
   '/blog/$slug': typeof BlogSlugRoute
   '/brief/$token': typeof BriefTokenRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
+  '/license/$token': typeof LicenseTokenRoute
   '/planner/$token': typeof PlannerTokenRoute
   '/supplier/$token': typeof SupplierTokenRoute
   '/track/$token': typeof TrackTokenRoute
@@ -286,6 +293,7 @@ export interface FileRoutesByTo {
   '/blog/$slug': typeof BlogSlugRoute
   '/brief/$token': typeof BriefTokenRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
+  '/license/$token': typeof LicenseTokenRoute
   '/planner/$token': typeof PlannerTokenRoute
   '/supplier/$token': typeof SupplierTokenRoute
   '/track/$token': typeof TrackTokenRoute
@@ -324,6 +332,7 @@ export interface FileRoutesById {
   '/blog/$slug': typeof BlogSlugRoute
   '/brief/$token': typeof BriefTokenRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
+  '/license/$token': typeof LicenseTokenRoute
   '/planner/$token': typeof PlannerTokenRoute
   '/supplier/$token': typeof SupplierTokenRoute
   '/track/$token': typeof TrackTokenRoute
@@ -363,6 +372,7 @@ export interface FileRouteTypes {
     | '/blog/$slug'
     | '/brief/$token'
     | '/email/unsubscribe'
+    | '/license/$token'
     | '/planner/$token'
     | '/supplier/$token'
     | '/track/$token'
@@ -400,6 +410,7 @@ export interface FileRouteTypes {
     | '/blog/$slug'
     | '/brief/$token'
     | '/email/unsubscribe'
+    | '/license/$token'
     | '/planner/$token'
     | '/supplier/$token'
     | '/track/$token'
@@ -437,6 +448,7 @@ export interface FileRouteTypes {
     | '/blog/$slug'
     | '/brief/$token'
     | '/email/unsubscribe'
+    | '/license/$token'
     | '/planner/$token'
     | '/supplier/$token'
     | '/track/$token'
@@ -473,6 +485,7 @@ export interface RootRouteChildren {
   BlogSlugRoute: typeof BlogSlugRoute
   BriefTokenRoute: typeof BriefTokenRoute
   EmailUnsubscribeRoute: typeof EmailUnsubscribeRoute
+  LicenseTokenRoute: typeof LicenseTokenRoute
   PlannerTokenRoute: typeof PlannerTokenRoute
   SupplierTokenRoute: typeof SupplierTokenRoute
   TrackTokenRoute: typeof TrackTokenRoute
@@ -650,6 +663,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PlannerTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/license/$token': {
+      id: '/license/$token'
+      path: '/license/$token'
+      fullPath: '/license/$token'
+      preLoaderRoute: typeof LicenseTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/email/unsubscribe': {
       id: '/email/unsubscribe'
       path: '/email/unsubscribe'
@@ -771,6 +791,7 @@ const rootRouteChildren: RootRouteChildren = {
   BlogSlugRoute: BlogSlugRoute,
   BriefTokenRoute: BriefTokenRoute,
   EmailUnsubscribeRoute: EmailUnsubscribeRoute,
+  LicenseTokenRoute: LicenseTokenRoute,
   PlannerTokenRoute: PlannerTokenRoute,
   SupplierTokenRoute: SupplierTokenRoute,
   TrackTokenRoute: TrackTokenRoute,

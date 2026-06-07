@@ -2706,30 +2706,30 @@ CREATE OR REPLACE FUNCTION anthem.submit_feedback(
   _project_id uuid,
   _user_agent text,
   _viewport text
-) RETURNS public.app_feedback
+) RETURNS anthem.app_feedback
 LANGUAGE plpgsql SECURITY DEFINER SET search_path = anthem, shared, public AS $$
 DECLARE
   uid uuid := auth.uid();
   recent_min int;
   recent_hour int;
-  f public.app_feedback;
+  f anthem.app_feedback;
 BEGIN
   IF uid IS NULL THEN RAISE EXCEPTION 'AUTH: ต้องเข้าสู่ระบบก่อน'; END IF;
   IF _rating < 1 OR _rating > 5 THEN RAISE EXCEPTION 'INVALID: คะแนนต้องอยู่ระหว่าง 1-5'; END IF;
 
-  SELECT COUNT(*) INTO recent_min FROM public.app_feedback
+  SELECT COUNT(*) INTO recent_min FROM anthem.app_feedback
   WHERE user_id = uid AND created_at > now() - interval '1 minute';
   IF recent_min >= 1 THEN
     RAISE EXCEPTION 'RATE_LIMIT: ส่งฟีดแบ็กเร็วเกินไป กรุณารอสักครู่';
   END IF;
 
-  SELECT COUNT(*) INTO recent_hour FROM public.app_feedback
+  SELECT COUNT(*) INTO recent_hour FROM anthem.app_feedback
   WHERE user_id = uid AND created_at > now() - interval '1 hour';
   IF recent_hour >= 10 THEN
     RAISE EXCEPTION 'RATE_LIMIT: ส่งฟีดแบ็กถึงขีดจำกัดต่อชั่วโมงแล้ว';
   END IF;
 
-  INSERT INTO public.app_feedback(
+  INSERT INTO anthem.app_feedback(
     user_id, feature, route, rating, message, project_id, user_agent, viewport
   ) VALUES (
     uid, COALESCE(_feature,'general'), COALESCE(_route,''), _rating,
@@ -2741,6 +2741,24 @@ END $$;
 
 REVOKE ALL ON FUNCTION anthem.submit_feedback(text,text,int,text,uuid,text,text) FROM public, anon;
 GRANT EXECUTE ON FUNCTION anthem.submit_feedback(text,text,int,text,uuid,text,text) TO authenticated;
+
+-- PostgREST exposes public schema RPCs; delegate to anthem implementation
+CREATE OR REPLACE FUNCTION public.submit_feedback(
+  _feature text, _route text, _rating int, _message text,
+  _project_id uuid, _user_agent text, _viewport text
+)
+RETURNS anthem.app_feedback
+LANGUAGE sql
+SECURITY DEFINER
+SET search_path = public, anthem
+AS $$
+  SELECT anthem.submit_feedback(
+    _feature, _route, _rating, _message, _project_id, _user_agent, _viewport
+  );
+$$;
+
+REVOKE ALL ON FUNCTION public.submit_feedback(text,text,int,text,uuid,text,text) FROM PUBLIC, anon;
+GRANT EXECUTE ON FUNCTION public.submit_feedback(text,text,int,text,uuid,text,text) TO authenticated;
 
 -- 6. Admin notification triggers
 CREATE OR REPLACE FUNCTION anthem.notify_admins_on_report()

@@ -103,6 +103,7 @@ const SUB_TITLES: Partial<Record<DashSection, Record<string, string>>> = {
     clients: "ลูกค้า",
     suppliers: "Suppliers",
     assets: "Assets",
+    legal: "Legal Desk",
   },
 };
 
@@ -234,7 +235,10 @@ function Dashboard() {
                     )}
                     {section === "mydata" && (
                       <React.Suspense fallback={<MyDataSkeleton />}>
-                        <MyDataTab sub={(sub as any) ?? "clients"} />
+                        <MyDataTab
+                          sub={(sub as any) ?? "clients"}
+                          onNavigate={updateSection}
+                        />
                       </React.Suspense>
                     )}
                     {section === "settings" && (

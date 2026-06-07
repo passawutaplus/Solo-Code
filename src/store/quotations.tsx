@@ -91,6 +91,8 @@ export interface Quotation {
   contractSignedAt?: string;
   contractAccepted?: boolean;
   contractSignerIp?: string;
+  usageRightsId?: string;
+  licenseCertificatePath?: string;
   timelineEnabled: boolean;
   createdAt: string;
   updatedAt: string;
@@ -149,6 +151,8 @@ interface QuotationRow {
   contract_signed_at?: string | null;
   contract_accepted?: boolean;
   contract_signer_ip?: string | null;
+  usage_rights_id?: string | null;
+  license_certificate_path?: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -199,6 +203,8 @@ function rowToQuotation(r: QuotationRow): Quotation {
     contractSignedAt: r.contract_signed_at ?? undefined,
     contractAccepted: !!r.contract_accepted,
     contractSignerIp: r.contract_signer_ip ?? undefined,
+    usageRightsId: r.usage_rights_id ?? undefined,
+    licenseCertificatePath: r.license_certificate_path ?? undefined,
     timelineEnabled: (r as unknown as { timeline_enabled?: boolean }).timeline_enabled ?? true,
     createdAt: r.created_at,
     updatedAt: r.updated_at,
