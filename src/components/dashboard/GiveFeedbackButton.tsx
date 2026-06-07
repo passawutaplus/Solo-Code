@@ -1,5 +1,5 @@
 import * as React from "react";
-import { MessageSquareHeart, Loader2, Copy, CheckCircle2 } from "lucide-react";
+import { MessageSquareHeart, Loader2, CheckCircle2, Heart } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -34,13 +34,13 @@ export function GiveFeedbackButton({
   const [message, setMessage] = React.useState("");
   const [files, setFiles] = React.useState<File[]>([]);
   const [sending, setSending] = React.useState(false);
-  const [ticketNumber, setTicketNumber] = React.useState<string | null>(null);
+  const [submitted, setSubmitted] = React.useState(false);
 
   const reset = () => {
     setRating(null);
     setMessage("");
     setFiles([]);
-    setTicketNumber(null);
+    setSubmitted(false);
   };
 
   const submitFeedback = async () => {
@@ -48,25 +48,8 @@ export function GiveFeedbackButton({
     setSending(true);
     try {
       const category: TicketCategory = rating <= 2 ? "bug" : "improvement";
-      const description = [
-        message.trim(),
-        `คะแนน: ${rating}/5`,
-      ]
-        .filter(Boolean)
-        .join("\n");
-
+      const description = [message.trim(), `คะแนน: ${rating}/5`].filter(Boolean).join("\n");
       const title = rating <= 2 ? `ปัญหา: ${label}` : `ฟีดแบ็ก: ${label}`;
-      const parsed = createTicketSchema.safeParse({
-        title,
-        description: description || undefined,
-        category,
-        source: "feedback_button",
-        sourceFeature: feature,
-      });
-      if (!parsed.success) {
-        toast.error(parsed.error.issues[0]?.message ?? "ข้อมูลไม่ถูกต้อง");
-        return;
-      }
 
       await submitBeta({
         feature,
@@ -74,11 +57,32 @@ export function GiveFeedbackButton({
         rating,
       });
 
-      const ticket = await create({ ...parsed.data, files });
-      setTicketNumber(ticket.ticketNumber);
-      toast.success(`สร้างตั๋ว ${ticket.ticketNumber} แล้ว`);
+      const parsed = createTicketSchema.safeParse({
+        title,
+        description: description || undefined,
+        category,
+        source: "feedback_button",
+        sourceFeature: feature,
+      });
+
+      if (parsed.success) {
+        try {
+          await create({ ...parsed.data, files });
+        } catch {
+          // Ticket is best-effort — beta feedback already saved
+        }
+      }
+
+      setSubmitted(true);
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "ส่งไม่สำเร็จ — ลองใหม่อีกครั้ง");
+      const msg = e instanceof Error ? e.message : "";
+      if (msg.includes("ต้องเข้าสู่ระบบ")) {
+        toast.error("กรุณาเข้าสู่ระบบก่อนส่งฟีดแบ็ก");
+      } else if (msg) {
+        toast.error(msg);
+      } else {
+        toast.error("ส่งไม่สำเร็จ — ลองใหม่อีกครั้ง");
+      }
     } finally {
       setSending(false);
     }
@@ -115,35 +119,23 @@ export function GiveFeedbackButton({
           sideOffset={8}
           className="give-feedback-popover w-80 p-0 border-border/60 shadow-elevated max-h-[min(560px,75vh)] overflow-y-auto"
         >
-          {ticketNumber ? (
-            <div className="p-4 flex flex-col items-center text-center">
+          {submitted ? (
+            <div className="p-5 flex flex-col items-center text-center">
               <div className="h-12 w-12 rounded-full bg-emerald-500/10 flex items-center justify-center mb-2">
                 <CheckCircle2 className="h-6 w-6 text-emerald-600" />
               </div>
-              <p className="text-xs text-muted-foreground">เลขตั๋วของคุณ</p>
-              <p className="text-xl font-bold text-primary tracking-wide mt-0.5">{ticketNumber}</p>
-              <p className="text-[10px] text-muted-foreground mt-2 max-w-[240px]">
-                ติดตามได้ที่ Support Hub → ตั๋วของฉัน
+              <p className="text-sm font-semibold text-foreground">ขอบคุณสำหรับฟีดแบ็ก!</p>
+              <p className="text-[11px] text-muted-foreground mt-1.5 max-w-[240px] leading-relaxed">
+                เราได้รับความคิดเห็นของคุณแล้ว ทีมงานจะนำไปปรับปรุงต่อไป
               </p>
-              <Button
-                variant="outline"
-                size="sm"
-                className="mt-3 gap-1.5 h-7 text-xs"
-                onClick={() => {
-                  navigator.clipboard.writeText(ticketNumber);
-                  toast.success("คัดลอกเลขตั๋วแล้ว");
-                }}
-              >
-                <Copy className="h-3 w-3" />
-                คัดลอก
-              </Button>
+              <Heart className="h-4 w-4 text-primary mt-3 opacity-70" />
             </div>
           ) : (
             <div className="p-4 space-y-3">
               <div>
                 <p className="text-sm font-semibold leading-tight">ให้คะแนน {label}</p>
                 <p className="text-[11px] text-muted-foreground mt-0.5">
-                  จากนั้นระบบจะสร้างตั๋ว TKT-xxxx ให้ติดตาม
+                  แชร์ประสบการณ์ของคุณกับเรา
                 </p>
               </div>
 
@@ -198,7 +190,7 @@ export function GiveFeedbackButton({
                       className="h-7 gap-1.5"
                     >
                       {sending ? <Loader2 className="h-3 w-3 animate-spin" /> : null}
-                      สร้างตั๋ว
+                      Send Feedback
                     </Button>
                   </div>
                 </div>

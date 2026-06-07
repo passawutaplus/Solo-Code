@@ -1,5 +1,6 @@
 import * as React from "react";
-import { FileText, Lightbulb, Loader2, Plus, Sparkles } from "lucide-react";
+import { FileText, Lightbulb, Loader2, Plus } from "lucide-react";
+import { PersonLaptopIcon } from "@/components/icons/PersonLaptopIcon";
 import {
   Popover,
   PopoverContent,
@@ -80,7 +81,7 @@ export function PipelineNewDealButton({
             title="สร้างดีลใหม่"
             className="mx-auto flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-[#FF5F05] to-orange-400 text-white shadow-soft hover:scale-105 transition-transform"
           >
-            <Plus className="h-4 w-4" />
+            <PersonLaptopIcon className="h-4 w-4" />
           </button>
         </PopoverTrigger>
         <PopoverContent side="right" align="end" className="w-72 p-2">
@@ -103,7 +104,7 @@ export function PipelineNewDealButton({
           )}
         >
           <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/20">
-            <Sparkles className="h-4 w-4" />
+            <PersonLaptopIcon className="h-4 w-4" />
           </span>
           <span className="min-w-0 flex-1">
             <span className="block text-xs font-bold leading-tight truncate">สร้างดีลใหม่</span>

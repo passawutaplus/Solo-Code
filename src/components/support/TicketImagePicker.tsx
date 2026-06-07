@@ -2,6 +2,7 @@ import * as React from "react";
 import { ImagePlus, Loader2, Scissors, X } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { capturePageScreenshot } from "@/lib/captureScreenshot";
 
 const MAX_FILES = 3;
 
@@ -36,17 +37,7 @@ export function TicketImagePicker({ files, onChange, className, compact }: Props
     }
     setSnipping(true);
     try {
-      const { default: html2canvas } = await import("html2canvas");
-      const canvas = await html2canvas(document.body, {
-        useCORS: true,
-        logging: false,
-        scale: Math.min(2, window.devicePixelRatio || 1),
-        ignoreElements: (el) => !!el.closest?.(".give-feedback-popover"),
-      });
-      const blob = await new Promise<Blob | null>((resolve) =>
-        canvas.toBlob((b) => resolve(b), "image/jpeg", 0.88),
-      );
-      if (!blob) throw new Error("จับภาพไม่สำเร็จ");
+      const blob = await capturePageScreenshot({ ignoreSelector: ".give-feedback-popover" });
       const file = new File([blob], `screenshot-${Date.now()}.jpg`, { type: "image/jpeg" });
       onChange([...files, file].slice(0, MAX_FILES));
       toast.success("จับภาพหน้าจอแล้ว");

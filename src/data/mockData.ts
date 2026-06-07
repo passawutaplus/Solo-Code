@@ -151,7 +151,7 @@ export const INCOME_TYPE_META: Record<IncomeType, { label: string; section: stri
 export const SUGGESTED_WHT_RATE: Record<IncomeType, number> = {
   freelance: 3,
   professional: 3,
-  online_sales: 0,    // ขายของออนไลน์ ปกติไม่หัก ณ ที่จ่าย
+  online_sales: 7,    // ขายของออนไลน์ — มักบันทึก VAT 7%
   commission: 3,
   rental: 5,
   other: 3,

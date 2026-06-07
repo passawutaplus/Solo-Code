@@ -183,7 +183,7 @@ CREATE INDEX idx_projects_status_created ON anthem.projects(status, created_at D
 
 -- Storage bucket
 INSERT INTO storage.buckets (id, name, public) VALUES ('project-media', 'project-media', true)
-  ON CONFLICT (user_id) DO NOTHING;
+  ON CONFLICT (id) DO NOTHING;
 
 CREATE POLICY "Project media public read"
   ON storage.objects FOR SELECT
@@ -2612,7 +2612,7 @@ ALTER TABLE anthem.user_reports
 -- 3. Storage bucket for evidence (private)
 INSERT INTO storage.buckets (id, name, public)
 VALUES ('report-evidence', 'report-evidence', false)
-ON CONFLICT (user_id) DO NOTHING;
+ON CONFLICT (id) DO NOTHING;
 
 DROP POLICY IF EXISTS "Users upload own evidence" ON storage.objects;
 CREATE POLICY "Users upload own evidence" ON storage.objects
@@ -2802,7 +2802,7 @@ BEGIN
     uname := usernames[i+1];
     INSERT INTO auth.users (instance_id, id, aud, role, email, encrypted_password, email_confirmed_at, created_at, updated_at, raw_app_meta_data, raw_user_meta_data, is_super_admin, confirmation_token, email_change, email_change_token_new, recovery_token)
     VALUES ('00000000-0000-0000-0000-000000000000', uid, 'authenticated','authenticated', uname || '@mock.so1o', crypt('Mockpass123!', gen_salt('bf')), now(), now() - interval '60 days', now(), '{"provider":"email","providers":["email"]}'::jsonb, jsonb_build_object('display_name', uname), false,'','','','')
-    ON CONFLICT (user_id) DO NOTHING;
+    ON CONFLICT (id) DO NOTHING;
   END LOOP;
 END $$;
 

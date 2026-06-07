@@ -76,8 +76,11 @@ export function IncomeTab({ onNavigate }: Props) {
   return (
     <div className="space-y-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <FinanceMoneyNav active="income" onNavigate={onNavigate} />
-        <p className="text-xs text-muted-foreground">บันทึกเงินที่รับจากงาน — ใช้คำนวณภาษีในหน้าถัดไป</p>
+        <div className="min-w-0 flex-1">
+          <FinanceMoneyNav active="income" onNavigate={onNavigate} />
+          <p className="text-xs text-muted-foreground mt-1">บันทึกเงินที่รับจากงาน — ใช้คำนวณภาษีในหน้าถัดไป</p>
+        </div>
+        <AddIncomeModal />
       </div>
 
       <button
@@ -135,9 +138,8 @@ export function IncomeTab({ onNavigate }: Props) {
 
       <div className="grid gap-4 lg:grid-cols-2">
         <Card className="animate-fade-up lg:col-span-2">
-          <CardHeader className="pb-2 flex flex-row items-center justify-between">
+          <CardHeader className="pb-2">
             <CardTitle className="text-base">รายได้รายเดือน</CardTitle>
-            <AddIncomeModal />
           </CardHeader>
           <CardContent>
             <div className="h-[200px]">

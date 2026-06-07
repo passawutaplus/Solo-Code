@@ -197,7 +197,6 @@ export function useMyTickets() {
         .from("support_tickets")
         .insert({
           user_id: uid,
-          ticket_number: "",
           title: input.title,
           description: input.description?.trim() || null,
           category: input.category,

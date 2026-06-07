@@ -97,7 +97,7 @@ export function DraggableFabDock() {
 
   const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
     if (e.button !== 0 && e.pointerType === "mouse") return;
-    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+    skipClickRef.current = false;
     dragState.current = {
       startX: e.clientX,
       startY: e.clientY,
@@ -117,6 +117,7 @@ export function DraggableFabDock() {
     if (!s.moved) {
       s.moved = true;
       setDragging(true);
+      (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
     }
     setPos(clampPos({ x: s.origX + dx, y: s.origY + dy }));
   };

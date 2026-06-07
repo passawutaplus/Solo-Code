@@ -5,7 +5,22 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Plus, CreditCard, Paperclip, Loader2, ExternalLink, X, Pencil } from "lucide-react";
+import {
+  Plus,
+  CreditCard,
+  Paperclip,
+  Loader2,
+  ExternalLink,
+  X,
+  Pencil,
+  Briefcase,
+  PenTool,
+  ShoppingBag,
+  HandCoins,
+  Home,
+  Layers,
+  type LucideIcon,
+} from "lucide-react";
 import { toast } from "sonner";
 import { useFinance } from "@/store/finance";
 import { QUICK_ADD_GROUPS, type SubCategory, formatTHB, INCOME_TYPE_META, SUGGESTED_WHT_RATE, type IncomeType, type ExpenseRecord } from "@/data/mockData";
@@ -13,6 +28,19 @@ import { subSchema, incomeSchema, expenseSchema, parseOrToast } from "@/lib/vali
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { uploadExpenseReceipt } from "./tax/uploadReceipt";
+import { IncomeWhtAiZone, type IncomeWhtAiResult } from "./tax/IncomeWhtAiZone";
+import { cn } from "@/lib/utils";
+
+const INCOME_TYPE_ICONS: Record<IncomeType, LucideIcon> = {
+  freelance: Briefcase,
+  professional: PenTool,
+  online_sales: ShoppingBag,
+  commission: HandCoins,
+  rental: Home,
+  other: Layers,
+};
+
+const INCOME_TYPES = Object.keys(INCOME_TYPE_META) as IncomeType[];
 
 const ALL_CATEGORIES: SubCategory[] = [
   "Design", "AI", "Dev", "Cloud", "Streaming", "Music",
@@ -242,9 +270,19 @@ export function AddSubModal() {
 // ============================================================
 // Add Income
 // ============================================================
-export function AddIncomeModal() {
+export function AddIncomeModal({
+  trigger,
+  open: openProp,
+  onOpenChange,
+}: {
+  trigger?: React.ReactNode;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+} = {}) {
   const { addIncome } = useFinance();
-  const [open, setOpen] = React.useState(false);
+  const [internalOpen, setInternalOpen] = React.useState(false);
+  const open = openProp ?? internalOpen;
+  const setOpen = onOpenChange ?? setInternalOpen;
   const [client, setClient] = React.useState("");
   const [gross, setGross] = React.useState("");
   const [month, setMonth] = React.useState(() => new Date().toISOString().slice(0, 7));
@@ -264,7 +302,24 @@ export function AddIncomeModal() {
   }, [incomeType]);
 
   function reset() {
-    setClient(""); setGross(""); setCertificateNo(""); setCertificateReceived(false); setNote("");
+    setClient("");
+    setGross("");
+    setCertificateNo("");
+    setCertificateReceived(false);
+    setNote("");
+    setIncomeType("freelance");
+    setWhtRate("3");
+    setMonth(new Date().toISOString().slice(0, 7));
+  }
+
+  function applyAiScan(result: IncomeWhtAiResult) {
+    if (result.certificateNo) setCertificateNo(result.certificateNo);
+    if (result.client) setClient(result.client);
+    if (result.gross) setGross(result.gross);
+    if (result.whtRate) setWhtRate(result.whtRate);
+    if (result.note) setNote(result.note);
+    if (result.certificateReceived) setCertificateReceived(true);
+    if (result.incomeType) setIncomeType(result.incomeType);
   }
 
   function submit() {
@@ -293,28 +348,60 @@ export function AddIncomeModal() {
   const rateNum = Number(whtRate) || 0;
   const whtPreview = grossNum * (rateNum / 100);
 
+  const defaultTrigger = (
+    <Button
+      size="sm"
+      className="gap-1.5 text-white shrink-0 shadow-soft"
+      style={{ background: "#FF5F05" }}
+    >
+      <Plus className="h-4 w-4" /> เพิ่มรายได้
+    </Button>
+  );
+
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button size="sm" variant="outline" className="gap-1.5">
-          <Plus className="h-4 w-4" /> เพิ่มรายได้
-        </Button>
-      </DialogTrigger>
+    <Dialog
+      open={open}
+      onOpenChange={(o) => {
+        setOpen(o);
+        if (!o) reset();
+      }}
+    >
+      <DialogTrigger asChild>{trigger ?? defaultTrigger}</DialogTrigger>
       <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
         <DialogHeader><DialogTitle>เพิ่มรายได้</DialogTitle></DialogHeader>
         <div className="space-y-4">
           <Field label="ประเภทเงินได้">
-            <Select value={incomeType} onValueChange={(v) => setIncomeType(v as IncomeType)}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
-              <SelectContent>
-                {(Object.keys(INCOME_TYPE_META) as IncomeType[]).map((k) => (
-                  <SelectItem key={k} value={k}>
-                    <span className="font-medium">{INCOME_TYPE_META[k].label}</span>
-                    <span className="text-muted-foreground ml-1.5 text-xs">มาตรา {INCOME_TYPE_META[k].section}</span>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <div className="grid grid-cols-3 gap-2">
+              {INCOME_TYPES.map((k) => {
+                const Icon = INCOME_TYPE_ICONS[k];
+                const meta = INCOME_TYPE_META[k];
+                const selected = incomeType === k;
+                return (
+                  <button
+                    key={k}
+                    type="button"
+                    onClick={() => setIncomeType(k)}
+                    className={cn(
+                      "flex flex-col items-center justify-center gap-1 rounded-xl border p-2.5 text-center transition-all min-h-[4.5rem]",
+                      selected
+                        ? "border-primary bg-primary/10 text-foreground shadow-sm"
+                        : "border-border/60 bg-background hover:border-primary/40 hover:bg-muted/50",
+                    )}
+                  >
+                    <span
+                      className={cn(
+                        "flex h-8 w-8 items-center justify-center rounded-lg",
+                        selected ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground",
+                      )}
+                    >
+                      <Icon className="h-4 w-4" />
+                    </span>
+                    <span className="text-[10px] font-semibold leading-tight">{meta.label}</span>
+                    <span className="text-[9px] text-muted-foreground">{meta.section}</span>
+                  </button>
+                );
+              })}
+            </div>
           </Field>
 
           <Field label={incomeType === "online_sales" ? "ช่องทาง / ลูกค้า" : "ลูกค้า"}>
@@ -345,6 +432,7 @@ export function AddIncomeModal() {
                   <SelectItem value="2">2% (โฆษณาออนไลน์)</SelectItem>
                   <SelectItem value="3">3% (รับจ้าง / วิชาชีพ)</SelectItem>
                   <SelectItem value="5">5% (ค่าเช่า)</SelectItem>
+                  <SelectItem value="7">7% (VAT — ขายของ)</SelectItem>
                   <SelectItem value="15">15% (ดอกเบี้ย)</SelectItem>
                 </SelectContent>
               </Select>
@@ -363,6 +451,7 @@ export function AddIncomeModal() {
               placeholder="เช่น WHT-2025-0011"
               onChange={(e) => setCertificateNo(e.target.value)}
             />
+            <IncomeWhtAiZone onApply={applyAiScan} className="mt-2" />
           </Field>
 
           <label className="flex items-center justify-between rounded-lg border border-border/60 p-3 cursor-pointer">
