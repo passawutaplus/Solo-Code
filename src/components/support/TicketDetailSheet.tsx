@@ -1,7 +1,7 @@
 import * as React from "react";
 import { formatDistanceToNow } from "date-fns";
 import { th } from "date-fns/locale";
-import { Loader2, Send } from "lucide-react";
+import { ArrowLeft, Loader2, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { TicketStatusBadge } from "./TicketStatusBadge";
@@ -19,6 +19,7 @@ import {
   type SupportTicket,
 } from "@/store/supportTickets";
 import { toast } from "sonner";
+import { TicketFeatureBadge, TicketRatingStars, TicketSourceBadge } from "./TicketMetaBadges";
 
 function eventLabel(eventType: string, oldVal: string | null, newVal: string | null): string {
   if (eventType === "created") return "สร้างตั๋ว";
@@ -37,9 +38,11 @@ function eventLabel(eventType: string, oldVal: string | null, newVal: string | n
 export function TicketDetailPanel({
   ticket,
   showAdminFields = false,
+  onBack,
 }: {
   ticket: SupportTicket;
   showAdminFields?: boolean;
+  onBack?: () => void;
 }) {
   const { addComment } = useMyTickets();
   const { data: events = [], isLoading: eventsLoading } = useTicketEvents(ticket.id);
@@ -83,10 +86,25 @@ export function TicketDetailPanel({
 
   return (
     <div className="overflow-y-auto h-full p-4 space-y-4">
+      {onBack && (
+        <button
+          type="button"
+          onClick={onBack}
+          className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
+        >
+          <ArrowLeft className="h-3.5 w-3.5" />
+          กลับรายการตั๋ว
+        </button>
+      )}
       <div className="flex items-start justify-between gap-2">
         <div>
           <p className="text-xs font-mono text-[#FF5F05] font-bold">{ticket.ticketNumber}</p>
           <h3 className="font-semibold text-gray-900 mt-0.5">{ticket.title}</h3>
+          <div className="flex flex-wrap items-center gap-1 mt-1.5">
+            <TicketSourceBadge source={ticket.source} />
+            {ticket.sourceFeature && <TicketFeatureBadge feature={ticket.sourceFeature} />}
+            {ticket.rating != null && <TicketRatingStars rating={ticket.rating} />}
+          </div>
         </div>
         <TicketStatusBadge status={ticket.status} />
       </div>

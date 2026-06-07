@@ -15,6 +15,7 @@ import {
   type TicketSource,
 } from "@/lib/ticketSchema";
 import { useMyTickets, type SupportTicket } from "@/store/supportTickets";
+import { trackFeature } from "@/lib/featureUsage";
 
 export type TicketPrefill = Partial<CreateTicketInput>;
 
@@ -98,6 +99,7 @@ export function CreateTicketForm({
     setSubmitting(true);
     try {
       const ticket = await create({ ...parsed.data, files });
+      void trackFeature("ticket.create");
       setCreated(ticket);
       onCreated?.(ticket);
       toast.success("สร้างตั๋วเรียบร้อย");

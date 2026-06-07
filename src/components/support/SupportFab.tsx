@@ -12,6 +12,7 @@ import { SupportFaq } from "./SupportFaq";
 import { SupportSuggest } from "./SupportSuggest";
 import { SupportChangelog } from "./SupportChangelog";
 import so1oLogoMark from "@/assets/so1o-logo-mark.png";
+import { trackFeature } from "@/lib/featureUsage";
 
 type View = "home" | "chat" | "faq" | "suggest" | "changelog" | "create_ticket" | "my_tickets";
 
@@ -56,6 +57,10 @@ export function SupportFab({
   const [unread, setUnread] = React.useState(0);
   const [selectedTicketId, setSelectedTicketId] = React.useState<string | null>(null);
   const { openCount } = useMyTickets();
+
+  React.useEffect(() => {
+    if (sheetOpen) void trackFeature("support.open");
+  }, [sheetOpen]);
 
   // Count unread admin messages
   React.useEffect(() => {

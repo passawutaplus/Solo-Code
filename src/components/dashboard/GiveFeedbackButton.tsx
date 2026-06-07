@@ -7,6 +7,7 @@ import { useMyBetaFeedback } from "@/store/betaFeedback";
 import { useMyTickets } from "@/store/supportTickets";
 import { TicketImagePicker } from "@/components/support/TicketImagePicker";
 import { createTicketSchema, type TicketCategory } from "@/lib/ticketSchema";
+import { trackFeature } from "@/lib/featureUsage";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -28,7 +29,7 @@ export function GiveFeedbackButton({
   className?: string;
 }) {
   const { submit: submitBeta } = useMyBetaFeedback(feature);
-  const { create } = useMyTickets();
+  const { create, linkBetaFeedback } = useMyTickets();
   const [open, setOpen] = React.useState(false);
   const [rating, setRating] = React.useState<number | null>(null);
   const [message, setMessage] = React.useState("");
@@ -51,33 +52,40 @@ export function GiveFeedbackButton({
       const description = [message.trim(), `คะแนน: ${rating}/5`].filter(Boolean).join("\n");
       const title = rating <= 2 ? `ปัญหา: ${label}` : `ฟีดแบ็ก: ${label}`;
 
-      await submitBeta({
-        feature,
-        message: message.trim() || `(rating only — ${rating}/5)`,
-        rating,
-      });
-
       const parsed = createTicketSchema.safeParse({
         title,
         description: description || undefined,
         category,
         source: "feedback_button",
         sourceFeature: feature,
+        rating,
       });
-
-      if (parsed.success) {
-        try {
-          await create({ ...parsed.data, files });
-        } catch {
-          // Ticket is best-effort — beta feedback already saved
-        }
+      if (!parsed.success) {
+        toast.error(parsed.error.issues[0]?.message ?? "ข้อมูลไม่ถูกต้อง");
+        return;
       }
 
+      const ticket = await create({ ...parsed.data, files });
+
+      try {
+        const betaId = await submitBeta({
+          feature,
+          message: message.trim() || `(rating only — ${rating}/5)`,
+          rating,
+        });
+        if (betaId) await linkBetaFeedback({ ticketId: ticket.id, betaFeedbackId: betaId });
+      } catch {
+        // Beta log is secondary — ticket already created
+      }
+
+      void trackFeature("feedback.submit");
       setSubmitted(true);
     } catch (e) {
       const msg = e instanceof Error ? e.message : "";
       if (msg.includes("ต้องเข้าสู่ระบบ")) {
         toast.error("กรุณาเข้าสู่ระบบก่อนส่งฟีดแบ็ก");
+      } else if (msg.includes("support_tickets") || msg.includes("schema cache")) {
+        toast.error("ระบบตั๋วยังไม่พร้อม — ติดต่อแอดมินเพื่ออัปเดตฐานข้อมูล");
       } else if (msg) {
         toast.error(msg);
       } else {
@@ -126,7 +134,7 @@ export function GiveFeedbackButton({
               </div>
               <p className="text-sm font-semibold text-foreground">ขอบคุณสำหรับฟีดแบ็ก!</p>
               <p className="text-[11px] text-muted-foreground mt-1.5 max-w-[240px] leading-relaxed">
-                เราได้รับความคิดเห็นของคุณแล้ว ทีมงานจะนำไปปรับปรุงต่อไป
+                เราได้รับความคิดเห็นของคุณแล้ว ติดตามได้ที่ Support Hub → ตั๋วของฉัน
               </p>
               <Heart className="h-4 w-4 text-primary mt-3 opacity-70" />
             </div>

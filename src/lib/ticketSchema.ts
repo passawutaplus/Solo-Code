@@ -80,6 +80,14 @@ export const createTicketSchema = z.object({
   category: z.enum(TICKET_CATEGORIES),
   source: z.enum(TICKET_SOURCES).default("support_hub"),
   sourceFeature: z.string().optional(),
+  rating: z.number().int().min(1).max(5).optional(),
+  betaFeedbackId: z.string().uuid().optional(),
 });
+
+export const SOURCE_LABELS: Record<TicketSource, string> = {
+  feedback_button: "Give Feedback",
+  support_hub: "Support Hub",
+  admin_manual: "Admin",
+};
 
 export type CreateTicketInput = z.infer<typeof createTicketSchema>;

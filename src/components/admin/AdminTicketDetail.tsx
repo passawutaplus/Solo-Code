@@ -1,7 +1,7 @@
 import * as React from "react";
 import { formatDistanceToNow } from "date-fns";
 import { th } from "date-fns/locale";
-import { X, Loader2 } from "lucide-react";
+import { X, Loader2, Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/select";
 import { TicketStatusBadge } from "@/components/support/TicketStatusBadge";
 import { TicketDetailPanel } from "@/components/support/TicketDetailSheet";
+import { TicketFeatureBadge, TicketRatingStars, TicketSourceBadge } from "@/components/support/TicketMetaBadges";
 import {
   PRIORITY_LABELS,
   STATUS_LABELS,
@@ -21,11 +22,17 @@ import {
   type TicketPriority,
   type TicketStatus,
 } from "@/lib/ticketSchema";
-import {
-  useAllTickets,
-  type SupportTicket,
-} from "@/store/supportTickets";
+import { useAllTickets, type SupportTicket } from "@/store/supportTickets";
 import { toast } from "sonner";
+
+function notifyPreview(ticket: SupportTicket, resolutionNote: string): string {
+  if (ticket.source === "feedback_button") {
+    const base = "เราได้แก้ไขตามฟีดแบ็กของคุณแล้ว ขอบคุณที่ช่วยพัฒนา So1o";
+    return resolutionNote.trim() ? `${base} — ${resolutionNote.trim()}` : base;
+  }
+  const base = `ตั๋ว ${ticket.ticketNumber} แก้ไขแล้ว — กำลังปล่อยอัปเดต`;
+  return resolutionNote.trim() ? `${base} — ${resolutionNote.trim()}` : base;
+}
 
 export function AdminTicketDetail({
   ticket,
@@ -70,6 +77,18 @@ export function AdminTicketDetail({
     await patch({ id: ticket.id, status });
   };
 
+  const notifyResolved = async () => {
+    if (!resolutionNote.trim()) {
+      toast.error("กรุณากรอกคำตอบถึงผู้ใช้ก่อนแจ้งเตือน");
+      return;
+    }
+    await patch({
+      id: ticket.id,
+      status: "resolved",
+      resolutionNote: resolutionNote.trim(),
+    });
+  };
+
   return (
     <div className="fixed inset-y-0 right-0 z-50 w-full max-w-md bg-background border-l shadow-2xl flex flex-col animate-fade-in">
       <div className="flex items-center justify-between gap-2 px-4 py-3 border-b shrink-0">
@@ -91,17 +110,13 @@ export function AdminTicketDetail({
         <div className="p-4 space-y-4 border-b">
           <div className="flex flex-wrap gap-2 items-center">
             <TicketStatusBadge status={ticket.status} />
-            <span className="text-[11px] text-muted-foreground">
-              {userLabel} ·{" "}
-              {formatDistanceToNow(new Date(ticket.createdAt), { addSuffix: true, locale: th })}
-            </span>
+            <TicketSourceBadge source={ticket.source} />
+            {ticket.sourceFeature && <TicketFeatureBadge feature={ticket.sourceFeature} />}
+            {ticket.rating != null && <TicketRatingStars rating={ticket.rating} />}
           </div>
-
-          {ticket.sourceFeature && (
-            <p className="text-[11px] text-muted-foreground">
-              ฟีเจอร์: <span className="font-mono">{ticket.sourceFeature}</span>
-            </p>
-          )}
+          <span className="text-[11px] text-muted-foreground block">
+            {userLabel} · {formatDistanceToNow(new Date(ticket.createdAt), { addSuffix: true, locale: th })}
+          </span>
 
           <div className="grid grid-cols-2 gap-2">
             <div>
@@ -166,6 +181,18 @@ export function AdminTicketDetail({
                 แก้แล้ว
               </Button>
             )}
+            {!["resolved", "closed", "wont_fix"].includes(ticket.status) && (
+              <Button
+                size="sm"
+                className="h-7 text-xs gap-1 text-white"
+                style={{ background: "#16a34a" }}
+                disabled={saving}
+                onClick={notifyResolved}
+              >
+                <Bell className="h-3 w-3" />
+                แก้แล้ว — แจ้งลูกค้า
+              </Button>
+            )}
             {["resolved", "qa", "in_progress"].includes(ticket.status) && (
               <Button size="sm" variant="outline" className="h-7 text-xs" disabled={saving} onClick={() => quickAction("closed")}>
                 ปิดงาน
@@ -203,9 +230,15 @@ export function AdminTicketDetail({
               onChange={(e) => setResolutionNote(e.target.value)}
               rows={2}
               className="mt-1 text-xs resize-none"
-              placeholder="แสดงเมื่อปิดงาน / แก้แล้ว"
+              placeholder="แสดงเมื่อแก้แล้ว + ส่งในการแจ้งเตือน"
             />
           </div>
+          {resolutionNote.trim() && (
+            <div className="rounded-lg border border-green-200 bg-green-50/80 p-2.5">
+              <p className="text-[10px] font-semibold text-green-800 mb-1">ตัวอย่างแจ้งเตือน</p>
+              <p className="text-[11px] text-green-900 leading-snug">{notifyPreview(ticket, resolutionNote)}</p>
+            </div>
+          )}
           <Button size="sm" variant="secondary" className="h-7 text-xs" disabled={saving} onClick={saveNotes}>
             {saving ? <Loader2 className="h-3 w-3 animate-spin mr-1" /> : null}
             บันทึกโน้ต

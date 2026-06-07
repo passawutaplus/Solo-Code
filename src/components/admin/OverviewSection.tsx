@@ -1,7 +1,9 @@
 import * as React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { StatCard } from "@/components/dashboard/StatCard";
-import { Users, Wallet, FileText, Layers, TrendingUp, Activity, ShieldCheck, Sparkles, Smartphone, Tablet, Monitor } from "lucide-react";
+import { Users, Wallet, FileText, Layers, TrendingUp, Activity, ShieldCheck, Sparkles, Smartphone, Tablet, Monitor, Ticket, MessageSquareHeart } from "lucide-react";
+import { useAllTickets } from "@/store/supportTickets";
+import { useAllBetaFeedback } from "@/store/betaFeedback";
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RTooltip } from "recharts";
 import { supabase } from "@/integrations/supabase/client";
 import { type AdminMetrics, fmtTHB, groupByDay, activeUserIds } from "./useAdminMetrics";
@@ -9,7 +11,13 @@ import { type AdminMetrics, fmtTHB, groupByDay, activeUserIds } from "./useAdmin
 interface DeviceRow { device_type: string; sessions: number; pct: number }
 
 export function OverviewSection({ m }: { m: AdminMetrics }) {
+  const { tickets, newCount } = useAllTickets();
+  const { items: betaItems } = useAllBetaFeedback();
   const [devices, setDevices] = React.useState<DeviceRow[]>([]);
+  const openTickets = tickets.filter((t) => !["closed", "wont_fix"].includes(t.status)).length;
+  const betaToday = betaItems.filter(
+    (b) => b.createdAt.slice(0, 10) === new Date().toISOString().slice(0, 10),
+  ).length;
   React.useEffect(() => {
     (async () => {
       try {
@@ -73,6 +81,21 @@ export function OverviewSection({ m }: { m: AdminMetrics }) {
           value={m.quotations.length}
           sub={`Active subs ${m.subscriptions.filter((s) => s.is_active).length}`}
           icon={<FileText className="h-4 w-4" />}
+        />
+      </div>
+
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <StatCard
+          label="ตั๋วเปิดอยู่"
+          value={openTickets}
+          sub={newCount > 0 ? `ใหม่ ${newCount}` : "Feedback + Support"}
+          icon={<Ticket className="h-4 w-4" />}
+        />
+        <StatCard
+          label="ฟีดแบ็กวันนี้"
+          value={betaToday}
+          sub={`รวม ${betaItems.length} รายการ`}
+          icon={<MessageSquareHeart className="h-4 w-4" />}
         />
       </div>
 

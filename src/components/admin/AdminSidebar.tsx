@@ -42,6 +42,7 @@ import { Button } from "@/components/ui/button";
 
 export type AdminSection =
   | "overview"
+  | "activity_feed"
   | "early_access"
   | "users"
   | "chat"
@@ -51,9 +52,11 @@ export type AdminSection =
   | "articles"
   | "business"
   | "subscriptions"
+  | "payments"
   | "feature_usage"
   | "activity"
   | "device"
+  | "ai_usage"
   | "ai_center"
   | "health"
   | "usage"
@@ -69,22 +72,40 @@ interface SectionItem {
 
 const GROUPS: { label: string; items: SectionItem[] }[] = [
   {
-    label: "ภาพรวม",
+    label: "Pulse",
     items: [
       { id: "overview", label: "Overview", icon: LayoutDashboard, sub: "ภาพรวมระบบ" },
-      { id: "early_access", label: "Early Access", icon: Rocket, sub: "Tester 100 คน" },
+      { id: "activity_feed", label: "Activity Feed", icon: Activity, sub: "ทุกการเคลื่อนไหว" },
     ],
   },
   {
-    label: "ผู้ใช้ & แชท",
+    label: "ผู้ใช้ & Support",
     items: [
       { id: "users", label: "Users & Growth", icon: Users, sub: "สมาชิก / สิทธิ์" },
+      { id: "tickets", label: "Feedback & Tickets", icon: Ticket, sub: "ฟีดแบ็ก + ตั๋ว" },
       { id: "chat", label: "แชทผู้ใช้", icon: MessageSquare, sub: "ตอบกลับผู้ใช้" },
-      { id: "tickets", label: "Tickets", icon: Ticket, sub: "ตั๋วแจ้งปัญหา" },
+      { id: "early_access", label: "Early Access", icon: Rocket, sub: "Tester program" },
     ],
   },
   {
-    label: "คอนเทนต์ & การตลาด",
+    label: "พฤติกรรม",
+    items: [
+      { id: "feature_usage", label: "Feature Usage", icon: BarChart3, sub: "ฟีเจอร์ยอดนิยม" },
+      { id: "activity", label: "Activity Stats", icon: LineChart, sub: "เข้าใช้กี่โมง/วันไหน" },
+      { id: "device", label: "อุปกรณ์ที่ใช้", icon: Smartphone, sub: "Mobile / Desktop" },
+      { id: "ai_usage", label: "AI Usage", icon: Sparkles, sub: "AI Chat quota" },
+    ],
+  },
+  {
+    label: "ธุรกิจ",
+    items: [
+      { id: "business", label: "Business KPIs", icon: Wallet, sub: "รายได้ / ใบเสนอ" },
+      { id: "subscriptions", label: "Subscriptions", icon: CreditCard, sub: "Subs + Top Apps" },
+      { id: "payments", label: "Payments", icon: CreditCard, sub: "Stripe events" },
+    ],
+  },
+  {
+    label: "คอนเทนต์",
     items: [
       { id: "announcements", label: "ประกาศ", icon: Megaphone, sub: "บอกผู้ใช้ทุกคน" },
       { id: "banners", label: "แบนเนอร์", icon: ImageIcon, sub: "Login + Dashboard" },
@@ -92,20 +113,10 @@ const GROUPS: { label: string; items: SectionItem[] }[] = [
     ],
   },
   {
-    label: "Insights & การเงิน",
-    items: [
-      { id: "business", label: "Business KPIs", icon: Wallet, sub: "รายได้ / ใบเสนอ" },
-      { id: "subscriptions", label: "Subscriptions", icon: CreditCard, sub: "Subs + Top Apps" },
-      { id: "feature_usage", label: "Feature Usage", icon: BarChart3, sub: "ฟีเจอร์ยอดนิยม" },
-      { id: "activity", label: "Activity Stats", icon: LineChart, sub: "เข้าใช้กี่โมง/วันไหน" },
-      { id: "device", label: "อุปกรณ์ที่ใช้", icon: Smartphone, sub: "Mobile / Tablet / Desktop" },
-    ],
-  },
-  {
-    label: "AI & ระบบ",
+    label: "ระบบ",
     items: [
       { id: "ai_center", label: "AI Center", icon: Sparkles, sub: "Control + Price + HQ" },
-      { id: "health", label: "System Health", icon: Activity, sub: "Activity feed" },
+      { id: "health", label: "System Health", icon: Activity, sub: "สุขภาพระบบ" },
       { id: "usage", label: "Storage & Quota", icon: Database, sub: "ใช้พื้นที่เท่าไหร่" },
       { id: "supabase", label: "Supabase", icon: Link2, sub: "โปรเจกต์ที่เชื่อมต่อ" },
     ],

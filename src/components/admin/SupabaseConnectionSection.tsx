@@ -30,7 +30,8 @@ interface MigrationProbe {
   detail?: string;
 }
 
-const PENDING_SQL_BUNDLE = `supabase/manual/apply-all-migrations.sql`;
+const PENDING_SQL_BUNDLE = `supabase/manual/apply-pending-202606.sql`;
+const FEEDBACK_SQL_BUNDLE = `supabase/manual/apply-feedback-tickets-20260607.sql`;
 
 async function probeTable(table: string): Promise<{ status: ProbeStatus; detail?: string }> {
   const { error } = await supabase.from(table as never).select("id").limit(1);
@@ -41,6 +42,41 @@ async function probeTable(table: string): Promise<{ status: ProbeStatus; detail?
   }
   if (error.code === "PGRST301" || msg.includes("permission")) {
     return { status: "ok", detail: "ตารางมีอยู่ (RLS จำกัดการอ่าน)" };
+  }
+  return { status: "error", detail: msg };
+}
+
+async function probeFeedbackTicketFields(): Promise<{ status: ProbeStatus; detail?: string }> {
+  const { error } = await supabase
+    .from("support_tickets")
+    .select("rating, beta_feedback_id")
+    .limit(1);
+  if (!error) return { status: "ok" };
+  const msg = error.message ?? "";
+  if (msg.includes("does not exist") || msg.includes("Could not find the table")) {
+    return { status: "missing", detail: "รัน support_tickets migration ก่อน" };
+  }
+  if (msg.includes("rating") || msg.includes("beta_feedback") || msg.includes("schema cache")) {
+    return { status: "missing", detail: "ยังไม่มีคอลัมน์ rating / beta_feedback_id" };
+  }
+  if (error.code === "PGRST301" || msg.includes("permission")) {
+    return { status: "ok", detail: "คอลัมน์มีอยู่ (RLS จำกัดการอ่าน)" };
+  }
+  return { status: "error", detail: msg };
+}
+
+async function probeActivityFeedRpc(): Promise<{ status: ProbeStatus; detail?: string }> {
+  const { error } = await (supabase as { rpc: (fn: string, args: object) => Promise<{ error: { message?: string; code?: string } | null }> }).rpc(
+    "get_admin_activity_feed",
+    { _days: 1, _category: "all", _limit: 1 },
+  );
+  if (!error) return { status: "ok" };
+  const msg = error.message ?? "";
+  if (msg.includes("Could not find the function") || msg.includes("PGRST202")) {
+    return { status: "missing", detail: "ยังไม่มี RPC get_admin_activity_feed" };
+  }
+  if (msg.includes("admin only") || error.code === "42501") {
+    return { status: "ok", detail: "RPC พร้อม (ต้องเป็น admin ถึงเรียกได้)" };
   }
   return { status: "error", detail: msg };
 }
@@ -89,6 +125,18 @@ export function SupabaseConnectionSection() {
       migrationFile: "20260605120000_pipeline_supabase_organization.sql",
       status: "checking",
     },
+    {
+      id: "feedback_ticket_fields",
+      label: "Give Feedback → Tickets (rating + link)",
+      migrationFile: "20260607120000_feedback_ticket_fields.sql",
+      status: "checking",
+    },
+    {
+      id: "admin_activity_feed",
+      label: "Mission Control Activity Feed RPC",
+      migrationFile: "20260607130000_admin_activity_feed.sql",
+      status: "checking",
+    },
   ]);
 
   const runChecks = React.useCallback(async () => {
@@ -106,10 +154,12 @@ export function SupabaseConnectionSection() {
       setLatencyMs(Math.round(performance.now() - t0));
     }
 
-    const [contract, tickets, shared] = await Promise.all([
+    const [contract, tickets, shared, feedbackFields, activityFeed] = await Promise.all([
       probeQuotationContractColumns(),
       probeTable("support_tickets"),
       probeTable("shared_projects"),
+      probeFeedbackTicketFields(),
+      probeActivityFeedRpc(),
     ]);
 
     const contractOk = contract.status === "ok";
@@ -117,11 +167,19 @@ export function SupabaseConnectionSection() {
       ? { status: "ok", detail: "รันร่วมกับ contract migration (ตรวจแบบย่อ)" }
       : { status: "missing", detail: "รันหลัง contract migration" };
 
+    const feedbackNotify: { status: ProbeStatus; detail?: string } =
+      feedbackFields.status === "ok"
+        ? { status: "ok", detail: "รวมใน 20260607120100_ticket_feedback_notify.sql" }
+        : { status: "missing", detail: "รันหลัง feedback_ticket_fields" };
+
     setProbes([
       { id: "contract", label: "สัญญาจ้าง (contract_* บน quotations)", migrationFile: "20260605100000_quotations_contract.sql", ...contract },
       { id: "support_tickets", label: "Support Tickets MVP", migrationFile: "20260604150000_support_tickets.sql", ...tickets },
       { id: "shared_projects", label: "Shared Squad (Phase 2 schema)", migrationFile: "20260605110000_shared_projects_phase2.sql", ...shared },
       { id: "pipeline_org", label: "Pipeline indexes & organization", migrationFile: "20260605120000_pipeline_supabase_organization.sql", ...pipelineOrg },
+      { id: "feedback_ticket_fields", label: "Give Feedback → Tickets (rating + link)", migrationFile: "20260607120000_feedback_ticket_fields.sql", ...feedbackFields },
+      { id: "feedback_notify", label: "แจ้งลูกค้าเมื่อแก้ฟีดแบ็ก", migrationFile: "20260607120100_ticket_feedback_notify.sql", ...feedbackNotify },
+      { id: "admin_activity_feed", label: "Mission Control Activity Feed RPC", migrationFile: "20260607130000_admin_activity_feed.sql", ...activityFeed },
     ]);
 
     setLoading(false);
@@ -261,8 +319,9 @@ export function SupabaseConnectionSection() {
                 <li>รัน <code className="bg-muted px-1 rounded">npx supabase login</code> (หรือตั้ง <code>SUPABASE_ACCESS_TOKEN</code>)</li>
                 <li>รัน <code className="bg-muted px-1 rounded">./scripts/supabase-push-via-api.sh</code> (หรือ <code className="bg-muted px-1 rounded">supabase-push-pipeline.sh</code> ถ้ามี DB password)</li>
                 <li>
-                  หรือวาง SQL จาก{" "}
-                  <code className="bg-muted px-1 rounded">{PENDING_SQL_BUNDLE}</code> ใน Dashboard → SQL Editor
+                  หรือวาง SQL ใน Dashboard → SQL Editor:{" "}
+                  <code className="bg-muted px-1 rounded">{PENDING_SQL_BUNDLE}</code> (schema มิ.ย.) หรือ{" "}
+                  <code className="bg-muted px-1 rounded">{FEEDBACK_SQL_BUNDLE}</code> (ฟีดแบ็ก + Activity Feed)
                 </li>
               </ol>
             </div>
@@ -277,7 +336,7 @@ export function SupabaseConnectionSection() {
         <CardContent className="space-y-2 text-[11px] text-muted-foreground">
           <SetupRow
             done={allOk && !anyMissing}
-            label="Schema migrations (111 ไฟล์)"
+            label="Schema migrations"
             hint={allOk && !anyMissing ? "ครบแล้ว" : "รัน ./scripts/supabase-push-via-api.sh"}
           />
           <SetupRow

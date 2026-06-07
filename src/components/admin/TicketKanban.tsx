@@ -21,6 +21,7 @@ import {
   type TicketStatus,
 } from "@/lib/ticketSchema";
 import type { SupportTicket } from "@/store/supportTickets";
+import { TicketFeatureBadge, TicketRatingStars, TicketSourceBadge } from "@/components/support/TicketMetaBadges";
 
 function TicketCard({
   ticket,
@@ -47,6 +48,11 @@ function TicketCard({
         <span className="text-[10px] font-mono font-bold text-[#FF5F05]">{ticket.ticketNumber}</span>
       </div>
       <p className="text-xs font-medium line-clamp-2">{ticket.title}</p>
+      <div className="flex flex-wrap gap-1 mt-1">
+        <TicketSourceBadge source={ticket.source} />
+        {ticket.sourceFeature && <TicketFeatureBadge feature={ticket.sourceFeature} />}
+      </div>
+      {ticket.rating != null && <TicketRatingStars rating={ticket.rating} className="mt-1" />}
       <p className="text-[10px] text-muted-foreground mt-1 truncate">{userLabel}</p>
       <p className="text-[10px] text-muted-foreground">
         {formatDistanceToNow(new Date(ticket.createdAt), { addSuffix: true, locale: th })}

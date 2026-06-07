@@ -61,15 +61,20 @@ export function useMyBetaFeedback(feature?: string) {
   const submit = useMutation({
     mutationFn: async (input: { feature: string; message: string; rating?: number | null }) => {
       if (!uid) throw new Error("ต้องเข้าสู่ระบบ");
-      const { error } = await supabase.from("beta_feedback").insert({
-        user_id: uid,
-        user_email: user?.email ?? null,
-        user_name: profile?.display_name ?? null,
-        feature: input.feature,
-        message: input.message,
-        rating: input.rating ?? null,
-      });
+      const { data, error } = await supabase
+        .from("beta_feedback")
+        .insert({
+          user_id: uid,
+          user_email: user?.email ?? null,
+          user_name: profile?.display_name ?? null,
+          feature: input.feature,
+          message: input.message,
+          rating: input.rating ?? null,
+        })
+        .select("id")
+        .single();
       if (error) throw error;
+      return data.id as string;
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: KEY_MINE(uid) });

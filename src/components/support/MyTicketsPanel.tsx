@@ -1,10 +1,11 @@
 import * as React from "react";
 import { formatDistanceToNow } from "date-fns";
 import { th } from "date-fns/locale";
-import { Loader2, Ticket } from "lucide-react";
+import { Loader2, MessageSquareHeart, Ticket } from "lucide-react";
 import { useMyTickets, type SupportTicket } from "@/store/supportTickets";
 import { TicketStatusBadge } from "./TicketStatusBadge";
 import { TicketDetailPanel } from "./TicketDetailSheet";
+import { TicketFeatureBadge, TicketRatingStars, TicketSourceBadge } from "./TicketMetaBadges";
 
 export function MyTicketsPanel({
   onSelectTicket,
@@ -27,7 +28,7 @@ export function MyTicketsPanel({
   if (selected) {
     return (
       <div className="h-full flex flex-col">
-        <TicketDetailPanel ticket={selected} />
+        <TicketDetailPanel ticket={selected} onBack={() => pick(null)} />
       </div>
     );
   }
@@ -44,10 +45,12 @@ export function MyTicketsPanel({
     return (
       <div className="flex flex-col items-center justify-center h-full p-6 text-center">
         <div className="h-14 w-14 rounded-full bg-orange-50 flex items-center justify-center mb-3">
-          <Ticket className="h-6 w-6 text-[#FF5F05]" />
+          <MessageSquareHeart className="h-6 w-6 text-[#FF5F05]" />
         </div>
         <h3 className="font-semibold text-gray-900 mb-1">ยังไม่มีตั๋ว</h3>
-        <p className="text-sm text-gray-500">แจ้งปัญหาเพื่อรับเลขตั๋วติดตามสถานะ</p>
+        <p className="text-sm text-gray-500 max-w-[220px]">
+          ส่ง Give Feedback จากแต่ละหน้า หรือแจ้งปัญหาผ่าน Support Hub — ตั๋วจะแสดงที่นี่
+        </p>
       </div>
     );
   }
@@ -63,8 +66,13 @@ export function MyTicketsPanel({
         >
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0 flex-1">
-              <p className="text-[10px] font-mono font-bold text-[#FF5F05]">{t.ticketNumber}</p>
-              <p className="text-sm font-medium text-gray-900 truncate mt-0.5">{t.title}</p>
+              <div className="flex flex-wrap items-center gap-1 mb-1">
+                <p className="text-[10px] font-mono font-bold text-[#FF5F05]">{t.ticketNumber}</p>
+                <TicketSourceBadge source={t.source} />
+                {t.sourceFeature && <TicketFeatureBadge feature={t.sourceFeature} />}
+              </div>
+              <p className="text-sm font-medium text-gray-900 truncate">{t.title}</p>
+              {t.rating != null && <TicketRatingStars rating={t.rating} className="mt-1" />}
               <p className="text-[10px] text-gray-400 mt-1">
                 {formatDistanceToNow(new Date(t.updatedAt), { addSuffix: true, locale: th })}
               </p>

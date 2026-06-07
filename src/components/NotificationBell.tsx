@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Bell, Heart, MessageCircle, Briefcase, Check } from "lucide-react";
+import { Bell, Heart, MessageCircle, Briefcase, Check, Ticket } from "lucide-react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { safeHref } from "@/lib/security";
@@ -35,6 +35,7 @@ const typeIcon: Record<string, React.ReactNode> = {
   like: <Heart className="h-3.5 w-3.5 text-rose-500" />,
   comment: <MessageCircle className="h-3.5 w-3.5 text-sky-500" />,
   hire: <Briefcase className="h-3.5 w-3.5 text-amber-500" />,
+  ticket: <Ticket className="h-3.5 w-3.5 text-[#FF5F05]" />,
 };
 
 function timeAgo(iso: string) {

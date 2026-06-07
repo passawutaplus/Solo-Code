@@ -11,6 +11,7 @@ import { Link } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { useServerFn } from "@tanstack/react-start";
 import { aiBusinessInsights } from "@/lib/aiBusinessInsights.functions";
+import { trackFeature } from "@/lib/featureUsage";
 
 type Msg = { id: string; role: "user" | "assistant"; content: string; created_at: string };
 
@@ -90,6 +91,7 @@ export function FloatingChat({
     const text = body.trim();
     if (!text || limitReached) return;
     setSending(true);
+    void trackFeature(mode === "business" ? "ai.chat.business" : "ai.chat.send");
     const tempId = `tmp_${Date.now()}`;
     const assistantTempId = `tmp_${Date.now()}_a`;
     setMessages((prev) => [...prev, { id: tempId, role: "user", content: text, created_at: new Date().toISOString() }]);

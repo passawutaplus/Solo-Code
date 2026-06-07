@@ -1,5 +1,5 @@
 -- So1o FULL schema bundle for rvnzjiskqliexysicfmh
--- Generated: 2026-06-07T09:22:15Z
+-- Generated: 2026-06-07T13:10:18Z
 -- Run in Supabase Dashboard → SQL Editor
 -- Or: export SUPABASE_ACCESS_TOKEN=... && ./scripts/supabase-push-via-api.sh
 
@@ -7980,5 +7980,823 @@ BEGIN
     COMMENT ON TABLE public.project_tasks IS 'Team kanban tasks within shared_projects';
   END IF;
 END $$;
+
+
+-- ── 20260606120000_ecosystem_schemas.sql ──
+-- Unified So1o + an1hem: schema namespaces on rvnzjiskqliexysicfmh
+-- shared = identity/billing/wallet/chat | anthem = showcase/social | so1o = back-office
+
+CREATE SCHEMA IF NOT EXISTS shared;
+CREATE SCHEMA IF NOT EXISTS anthem;
+CREATE SCHEMA IF NOT EXISTS so1o;
+
+GRANT USAGE ON SCHEMA shared TO anon, authenticated, service_role;
+GRANT USAGE ON SCHEMA anthem TO anon, authenticated, service_role;
+GRANT USAGE ON SCHEMA so1o   TO anon, authenticated, service_role;
+
+ALTER DEFAULT PRIVILEGES IN SCHEMA shared GRANT ALL ON TABLES    TO service_role;
+ALTER DEFAULT PRIVILEGES IN SCHEMA shared GRANT ALL ON SEQUENCES TO service_role;
+ALTER DEFAULT PRIVILEGES IN SCHEMA shared GRANT ALL ON FUNCTIONS TO service_role;
+
+ALTER DEFAULT PRIVILEGES IN SCHEMA anthem GRANT ALL ON TABLES    TO service_role;
+ALTER DEFAULT PRIVILEGES IN SCHEMA anthem GRANT ALL ON SEQUENCES TO service_role;
+ALTER DEFAULT PRIVILEGES IN SCHEMA anthem GRANT ALL ON FUNCTIONS TO service_role;
+
+ALTER DEFAULT PRIVILEGES IN SCHEMA so1o   GRANT ALL ON TABLES    TO service_role;
+ALTER DEFAULT PRIVILEGES IN SCHEMA so1o   GRANT ALL ON SEQUENCES TO service_role;
+ALTER DEFAULT PRIVILEGES IN SCHEMA so1o   GRANT ALL ON FUNCTIONS TO service_role;
+
+COMMENT ON SCHEMA shared IS 'Cross-app: profiles (public), wallet, contracts, ecosystem notifications';
+COMMENT ON SCHEMA anthem IS 'an1hem showcase: projects, studios, jobs, feed';
+COMMENT ON SCHEMA so1o   IS 'So1o My Desk: finance, quotations, dashboard (tables migrate here over time)';
+
+
+-- ── 20260606120100_profiles_unified_anthem_columns.sql ──
+-- Extend So1o public.profiles with an1hem showcase fields (single identity row per user).
+-- So1o keys profiles by user_id; an1hem app queries .eq('user_id', auth.uid()).
+
+ALTER TABLE public.profiles
+  ADD COLUMN IF NOT EXISTS username text,
+  ADD COLUMN IF NOT EXISTS bio text NOT NULL DEFAULT '',
+  ADD COLUMN IF NOT EXISTS role text NOT NULL DEFAULT '',
+  ADD COLUMN IF NOT EXISTS phone text NOT NULL DEFAULT '',
+  ADD COLUMN IF NOT EXISTS website text NOT NULL DEFAULT '',
+  ADD COLUMN IF NOT EXISTS line_id text NOT NULL DEFAULT '',
+  ADD COLUMN IF NOT EXISTS facebook text NOT NULL DEFAULT '',
+  ADD COLUMN IF NOT EXISTS instagram text NOT NULL DEFAULT '',
+  ADD COLUMN IF NOT EXISTS notify_email boolean NOT NULL DEFAULT true,
+  ADD COLUMN IF NOT EXISTS notify_hire boolean NOT NULL DEFAULT true,
+  ADD COLUMN IF NOT EXISTS notify_job_match boolean NOT NULL DEFAULT true,
+  ADD COLUMN IF NOT EXISTS skills text[] NOT NULL DEFAULT '{}',
+  ADD COLUMN IF NOT EXISTS experience jsonb NOT NULL DEFAULT '[]'::jsonb,
+  ADD COLUMN IF NOT EXISTS location text NOT NULL DEFAULT '',
+  ADD COLUMN IF NOT EXISTS cover_url text NOT NULL DEFAULT '',
+  ADD COLUMN IF NOT EXISTS preferred_employment_types text[] NOT NULL DEFAULT '{}',
+  ADD COLUMN IF NOT EXISTS preferred_categories text[] NOT NULL DEFAULT '{}',
+  ADD COLUMN IF NOT EXISTS active_studio_id uuid,
+  ADD COLUMN IF NOT EXISTS is_verified boolean NOT NULL DEFAULT false,
+  ADD COLUMN IF NOT EXISTS verified_at timestamptz,
+  ADD COLUMN IF NOT EXISTS verified_by uuid,
+  ADD COLUMN IF NOT EXISTS account_status text NOT NULL DEFAULT 'active',
+  ADD COLUMN IF NOT EXISTS frozen_at timestamptz,
+  ADD COLUMN IF NOT EXISTS frozen_reason text NOT NULL DEFAULT '',
+  ADD COLUMN IF NOT EXISTS risk_score int NOT NULL DEFAULT 0,
+  ADD COLUMN IF NOT EXISTS subscription_tier text NOT NULL DEFAULT 'free',
+  ADD COLUMN IF NOT EXISTS subscription_seats integer NOT NULL DEFAULT 1;
+
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'profiles_username_key') THEN
+    ALTER TABLE public.profiles ADD CONSTRAINT profiles_username_key UNIQUE (username);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'profiles_account_status_chk') THEN
+    ALTER TABLE public.profiles
+      ADD CONSTRAINT profiles_account_status_chk
+      CHECK (account_status IN ('active', 'frozen', 'under_review'));
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'profiles_subscription_tier_chk') THEN
+    ALTER TABLE public.profiles
+      ADD CONSTRAINT profiles_subscription_tier_chk
+      CHECK (subscription_tier IN ('free', 'pro', 'inhouse'));
+  END IF;
+END $$;
+
+-- Public read for showcase (an1hem designers directory)
+DROP POLICY IF EXISTS "Profiles are viewable by everyone" ON public.profiles;
+CREATE POLICY "Profiles are viewable by everyone"
+  ON public.profiles FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Users can update own profile by user_id" ON public.profiles;
+CREATE POLICY "Users can update own profile by user_id"
+  ON public.profiles FOR UPDATE TO authenticated
+  USING (user_id = auth.uid())
+  WITH CHECK (user_id = auth.uid());
+
+COMMENT ON COLUMN public.profiles.user_id IS 'Auth user id — canonical key for both So1o and an1hem';
+COMMENT ON COLUMN public.profiles.subscription_tier IS 'So1o Pro unlocks both My Desk and an1hem (ecosystem)';
+
+
+-- ── 20260606120200_ecosystem_notifications.sql ──
+-- Unified notification center (an1hem) alongside So1o legacy notifications.
+
+-- So1o portfolio notifications → so1o schema (keep API path via view)
+ALTER TABLE IF EXISTS public.notifications SET SCHEMA so1o;
+
+CREATE OR REPLACE VIEW public.so1o_notifications
+WITH (security_invoker = on) AS
+  SELECT * FROM so1o.notifications;
+
+GRANT SELECT, UPDATE, INSERT, DELETE ON public.so1o_notifications TO authenticated;
+GRANT ALL ON public.so1o_notifications TO service_role;
+
+-- Compatibility: Solo app still uses .from('notifications')
+CREATE OR REPLACE VIEW public.notifications
+WITH (security_invoker = on) AS
+  SELECT * FROM so1o.notifications;
+
+GRANT SELECT, UPDATE, INSERT, DELETE ON public.notifications TO authenticated;
+GRANT ALL ON public.notifications TO service_role;
+
+-- Ecosystem notifications (both apps)
+CREATE TABLE IF NOT EXISTS shared.notifications (
+  id           uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id      uuid NOT NULL,
+  app          text NOT NULL CHECK (app IN ('anthem', 'so1o', 'shared')),
+  kind         text NOT NULL,
+  title        text NOT NULL,
+  body         text NOT NULL DEFAULT '',
+  link         text NOT NULL DEFAULT '',
+  metadata     jsonb NOT NULL DEFAULT '{}'::jsonb,
+  is_read      boolean NOT NULL DEFAULT false,
+  is_dismissed boolean NOT NULL DEFAULT false,
+  created_at   timestamptz NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS notifications_user_unread_idx
+  ON shared.notifications (user_id, is_read, created_at DESC)
+  WHERE is_dismissed = false;
+
+GRANT SELECT, UPDATE ON shared.notifications TO authenticated;
+GRANT ALL ON shared.notifications TO service_role;
+
+ALTER TABLE shared.notifications ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "owner reads own notifications" ON shared.notifications;
+CREATE POLICY "owner reads own notifications"
+  ON shared.notifications FOR SELECT TO authenticated
+  USING (user_id = auth.uid());
+
+DROP POLICY IF EXISTS "owner updates own notifications" ON shared.notifications;
+CREATE POLICY "owner updates own notifications"
+  ON shared.notifications FOR UPDATE TO authenticated
+  USING (user_id = auth.uid())
+  WITH CHECK (user_id = auth.uid());
+
+CREATE OR REPLACE VIEW public.ecosystem_notifications
+WITH (security_invoker = on) AS
+  SELECT id, user_id, app, kind, title, body, link, metadata,
+         is_read, is_dismissed, created_at
+  FROM shared.notifications;
+
+GRANT SELECT, UPDATE ON public.ecosystem_notifications TO authenticated;
+
+CREATE OR REPLACE FUNCTION shared.push_notification(
+  _user_id uuid,
+  _app text,
+  _kind text,
+  _title text,
+  _body text DEFAULT '',
+  _link text DEFAULT '',
+  _metadata jsonb DEFAULT '{}'::jsonb
+) RETURNS uuid
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = shared, public
+AS $$
+DECLARE v_id uuid;
+BEGIN
+  INSERT INTO shared.notifications(user_id, app, kind, title, body, link, metadata)
+  VALUES (_user_id, _app, _kind, _title, COALESCE(_body, ''), COALESCE(_link, ''), COALESCE(_metadata, '{}'::jsonb))
+  RETURNING id INTO v_id;
+  RETURN v_id;
+END $$;
+
+REVOKE ALL ON FUNCTION shared.push_notification(uuid, text, text, text, text, text, jsonb) FROM PUBLIC, anon, authenticated;
+GRANT EXECUTE ON FUNCTION shared.push_notification(uuid, text, text, text, text, text, jsonb) TO service_role;
+
+
+-- ── 20260606120300_anthem_bundle_readme.sql ──
+-- an1hem domain tables (projects, studios, jobs, wallet, …) are NOT inlined here.
+-- Apply the generated bundle once:
+--
+--   node scripts/bundle-anthem-for-unified.mjs
+--   → supabase/manual/apply-anthem-ecosystem.sql
+--
+-- Run that file in Supabase SQL Editor after migrations 20260606120000–20260606120200,
+-- or concatenate into your next db push batch.
+--
+SELECT 1;
+
+
+-- ── 20260606140000_seed_anthem_catalog.sql ──
+-- Seed real community catalog in Postgres (replaces client-side mock arrays).
+-- Idempotent: fixed UUIDs + ON CONFLICT.
+
+CREATE OR REPLACE FUNCTION public._catalog_demo_uid(i integer)
+RETURNS uuid
+LANGUAGE sql
+IMMUTABLE
+AS $$
+  SELECT ('00000000-0000-0000-0000-00000000a0' || lpad(to_hex(i), 2, '0'))::uuid;
+$$;
+
+DO $seed$
+DECLARE
+  i int;
+  uid uuid;
+  sid uuid;
+  cover text;
+  names text[] := ARRAY[
+    'ภัสวุฒิ ศรีวงค์','นภัสรา ทองดี','พิมพ์ชนก ใจดี','วรรณกร พันธ์ทอง','ธัญญา รัตนพร',
+    'ฉัตรชัย วรกุล','อาทิตยา จันทร์เพ็ญ','พลอยไพลิน ขจร','ธนกร แสงทอง','อนุชา ภูมิดี',
+    'ปาริชาต สวยงาม','เจษฎา ท่องเที่ยว','สุพัตรา โมชั่น','วทัญญู เสียงดี','กฤษณา เมโลดี้',
+    'ศิริพร เงินงาม','กิตติพงษ์ ดิจิทัล','มนัสนันท์ อาร์ต','ณัฐวุฒิ ภาพถ่าย','ภัทรานิษฐ์ คอนเทนต์'
+  ];
+  usernames text[] := ARRAY[
+    'phatsawut','napatsara','pimchanok','wannakorn','thanya','chatchai','atittaya','ploypailin',
+    'thanakorn','anucha','parichat','jessada','supatra','wathanyu','kritsana','siriporn',
+    'kittipong','manatsanan','nattawut','phattranit'
+  ];
+  roles text[] := ARRAY[
+    'Brand & Logo Designer','Brand Identity Designer','Illustrator','Pattern & Textile Designer',
+    'Ceramic Artist','Web & Poster Designer','UX/UI Designer','Content Creator','IG Content & Photo',
+    'Product Photographer','Wedding Photographer','Video Editor','Motion Designer','Sound Designer',
+    'Music Producer','Jewelry Designer','Web Developer & UI','Digital Illustrator',
+    'Street Photographer','Content Strategist'
+  ];
+  bios text[] := ARRAY[
+    'ออกแบบโลโก้ & แบรนด์ดิ้งสไตล์มินิมอล','สร้างแบรนด์ขนมไทยและร้านคาเฟ่','ภาพประกอบเด็ก & Pop Art',
+    'ลายผ้าไทยสไตล์โมเดิร์น','เซรามิกแฮนด์เมด Earth Tone','เว็บไซต์ร้านอาหาร & โปสเตอร์หนัง',
+    'ออกแบบแอป & เว็บโรงแรม Boutique','TikTok สายอาหารเหนือ','รีวิวคาเฟ่สไตล์มินิมอล',
+    'ถ่ายสินค้า OTOP & ผ้าทอ','พรีเวดดิ้งสไตล์มินิมอล','ตัดต่อ Vlog ท่องเที่ยว',
+    'Motion Graphic อธิบายสินค้า','Sound Design พอดแคสต์','เพลงประกอบโฆษณา',
+    'เครื่องประดับเงินแฮนด์เมด','Landing page & E-commerce','ภาพประกอบดิจิทัล & สติกเกอร์',
+    'ภาพสตรีท กรุงเทพ & ต่างจังหวัด','วางแผนคอนเทนต์แบรนด์'
+  ];
+  proj_titles text[] := ARRAY[
+    'โลโก้ร้านกาแฟเชียงใหม่ Doi Brew','แบรนด์ดิ้งร้านขนมไทย แม่ละมุน','ภาพประกอบหนังสือเด็ก ช้างน้อยกับดวงดาว',
+    'Pattern ผ้าขาวม้าโมเดิร์น','เซรามิกสไตล์มินิมอล Earth Tone','เว็บไซต์ร้านอาหารอีสาน ส้มตำลำซิ่ง',
+    'UI App จองคิวสปา Thai Wellness','Landing Page คอร์สเรียนทำขนม','คอนเทนต์ TikTok สายอาหารเหนือ',
+    'รีวิวคาเฟ่สไตล์ minimal บน IG','ถ่ายภาพสินค้า OTOP ผ้าทอภาคเหนือ','พรีเวดดิ้งสไตล์มินิมอลเชียงราย',
+    'ตัดต่อ Vlog ท่องเที่ยวภาคใต้','Motion Graphic อธิบายสินค้า','Sound Design พอดแคสต์ไทย คุยเรื่องผี',
+    'เพลงประกอบโฆษณาแบรนด์ไทย','Mascot น้องหมูเด้ง Pop Art','เครื่องประดับเงินแฮนด์เมด',
+    'โปสเตอร์เทศกาลภาพยนตร์อิสระ','เว็บไซต์โรงแรม Boutique หัวหิน'
+  ];
+  proj_cats text[] := ARRAY[
+    'Graphic','Graphic','Illustration','Craft','Craft','Web/UI','Web/UI','Web/UI','Content','Content',
+    'Photography','Photography','Video','Video','Music/Audio','Music/Audio','Illustration','Craft','Graphic','Web/UI'
+  ];
+  proj_prices int[] := ARRAY[3500,8000,12000,6500,4800,18000,22000,9500,3200,2500,7500,15000,8000,12500,4000,18000,9000,2800,5500,35000];
+  studio_names text[] := ARRAY[
+    'Doi Studio','Lotus Lab','Mango Pixel','Inkwell Co.','Frame & Field',
+    'Sundaze Crafts','Soundwave Bangkok','Pixel Garden','Yim Studio','Talay Creative'
+  ];
+  studio_slugs text[] := ARRAY[
+    'doi-studio','lotus-lab','mango-pixel','inkwell-co','frame-field',
+    'sundaze-crafts','soundwave-bkk','pixel-garden','yim-studio','talay-creative'
+  ];
+  demo_email text;
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.tables
+    WHERE table_schema = 'anthem' AND table_name = 'projects'
+  ) THEN
+    RAISE NOTICE 'seed-catalog: skip — apply supabase/manual/apply-anthem-ecosystem.sql first';
+    RETURN;
+  END IF;
+
+  CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
+  -- public.profiles.user_id → auth.users(id); create demo auth rows first (SQL Editor / postgres only).
+  FOR i IN 0..19 LOOP
+    uid := public._catalog_demo_uid(i);
+    demo_email := usernames[i + 1] || '@demo.an1hem.app';
+
+    INSERT INTO auth.users (
+      id, instance_id, aud, role, email, encrypted_password, email_confirmed_at,
+      raw_app_meta_data, raw_user_meta_data, created_at, updated_at
+    ) VALUES (
+      uid,
+      '00000000-0000-0000-0000-000000000000',
+      'authenticated',
+      'authenticated',
+      demo_email,
+      crypt('an1hem-demo-seed', gen_salt('bf')),
+      now(),
+      '{"provider":"email","providers":["email"]}',
+      jsonb_build_object('display_name', names[i + 1], 'username', usernames[i + 1]),
+      now(),
+      now()
+    )
+    ON CONFLICT (id) DO NOTHING;
+
+    INSERT INTO auth.identities (
+      id, user_id, identity_data, provider, provider_id, last_sign_in_at, created_at, updated_at
+    ) VALUES (
+      uid,
+      uid,
+      jsonb_build_object('sub', uid::text, 'email', demo_email),
+      'email',
+      uid::text,
+      now(),
+      now(),
+      now()
+    )
+    ON CONFLICT DO NOTHING;
+  END LOOP;
+
+  FOR i IN 0..19 LOOP
+    uid := public._catalog_demo_uid(i);
+    INSERT INTO public.profiles (user_id, display_name, username, email, role, bio, skills, location, avatar_url)
+    VALUES (
+      uid,
+      names[i + 1],
+      usernames[i + 1],
+      usernames[i + 1] || '@demo.an1hem.app',
+      roles[i + 1],
+      bios[i + 1],
+      CASE i
+        WHEN 0 THEN ARRAY['Logo','Branding','Illustrator']
+        WHEN 1 THEN ARRAY['Branding','Packaging','Figma']
+        WHEN 2 THEN ARRAY['Procreate','Illustration','Character']
+        ELSE ARRAY['Design','Creative']
+      END,
+      CASE WHEN i % 3 = 0 THEN 'Bangkok' WHEN i % 3 = 1 THEN 'Chiang Mai' ELSE 'Phuket' END,
+      'https://api.dicebear.com/7.x/shapes/svg?seed=' || usernames[i + 1] || '&backgroundColor=fff4e6,ffe8cc'
+    )
+    ON CONFLICT (user_id) DO UPDATE SET
+      display_name = EXCLUDED.display_name,
+      username = EXCLUDED.username,
+      role = EXCLUDED.role,
+      bio = EXCLUDED.bio,
+      skills = EXCLUDED.skills,
+      location = EXCLUDED.location,
+      avatar_url = EXCLUDED.avatar_url;
+  END LOOP;
+
+  FOR i IN 0..19 LOOP
+    uid := public._catalog_demo_uid(i);
+    cover := 'https://picsum.photos/seed/an1hem-proj-' || i::text || '/800/600';
+    INSERT INTO anthem.projects (
+      id, owner_id, title, category, cover_url, gallery_urls, tools, status, views, likes, price_thb, description
+    ) VALUES (
+      ('00000000-0000-0000-0002-0000000000' || lpad(to_hex(i), 2, '0'))::uuid,
+      uid,
+      proj_titles[i + 1],
+      proj_cats[i + 1],
+      cover,
+      ARRAY[cover],
+      CASE i
+        WHEN 0 THEN ARRAY['Illustrator','Photoshop']
+        WHEN 1 THEN ARRAY['Illustrator','Figma']
+        WHEN 2 THEN ARRAY['Procreate','Photoshop']
+        WHEN 3 THEN ARRAY['Illustrator','Procreate']
+        WHEN 4 THEN ARRAY['Lightroom','Photoshop']
+        WHEN 5 THEN ARRAY['Figma','Webflow']
+        WHEN 6 THEN ARRAY['Figma','Notion']
+        WHEN 7 THEN ARRAY['Figma','Webflow']
+        WHEN 8 THEN ARRAY['Premiere','CapCut']
+        WHEN 9 THEN ARRAY['Lightroom','Canva']
+        WHEN 10 THEN ARRAY['Lightroom','Photoshop']
+        WHEN 11 THEN ARRAY['Lightroom']
+        WHEN 12 THEN ARRAY['Premiere','After Effects']
+        WHEN 13 THEN ARRAY['After Effects','Illustrator']
+        WHEN 14 THEN ARRAY['Audition','Logic Pro']
+        WHEN 15 THEN ARRAY['Logic Pro','Ableton']
+        WHEN 16 THEN ARRAY['Procreate','Illustrator']
+        WHEN 17 THEN ARRAY['Lightroom']
+        WHEN 18 THEN ARRAY['Photoshop','Illustrator']
+        ELSE ARRAY['Figma','Webflow']
+      END,
+      'Published',
+      120 + (i * 37) % 900,
+      8 + (i * 11) % 120,
+      proj_prices[i + 1],
+      'ผลงานจากชุมชนครีเอทีฟไทย — โพสต์เพื่อแสดงใน an1hem'
+    )
+    ON CONFLICT (id) DO NOTHING;
+  END LOOP;
+
+  FOR i IN 0..9 LOOP
+    uid := public._catalog_demo_uid(i);
+    sid := ('00000000-0000-0000-0001-0000000000' || lpad(to_hex(i), 2, '0'))::uuid;
+    INSERT INTO anthem.studios (
+      id, slug, name, tagline, bio, avatar_url, cover_url, location, verified, created_by, member_count
+    ) VALUES (
+      sid,
+      studio_slugs[i + 1],
+      studio_names[i + 1],
+      'สตูดิโอครีเอทีฟไทย',
+      'ทีมดีไซน์และคราฟต์จากชุมชน an1hem',
+      'https://api.dicebear.com/7.x/shapes/svg?seed=studio-' || studio_slugs[i + 1],
+      'https://picsum.photos/seed/an1hem-studio-' || i::text || '/1200/400',
+      CASE WHEN i % 2 = 0 THEN 'Bangkok' ELSE 'Chiang Mai' END,
+      i % 3 = 0,
+      uid,
+      1
+    )
+    ON CONFLICT (id) DO NOTHING;
+
+    INSERT INTO anthem.studio_members (studio_id, user_id, role)
+    VALUES (sid, uid, 'owner'::public.studio_member_role)
+    ON CONFLICT DO NOTHING;
+  END LOOP;
+
+  FOR i IN 0..11 LOOP
+    sid := ('00000000-0000-0000-0001-0000000000' || lpad(to_hex(i % 10), 2, '0'))::uuid;
+    uid := public._catalog_demo_uid(i % 10);
+    INSERT INTO anthem.job_posts (
+      id, studio_id, posted_by, title, role_category, description, skills,
+      budget_min, budget_max, budget_type, location_type, location, status, post_type, poster_role, employment_type
+    ) VALUES (
+      ('00000000-0000-0000-0003-0000000000' || lpad(to_hex(i), 2, '0'))::uuid,
+      sid,
+      uid,
+      CASE i
+        WHEN 0 THEN 'หา UI Designer ทำแอป Wellness'
+        WHEN 1 THEN 'Graphic Designer ทำ Packaging ขนมไทย'
+        WHEN 2 THEN 'Brand Designer สำหรับสตาร์ทอัป Fintech'
+        WHEN 3 THEN 'Illustrator วาดภาพประกอบหนังสือเด็ก'
+        WHEN 4 THEN 'Motion Designer ทำคลิปสินค้า 30 วินาที'
+        WHEN 5 THEN 'Photographer ถ่าย Lookbook คอลเลกชันใหม่'
+        WHEN 6 THEN 'Webflow Developer สร้าง Landing Page'
+        WHEN 7 THEN 'Content Creator สาย TikTok อาหาร'
+        WHEN 8 THEN 'Logo Designer สำหรับคลินิกใหม่'
+        WHEN 9 THEN 'Wedding Photographer พรีเวดดิ้ง'
+        WHEN 10 THEN 'Music Producer เพลง Jingle 10s'
+        ELSE 'Senior Designer เข้าทำงานประจำ Studio'
+      END,
+      'Design',
+      'ประกาศงานจากสตูดิโอในชุมชน an1hem',
+      ARRAY['Figma','Branding'],
+      15000 + i * 2000,
+      28000 + i * 3500,
+      'fixed',
+      CASE WHEN i % 3 = 0 THEN 'remote'::public.job_location_type ELSE 'hybrid'::public.job_location_type END,
+      'Bangkok',
+      'open',
+      'hiring',
+      'studio',
+      'project'
+    )
+    ON CONFLICT (id) DO NOTHING;
+  END LOOP;
+END;
+$seed$;
+
+COMMENT ON FUNCTION public._catalog_demo_uid(integer) IS 'Internal: demo catalog user ids (seed migration only).';
+
+
+-- ── 20260606150000_security_advisor_hardening.sql ──
+-- Security Advisor hardening (rvnzjiskqliexysicfmh)
+-- Fixes: function_search_path_mutable, anon EXECUTE on triggers/internal RPCs
+
+-- ── 1. Pin search_path on support-ticket helpers ──
+ALTER FUNCTION public.format_ticket_number(bigint) SET search_path = public;
+
+CREATE OR REPLACE FUNCTION public.assign_support_ticket_number()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SET search_path = public
+AS $$
+BEGIN
+  IF NEW.ticket_number IS NULL OR btrim(NEW.ticket_number) = '' THEN
+    NEW.ticket_number := public.format_ticket_number(nextval('public.support_ticket_number_seq'));
+  END IF;
+  RETURN NEW;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION public.set_support_ticket_closed_at()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SET search_path = public
+AS $$
+BEGIN
+  IF NEW.status IS DISTINCT FROM OLD.status THEN
+    IF NEW.status IN ('closed', 'wont_fix') AND NEW.closed_at IS NULL THEN
+      NEW.closed_at := now();
+    ELSIF NEW.status NOT IN ('closed', 'wont_fix') THEN
+      NEW.closed_at := NULL;
+    END IF;
+  END IF;
+  RETURN NEW;
+END;
+$$;
+
+-- ── 2. Trigger / notify functions: not callable via PostgREST ──
+REVOKE EXECUTE ON FUNCTION public.assign_support_ticket_number() FROM PUBLIC, anon, authenticated;
+REVOKE EXECUTE ON FUNCTION public.format_ticket_number(bigint) FROM PUBLIC, anon, authenticated;
+REVOKE EXECUTE ON FUNCTION public.set_support_ticket_closed_at() FROM PUBLIC, anon, authenticated;
+REVOKE EXECUTE ON FUNCTION public.log_invoice_status_change() FROM PUBLIC, anon, authenticated;
+REVOKE EXECUTE ON FUNCTION public.log_slip_event() FROM PUBLIC, anon, authenticated;
+REVOKE EXECUTE ON FUNCTION public.log_support_ticket_changes() FROM PUBLIC, anon, authenticated;
+REVOKE EXECUTE ON FUNCTION public.notify_on_invoice_late() FROM PUBLIC, anon, authenticated;
+REVOKE EXECUTE ON FUNCTION public.notify_on_slip_upload() FROM PUBLIC, anon, authenticated;
+REVOKE EXECUTE ON FUNCTION public.notify_on_ticket_status_change() FROM PUBLIC, anon, authenticated;
+REVOKE EXECUTE ON FUNCTION public.feedback_to_training_sample() FROM PUBLIC, anon, authenticated;
+REVOKE EXECUTE ON FUNCTION public.trim_price_guide_history() FROM PUBLIC, anon, authenticated;
+
+-- ── 3. Email queue: service_role / edge functions only ──
+REVOKE EXECUTE ON FUNCTION public.enqueue_email(text, jsonb) FROM PUBLIC, anon, authenticated;
+REVOKE EXECUTE ON FUNCTION public.delete_email(text, bigint) FROM PUBLIC, anon, authenticated;
+REVOKE EXECUTE ON FUNCTION public.read_email_batch(text, integer, integer) FROM PUBLIC, anon, authenticated;
+REVOKE EXECUTE ON FUNCTION public.move_to_dlq(text, text, bigint, jsonb) FROM PUBLIC, anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.enqueue_email(text, jsonb) TO service_role;
+GRANT EXECUTE ON FUNCTION public.delete_email(text, bigint) TO service_role;
+GRANT EXECUTE ON FUNCTION public.read_email_batch(text, integer, integer) TO service_role;
+GRANT EXECUTE ON FUNCTION public.move_to_dlq(text, text, bigint, jsonb) TO service_role;
+
+-- ── 4. Authenticated-only RPCs (revoke anon; keep authenticated for app) ──
+REVOKE EXECUTE ON FUNCTION public.auto_update_invoice_statuses() FROM PUBLIC, anon;
+REVOKE EXECUTE ON FUNCTION public.sync_user_tier(uuid) FROM PUBLIC, anon;
+REVOKE EXECUTE ON FUNCTION public.check_and_increment_ai_usage(uuid, text, integer) FROM PUBLIC, anon;
+REVOKE EXECUTE ON FUNCTION public.force_purge_user(uuid, uuid) FROM PUBLIC, anon;
+REVOKE EXECUTE ON FUNCTION public.increment_article_view(text) FROM PUBLIC, anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.increment_article_view(text) TO service_role;
+
+-- vector(1536) = pgvector type used by match_ai_knowledge
+REVOKE EXECUTE ON FUNCTION public.match_ai_knowledge(vector, text, integer) FROM PUBLIC, anon;
+
+REVOKE EXECUTE ON FUNCTION public.get_db_usage_stats() FROM PUBLIC, anon;
+REVOKE EXECUTE ON FUNCTION public.get_storage_usage_stats() FROM PUBLIC, anon;
+REVOKE EXECUTE ON FUNCTION public.get_feature_data_stats() FROM PUBLIC, anon;
+REVOKE EXECUTE ON FUNCTION public.get_feature_usage_stats(integer) FROM PUBLIC, anon;
+REVOKE EXECUTE ON FUNCTION public.get_feature_usage_trend(integer) FROM PUBLIC, anon;
+REVOKE EXECUTE ON FUNCTION public.get_daily_active_users(integer) FROM PUBLIC, anon;
+REVOKE EXECUTE ON FUNCTION public.get_device_breakdown(integer, text) FROM PUBLIC, anon;
+REVOKE EXECUTE ON FUNCTION public.get_device_usage_stats(integer) FROM PUBLIC, anon;
+REVOKE EXECUTE ON FUNCTION public.get_hourly_active_distribution(integer) FROM PUBLIC, anon;
+REVOKE EXECUTE ON FUNCTION public.get_top_active_users(integer, integer) FROM PUBLIC, anon;
+REVOKE EXECUTE ON FUNCTION public.get_top_subscriptions(integer) FROM PUBLIC, anon;
+REVOKE EXECUTE ON FUNCTION public.get_calculator_usage_count() FROM PUBLIC, anon;
+REVOKE EXECUTE ON FUNCTION public.log_user_activity(text) FROM PUBLIC, anon;
+REVOKE EXECUTE ON FUNCTION public.has_active_subscription(uuid, text) FROM PUBLIC, anon;
+
+-- Admin RPCs already gate on has_role(); revoke anon only
+REVOKE EXECUTE ON FUNCTION public.admin_list_profiles_safe() FROM PUBLIC, anon;
+
+-- ── 5. Intentional public share-link RPCs (anon kept) ──
+-- get_brief_by_token, confirm_brief_by_token, update_brief_by_token
+-- get_planner_share_by_token, get_planner_posts_by_token, submit_post_approval
+-- get_shared_supplier_by_token, get_public_profile
+-- Security Advisor may still WARN — token validates access inside each function.
+
+
+-- ── 20260606160000_oauth_profile_metadata.sql ──
+-- Map Google/Apple user metadata into unified public.profiles on signup
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  _display_name text;
+  _avatar_url text;
+  _username text;
+BEGIN
+  _display_name := COALESCE(
+    NULLIF(TRIM(NEW.raw_user_meta_data->>'display_name'), ''),
+    NULLIF(TRIM(NEW.raw_user_meta_data->>'full_name'), ''),
+    NULLIF(TRIM(NEW.raw_user_meta_data->>'name'), ''),
+    split_part(NEW.email, '@', 1)
+  );
+
+  _avatar_url := COALESCE(
+    NULLIF(TRIM(NEW.raw_user_meta_data->>'avatar_url'), ''),
+    NULLIF(TRIM(NEW.raw_user_meta_data->>'picture'), '')
+  );
+
+  _username := NULLIF(TRIM(NEW.raw_user_meta_data->>'username'), '');
+  IF _username IS NULL AND NEW.email IS NOT NULL THEN
+    _username := split_part(NEW.email, '@', 1) || '_' || substr(NEW.id::text, 1, 6);
+  END IF;
+
+  INSERT INTO public.profiles (user_id, email, display_name, avatar_url, username)
+  VALUES (NEW.id, NEW.email, _display_name, COALESCE(_avatar_url, ''), _username)
+  ON CONFLICT (user_id) DO UPDATE SET
+    email = COALESCE(EXCLUDED.email, public.profiles.email),
+    display_name = COALESCE(NULLIF(EXCLUDED.display_name, ''), public.profiles.display_name),
+    avatar_url = CASE
+      WHEN public.profiles.avatar_url IS NULL OR public.profiles.avatar_url = ''
+        THEN EXCLUDED.avatar_url
+      ELSE public.profiles.avatar_url
+    END,
+    username = COALESCE(public.profiles.username, EXCLUDED.username);
+
+  IF NEW.email = 'passawut.a.plus@gmail.com' THEN
+    INSERT INTO public.user_roles (user_id, role) VALUES (NEW.id, 'admin')
+    ON CONFLICT (user_id, role) DO NOTHING;
+  ELSE
+    INSERT INTO public.user_roles (user_id, role) VALUES (NEW.id, 'user')
+    ON CONFLICT (user_id, role) DO NOTHING;
+  END IF;
+
+  RETURN NEW;
+END;
+$$;
+
+
+-- ── 20260607120000_feedback_ticket_fields.sql ──
+-- Link Give Feedback to support tickets + rating on ticket row
+
+ALTER TABLE public.support_tickets
+  ADD COLUMN IF NOT EXISTS rating smallint CHECK (rating IS NULL OR (rating >= 1 AND rating <= 5)),
+  ADD COLUMN IF NOT EXISTS beta_feedback_id uuid REFERENCES public.beta_feedback(id) ON DELETE SET NULL;
+
+CREATE INDEX IF NOT EXISTS idx_support_tickets_rating ON public.support_tickets(rating) WHERE rating IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_support_tickets_source ON public.support_tickets(source, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_support_tickets_beta_fb ON public.support_tickets(beta_feedback_id) WHERE beta_feedback_id IS NOT NULL;
+
+
+-- ── 20260607120100_ticket_feedback_notify.sql ──
+-- Feedback-aware ticket status notifications
+
+CREATE OR REPLACE FUNCTION public.notify_on_ticket_status_change()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  _msg TEXT;
+  _url TEXT := '/dashboard';
+BEGIN
+  IF NEW.status IS NOT DISTINCT FROM OLD.status THEN
+    RETURN NEW;
+  END IF;
+
+  IF NEW.source = 'feedback_button' THEN
+    IF NEW.status = 'in_progress' THEN
+      _msg := 'เราได้รับฟีดแบ็กของคุณแล้ว กำลังดำเนินการแก้ไข';
+    ELSIF NEW.status = 'resolved' THEN
+      _msg := 'เราได้แก้ไขตามฟีดแบ็กของคุณแล้ว ขอบคุณที่ช่วยพัฒนา So1o';
+      IF NEW.resolution_note IS NOT NULL AND btrim(NEW.resolution_note) <> '' THEN
+        _msg := _msg || ' — ' || NEW.resolution_note;
+      END IF;
+    ELSIF NEW.status = 'closed' THEN
+      _msg := 'ตั๋วฟีดแบ็กปิดงานแล้ว ขอบคุณที่ส่งความคิดเห็นมา';
+    ELSE
+      RETURN NEW;
+    END IF;
+  ELSE
+    IF NEW.status = 'in_progress' THEN
+      _msg := 'ตั๋ว ' || NEW.ticket_number || ' กำลังได้รับการแก้ไข';
+    ELSIF NEW.status = 'resolved' THEN
+      _msg := 'ตั๋ว ' || NEW.ticket_number || ' แก้ไขแล้ว — กำลังปล่อยอัปเดต';
+      IF NEW.resolution_note IS NOT NULL AND btrim(NEW.resolution_note) <> '' THEN
+        _msg := _msg || ' — ' || NEW.resolution_note;
+      END IF;
+    ELSIF NEW.status = 'closed' THEN
+      _msg := 'ตั๋ว ' || NEW.ticket_number || ' ปิดงานเรียบร้อยแล้ว';
+    ELSE
+      RETURN NEW;
+    END IF;
+  END IF;
+
+  INSERT INTO public.notifications (user_id, type, message, url)
+  VALUES (NEW.user_id, 'ticket', _msg, _url);
+
+  RETURN NEW;
+END;
+$$;
+
+REVOKE EXECUTE ON FUNCTION public.notify_on_ticket_status_change() FROM PUBLIC, anon, authenticated;
+
+
+-- ── 20260607130000_admin_activity_feed.sql ──
+-- Unified admin activity feed RPC
+
+CREATE OR REPLACE FUNCTION public.get_admin_activity_feed(
+  _days integer DEFAULT 7,
+  _category text DEFAULT 'all',
+  _limit integer DEFAULT 80
+)
+RETURNS TABLE (
+  occurred_at timestamptz,
+  category text,
+  event_type text,
+  title text,
+  detail text,
+  user_id uuid,
+  ref_id text
+)
+LANGUAGE plpgsql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  _since timestamptz := now() - make_interval(days => GREATEST(1, LEAST(_days, 90)));
+  _lim integer := GREATEST(10, LEAST(_limit, 200));
+BEGIN
+  IF NOT public.has_role(auth.uid(), 'admin') THEN
+    RAISE EXCEPTION 'admin only';
+  END IF;
+
+  RETURN QUERY
+  SELECT * FROM (
+    SELECT
+      ual.created_at AS occurred_at,
+      'user'::text AS category,
+      ual.activity_type AS event_type,
+      'เข้าใช้งาน'::text AS title,
+      ual.activity_type AS detail,
+      ual.user_id,
+      ual.id::text AS ref_id
+    FROM public.user_activity_logs ual
+    WHERE ual.created_at >= _since
+
+    UNION ALL
+
+    SELECT
+      fue.created_at,
+      'user'::text,
+      'feature_use',
+      fue.feature,
+      'ใช้ฟีเจอร์',
+      fue.user_id,
+      fue.id::text
+    FROM public.feature_usage_events fue
+    WHERE fue.created_at >= _since
+
+    UNION ALL
+
+    SELECT
+      bf.created_at,
+      'feedback'::text,
+      'beta_feedback',
+      bf.feature,
+      LEFT(bf.message, 120),
+      bf.user_id,
+      bf.id::text
+    FROM public.beta_feedback bf
+    WHERE bf.created_at >= _since
+
+    UNION ALL
+
+    SELECT
+      st.created_at,
+      'feedback'::text,
+      'ticket_created',
+      st.ticket_number || ' — ' || st.title,
+      COALESCE(st.source_feature, st.source),
+      st.user_id,
+      st.id::text
+    FROM public.support_tickets st
+    WHERE st.created_at >= _since
+
+    UNION ALL
+
+    SELECT
+      te.created_at,
+      'feedback'::text,
+      te.event_type,
+      'ตั๋ว ' || st.ticket_number,
+      COALESCE(te.body, te.new_value, te.old_value),
+      te.actor_id,
+      te.id::text
+    FROM public.ticket_events te
+    JOIN public.support_tickets st ON st.id = te.ticket_id
+    WHERE te.created_at >= _since
+      AND te.event_type IN ('status_change', 'comment')
+
+    UNION ALL
+
+    SELECT
+      cm.created_at,
+      'user'::text,
+      'chat_message',
+      'แชท Support',
+      LEFT(cm.body, 120),
+      cm.user_id,
+      cm.id::text
+    FROM public.chat_messages cm
+    WHERE cm.created_at >= _since
+
+    UNION ALL
+
+    SELECT
+      q.created_at,
+      'business'::text,
+      'quotation',
+      COALESCE(q.number, 'ใบเสนอราคา'),
+      COALESCE(q.client_name, q.status),
+      q.user_id,
+      q.id::text
+    FROM public.quotations q
+    WHERE q.created_at >= _since
+
+    UNION ALL
+
+    SELECT
+      pn.created_at,
+      'system'::text,
+      pn.event_type,
+      'การชำระเงิน',
+      pn.message,
+      pn.user_id,
+      pn.id::text
+    FROM public.payment_notifications pn
+    WHERE pn.created_at >= _since
+  ) feed
+  WHERE _category = 'all' OR feed.category = _category
+  ORDER BY feed.occurred_at DESC
+  LIMIT _lim;
+END;
+$$;
+
+GRANT EXECUTE ON FUNCTION public.get_admin_activity_feed(integer, text, integer) TO authenticated;
 
 

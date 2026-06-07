@@ -12,6 +12,7 @@ import { AdminSidebar, type AdminSection } from "@/components/admin/AdminSidebar
 import { LineHeaderButton } from "@/components/LineContactButton";
 import { useAdminMetrics } from "@/components/admin/useAdminMetrics";
 import { useAllTickets } from "@/store/supportTickets";
+import { useAllBetaFeedback } from "@/store/betaFeedback";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 // Lazy-load heavy section panels — only fetch the chunk when the tab is opened.
@@ -74,6 +75,15 @@ const SubscriptionsHubSection = React.lazy(() =>
 const AiHubSection = React.lazy(() =>
   import("@/components/admin/AiHubSection").then((m) => ({ default: m.AiHubSection })),
 );
+const ActivityFeedSection = React.lazy(() =>
+  import("@/components/admin/ActivityFeedSection").then((m) => ({ default: m.ActivityFeedSection })),
+);
+const AiUsageSection = React.lazy(() =>
+  import("@/components/admin/AiUsageSection").then((m) => ({ default: m.AiUsageSection })),
+);
+const PaymentsSection = React.lazy(() =>
+  import("@/components/admin/PaymentsSection").then((m) => ({ default: m.PaymentsSection })),
+);
 
 function SectionFallback() {
   return (
@@ -114,7 +124,11 @@ function AdminPage() {
   const m = useAdminMetrics();
   const isMobile = useIsMobile();
   const { newCount, criticalCount } = useAllTickets();
-  const ticketBadge = newCount + criticalCount;
+  const { items: betaItems } = useAllBetaFeedback();
+  const recentBeta = betaItems.filter(
+    (b) => Date.now() - new Date(b.createdAt).getTime() < 7 * 86_400_000,
+  ).length;
+  const ticketBadge = newCount + criticalCount + (recentBeta > 0 ? 1 : 0);
 
   return (
     <SidebarProvider defaultOpen={!isMobile}>
@@ -170,6 +184,7 @@ function AdminPage() {
             <div className="max-w-7xl mx-auto animate-fade-in">
               <React.Suspense fallback={<SectionFallback />}>
                 {active === "overview" && <OverviewSection m={m} />}
+                {active === "activity_feed" && <ActivityFeedSection />}
                 {active === "early_access" && <EarlyAccessSection />}
                 {active === "users" && <UsersSection m={m} />}
                 {active === "chat" && <AdminChatSection />}
@@ -179,9 +194,11 @@ function AdminPage() {
                 {active === "articles" && <ArticlesSection />}
                 {active === "business" && <BusinessSection m={m} />}
                 {active === "subscriptions" && <SubscriptionsHubSection m={m} />}
+                {active === "payments" && <PaymentsSection />}
                 {active === "feature_usage" && <FeatureUsageSection />}
                 {active === "activity" && <ActivityAnalyticsSection />}
                 {active === "device" && <DeviceAnalyticsSection />}
+                {active === "ai_usage" && <AiUsageSection />}
                 {active === "ai_center" && <AiHubSection />}
                 {active === "health" && <HealthSection m={m} />}
                 {active === "usage" && <UsageSection />}

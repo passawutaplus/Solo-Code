@@ -23,6 +23,8 @@ export interface SupportTicket {
   status: TicketStatus;
   adminNote: string | null;
   resolutionNote: string | null;
+  rating: number | null;
+  betaFeedbackId: string | null;
   createdAt: string;
   updatedAt: string;
   closedAt: string | null;
@@ -62,6 +64,8 @@ interface TicketRow {
   status: string;
   admin_note: string | null;
   resolution_note: string | null;
+  rating: number | null;
+  beta_feedback_id: string | null;
   created_at: string;
   updated_at: string;
   closed_at: string | null;
@@ -111,6 +115,8 @@ function rowToTicket(r: TicketRow): SupportTicket {
     status: r.status as SupportTicket["status"],
     adminNote: r.admin_note,
     resolutionNote: r.resolution_note,
+    rating: r.rating ?? null,
+    betaFeedbackId: r.beta_feedback_id ?? null,
     createdAt: r.created_at,
     updatedAt: r.updated_at,
     closedAt: r.closed_at,
@@ -202,6 +208,9 @@ export function useMyTickets() {
           category: input.category,
           source: input.source ?? "support_hub",
           source_feature: input.sourceFeature ?? null,
+          rating: input.rating ?? null,
+          beta_feedback_id: input.betaFeedbackId ?? null,
+          priority: input.rating !== undefined && input.rating <= 2 ? "high" : "medium",
         })
         .select("*")
         .single();
@@ -244,11 +253,23 @@ export function useMyTickets() {
     },
   });
 
+  const linkBetaFeedback = useMutation({
+    mutationFn: async ({ ticketId, betaFeedbackId }: { ticketId: string; betaFeedbackId: string }) => {
+      const { error } = await (supabase as any)
+        .from("support_tickets")
+        .update({ beta_feedback_id: betaFeedbackId })
+        .eq("id", ticketId);
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: KEY_MINE(uid) }),
+  });
+
   return {
     tickets: list.data ?? [],
     openCount,
     isLoading: list.isLoading,
     create: create.mutateAsync,
+    linkBetaFeedback: linkBetaFeedback.mutateAsync,
     addComment: addComment.mutateAsync,
     refetch: list.refetch,
   };

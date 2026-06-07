@@ -20,7 +20,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { MessageSquareHeart, Trash2, Loader2, Search, RefreshCw } from "lucide-react";
+import { MessageSquareHeart, Trash2, Loader2, Search, RefreshCw, Star } from "lucide-react";
 import { useAllBetaFeedback, type BetaFeedback } from "@/store/betaFeedback";
 import { toast } from "sonner";
 
@@ -130,6 +130,17 @@ export function BetaFeedbackPanel() {
                       className="flex items-start justify-between gap-3 rounded-lg border border-border/50 bg-card p-2.5"
                     >
                       <div className="min-w-0 flex-1">
+                        {it.rating != null && (
+                          <div className="flex items-center gap-0.5 mb-1">
+                            {Array.from({ length: 5 }, (_, i) => (
+                              <Star
+                                key={i}
+                                className={`h-3 w-3 ${i < it.rating! ? "fill-amber-400 text-amber-400" : "text-muted-foreground/30"}`}
+                              />
+                            ))}
+                            <span className="text-[10px] text-muted-foreground ml-1">{it.rating}/5</span>
+                          </div>
+                        )}
                         <p className="text-sm whitespace-pre-wrap break-words">
                           {it.message}
                         </p>
