@@ -62,7 +62,7 @@ function PrivacyPage() {
         <ul className="list-disc pl-5 space-y-1.5">
           <li>
             <strong>ข้อมูลบัญชี:</strong> อีเมล, ชื่อเรียก, รูปโปรไฟล์, สายงานฟรีแลนซ์
-            (กรณีล็อกอินด้วย Google/Apple หรือสมัครด้วยอีเมล)
+            (กรณีล็อกอินด้วย Google หรือสมัครด้วยอีเมล)
           </li>
           <li>
             <strong>ข้อมูลธุรกิจ:</strong> ชื่อแบรนด์, เลขประจำตัวผู้เสียภาษี, ที่อยู่, เบอร์โทร,
@@ -124,7 +124,7 @@ function PrivacyPage() {
             <strong>Supabase</strong> — ฐานข้อมูล, Authentication, Storage ไฟล์ (สหรัฐอเมริกา/สหภาพยุโรป)
           </li>
           <li>
-            <strong>Google / Apple OAuth</strong> — ล็อกอินด้วยบัญชีโซเชียล (ได้รับเฉพาะข้อมูลที่คุณอนุญาต)
+            <strong>Google OAuth</strong> — ล็อกอินด้วยบัญชี Google (ได้รับเฉพาะข้อมูลที่คุณอนุญาต)
           </li>
           <li>
             <strong>Google Gemini</strong> — ประมวลผล AI สำหรับสแกน 50 ทวิ และ AI Mentor

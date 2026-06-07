@@ -29,13 +29,13 @@ const CSP_DIRECTIVES = [
   `style-src 'self' 'unsafe-inline' ${GOOGLE_FONTS_CSS}`,
   `font-src 'self' data: ${GOOGLE_FONTS_FILES}`,
   `img-src 'self' data: blob: https:`,
-  `connect-src 'self' ${SUPABASE_HOST} ${SUPABASE_WS} ${EXTRA_CONNECT} ${GA_HOSTS}`.replace(/\s+/g, " ").trim(),
+  `connect-src 'self' ${SUPABASE_HOST} ${SUPABASE_WS} ${EXTRA_CONNECT} ${GA_HOSTS} https://accounts.google.com`.replace(/\s+/g, " ").trim(),
   `media-src 'self' blob: ${SUPABASE_HOST}`,
   `object-src 'none'`,
   `base-uri 'self'`,
   `form-action 'self'`,
   `frame-ancestors 'self' ${EXTRA_FRAME_ANCESTORS}`.replace(/\s+/g, " ").trim(),
-  `frame-src 'self' https://www.youtube.com https://player.vimeo.com`,
+  `frame-src 'self' https://www.youtube.com https://player.vimeo.com https://accounts.google.com`,
   `upgrade-insecure-requests`,
 ].join("; ");
 

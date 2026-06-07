@@ -1,4 +1,5 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
+import { safeRelativePath } from "@/lib/oauthRedirect";
 import { RouteError } from "@/components/RouteError";
 import * as React from "react";
 import { useAuth } from "@/auth/AuthProvider";
@@ -22,6 +23,9 @@ import { SiteFooter } from "@/components/layout/SiteFooter";
 import { isEarlyAccessMode } from "@/lib/publicAccess";
 
 export const Route = createFileRoute("/auth")({
+  validateSearch: (search: Record<string, unknown>) => ({
+    redirect: typeof search.redirect === "string" ? search.redirect : undefined,
+  }),
   head: () => ({
     meta: [
       { title: "เข้าสู่ระบบ — So1o Freelancer" },
@@ -37,6 +41,8 @@ export const Route = createFileRoute("/auth")({
 function AuthPage() {
   const { signIn, signUp, user, isAdmin, profile, loading, signOut } = useAuth();
   const navigate = useNavigate();
+  const { redirect: rawRedirect } = Route.useSearch();
+  const postAuthPath = safeRelativePath(rawRedirect, "/dashboard");
   const [tab, setTab] = React.useState<"login" | "signup">("login");
   const [fadeOut, setFadeOut] = React.useState(false);
 
@@ -48,9 +54,10 @@ function AuthPage() {
     }
     if (!loading && user) {
       setFadeOut(true);
-      setTimeout(() => navigate({ to: isAdmin ? "/admin" : "/dashboard" }), 300);
+      const dest = isAdmin ? "/admin" : postAuthPath;
+      setTimeout(() => navigate({ to: dest }), 300);
     }
-  }, [user, isAdmin, profile?.is_active, loading, navigate, signOut]);
+  }, [user, isAdmin, profile?.is_active, loading, navigate, signOut, postAuthPath]);
 
   return (
     <div className={cn("relative min-h-screen bg-background overflow-hidden transition-opacity duration-300", fadeOut && "opacity-0")}>
@@ -101,12 +108,12 @@ function AuthPage() {
               </TabsList>
 
               <TabsContent value="login" className="space-y-4">
-                <SocialButtons />
+                <SocialButtons redirectTo={postAuthPath} />
                 <AuthEmailSeparator />
                 <LoginForm onSwitch={() => setTab("signup")} signIn={signIn} />
               </TabsContent>
               <TabsContent value="signup" className="space-y-4">
-                <SocialButtons />
+                <SocialButtons redirectTo={postAuthPath} />
                 <AuthEmailSeparator />
                 <SignupForm onSwitch={() => setTab("login")} signUp={signUp} />
               </TabsContent>

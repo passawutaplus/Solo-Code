@@ -32,7 +32,13 @@ const BUSINESS_QUICK_ACTIONS: { label: string; icon: typeof BarChart3; prompt: s
   { label: "สรุปรายได้", icon: BarChart3, prompt: "สรุปภาพรวมรายได้และใบแจ้งหนี้ค้างชำระของฉันให้หน่อย" },
 ];
 
-export function FloatingChat({ inline = false }: { inline?: boolean } = {}) {
+export function FloatingChat({
+  inline = false,
+  skipClickRef,
+}: {
+  inline?: boolean;
+  skipClickRef?: React.MutableRefObject<boolean>;
+} = {}) {
   const { user } = useAuth();
   const businessFn = useServerFn(aiBusinessInsights);
   const [open, setOpen] = React.useState(false);
@@ -141,7 +147,13 @@ export function FloatingChat({ inline = false }: { inline?: boolean } = {}) {
     <>
       {!open && (
         <button
-          onClick={() => setOpen(true)}
+          onClick={() => {
+            if (skipClickRef?.current) {
+              skipClickRef.current = false;
+              return;
+            }
+            setOpen(true);
+          }}
           aria-label="เปิดที่ปรึกษาดีไซน์ AI"
           className={
             inline

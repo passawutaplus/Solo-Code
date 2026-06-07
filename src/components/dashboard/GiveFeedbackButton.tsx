@@ -1,13 +1,14 @@
 import * as React from "react";
-import { MessageSquare, Loader2 } from "lucide-react";
+import { MessageSquareHeart, Loader2, Copy, CheckCircle2 } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useMyBetaFeedback } from "@/store/betaFeedback";
-import { CreateTicketForm } from "@/components/support/CreateTicketSheet";
+import { useMyTickets } from "@/store/supportTickets";
+import { TicketImagePicker } from "@/components/support/TicketImagePicker";
+import { createTicketSchema, type TicketCategory } from "@/lib/ticketSchema";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import type { TicketCategory } from "@/lib/ticketSchema";
 
 const RATINGS = [
   { value: 5, label: "Excellent" },
@@ -27,51 +28,60 @@ export function GiveFeedbackButton({
   className?: string;
 }) {
   const { submit: submitBeta } = useMyBetaFeedback(feature);
+  const { create } = useMyTickets();
   const [open, setOpen] = React.useState(false);
-  const [step, setStep] = React.useState<"rate" | "ticket">("rate");
   const [rating, setRating] = React.useState<number | null>(null);
   const [message, setMessage] = React.useState("");
+  const [files, setFiles] = React.useState<File[]>([]);
   const [sending, setSending] = React.useState(false);
-  const [ticketFormKey, setTicketFormKey] = React.useState(0);
+  const [ticketNumber, setTicketNumber] = React.useState<string | null>(null);
 
   const reset = () => {
-    setStep("rate");
     setRating(null);
     setMessage("");
-    setTicketFormKey((k) => k + 1);
+    setFiles([]);
+    setTicketNumber(null);
   };
 
-  const category: TicketCategory = rating !== null && rating <= 2 ? "bug" : "improvement";
-
-  const goToTicket = async () => {
+  const submitFeedback = async () => {
     if (!rating || sending) return;
     setSending(true);
     try {
+      const category: TicketCategory = rating <= 2 ? "bug" : "improvement";
+      const description = [
+        message.trim(),
+        `คะแนน: ${rating}/5`,
+      ]
+        .filter(Boolean)
+        .join("\n");
+
+      const title = rating <= 2 ? `ปัญหา: ${label}` : `ฟีดแบ็ก: ${label}`;
+      const parsed = createTicketSchema.safeParse({
+        title,
+        description: description || undefined,
+        category,
+        source: "feedback_button",
+        sourceFeature: feature,
+      });
+      if (!parsed.success) {
+        toast.error(parsed.error.issues[0]?.message ?? "ข้อมูลไม่ถูกต้อง");
+        return;
+      }
+
       await submitBeta({
         feature,
         message: message.trim() || `(rating only — ${rating}/5)`,
         rating,
       });
-      setTicketFormKey((k) => k + 1);
-      setStep("ticket");
+
+      const ticket = await create({ ...parsed.data, files });
+      setTicketNumber(ticket.ticketNumber);
+      toast.success(`สร้างตั๋ว ${ticket.ticketNumber} แล้ว`);
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "ส่งไม่สำเร็จ — ลองใหม่อีกครั้ง");
     } finally {
       setSending(false);
     }
-  };
-
-  const ticketPrefill = {
-    title: rating !== null && rating <= 2 ? `ปัญหา: ${label}` : `ฟีดแบ็ก: ${label}`,
-    description: [
-      message.trim(),
-      rating !== null ? `คะแนน: ${rating}/5` : "",
-    ]
-      .filter(Boolean)
-      .join("\n"),
-    category,
-    source: "feedback_button" as const,
-    sourceFeature: feature,
   };
 
   return (
@@ -86,7 +96,7 @@ export function GiveFeedbackButton({
         <PopoverTrigger asChild>
           <button
             type="button"
-            aria-label={`รายงานปัญหา ${label}`}
+            aria-label={`Give Feedback — ${label}`}
             className={cn(
               "inline-flex items-center gap-1.5 rounded-full",
               "bg-primary/15 backdrop-blur-md border border-primary/30 text-primary",
@@ -94,8 +104,8 @@ export function GiveFeedbackButton({
               "hover:bg-primary/25 hover:shadow-elevated transition-all",
             )}
           >
-            <MessageSquare className="h-3.5 w-3.5" />
-            <span>รายงานปัญหา</span>
+            <MessageSquareHeart className="h-3.5 w-3.5" />
+            <span>Give Feedback</span>
           </button>
         </PopoverTrigger>
 
@@ -103,9 +113,32 @@ export function GiveFeedbackButton({
           side="top"
           align="end"
           sideOffset={8}
-          className="w-80 p-0 border-border/60 shadow-elevated max-h-[min(520px,70vh)] overflow-hidden"
+          className="give-feedback-popover w-80 p-0 border-border/60 shadow-elevated max-h-[min(560px,75vh)] overflow-y-auto"
         >
-          {step === "rate" ? (
+          {ticketNumber ? (
+            <div className="p-4 flex flex-col items-center text-center">
+              <div className="h-12 w-12 rounded-full bg-emerald-500/10 flex items-center justify-center mb-2">
+                <CheckCircle2 className="h-6 w-6 text-emerald-600" />
+              </div>
+              <p className="text-xs text-muted-foreground">เลขตั๋วของคุณ</p>
+              <p className="text-xl font-bold text-primary tracking-wide mt-0.5">{ticketNumber}</p>
+              <p className="text-[10px] text-muted-foreground mt-2 max-w-[240px]">
+                ติดตามได้ที่ Support Hub → ตั๋วของฉัน
+              </p>
+              <Button
+                variant="outline"
+                size="sm"
+                className="mt-3 gap-1.5 h-7 text-xs"
+                onClick={() => {
+                  navigator.clipboard.writeText(ticketNumber);
+                  toast.success("คัดลอกเลขตั๋วแล้ว");
+                }}
+              >
+                <Copy className="h-3 w-3" />
+                คัดลอก
+              </Button>
+            </div>
+          ) : (
             <div className="p-4 space-y-3">
               <div>
                 <p className="text-sm font-semibold leading-tight">ให้คะแนน {label}</p>
@@ -146,7 +179,7 @@ export function GiveFeedbackButton({
               </div>
 
               {rating !== null && (
-                <div className="space-y-2 animate-fade-in">
+                <div className="space-y-2.5 animate-fade-in">
                   <Textarea
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
@@ -155,9 +188,15 @@ export function GiveFeedbackButton({
                     maxLength={500}
                     className="resize-none text-xs bg-background"
                   />
+                  <TicketImagePicker files={files} onChange={setFiles} compact />
                   <div className="flex items-center justify-between gap-2">
                     <span className="text-[10px] text-muted-foreground">{message.length}/500</span>
-                    <Button size="sm" onClick={goToTicket} disabled={sending} className="h-7 gap-1.5">
+                    <Button
+                      size="sm"
+                      onClick={submitFeedback}
+                      disabled={sending}
+                      className="h-7 gap-1.5"
+                    >
                       {sending ? <Loader2 className="h-3 w-3 animate-spin" /> : null}
                       สร้างตั๋ว
                     </Button>
@@ -165,19 +204,6 @@ export function GiveFeedbackButton({
                 </div>
               )}
             </div>
-          ) : (
-            <CreateTicketForm
-              key={ticketFormKey}
-              compact
-              prefill={ticketPrefill}
-              onCreated={() => {
-                setTimeout(() => {
-                  setOpen(false);
-                  reset();
-                }, 2000);
-              }}
-              onCancel={() => setStep("rate")}
-            />
           )}
         </PopoverContent>
       </Popover>

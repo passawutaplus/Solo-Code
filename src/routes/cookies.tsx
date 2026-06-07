@@ -93,7 +93,7 @@ function CookiesPage() {
             <strong>Supabase Auth</strong> — เก็บ token ล็อกอิน (จำเป็น)
           </li>
           <li>
-            <strong>Google / Apple OAuth</strong> — อาจตั้งคุกกี้ระหว่างการล็อกอิน (จำเป็น)
+            <strong>Google OAuth</strong> — อาจตั้งคุกกี้ระหว่างการล็อกอิน (จำเป็น)
           </li>
           <li>
             <strong>Stripe</strong> — อาจตั้งคุกกี้เมื่อชำระเงิน (จำเป็น)

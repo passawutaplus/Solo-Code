@@ -5,10 +5,10 @@ import { toast } from "sonner";
 import { signInWithOAuth } from "@/integrations/oauth";
 import { cn } from "@/lib/utils";
 
-async function handleOAuth(provider: "google" | "apple", redirectTo?: string) {
-  const result = await signInWithOAuth(provider, { redirectTo });
+async function handleGoogleOAuth(redirectTo?: string) {
+  const result = await signInWithOAuth({ redirectTo });
   if (result.error) {
-    toast.error(result.error.message || `เข้าสู่ระบบด้วย ${provider} ไม่สำเร็จ`);
+    toast.error(result.error.message || "เข้าสู่ระบบด้วย Google ไม่สำเร็จ");
   }
 }
 
@@ -19,24 +19,24 @@ export function SocialButtons({
   className?: string;
   redirectTo?: string;
 }) {
-  const [busy, setBusy] = React.useState<"google" | "apple" | null>(null);
+  const [busy, setBusy] = React.useState(false);
   return (
-    <div className={className ?? "grid grid-cols-2 gap-2"}>
+    <div className={className}>
       <Button
         type="button"
         variant="outline"
-        disabled={busy !== null}
+        disabled={busy}
         onClick={async () => {
-          setBusy("google");
+          setBusy(true);
           try {
-            await handleOAuth("google", redirectTo);
+            await handleGoogleOAuth(redirectTo);
           } finally {
-            setBusy(null);
+            setBusy(false);
           }
         }}
-        className="h-11 gap-2 rounded-lg"
+        className="h-11 w-full gap-2 rounded-lg"
       >
-        {busy === "google" ? (
+        {busy ? (
           <Loader2 className="h-4 w-4 animate-spin" />
         ) : (
           <svg className="h-4 w-4" viewBox="0 0 24 24" aria-hidden="true">
@@ -58,30 +58,7 @@ export function SocialButtons({
             />
           </svg>
         )}
-        <span className="text-sm">Google</span>
-      </Button>
-      <Button
-        type="button"
-        variant="outline"
-        disabled={busy !== null}
-        onClick={async () => {
-          setBusy("apple");
-          try {
-            await handleOAuth("apple", redirectTo);
-          } finally {
-            setBusy(null);
-          }
-        }}
-        className="h-11 gap-2 rounded-lg"
-      >
-        {busy === "apple" ? (
-          <Loader2 className="h-4 w-4 animate-spin" />
-        ) : (
-          <svg className="h-4 w-4" viewBox="0 0 24 24" aria-hidden="true" fill="currentColor">
-            <path d="M16.365 1.43c0 1.14-.412 2.226-1.157 3.013-.793.842-2.043 1.481-3.245 1.388-.114-1.108.41-2.244 1.143-3.018C13.953 1.96 15.27 1.378 16.365 1.43zM20.5 17.36c-.487 1.105-.722 1.6-1.355 2.578-.882 1.366-2.124 3.067-3.66 3.083-1.367.014-1.717-.886-3.572-.876-1.855.012-2.244.892-3.612.878-1.534-.014-2.711-1.55-3.594-2.918C2.272 16.224 1.985 11.41 3.524 8.93c1.094-1.762 2.823-2.79 4.45-2.79 1.652 0 2.69.91 4.058.91 1.327 0 2.135-.911 4.045-.911 1.45 0 2.984.792 4.077 2.16-3.585 1.965-3.003 7.085.346 9.062z" />
-          </svg>
-        )}
-        <span className="text-sm">Apple</span>
+        <span className="text-sm">เข้าสู่ระบบด้วย Google</span>
       </Button>
     </div>
   );

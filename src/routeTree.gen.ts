@@ -36,6 +36,7 @@ import { Route as EmailUnsubscribeRouteImport } from './routes/email/unsubscribe
 import { Route as BriefTokenRouteImport } from './routes/brief.$token'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as AuthForgotRouteImport } from './routes/auth.forgot'
+import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
 import { Route as LovableEmailSuppressionRouteImport } from './routes/lovable/email/suppression'
 import { Route as LovableEmailTransactionalSendRouteImport } from './routes/lovable/email/transactional/send'
 import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
@@ -179,6 +180,11 @@ const AuthForgotRoute = AuthForgotRouteImport.update({
   path: '/forgot',
   getParentRoute: () => AuthRoute,
 } as any)
+const AuthCallbackRoute = AuthCallbackRouteImport.update({
+  id: '/callback',
+  path: '/callback',
+  getParentRoute: () => AuthRoute,
+} as any)
 const LovableEmailSuppressionRoute = LovableEmailSuppressionRouteImport.update({
   id: '/lovable/email/suppression',
   path: '/lovable/email/suppression',
@@ -238,6 +244,7 @@ export interface FileRoutesByFullPath {
   '/survey': typeof SurveyRoute
   '/terms': typeof TermsRoute
   '/unsubscribe': typeof UnsubscribeRoute
+  '/auth/callback': typeof AuthCallbackRoute
   '/auth/forgot': typeof AuthForgotRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/brief/$token': typeof BriefTokenRoute
@@ -274,6 +281,7 @@ export interface FileRoutesByTo {
   '/survey': typeof SurveyRoute
   '/terms': typeof TermsRoute
   '/unsubscribe': typeof UnsubscribeRoute
+  '/auth/callback': typeof AuthCallbackRoute
   '/auth/forgot': typeof AuthForgotRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/brief/$token': typeof BriefTokenRoute
@@ -311,6 +319,7 @@ export interface FileRoutesById {
   '/survey': typeof SurveyRoute
   '/terms': typeof TermsRoute
   '/unsubscribe': typeof UnsubscribeRoute
+  '/auth/callback': typeof AuthCallbackRoute
   '/auth/forgot': typeof AuthForgotRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/brief/$token': typeof BriefTokenRoute
@@ -349,6 +358,7 @@ export interface FileRouteTypes {
     | '/survey'
     | '/terms'
     | '/unsubscribe'
+    | '/auth/callback'
     | '/auth/forgot'
     | '/blog/$slug'
     | '/brief/$token'
@@ -385,6 +395,7 @@ export interface FileRouteTypes {
     | '/survey'
     | '/terms'
     | '/unsubscribe'
+    | '/auth/callback'
     | '/auth/forgot'
     | '/blog/$slug'
     | '/brief/$token'
@@ -421,6 +432,7 @@ export interface FileRouteTypes {
     | '/survey'
     | '/terms'
     | '/unsubscribe'
+    | '/auth/callback'
     | '/auth/forgot'
     | '/blog/$slug'
     | '/brief/$token'
@@ -666,6 +678,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthForgotRouteImport
       parentRoute: typeof AuthRoute
     }
+    '/auth/callback': {
+      id: '/auth/callback'
+      path: '/callback'
+      fullPath: '/auth/callback'
+      preLoaderRoute: typeof AuthCallbackRouteImport
+      parentRoute: typeof AuthRoute
+    }
     '/lovable/email/suppression': {
       id: '/lovable/email/suppression'
       path: '/lovable/email/suppression'
@@ -719,10 +738,12 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthRouteChildren {
+  AuthCallbackRoute: typeof AuthCallbackRoute
   AuthForgotRoute: typeof AuthForgotRoute
 }
 
 const AuthRouteChildren: AuthRouteChildren = {
+  AuthCallbackRoute: AuthCallbackRoute,
   AuthForgotRoute: AuthForgotRoute,
 }
 

@@ -1,18 +1,24 @@
 import { supabase } from "@/integrations/supabase/client";
+import {
+  buildOAuthCallbackUrl,
+  safeRelativePath,
+  storeOAuthRedirect,
+} from "@/lib/oauthRedirect";
 
-export type OAuthProvider = "google" | "apple";
+const DEFAULT_AFTER_AUTH = "/dashboard";
 
 export async function signInWithOAuth(
-  provider: OAuthProvider,
   options?: { redirectTo?: string },
 ): Promise<{ error?: Error; redirected?: boolean }> {
-  const redirectTo =
-    options?.redirectTo ??
-    (typeof window !== "undefined" ? `${window.location.origin}/dashboard` : undefined);
+  const afterAuth = safeRelativePath(options?.redirectTo, DEFAULT_AFTER_AUTH);
+  storeOAuthRedirect(afterAuth);
 
   const { data, error } = await supabase.auth.signInWithOAuth({
-    provider,
-    options: { redirectTo },
+    provider: "google",
+    options: {
+      redirectTo: buildOAuthCallbackUrl(),
+      skipBrowserRedirect: false,
+    },
   });
 
   if (error) return { error };
