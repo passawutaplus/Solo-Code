@@ -1,14 +1,14 @@
 -- Anthem → unified project rvnzjiskqliexysicfmh
--- Generated: 2026-06-07T09:35:18.168Z
+-- Generated: 2026-06-07T11:38:16.415Z
 -- Run AFTER 20260606120000 + 20260606120100 + 20260606120200
 -- Dashboard SQL Editor or: ./scripts/supabase-push-via-api.sh
 
 -- ── 20260504050330_f2b8f8c6-857f-4fb4-aa93-b2c452f538dc.sql ──
 
 -- ENUMS
-CREATE TYPE public.app_role AS ENUM ('admin', 'user');
-CREATE TYPE public.hire_budget AS ENUM ('1k-5k', '5k-20k', '20k-50k', '50k+');
-CREATE TYPE public.hire_status AS ENUM ('ใหม่', 'ที่ต้องตอบ', 'ติดต่อแล้ว', 'ปิดแล้ว');
+DO $enum$ BEGIN CREATE TYPE public.app_role AS ENUM ('admin', 'user'); EXCEPTION WHEN duplicate_object THEN NULL; END $enum$;
+DO $enum$ BEGIN CREATE TYPE public.hire_budget AS ENUM ('1k-5k', '5k-20k', '20k-50k', '50k+'); EXCEPTION WHEN duplicate_object THEN NULL; END $enum$;
+DO $enum$ BEGIN CREATE TYPE public.hire_status AS ENUM ('ใหม่', 'ที่ต้องตอบ', 'ติดต่อแล้ว', 'ปิดแล้ว'); EXCEPTION WHEN duplicate_object THEN NULL; END $enum$;
 
 -- updated_at helper
 CREATE OR REPLACE FUNCTION anthem.set_updated_at()
@@ -16,58 +16,58 @@ RETURNS TRIGGER LANGUAGE plpgsql AS $$
 BEGIN NEW.updated_at = now(); RETURN NEW; END; $$;
 
 -- PROFILES
--- SKIP CREATE public.profiles (unified)
+-- SKIP unified public.profiles
 -- -- SKIP CREATE public.profiles
 -- CREATE TABLE public.profiles (
-  id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
-  display_name TEXT NOT NULL DEFAULT '',
-  username TEXT UNIQUE,
-  bio TEXT DEFAULT '',
-  role TEXT DEFAULT '',
-  email TEXT,
-  phone TEXT DEFAULT '',
-  website TEXT DEFAULT '',
-  line_id TEXT DEFAULT '',
-  facebook TEXT DEFAULT '',
-  instagram TEXT DEFAULT '',
-  avatar_url TEXT,
-  notify_email BOOLEAN NOT NULL DEFAULT true,
-  notify_hire BOOLEAN NOT NULL DEFAULT true,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
-);
-ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
-CREATE TRIGGER profiles_updated BEFORE UPDATE ON public.profiles
-  FOR EACH ROW EXECUTE FUNCTION anthem.set_updated_at();
-
-CREATE POLICY "Profiles are viewable by everyone"
-  ON public.profiles FOR SELECT USING (true);
-CREATE POLICY "Users can insert their own profile"
-  ON public.profiles FOR INSERT WITH CHECK (auth.uid() = id);
-CREATE POLICY "Users can update their own profile"
-  ON public.profiles FOR UPDATE USING (auth.uid() = id);
-
+--   id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+--   display_name TEXT NOT NULL DEFAULT '',
+--   username TEXT UNIQUE,
+--   bio TEXT DEFAULT '',
+--   role TEXT DEFAULT '',
+--   email TEXT,
+--   phone TEXT DEFAULT '',
+--   website TEXT DEFAULT '',
+--   line_id TEXT DEFAULT '',
+--   facebook TEXT DEFAULT '',
+--   instagram TEXT DEFAULT '',
+--   avatar_url TEXT,
+--   notify_email BOOLEAN NOT NULL DEFAULT true,
+--   notify_hire BOOLEAN NOT NULL DEFAULT true,
+--   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+--   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+-- );
+-- ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
+-- -- CREATE TRIGGER profiles_updated BEFORE UPDATE ON public.profiles
+--   FOR EACH ROW EXECUTE FUNCTION anthem.set_updated_at();
+-- 
+-- -- CREATE POLICY "Profiles are viewable by everyone"
+--   ON public.profiles FOR SELECT USING (true);
+-- CREATE POLICY "Users can insert their own profile"
+--   ON public.profiles FOR INSERT WITH CHECK (auth.uid() = user_id);
+-- CREATE POLICY "Users can update their own profile"
+--   ON public.profiles FOR UPDATE USING (auth.uid() = user_id);
+-- 
 -- USER ROLES
--- SKIP CREATE public.user_roles (unified)
+-- SKIP unified public.user_roles
 -- -- SKIP CREATE public.user_roles
 -- CREATE TABLE public.user_roles (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-  role public.app_role NOT NULL DEFAULT 'user',
-  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  UNIQUE(user_id, role)
-);
-ALTER TABLE public.user_roles ENABLE ROW LEVEL SECURITY;
-
-CREATE OR REPLACE FUNCTION anthem.has_role(_user_id UUID, _role public.app_role)
-RETURNS BOOLEAN LANGUAGE sql STABLE SECURITY DEFINER SET search_path = anthem, shared, public AS $$
-  SELECT EXISTS (SELECT 1 FROM public.user_roles WHERE user_id = _user_id AND role = _role)
-$$;
-
-CREATE POLICY "Users can view their own roles"
-  ON public.user_roles FOR SELECT USING (auth.uid() = user_id OR public.has_role(auth.uid(), 'admin'));
-CREATE POLICY "Admins can manage roles"
-  ON public.user_roles FOR ALL USING (public.has_role(auth.uid(), 'admin'));
+--   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+--   user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+--   role public.app_role NOT NULL DEFAULT 'user',
+--   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+--   UNIQUE(user_id, role)
+-- );
+-- ALTER TABLE public.user_roles ENABLE ROW LEVEL SECURITY;
+-- 
+-- CREATE OR REPLACE FUNCTION anthem.has_role(_user_id UUID, _role public.app_role)
+-- RETURNS BOOLEAN LANGUAGE sql STABLE SECURITY DEFINER SET search_path = anthem, shared, public AS $$
+--   SELECT EXISTS (SELECT 1 FROM public.user_roles WHERE user_id = _user_id AND role = _role)
+-- $$;
+-- 
+-- CREATE POLICY "Users can view their own roles"
+--   ON public.user_roles FOR SELECT USING (auth.uid() = user_id OR public.has_role(auth.uid(), 'admin'));
+-- CREATE POLICY "Admins can manage roles"
+--   ON public.user_roles FOR ALL USING (public.has_role(auth.uid(), 'admin'));
 
 -- HIRING REQUESTS
 CREATE TABLE anthem.hiring_requests (
@@ -107,24 +107,24 @@ CREATE POLICY "Freelancer can delete their requests"
 CREATE OR REPLACE FUNCTION anthem.handle_new_user()
 RETURNS TRIGGER LANGUAGE plpgsql SECURITY DEFINER SET search_path = anthem, shared, public AS $$
 BEGIN
-  INSERT INTO public.profiles (id, display_name, email, username)
+  INSERT INTO public.profiles (user_id, display_name, email, username)
   VALUES (
     NEW.id,
     COALESCE(NEW.raw_user_meta_data->>'display_name', split_part(NEW.email, '@', 1)),
     NEW.email,
     COALESCE(NEW.raw_user_meta_data->>'username', split_part(NEW.email, '@', 1) || '_' || substr(NEW.id::text, 1, 6))
   )
-  ON CONFLICT (id) DO NOTHING;
+  ON CONFLICT (user_id) DO NOTHING;
   RETURN NEW;
 END; $$;
 
-CREATE TRIGGER on_auth_user_created
-  AFTER INSERT ON auth.users
-  FOR EACH ROW EXECUTE FUNCTION anthem.handle_new_user();
+-- CREATE TRIGGER on_auth_user_created
+--   AFTER INSERT ON auth.users
+--   FOR EACH ROW EXECUTE FUNCTION anthem.handle_new_user();
 
 -- REALTIME
 ALTER TABLE anthem.hiring_requests REPLICA IDENTITY FULL;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.hiring_requests;
+DO $pub$ BEGIN ALTER PUBLICATION supabase_realtime ADD TABLE anthem.hiring_requests; EXCEPTION WHEN duplicate_object THEN NULL; END $pub$;
 
 
 -- ── 20260504050402_09e8597e-c784-45f0-83e6-d9810d40f73e.sql ──
@@ -183,7 +183,7 @@ CREATE INDEX idx_projects_status_created ON anthem.projects(status, created_at D
 
 -- Storage bucket
 INSERT INTO storage.buckets (id, name, public) VALUES ('project-media', 'project-media', true)
-  ON CONFLICT (id) DO NOTHING;
+  ON CONFLICT (user_id) DO NOTHING;
 
 CREATE POLICY "Project media public read"
   ON storage.objects FOR SELECT
@@ -245,7 +245,7 @@ CREATE TRIGGER trg_project_comments_updated_at
   BEFORE UPDATE ON anthem.project_comments
   FOR EACH ROW EXECUTE FUNCTION anthem.set_updated_at();
 
-ALTER PUBLICATION supabase_realtime ADD TABLE public.project_comments;
+DO $pub$ BEGIN ALTER PUBLICATION supabase_realtime ADD TABLE anthem.project_comments; EXCEPTION WHEN duplicate_object THEN NULL; END $pub$;
 
 -- 3. follows
 CREATE TABLE anthem.follows (
@@ -271,11 +271,11 @@ CREATE POLICY "Users can unfollow"
   ON anthem.follows FOR DELETE TO authenticated USING (auth.uid() = follower_id);
 
 -- ── 20260527105501_0af486c3-cdd6-4f81-b5ec-cdce0b5836ba.sql ──
-ALTER TABLE public.profiles
-  ADD COLUMN IF NOT EXISTS skills text[] NOT NULL DEFAULT '{}',
-  ADD COLUMN IF NOT EXISTS experience jsonb NOT NULL DEFAULT '[]'::jsonb,
-  ADD COLUMN IF NOT EXISTS location text NOT NULL DEFAULT '',
-  ADD COLUMN IF NOT EXISTS cover_url text NOT NULL DEFAULT '';
+-- ALTER TABLE public.profiles
+--   ADD COLUMN IF NOT EXISTS skills text[] NOT NULL DEFAULT '{}',
+--   ADD COLUMN IF NOT EXISTS experience jsonb NOT NULL DEFAULT '[]'::jsonb,
+--   ADD COLUMN IF NOT EXISTS location text NOT NULL DEFAULT '',
+--   ADD COLUMN IF NOT EXISTS cover_url text NOT NULL DEFAULT '';
 
 -- ── 20260527110041_d93fb457-a413-4592-9c47-17ed34a77e00.sql ──
 
@@ -310,7 +310,7 @@ CREATE POLICY "Users can unlike" ON anthem.project_likes FOR DELETE TO authentic
 
 -- ── 20260527110826_408a4793-546a-420e-898c-ae405645620c.sql ──
 
-CREATE TYPE public.collab_status AS ENUM ('pending', 'interested', 'passed', 'archived');
+DO $enum$ BEGIN CREATE TYPE public.collab_status AS ENUM ('pending', 'interested', 'passed', 'archived'); EXCEPTION WHEN duplicate_object THEN NULL; END $enum$;
 
 CREATE TABLE anthem.collab_requests (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -513,8 +513,8 @@ CREATE POLICY "Recipient can mark as read"
 CREATE INDEX idx_messages_conv_time ON shared.messages(conversation_id, created_at);
 
 -- 4) Realtime
-ALTER PUBLICATION supabase_realtime ADD TABLE public.conversations;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.messages;
+DO $pub$ BEGIN ALTER PUBLICATION supabase_realtime ADD TABLE shared.conversations; EXCEPTION WHEN duplicate_object THEN NULL; END $pub$;
+DO $pub$ BEGIN ALTER PUBLICATION supabase_realtime ADD TABLE shared.messages; EXCEPTION WHEN duplicate_object THEN NULL; END $pub$;
 ALTER TABLE shared.conversations REPLICA IDENTITY FULL;
 ALTER TABLE shared.messages REPLICA IDENTITY FULL;
 
@@ -722,16 +722,16 @@ GRANT EXECUTE ON FUNCTION anthem.has_role(uuid, app_role) TO authenticated;
 -- ── 20260529045820_a2269dcf-aea4-4707-9ffe-6faad1333cc6.sql ──
 
 -- ========== ENUMS ==========
-CREATE TYPE public.studio_member_role AS ENUM ('owner', 'admin', 'member');
-CREATE TYPE public.studio_formation_status AS ENUM ('pending', 'completed', 'cancelled');
-CREATE TYPE public.studio_invite_status AS ENUM ('pending', 'accepted', 'declined');
-CREATE TYPE public.job_status AS ENUM ('open', 'closed', 'filled');
-CREATE TYPE public.job_budget_type AS ENUM ('fixed', 'hourly', 'monthly');
-CREATE TYPE public.job_location_type AS ENUM ('remote', 'onsite', 'hybrid');
-CREATE TYPE public.job_application_status AS ENUM ('pending', 'shortlisted', 'rejected', 'accepted');
+DO $enum$ BEGIN CREATE TYPE public.studio_member_role AS ENUM ('owner', 'admin', 'member'); EXCEPTION WHEN duplicate_object THEN NULL; END $enum$;
+DO $enum$ BEGIN CREATE TYPE public.studio_formation_status AS ENUM ('pending', 'completed', 'cancelled'); EXCEPTION WHEN duplicate_object THEN NULL; END $enum$;
+DO $enum$ BEGIN CREATE TYPE public.studio_invite_status AS ENUM ('pending', 'accepted', 'declined'); EXCEPTION WHEN duplicate_object THEN NULL; END $enum$;
+DO $enum$ BEGIN CREATE TYPE public.job_status AS ENUM ('open', 'closed', 'filled'); EXCEPTION WHEN duplicate_object THEN NULL; END $enum$;
+DO $enum$ BEGIN CREATE TYPE public.job_budget_type AS ENUM ('fixed', 'hourly', 'monthly'); EXCEPTION WHEN duplicate_object THEN NULL; END $enum$;
+DO $enum$ BEGIN CREATE TYPE public.job_location_type AS ENUM ('remote', 'onsite', 'hybrid'); EXCEPTION WHEN duplicate_object THEN NULL; END $enum$;
+DO $enum$ BEGIN CREATE TYPE public.job_application_status AS ENUM ('pending', 'shortlisted', 'rejected', 'accepted'); EXCEPTION WHEN duplicate_object THEN NULL; END $enum$;
 
 -- ========== PROFILE / PROJECT ADDITIONS ==========
-ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS active_studio_id uuid;
+-- ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS active_studio_id uuid;
 ALTER TABLE anthem.projects ADD COLUMN IF NOT EXISTS studio_id uuid;
 ALTER TABLE anthem.projects ADD COLUMN IF NOT EXISTS credited_user_ids uuid[] NOT NULL DEFAULT '{}';
 
@@ -1026,9 +1026,9 @@ END;
 $$;
 
 DROP TRIGGER IF EXISTS profiles_auto_grant_admin ON public.profiles;
-CREATE TRIGGER profiles_auto_grant_admin
-AFTER INSERT OR UPDATE OF email ON public.profiles
-FOR EACH ROW EXECUTE FUNCTION anthem.auto_grant_admin();
+-- CREATE TRIGGER profiles_auto_grant_admin
+-- AFTER INSERT OR UPDATE OF email ON public.profiles
+-- FOR EACH ROW EXECUTE FUNCTION anthem.auto_grant_admin();
 
 -- Retroactively grant if profile already exists
 INSERT INTO public.user_roles (user_id, role)
@@ -1223,10 +1223,10 @@ CREATE INDEX idx_jmn_user_unread
   ON anthem.job_match_notifications(user_id, is_read, created_at DESC);
 CREATE INDEX idx_jmn_job ON anthem.job_match_notifications(job_id);
 
-ALTER TABLE public.profiles
-  ADD COLUMN IF NOT EXISTS notify_job_match boolean NOT NULL DEFAULT true,
-  ADD COLUMN IF NOT EXISTS preferred_employment_types text[] NOT NULL DEFAULT '{}',
-  ADD COLUMN IF NOT EXISTS preferred_categories text[] NOT NULL DEFAULT '{}';
+-- ALTER TABLE public.profiles
+--   ADD COLUMN IF NOT EXISTS notify_job_match boolean NOT NULL DEFAULT true,
+--   ADD COLUMN IF NOT EXISTS preferred_employment_types text[] NOT NULL DEFAULT '{}',
+--   ADD COLUMN IF NOT EXISTS preferred_categories text[] NOT NULL DEFAULT '{}';
 
 -- Trigger: เรียก edge function เมื่อมีงานใหม่หรือ status เปลี่ยนเป็น open
 CREATE OR REPLACE FUNCTION anthem.dispatch_job_match()
@@ -1831,10 +1831,10 @@ GRANT EXECUTE ON FUNCTION anthem.admin_mark_cashout_paid(uuid) TO authenticated;
 -- ── 20260530045525_4f0ef6cc-bbb8-4df3-be1c-4f5d4cf5cc14.sql ──
 
 -- Enum for ad status
-CREATE TYPE public.ad_status AS ENUM ('draft','pending','approved','active','paused','rejected','expired');
-CREATE TYPE public.ad_package AS ENUM ('basic','standard','premium');
-CREATE TYPE public.ad_application_status AS ENUM ('pending','approved','rejected');
-CREATE TYPE public.ad_event_type AS ENUM ('impression','click');
+DO $enum$ BEGIN CREATE TYPE public.ad_status AS ENUM ('draft','pending','approved','active','paused','rejected','expired'); EXCEPTION WHEN duplicate_object THEN NULL; END $enum$;
+DO $enum$ BEGIN CREATE TYPE public.ad_package AS ENUM ('basic','standard','premium'); EXCEPTION WHEN duplicate_object THEN NULL; END $enum$;
+DO $enum$ BEGIN CREATE TYPE public.ad_application_status AS ENUM ('pending','approved','rejected'); EXCEPTION WHEN duplicate_object THEN NULL; END $enum$;
+DO $enum$ BEGIN CREATE TYPE public.ad_event_type AS ENUM ('impression','click'); EXCEPTION WHEN duplicate_object THEN NULL; END $enum$;
 
 -- =========================================
 -- ad_campaigns
@@ -2212,14 +2212,14 @@ ALTER TABLE anthem.ad_campaigns REPLICA IDENTITY FULL;
 ALTER TABLE anthem.ad_applications REPLICA IDENTITY FULL;
 ALTER TABLE anthem.ad_events REPLICA IDENTITY FULL;
 
-ALTER PUBLICATION supabase_realtime ADD TABLE public.ad_campaigns;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.ad_applications;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.ad_events;
+DO $pub$ BEGIN ALTER PUBLICATION supabase_realtime ADD TABLE anthem.ad_campaigns; EXCEPTION WHEN duplicate_object THEN NULL; END $pub$;
+DO $pub$ BEGIN ALTER PUBLICATION supabase_realtime ADD TABLE anthem.ad_applications; EXCEPTION WHEN duplicate_object THEN NULL; END $pub$;
+DO $pub$ BEGIN ALTER PUBLICATION supabase_realtime ADD TABLE anthem.ad_events; EXCEPTION WHEN duplicate_object THEN NULL; END $pub$;
 
 -- ── 20260530052725_d824579e-affd-402c-bf41-854aa0a38e69.sql ──
 
-CREATE TYPE public.contract_type AS ENUM ('project','fulltime');
-CREATE TYPE public.contract_status AS ENUM ('draft','finalized');
+DO $enum$ BEGIN CREATE TYPE public.contract_type AS ENUM ('project','fulltime'); EXCEPTION WHEN duplicate_object THEN NULL; END $enum$;
+DO $enum$ BEGIN CREATE TYPE public.contract_status AS ENUM ('draft','finalized'); EXCEPTION WHEN duplicate_object THEN NULL; END $enum$;
 
 CREATE TABLE shared.contracts (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -2574,8 +2574,8 @@ USING (has_role(auth.uid(),'admin'));
 CREATE INDEX idx_app_feedback_feature_created ON anthem.app_feedback (feature, created_at DESC);
 CREATE INDEX idx_app_feedback_rating ON anthem.app_feedback (rating);
 
-ALTER PUBLICATION supabase_realtime ADD TABLE public.user_reports;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.app_feedback;
+DO $pub$ BEGIN ALTER PUBLICATION supabase_realtime ADD TABLE anthem.user_reports; EXCEPTION WHEN duplicate_object THEN NULL; END $pub$;
+DO $pub$ BEGIN ALTER PUBLICATION supabase_realtime ADD TABLE anthem.app_feedback; EXCEPTION WHEN duplicate_object THEN NULL; END $pub$;
 
 
 -- ── 20260530094341_f29eb4bb-c27d-4fd7-9849-ca24386e238c.sql ──
@@ -2612,7 +2612,7 @@ ALTER TABLE anthem.user_reports
 -- 3. Storage bucket for evidence (private)
 INSERT INTO storage.buckets (id, name, public)
 VALUES ('report-evidence', 'report-evidence', false)
-ON CONFLICT (id) DO NOTHING;
+ON CONFLICT (user_id) DO NOTHING;
 
 DROP POLICY IF EXISTS "Users upload own evidence" ON storage.objects;
 CREATE POLICY "Users upload own evidence" ON storage.objects
@@ -2802,7 +2802,7 @@ BEGIN
     uname := usernames[i+1];
     INSERT INTO auth.users (instance_id, id, aud, role, email, encrypted_password, email_confirmed_at, created_at, updated_at, raw_app_meta_data, raw_user_meta_data, is_super_admin, confirmation_token, email_change, email_change_token_new, recovery_token)
     VALUES ('00000000-0000-0000-0000-000000000000', uid, 'authenticated','authenticated', uname || '@mock.so1o', crypt('Mockpass123!', gen_salt('bf')), now(), now() - interval '60 days', now(), '{"provider":"email","providers":["email"]}'::jsonb, jsonb_build_object('display_name', uname), false,'','','','')
-    ON CONFLICT (id) DO NOTHING;
+    ON CONFLICT (user_id) DO NOTHING;
   END LOOP;
 END $$;
 
@@ -2811,14 +2811,14 @@ END $$;
 -- ============================================================
 -- 1. PROFILES: KYC + account status + risk score
 -- ============================================================
-ALTER TABLE public.profiles
-  ADD COLUMN IF NOT EXISTS is_verified boolean NOT NULL DEFAULT false,
-  ADD COLUMN IF NOT EXISTS verified_at timestamptz,
-  ADD COLUMN IF NOT EXISTS verified_by uuid,
-  ADD COLUMN IF NOT EXISTS account_status text NOT NULL DEFAULT 'active' CHECK (account_status IN ('active','frozen','under_review')),
-  ADD COLUMN IF NOT EXISTS frozen_at timestamptz,
-  ADD COLUMN IF NOT EXISTS frozen_reason text NOT NULL DEFAULT '',
-  ADD COLUMN IF NOT EXISTS risk_score int NOT NULL DEFAULT 0;
+-- ALTER TABLE public.profiles
+--   ADD COLUMN IF NOT EXISTS is_verified boolean NOT NULL DEFAULT false,
+--   ADD COLUMN IF NOT EXISTS verified_at timestamptz,
+--   ADD COLUMN IF NOT EXISTS verified_by uuid,
+--   ADD COLUMN IF NOT EXISTS account_status text NOT NULL DEFAULT 'active' CHECK (account_status IN ('active','frozen','under_review')),
+--   ADD COLUMN IF NOT EXISTS frozen_at timestamptz,
+--   ADD COLUMN IF NOT EXISTS frozen_reason text NOT NULL DEFAULT '',
+--   ADD COLUMN IF NOT EXISTS risk_score int NOT NULL DEFAULT 0;
 
 -- ============================================================
 -- 2. WALLETS: split balance into purchased + earned
@@ -3274,8 +3274,8 @@ CREATE TRIGGER trg_detect_gift_anomaly
 -- ============================================================
 -- 16. Realtime publication for aml_flags + kyc_requests
 -- ============================================================
-ALTER PUBLICATION supabase_realtime ADD TABLE public.aml_flags;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.kyc_requests;
+DO $pub$ BEGIN ALTER PUBLICATION supabase_realtime ADD TABLE shared.aml_flags; EXCEPTION WHEN duplicate_object THEN NULL; END $pub$;
+DO $pub$ BEGIN ALTER PUBLICATION supabase_realtime ADD TABLE shared.kyc_requests; EXCEPTION WHEN duplicate_object THEN NULL; END $pub$;
 
 -- ============================================================
 -- 17. Admin overview RPC for AML dashboard
@@ -3870,4 +3870,29 @@ BEGIN
   RETURN c;
 END;
 $$;
+
+
+-- ── 20260604240000_public_feed_stats.sql ──
+-- Public aggregate stats for homepage hero (bypasses RLS on collab/hiring counts)
+
+CREATE OR REPLACE FUNCTION anthem.public_feed_stats()
+RETURNS jsonb
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = anthem, shared, public
+AS $$
+  SELECT jsonb_build_object(
+    'designers', (SELECT COUNT(*)::int FROM public.profiles),
+    'projects', (SELECT COUNT(*)::int FROM public.projects WHERE status = 'Published'),
+    'collabs', (SELECT COUNT(*)::int FROM public.collab_requests),
+    'hires', (SELECT COUNT(*)::int FROM public.hiring_requests)
+  );
+$$;
+
+GRANT EXECUTE ON FUNCTION anthem.public_feed_stats() TO anon, authenticated;
+
+
+-- ── 20260604250000_seed_50_users_full_activity.sql ──
+-- skipped seed migration 20260604250000_seed_50_users_full_activity.sql
 

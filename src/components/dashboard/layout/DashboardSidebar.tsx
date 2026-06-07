@@ -45,6 +45,9 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { cn } from "@/lib/utils";
 import logoUrl from "@/assets/solo-freelancer-logo.webp";
 import { useSubscription } from "@/hooks/useSubscription";
+import { PipelineNewDealButton } from "./PipelineNewDealButton";
+import { SupportSidebarButton } from "./SupportSidebarButton";
+import { SupportFab } from "@/components/support/SupportFab";
 
 export type DashSection = "overview" | "trends" | "inspire" | "finance" | "planner" | "mydata" | "settings";
 
@@ -234,6 +237,7 @@ function NavCollapsibleGroup({
 export function DashboardSidebar({ active, activeSub, setActive }: DashboardSidebarProps) {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
+  const [supportOpen, setSupportOpen] = React.useState(false);
 
   React.useEffect(() => {
     document.body.classList.add("dash-sidebar-gradient");
@@ -289,10 +293,18 @@ export function DashboardSidebar({ active, activeSub, setActive }: DashboardSide
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="border-t border-white/15 gap-2">
+      <SidebarFooter className="border-t border-white/15 p-2 gap-1.5 overflow-hidden min-w-0">
+        <PipelineNewDealButton
+          variant="sidebar"
+          collapsed={collapsed}
+          onNavigate={(tab, sub) => setActive(tab as DashSection, sub)}
+        />
         <ProPlanCard collapsed={collapsed} />
 
-        <SidebarMenu>
+        <SidebarMenu className="min-w-0">
+          <SidebarMenuItem>
+            <SupportSidebarButton collapsed={collapsed} onOpen={() => setSupportOpen(true)} />
+          </SidebarMenuItem>
           <SidebarMenuItem>
             <SidebarMenuButton
               isActive={active === "settings"}
@@ -301,11 +313,17 @@ export function DashboardSidebar({ active, activeSub, setActive }: DashboardSide
               className={MENU_BTN}
             >
               <Settings className="h-4 w-4 shrink-0" />
-              {!collapsed && <span className="text-xs font-medium">Setting</span>}
+              {!collapsed && <span className="text-xs font-medium truncate">Setting</span>}
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>
+
+      <SupportFab
+        hiddenTrigger
+        forceOpen={supportOpen}
+        onClose={() => setSupportOpen(false)}
+      />
     </Sidebar>
   );
 }
@@ -329,20 +347,20 @@ function ProPlanCard({ collapsed }: { collapsed: boolean }) {
   }
 
   if (isLoading) {
-    return <div className="h-[68px] w-full rounded-xl bg-white/10 animate-pulse" />;
+    return <div className="h-12 w-full rounded-lg bg-white/10 animate-pulse" />;
   }
 
   if (isPro) {
     return (
       <Link
         to="/pricing"
-        className="block w-full rounded-xl bg-white shadow-soft p-3 text-center hover:shadow-md transition-shadow"
+        className="block w-full min-w-0 rounded-lg bg-white shadow-soft px-2.5 py-2 text-center hover:shadow-md transition-shadow"
       >
-        <div className="flex items-center justify-center gap-1.5 text-primary">
-          <CheckCircle2 className="h-4 w-4" />
-          <span className="text-sm font-bold">Pro Member</span>
+        <div className="flex items-center justify-center gap-1 text-primary">
+          <CheckCircle2 className="h-3.5 w-3.5 shrink-0" />
+          <span className="text-xs font-bold truncate">Pro Member</span>
         </div>
-        <p className="text-[10px] text-muted-foreground mt-0.5">จัดการ subscription</p>
+        <p className="text-[9px] text-muted-foreground mt-0.5 truncate">จัดการ subscription</p>
       </Link>
     );
   }
@@ -350,13 +368,15 @@ function ProPlanCard({ collapsed }: { collapsed: boolean }) {
   return (
     <Link
       to="/pricing"
-      className="block w-full rounded-xl bg-gradient-to-br from-primary to-orange-400 text-white shadow-soft p-3 text-center hover:shadow-lg hover:scale-[1.02] transition-all"
+      className="block w-full min-w-0 rounded-lg bg-gradient-to-br from-primary to-orange-400 text-white shadow-soft px-2.5 py-2 text-center hover:brightness-105 transition-all"
     >
-      <div className="flex items-center justify-center gap-1.5">
-        <Sparkles className="h-4 w-4" />
-        <span className="text-sm font-bold">อัพเกรด Pro</span>
+      <div className="flex items-center justify-center gap-1">
+        <Sparkles className="h-3.5 w-3.5 shrink-0" />
+        <span className="text-xs font-bold truncate">อัพเกรด Pro</span>
       </div>
-      <p className="text-[10px] text-white/90 mt-0.5">เริ่มต้น 249฿/เดือน · ฟรี 1 ปีสำหรับ 100 คนแรก</p>
+      <p className="text-[9px] text-white/90 mt-0.5 leading-tight line-clamp-2">
+        249฿/เดือน · ฟรี 1 ปีสำหรับ 100 คนแรก
+      </p>
     </Link>
   );
 }

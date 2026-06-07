@@ -49,6 +49,28 @@ function targetSchema(tableName) {
   return "anthem";
 }
 
+function commentLine(line) {
+  return line.startsWith("--") ? line : `-- ${line}`;
+}
+
+/** Comment CREATE TABLE + related DDL for tables owned by unified public schema. */
+function commentOutTableBlocks(sql, table) {
+  let out = sql.replace(
+    new RegExp(`CREATE TABLE (?:IF NOT EXISTS )?public\\.${table}\\b[\\s\\S]*?\\);`, "gi"),
+    (block) => `-- SKIP unified public.${table}\n${block.split("\n").map(commentLine).join("\n")}`,
+  );
+  const patterns = [
+    `ALTER TABLE public\\.${table}\\b[\\s\\S]*?;`,
+    `CREATE TRIGGER [\\s\\S]*? ON public\\.${table}[\\s\\S]*?;`,
+    `CREATE POLICY [\\s\\S]*? ON public\\.${table}[\\s\\S]*?;`,
+    `DROP POLICY [\\s\\S]*? ON public\\.${table}[\\s\\S]*?;`,
+  ];
+  for (const p of patterns) {
+    out = out.replace(new RegExp(p, "gi"), (block) => block.split("\n").map(commentLine).join("\n"));
+  }
+  return out;
+}
+
 function rewriteSql(sql, fileName) {
   let out = sql;
 
@@ -72,13 +94,49 @@ function rewriteSql(sql, fileName) {
     return `-- skipped ${fileName} (notifications in 20260606120200)\n`;
   }
 
-  // Skip CREATE TABLE for overlapping identity tables
+  // Skip entire blocks for overlapping identity tables (unified public.*)
   for (const t of SKIP_CREATE) {
-    out = out.replace(
-      new RegExp(`CREATE TABLE (?:IF NOT EXISTS )?public\\.${t}\\b`, "gi"),
-      `-- SKIP CREATE public.${t} (unified)\n-- CREATE TABLE public.${t}`,
-    );
+    out = commentOutTableBlocks(out, t);
   }
+
+  // Unified profiles use user_id (So1o), not id
+  out = out.replace(
+    /INSERT INTO public\.profiles\s*\(\s*id\s*,/gi,
+    "INSERT INTO public.profiles (user_id,",
+  );
+  out = out.replace(
+    /(INSERT INTO public\.profiles[\s\S]*?)ON CONFLICT\s*\(\s*id\s*\)/gi,
+    "$1ON CONFLICT (user_id)",
+  );
+  out = out.replace(
+    /ON public\.profiles[\s\S]*?auth\.uid\(\)\s*=\s*id\b/gi,
+    (m) => m.replace(/auth\.uid\(\)\s*=\s*id\b/gi, "auth.uid() = user_id"),
+  );
+
+  // So1o already ships public.has_role — skip anthem duplicate
+  out = out.replace(
+    /CREATE OR REPLACE FUNCTION anthem\.has_role[\s\S]*?\$\$;/gi,
+    (block) => `-- SKIP anthem.has_role (use public.has_role)\n${block.split("\n").map(commentLine).join("\n")}`,
+  );
+
+  // So1o already has public.handle_new_user + on_auth_user_created
+  out = out.replace(
+    /CREATE OR REPLACE FUNCTION anthem\.handle_new_user[\s\S]*?\$\$;/gi,
+    (block) => `-- SKIP anthem.handle_new_user\n${block.split("\n").map(commentLine).join("\n")}`,
+  );
+  out = out.replace(
+    /CREATE TRIGGER on_auth_user_created[\s\S]*?;/gi,
+    (block) => block.split("\n").map(commentLine).join("\n"),
+  );
+
+  // Realtime publication — idempotent + correct schema
+  out = out.replace(
+    /ALTER PUBLICATION supabase_realtime ADD TABLE public\.([a-z_][a-z0-9_]*)\s*;/gi,
+    (_, table) => {
+      const schema = SKIP_CREATE.has(table) ? "public" : SHARED_TABLES.has(table) ? "shared" : "anthem";
+      return `DO $pub$ BEGIN ALTER PUBLICATION supabase_realtime ADD TABLE ${schema}.${table}; EXCEPTION WHEN duplicate_object THEN NULL; END $pub$;`;
+    },
+  );
 
   // Rewrite CREATE TABLE public.X → schema.X
   out = out.replace(
@@ -134,8 +192,13 @@ function rewriteSql(sql, fileName) {
     out = out.replaceAll(`REFERENCES public.${t}`, `REFERENCES anthem.${t}`);
   }
 
-  // ENUMs stay in public (shared by all schemas)
+  // ENUMs stay in public (shared by all schemas); idempotent on re-apply
   out = out.replace(/CREATE TYPE anthem\./gi, "CREATE TYPE public.");
+  out = out.replace(
+    /CREATE TYPE public\.([a-z_][a-z0-9_]*) AS ENUM \(([^;]+)\);/gi,
+    (_, name, values) =>
+      `DO $enum$ BEGIN CREATE TYPE public.${name} AS ENUM (${values}); EXCEPTION WHEN duplicate_object THEN NULL; END $enum$;`,
+  );
   out = out.replace(/::public\./g, "::public.");
 
   // Functions referencing anthem tables — set search_path

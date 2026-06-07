@@ -26,6 +26,7 @@ import { QuickNoteWidget } from "./overview/QuickNoteWidget";
 import { JobTrackerMiniWidget } from "./overview/JobTrackerMiniWidget";
 import { OnboardingChecklist } from "./overview/OnboardingChecklist";
 import { PipelineMiniWidget } from "./overview/PipelineMiniWidget";
+import { PipelineNewDealButton } from "./layout/PipelineNewDealButton";
 import { Kanban, FileText, Calculator } from "lucide-react";
 
 interface OverviewTabProps {
@@ -113,6 +114,10 @@ export function OverviewTab({ onGo }: OverviewTabProps) {
           incomes: finance.incomes.length,
         }}
       />
+
+      <div className="flex items-center justify-end">
+        <PipelineNewDealButton variant="header" onNavigate={onGo} />
+      </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <ShortcutPill icon={Kanban} label="Pipeline" onClick={() => onGo("finance", "pipeline")} />

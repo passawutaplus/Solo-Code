@@ -17,13 +17,16 @@ import { PipelineKanban } from "./pipeline/PipelineKanban";
 import { DealDrawer } from "./pipeline/DealDrawer";
 import { GiveFeedbackButton } from "./GiveFeedbackButton";
 import { SQUAD_PRICING } from "@/lib/sharedSquad";
+import { consumePipelineNewDeal } from "@/lib/pipelineNewDeal";
+import { PipelineNewDealButton } from "./layout/PipelineNewDealButton";
 
 type Props = {
   onNavigate?: (sub: string) => void;
+  onGoTab?: (tab: string, sub?: string) => void;
   onOpenQuotation?: (id: string) => void;
 };
 
-export function PipelineTab({ onNavigate, onOpenQuotation }: Props) {
+export function PipelineTab({ onNavigate, onGoTab, onOpenQuotation }: Props) {
   const { deals, isLoading, refetch } = usePipelineDeals();
   const { create, advanceStatusAsync, list } = useQuotations();
   const { upsertIncomeFromQuotation } = useFinance();
@@ -93,12 +96,12 @@ export function PipelineTab({ onNavigate, onOpenQuotation }: Props) {
     }
   };
 
-  const handleCreateDeal = async () => {
+  const handleCreateDeal = React.useCallback(async () => {
     if (creating) return;
     setCreating(true);
     try {
       const q = await create({ projectName: "ดีลใหม่", clientName: "ลูกค้าใหม่" });
-      toast.success("สร้างดีลแรกแล้ว — แก้รายละเอียดในใบเสนอราคา");
+      toast.success("สร้างดีลแล้ว — แก้รายละเอียดในใบเสนอราคา");
       onOpenQuotation?.(q.id);
       onNavigate?.("quotations");
     } catch (e) {
@@ -106,7 +109,13 @@ export function PipelineTab({ onNavigate, onOpenQuotation }: Props) {
     } finally {
       setCreating(false);
     }
-  };
+  }, [creating, create, onNavigate, onOpenQuotation]);
+
+  React.useEffect(() => {
+    if (consumePipelineNewDeal() === "quotation") {
+      void handleCreateDeal();
+    }
+  }, [handleCreateDeal]);
 
   if (isLoading) {
     return (
@@ -118,8 +127,8 @@ export function PipelineTab({ onNavigate, onOpenQuotation }: Props) {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div>
+      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+        <div className="min-w-0">
           <div className="flex items-center gap-2">
             <Kanban className="h-5 w-5 text-[#FF5F05]" />
             <h2 className="text-lg font-semibold">Pipeline</h2>
@@ -128,16 +137,12 @@ export function PipelineTab({ onNavigate, onOpenQuotation }: Props) {
             ติดตามดีลจากคุยลูกค้าจนปิดงาน — ลิงก์ใบเสนอราคา Job Tracker และภาษี
           </p>
         </div>
-        <Button
-          size="sm"
-          className="gap-1.5 text-white shrink-0"
-          style={{ background: "#FF5F05" }}
-          disabled={creating}
-          onClick={handleCreateDeal}
-        >
-          {creating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
-          สร้างดีลใหม่
-        </Button>
+        <PipelineNewDealButton
+          variant="header"
+          onNavigate={(tab, sub) => onGoTab?.(tab, sub)}
+          onCreateQuotation={handleCreateDeal}
+          creating={creating}
+        />
       </div>
 
       {deals.length === 0 ? (

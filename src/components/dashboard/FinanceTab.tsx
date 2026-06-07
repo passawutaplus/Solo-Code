@@ -16,9 +16,10 @@ type Props = {
   sub?: FinanceSub;
   onMoneySubChange?: (sub: FinanceMoneySub) => void;
   onSubChange?: (sub: FinanceSub) => void;
+  onGoTab?: (tab: string, sub?: string) => void;
 };
 
-export function FinanceTab({ sub = "quotations", onMoneySubChange, onSubChange }: Props) {
+export function FinanceTab({ sub = "quotations", onMoneySubChange, onSubChange, onGoTab }: Props) {
   const navigateMoney = React.useCallback(
     (next: FinanceMoneySub) => onMoneySubChange?.(next),
     [onMoneySubChange],
@@ -47,7 +48,11 @@ export function FinanceTab({ sub = "quotations", onMoneySubChange, onSubChange }
         <div className="animate-fade-in">
           <FinanceBreadcrumb sub={sub} onNavigate={navigateSub} />
           {sub === "pipeline" && (
-            <PipelineTab onNavigate={navigateSub} onOpenQuotation={openQuotation} />
+            <PipelineTab
+              onNavigate={navigateSub}
+              onGoTab={onGoTab}
+              onOpenQuotation={openQuotation}
+            />
           )}
           {sub === "quotations" && <QuotationsTab />}
           {sub === "income" && <IncomeTab onNavigate={navigateMoney} />}

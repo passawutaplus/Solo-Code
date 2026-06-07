@@ -223,6 +223,7 @@ function Dashboard() {
                           sub={(sub as any) ?? "quotations"}
                           onMoneySubChange={(s) => updateSection("finance", s)}
                           onSubChange={(s) => updateSection("finance", s)}
+                          onGoTab={updateSection}
                         />
                       </React.Suspense>
                     )}
@@ -256,7 +257,7 @@ function Dashboard() {
           <BottomNav active={section} activeSub={sub} onSelect={(s, nextSub) => updateSection(s, nextSub)} />
           <DashboardCommandMenu onNavigate={updateSection} />
 
-          {/* Floating chat + Support are rendered globally via DraggableFabDock in __root */}
+          {/* AI chat FAB: DraggableFabDock in __root. Support + สร้างดีล: sidebar footer */}
 
           <Toaster position="top-center" richColors />
         </div>

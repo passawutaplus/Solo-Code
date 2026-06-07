@@ -43,11 +43,32 @@ print(json.dumps({'query': sql, 'name': sys.argv[2]}))
 }
 
 echo "→ Fetching applied migrations..."
-applied="$(curl -s -X POST "${API}/database/query" \
+query_body="$(mktemp)"
+query_code="$(curl -s -o "$query_body" -w "%{http_code}" \
+  -X POST "${API}/database/query" \
   -H "Authorization: Bearer ${SUPABASE_ACCESS_TOKEN}" \
   -H "Content-Type: application/json" \
-  -d '{"query":"SELECT name FROM supabase_migrations.schema_migrations;"}' \
-  | python3 -c "import json,sys; print('\n'.join(r['name'] for r in json.load(sys.stdin)))")"
+  -d '{"query":"SELECT name FROM supabase_migrations.schema_migrations;"}')"
+
+if [[ "$query_code" != "200" && "$query_code" != "201" ]]; then
+  echo "✗ Failed to list migrations ($query_code)"
+  head -c 500 "$query_body"
+  echo ""
+  rm -f "$query_body"
+  exit 1
+fi
+
+applied="$(python3 -c "
+import json, sys
+raw = json.load(open(sys.argv[1]))
+if isinstance(raw, dict):
+    msg = raw.get('message') or raw.get('error') or raw
+    raise SystemExit(f'API error: {msg}')
+if not isinstance(raw, list):
+    raise SystemExit(f'unexpected response type: {type(raw).__name__}')
+print('\n'.join(r['name'] for r in raw if isinstance(r, dict) and 'name' in r))
+" "$query_body")"
+rm -f "$query_body"
 
 echo "→ Pushing migrations to ${PROJECT_REF}..."
 count=0

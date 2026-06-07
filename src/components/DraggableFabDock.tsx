@@ -1,14 +1,13 @@
 import * as React from "react";
 import { GripVertical } from "lucide-react";
 import { FloatingChat } from "@/components/FloatingChat";
-import { SupportFab } from "@/components/support/SupportFab";
 import { DASH_MOBILE_NAV_SPACER_PX } from "@/lib/layoutConstants";
 
 type DockPos = { x: number; y: number };
 
 const STORAGE_KEY = "so1o:fab-dock-pos:v1";
 const DOCK_WIDTH = 60; // px (FABs h-12)
-const DOCK_HEIGHT = 140; // approx 2 buttons + handle + gap
+const DOCK_HEIGHT = 88; // chat button + handle + gap
 const MARGIN = 12;
 const DRAG_THRESHOLD = 5; // px
 
@@ -184,9 +183,6 @@ export function DraggableFabDock() {
       {/* Disable children pointer events while actively dragging */}
       <div className={dragging ? "pointer-events-none" : ""}>
         <FloatingChat inline />
-      </div>
-      <div className={dragging ? "pointer-events-none" : ""}>
-        <SupportFab inline />
       </div>
     </div>
   );

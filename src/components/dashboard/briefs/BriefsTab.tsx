@@ -34,6 +34,7 @@ import { AiImageToBriefButton } from "./AiImageToBriefButton";
 import { QuickCapturePanel } from "./QuickCapturePanel";
 import { ClientBrandAssetsField } from "./ClientBrandAssetsField";
 import { mergeFieldClass } from "@/lib/formFieldStyles";
+import { consumeOpenBriefMode } from "@/lib/pipelineNewDeal";
 
 
 function rowToBrief(r: any): DesignBrief {
@@ -72,6 +73,12 @@ export function BriefsTab() {
   }, [user]);
 
   React.useEffect(() => { load(); }, [load]);
+
+  React.useEffect(() => {
+    if (consumeOpenBriefMode() === "quick") {
+      setQuickCapture(true);
+    }
+  }, []);
 
   const create = () => {
     if (!user) { toast.error("กรุณาเข้าสู่ระบบ"); return; }

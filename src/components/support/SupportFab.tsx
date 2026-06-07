@@ -25,9 +25,33 @@ const VIEW_TITLES: Record<View, string> = {
   my_tickets: "ตั๋วของฉัน",
 };
 
-export function SupportFab({ inline = false }: { inline?: boolean } = {}) {
+type SupportFabProps = {
+  inline?: boolean;
+  /** Controlled open (sidebar trigger) */
+  forceOpen?: boolean;
+  onClose?: () => void;
+  /** Hide floating / inline trigger button */
+  hiddenTrigger?: boolean;
+};
+
+export function SupportFab({
+  inline = false,
+  forceOpen,
+  onClose,
+  hiddenTrigger = false,
+}: SupportFabProps = {}) {
   const { user } = useAuth();
   const [open, setOpen] = React.useState(false);
+
+  const controlled = forceOpen !== undefined;
+  const sheetOpen = controlled ? forceOpen : open;
+  const setSheetOpen = (next: boolean) => {
+    if (controlled) {
+      if (!next) onClose?.();
+      return;
+    }
+    setOpen(next);
+  };
   const [view, setView] = React.useState<View>("home");
   const [unread, setUnread] = React.useState(0);
   const [selectedTicketId, setSelectedTicketId] = React.useState<string | null>(null);
@@ -62,11 +86,11 @@ export function SupportFab({ inline = false }: { inline?: boolean } = {}) {
   }, [user]);
 
   React.useEffect(() => {
-    if (open) {
+    if (sheetOpen) {
       setView("home");
       setSelectedTicketId(null);
     }
-  }, [open]);
+  }, [sheetOpen]);
 
   const goBack = () => {
     if (view === "my_tickets" && selectedTicketId) {
@@ -78,9 +102,9 @@ export function SupportFab({ inline = false }: { inline?: boolean } = {}) {
 
   return (
     <>
-      {!open && (
+      {!hiddenTrigger && !sheetOpen && (
         <button
-          onClick={() => setOpen(true)}
+          onClick={() => setSheetOpen(true)}
           aria-label="เปิด So1o Support Hub"
           className={
             inline
@@ -101,7 +125,7 @@ export function SupportFab({ inline = false }: { inline?: boolean } = {}) {
         </button>
       )}
 
-      <Sheet open={open} onOpenChange={setOpen}>
+      <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
         <SheetContent
           side="right"
           showCloseButton={false}
@@ -130,7 +154,7 @@ export function SupportFab({ inline = false }: { inline?: boolean } = {}) {
                 </div>
               </div>
               <button
-                onClick={() => setOpen(false)}
+                onClick={() => setSheetOpen(false)}
                 className="h-8 w-8 rounded-full hover:bg-white/15 flex items-center justify-center transition"
                 aria-label="ปิด"
               >
