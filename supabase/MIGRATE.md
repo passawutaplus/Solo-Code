@@ -23,12 +23,21 @@ export SUPABASE_ACCESS_TOKEN=<token จาก Account → Access Tokens>
 ## หลัง schema ขึ้นแล้ว
 
 ```bash
+export SUPABASE_ACCESS_TOKEN=<token>
+./scripts/supabase-setup-project.sh   # auth redirect URLs
 npm run dev
 ```
 
 เช็ค: `/admin` → **Supabase** → migrations ควรเป็น **ขึ้นแล้ว**
 
-## หมายเหตุ
+## สิ่งที่ต้องทำเอง (ไม่มีใน repo)
 
-- โปรเจกต์เก่า `jdqrrzaleapablabphmw` ไม่ใช้แล้ว
-- Revoke access token ที่เคยแชร์ในแชท แล้วสร้างใหม่
+| รายการ | ทำที่ไหน |
+|--------|----------|
+| Revoke access token เก่า | [Account → Access Tokens](https://supabase.com/dashboard/account/tokens) |
+| ตั้ง `GEMINI_API_KEY` | Dashboard → Edge Functions → Secrets |
+| สมัคร admin คนแรก | แอป → สมัคร แล้วเพิ่ม role ใน `user_roles` หรือ SQL |
+| OAuth (Google/Apple) | Dashboard → Auth → Providers |
+| ย้ายข้อมูลจากโปรเจกต์เก่า | ไม่ได้ทำอัตโนมัติ — export/import เองถ้าต้องการ |
+
+โปรเจกต์เก่า `jdqrrzaleapablabphmw` ไม่ใช้แล้ว

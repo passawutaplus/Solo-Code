@@ -270,10 +270,45 @@ export function SupabaseConnectionSection() {
         </CardContent>
       </Card>
 
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm">ขั้นตอนถัดไป</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-2 text-[11px] text-muted-foreground">
+          <SetupRow
+            done={allOk && !anyMissing}
+            label="Schema migrations (111 ไฟล์)"
+            hint={allOk && !anyMissing ? "ครบแล้ว" : "รัน ./scripts/supabase-push-via-api.sh"}
+          />
+          <SetupRow
+            label="Auth redirect URLs (localhost + production)"
+            hint="รัน ./scripts/supabase-setup-project.sh หรือ Dashboard → Auth → URL Configuration"
+            link={`${info.dashboardUrl}/auth/url-configuration`}
+            linkLabel="ตั้งค่า Auth"
+          />
+          <SetupRow
+            label="Edge Functions + GEMINI_API_KEY"
+            hint="Dashboard → Edge Functions → Secrets แล้ว deploy 4 functions"
+            link={`${info.dashboardUrl}/functions`}
+            linkLabel="Edge Functions"
+          />
+          <SetupRow
+            label="Revoke access token ที่เคยแชร์"
+            hint="Account → Access Tokens → revoke แล้วสร้างใหม่"
+            link="https://supabase.com/dashboard/account/tokens"
+            linkLabel="Access Tokens"
+          />
+          <SetupRow
+            label="สมัครบัญชีแรก + ตั้ง admin"
+            hint="สมัครในแอป แล้วเพิ่ม role admin ใน user_roles (โปรเจกต์ใหม่ไม่มีข้อมูลเก่า)"
+          />
+        </CardContent>
+      </Card>
+
       <Card className="border-border bg-muted/20">
         <CardContent className="p-3.5 text-[11px] text-muted-foreground leading-relaxed">
           <strong>หมายเหตุ:</strong> Cursor MCP อาจแสดงโปรเจกต์คนละตัวกับที่แอปใช้ — อ้างอิง Project Ref ด้านบนเท่านั้น.
-          ค่าใน <code>supabase/config.toml</code> ควรตรงกับ <code>VITE_SUPABASE_PROJECT_ID</code> ใน <code>.env</code>
+          เอกสาร: <code>supabase/README.md</code> · ค่าใน <code>config.toml</code> ต้องตรง <code>VITE_SUPABASE_PROJECT_ID</code>
         </CardContent>
       </Card>
     </div>
@@ -293,6 +328,46 @@ function InfoRow({
     <div>
       <p className="text-[10px] text-muted-foreground uppercase tracking-wide">{label}</p>
       <p className={`font-medium truncate ${mono ? "font-mono text-xs" : ""}`}>{value}</p>
+    </div>
+  );
+}
+
+function SetupRow({
+  label,
+  hint,
+  done,
+  link,
+  linkLabel,
+}: {
+  label: string;
+  hint: string;
+  done?: boolean;
+  link?: string;
+  linkLabel?: string;
+}) {
+  return (
+    <div className="flex items-start justify-between gap-3 rounded-lg border px-3 py-2">
+      <div className="min-w-0">
+        <p className="font-medium text-foreground">{label}</p>
+        <p className="text-[10px] mt-0.5">{hint}</p>
+      </div>
+      <div className="flex flex-col items-end gap-1 shrink-0">
+        {done ? (
+          <Badge className="text-[9px] bg-emerald-600 hover:bg-emerald-600">เสร็จ</Badge>
+        ) : (
+          <Badge variant="outline" className="text-[9px]">ทำเอง</Badge>
+        )}
+        {link && (
+          <a
+            href={link}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-[9px] text-primary hover:underline"
+          >
+            {linkLabel ?? "เปิด"}
+          </a>
+        )}
+      </div>
     </div>
   );
 }

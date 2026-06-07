@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Push ALL migrations to linked Supabase project (rvnzjiskqliexysicfmh)
+# Push ALL migrations via direct Postgres (needs SUPABASE_DB_PASSWORD)
+# ทางเลือกที่ง่ายกว่า: ./scripts/supabase-push-via-api.sh (ใช้แค่ access token)
 set -euo pipefail
 cd "$(dirname "$0")/.."
 

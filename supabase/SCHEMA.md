@@ -1,39 +1,34 @@
 # So1o Supabase Schema — Domain Map
 
-จัดกลุ่มตารางตาม Business Domain (อ้างอิง Pipeline Blueprint)
+โปรเจกต์: **`rvnzjiskqliexysicfmh`** · migrations: **111 ไฟล์** ใน `migrations/`
 
-## งานลูกค้า (Client Work / Pipeline)
+## งานลูกค้า (Pipeline)
 
-| ตาราง | บทบาท | ลิงก์หลัก |
-|--------|--------|----------|
-| `quotations` | ดีลหลัก — 1 card = 1 row | `brief_id` → smart_briefs |
-| `job_trackers` | ส่งมอบ + สลิป | `quotation_id` → quotations |
-| `job_slips` | สลิปรอตรวจ | `job_id` → job_trackers |
-| `job_events` | Timeline งาน | `job_id` → job_trackers |
-| `smart_briefs` | บรีฟลูกค้า | — |
+| ตาราง | บทบาท |
+|--------|--------|
+| `quotations` | ดีลหลัก — 1 card = 1 row |
+| `job_trackers` | ส่งมอบ + สลิป (`quotation_id`) |
+| `job_slips` | สลิปรอตรวจ |
+| `job_events` | Timeline งาน |
+| `smart_briefs` | บรีฟลูกค้า |
 
-**Pipeline ไม่มีตารางใหม่ (MVP)** — คอลัมน์ derive จาก `quotation.status` + `job.current_step` + `finance_incomes`
-
-### Contract (Phase 1.5) — คอลัมน์บน `quotations`
-
-- `contract_signed_at` — เวลายืนยันสัญญา
-- `contract_accepted` — boolean
-- `contract_signer_ip` — IP (optional)
+คอลัมน์ Pipeline/Contract บน `quotations`: `contract_accepted`, `contract_signed_at`, `contract_signer_ip`
 
 ## การเงิน & ภาษี
 
 | ตาราง | บทบาท |
 |--------|--------|
-| `finance_incomes` | รายได้ (sync จาก quotation ที่ completed) |
+| `finance_incomes` | รายได้ |
 | `finance_work_expenses` | ค่าใช้จ่ายงาน |
 | `finance_personal_expenses` | ค่าใช้จ่ายส่วนตัว |
 | `finance_subscriptions` | Subscription |
+| `finance_tax_scenarios` | สถานการณ์ภาษี |
 
-## Shared Squad (Phase 2 — feature-gated)
+## Shared Squad (Phase 2)
 
 | ตาราง | บทบาท |
 |--------|--------|
-| `shared_projects` | โปรเจกต์ร่วม + guest link |
+| `shared_projects` | โปรเจกต์ร่วม |
 | `project_members` | สมาชิก + % หารรายได้ |
 | `project_tasks` | Team kanban |
 
@@ -41,11 +36,21 @@
 
 | ตาราง | บทบาท |
 |--------|--------|
-| `support_tickets` | Issue tracking MVP |
+| `support_tickets` | Issue tracking |
 | `ticket_attachments` | ไฟล์แนบ |
-| `ticket_events` | ประวัติ ticket |
+| `ticket_events` | ประวัติ |
 
-## Migrations ล่าสุด (Pipeline)
+## ผู้ใช้ & ระบบ
+
+| ตาราง | บทบาท |
+|--------|--------|
+| `profiles` | โปรไฟล์ผู้ใช้ |
+| `user_roles` | admin / user |
+| `notifications` | แจ้งเตือนในแอป |
+| `subscriptions` | tier / billing |
+| `user_credits` | เครดิต |
+
+## Migrations ล่าสุด (2026-06)
 
 ```
 20260604150000_support_tickets.sql
@@ -54,16 +59,14 @@
 20260605120000_pipeline_supabase_organization.sql
 ```
 
-## Deploy
+## Deploy & ตรวจสอบ
 
 ```bash
-./scripts/install-supabase-cli.sh
-export SUPABASE_ACCESS_TOKEN=<จาก Dashboard → Account → Access Tokens>
-./scripts/supabase-push-pipeline.sh
+export SUPABASE_ACCESS_TOKEN=<token>
+./scripts/supabase-push-via-api.sh    # push migration ใหม่
+./scripts/supabase-setup-project.sh   # auth redirect + edge functions
 ```
 
-ทางเลือก (ไม่ใช้ CLI): วาง `supabase/manual/apply-pending-202606.sql` ใน SQL Editor
+ตรวจในแอป: `/admin` → **Supabase**
 
-## ตรวจในแอป
-
-Mission Control → **Supabase** (`/admin` → เมนู Supabase) — แสดง Project Ref, สถานะเชื่อมต่อ, migrations ที่รันแล้วหรือยัง
+ดูรายละเอียดโฟลเดอร์: [`supabase/README.md`](./README.md)

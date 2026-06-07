@@ -1,9 +1,9 @@
 -- So1o FULL schema bundle for rvnzjiskqliexysicfmh
--- Run in Supabase Dashboard → SQL Editor (may take 1-2 min)
--- Or: export SUPABASE_DB_PASSWORD=... && ./scripts/supabase-push-pipeline.sh
+-- Generated: 2026-06-07T09:22:15Z
+-- Run in Supabase Dashboard → SQL Editor
+-- Or: export SUPABASE_ACCESS_TOKEN=... && ./scripts/supabase-push-via-api.sh
 
-
--- ========== 20260427021942_976ba3e1-e73d-43d4-b692-d27a1f4b3a4e.sql ==========
+-- ── 20260427021942_976ba3e1-e73d-43d4-b692-d27a1f4b3a4e.sql ──
 -- 1) App role enum
 CREATE TYPE public.app_role AS ENUM ('admin', 'user');
 
@@ -159,7 +159,8 @@ CREATE POLICY "Users can delete own brand logo"
     bucket_id = 'brand-logos'
     AND auth.uid()::text = (storage.foldername(name))[1]
   );
--- ========== 20260427022011_596c8eb4-505d-4e39-8d5f-2381219fd9aa.sql ==========
+
+-- ── 20260427022011_596c8eb4-505d-4e39-8d5f-2381219fd9aa.sql ──
 -- Lock down SECURITY DEFINER functions
 REVOKE EXECUTE ON FUNCTION public.has_role(UUID, public.app_role) FROM PUBLIC, anon, authenticated;
 REVOKE EXECUTE ON FUNCTION public.handle_new_user() FROM PUBLIC, anon, authenticated;
@@ -175,7 +176,8 @@ CREATE POLICY "Owners can list own brand logos"
     bucket_id = 'brand-logos'
     AND auth.uid()::text = (storage.foldername(name))[1]
   );
--- ========== 20260427035429_dff35726-f103-4779-ad92-9afb5d856e43.sql ==========
+
+-- ── 20260427035429_dff35726-f103-4779-ad92-9afb5d856e43.sql ──
 -- 1) Recreate the missing trigger on auth.users
 DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
 CREATE TRIGGER on_auth_user_created
@@ -219,10 +221,12 @@ DROP TRIGGER IF EXISTS update_profiles_updated_at ON public.profiles;
 CREATE TRIGGER update_profiles_updated_at
   BEFORE UPDATE ON public.profiles
   FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
--- ========== 20260427035451_e0d6d7e1-8de8-4536-88ca-37491a016b99.sql ==========
+
+-- ── 20260427035451_e0d6d7e1-8de8-4536-88ca-37491a016b99.sql ──
 REVOKE EXECUTE ON FUNCTION public.handle_new_user() FROM PUBLIC, anon, authenticated;
 REVOKE EXECUTE ON FUNCTION public.update_updated_at_column() FROM PUBLIC, anon, authenticated;
--- ========== 20260427041310_54c5ba29-1183-400d-9814-298f2889d939.sql ==========
+
+-- ── 20260427041310_54c5ba29-1183-400d-9814-298f2889d939.sql ──
 -- Extend profiles with freelancer business settings
 ALTER TABLE public.profiles
   ADD COLUMN IF NOT EXISTS tagline TEXT,
@@ -294,7 +298,8 @@ BEGIN
       );
   END IF;
 END$$;
--- ========== 20260427060436_41f7f0fd-9782-49fd-8458-39e7d6d3ef85.sql ==========
+
+-- ── 20260427060436_41f7f0fd-9782-49fd-8458-39e7d6d3ef85.sql ──
 -- =========================================================
 -- 1. SECURITY FIXES on existing objects
 -- =========================================================
@@ -696,9 +701,11 @@ CREATE POLICY "Users delete own portfolio images"
     bucket_id = 'portfolio-images'
     AND (storage.foldername(name))[1] = auth.uid()::text
   );
--- ========== 20260427063716_a9ed7ceb-3d35-40d0-8db7-916b2fd64e02.sql ==========
+
+-- ── 20260427063716_a9ed7ceb-3d35-40d0-8db7-916b2fd64e02.sql ──
 ALTER TABLE public.finance_incomes DROP CONSTRAINT IF EXISTS finance_incomes_category_check;
--- ========== 20260427072630_ae0b8914-a662-4ab8-bf66-67b0ecec52c5.sql ==========
+
+-- ── 20260427072630_ae0b8914-a662-4ab8-bf66-67b0ecec52c5.sql ──
 
 -- Function: DB usage stats (admin only)
 CREATE OR REPLACE FUNCTION public.get_db_usage_stats()
@@ -787,7 +794,8 @@ $$;
 REVOKE ALL ON FUNCTION public.get_storage_usage_stats() FROM PUBLIC, anon;
 GRANT EXECUTE ON FUNCTION public.get_storage_usage_stats() TO authenticated;
 
--- ========== 20260427114236_ef0b0133-570c-4506-bfb7-c302d329da9f.sql ==========
+
+-- ── 20260427114236_ef0b0133-570c-4506-bfb7-c302d329da9f.sql ──
 
 -- Create a public view exposing only safe profile fields for viewing other creators.
 -- Excludes: email, phone, address, tax_id, bank_*, payment_qr_url (PII / financial)
@@ -817,7 +825,8 @@ FOR SELECT
 TO anon, authenticated
 USING (true);
 
--- ========== 20260427114311_d24a90bf-dac8-4652-8e56-71980181fb00.sql ==========
+
+-- ── 20260427114311_d24a90bf-dac8-4652-8e56-71980181fb00.sql ──
 
 -- 1) Remove the over-permissive SELECT policy that accidentally exposed all profile columns
 DROP POLICY IF EXISTS "Public can view safe profile fields via view" ON public.profiles;
@@ -860,7 +869,8 @@ $$;
 REVOKE ALL ON FUNCTION public.get_public_profile(uuid) FROM PUBLIC;
 GRANT EXECUTE ON FUNCTION public.get_public_profile(uuid) TO anon, authenticated;
 
--- ========== 20260427122135_54148929-5d3e-42b4-946f-d1a277b545ed.sql ==========
+
+-- ── 20260427122135_54148929-5d3e-42b4-946f-d1a277b545ed.sql ──
 
 -- Hire requests inbox: when someone clicks "สนใจจ้างงาน" on a published portfolio
 CREATE TABLE public.hire_requests (
@@ -962,7 +972,8 @@ BEFORE UPDATE ON public.hire_requests
 FOR EACH ROW
 EXECUTE FUNCTION public.update_updated_at_column();
 
--- ========== 20260427122608_0b67823f-a99f-4bc9-b12f-23900311cbb9.sql ==========
+
+-- ── 20260427122608_0b67823f-a99f-4bc9-b12f-23900311cbb9.sql ──
 
 -- =========================================================
 -- portfolio_comments — text-only comments on portfolio cards
@@ -1215,7 +1226,8 @@ AFTER INSERT ON public.portfolio_comment_reports
 FOR EACH ROW
 EXECUTE FUNCTION public.bump_comment_report_count();
 
--- ========== 20260428014119_a54a7c02-bf28-4475-8de2-6dfe58f8874f.sql ==========
+
+-- ── 20260428014119_a54a7c02-bf28-4475-8de2-6dfe58f8874f.sql ──
 -- Onboarding fields on profiles
 ALTER TABLE public.profiles
   ADD COLUMN IF NOT EXISTS onboarding_completed BOOLEAN NOT NULL DEFAULT FALSE,
@@ -1367,7 +1379,8 @@ DROP TRIGGER IF EXISTS trg_notify_on_hire ON public.hire_requests;
 CREATE TRIGGER trg_notify_on_hire
   AFTER INSERT ON public.hire_requests
   FOR EACH ROW EXECUTE FUNCTION public.notify_on_hire();
--- ========== 20260430005444_4ebfaad3-c24d-4011-98f2-d556bbb77885.sql ==========
+
+-- ── 20260430005444_4ebfaad3-c24d-4011-98f2-d556bbb77885.sql ──
 
 -- ============ Suppliers ============
 CREATE TABLE public.suppliers (
@@ -1454,7 +1467,8 @@ CREATE POLICY "Owners delete own supplier file objects"
   ON storage.objects FOR DELETE TO authenticated
   USING (bucket_id = 'supplier-files' AND auth.uid()::text = (storage.foldername(name))[1]);
 
--- ========== 20260501041936_cf600d5d-d99e-4226-bcbe-e57de20e94c8.sql ==========
+
+-- ── 20260501041936_cf600d5d-d99e-4226-bcbe-e57de20e94c8.sql ──
 -- Add tester_approved flag to profiles
 ALTER TABLE public.profiles
   ADD COLUMN IF NOT EXISTS tester_approved boolean NOT NULL DEFAULT false,
@@ -1522,13 +1536,15 @@ $$;
 CREATE TRIGGER on_tester_application_insert
   AFTER INSERT ON public.tester_applications
   FOR EACH ROW EXECUTE FUNCTION public.auto_approve_tester();
--- ========== 20260501043209_b25f8d26-edd4-4a60-a383-d70da3ac74e6.sql ==========
+
+-- ── 20260501043209_b25f8d26-edd4-4a60-a383-d70da3ac74e6.sql ──
 ALTER TABLE public.tester_applications
   ADD COLUMN IF NOT EXISTS contact_email text,
   ADD COLUMN IF NOT EXISTS contact_line text,
   ALTER COLUMN contact_channel DROP NOT NULL,
   ALTER COLUMN contact_value DROP NOT NULL;
--- ========== 20260501052447_8300d76d-6796-44d2-b398-a7af339dda1a.sql ==========
+
+-- ── 20260501052447_8300d76d-6796-44d2-b398-a7af339dda1a.sql ──
 -- 1) Replace permissive hire_requests INSERT policy with one that checks the target owns a published project
 DROP POLICY IF EXISTS "Anyone can submit hire requests" ON public.hire_requests;
 
@@ -1643,7 +1659,8 @@ GRANT EXECUTE ON FUNCTION public.has_role(uuid, app_role) TO authenticated;
 GRANT EXECUTE ON FUNCTION public.get_db_usage_stats() TO authenticated;
 GRANT EXECUTE ON FUNCTION public.get_storage_usage_stats() TO authenticated;
 
--- ========== 20260501071420_8df6e4f0-8588-46c8-a96a-68a837b21040.sql ==========
+
+-- ── 20260501071420_8df6e4f0-8588-46c8-a96a-68a837b21040.sql ──
 -- Supplier cover image
 ALTER TABLE public.suppliers
   ADD COLUMN IF NOT EXISTS cover_image_url text;
@@ -1685,7 +1702,8 @@ CREATE POLICY "Admins view all beta feedback"
 CREATE POLICY "Admins delete any beta feedback"
   ON public.beta_feedback FOR DELETE TO authenticated
   USING (public.has_role(auth.uid(), 'admin'));
--- ========== 20260501071813_acea63c2-60fa-4968-a107-963c47f02ef5.sql ==========
+
+-- ── 20260501071813_acea63c2-60fa-4968-a107-963c47f02ef5.sql ──
 INSERT INTO storage.buckets (id, name, public)
 VALUES ('supplier-covers', 'supplier-covers', true)
 ON CONFLICT (id) DO NOTHING;
@@ -1716,7 +1734,8 @@ CREATE POLICY "Users delete own supplier covers"
     bucket_id = 'supplier-covers'
     AND auth.uid()::text = (storage.foldername(name))[1]
   );
--- ========== 20260501072107_5daa99b3-2c30-45a5-a535-d294375be4ab.sql ==========
+
+-- ── 20260501072107_5daa99b3-2c30-45a5-a535-d294375be4ab.sql ──
 
 -- Track which features users open, for admin analytics.
 CREATE TABLE public.feature_usage_events (
@@ -1778,7 +1797,8 @@ BEGIN
 END;
 $$;
 
--- ========== 20260501074333_abbb43a2-b930-48c6-a578-f737e9c9f023.sql ==========
+
+-- ── 20260501074333_abbb43a2-b930-48c6-a578-f737e9c9f023.sql ──
 CREATE OR REPLACE FUNCTION public.get_feature_data_stats()
 RETURNS TABLE(
   feature text,
@@ -1850,7 +1870,8 @@ BEGIN
   ORDER BY total_records DESC;
 END;
 $$;
--- ========== 20260501074820_a0cede17-34ba-4517-b049-dc477ee6fd31.sql ==========
+
+-- ── 20260501074820_a0cede17-34ba-4517-b049-dc477ee6fd31.sql ──
 -- Fix ambiguous "feature" column reference by aliasing CTE columns
 CREATE OR REPLACE FUNCTION public.get_feature_data_stats()
 RETURNS TABLE(
@@ -1937,7 +1958,8 @@ BEGIN
   ORDER BY 1 ASC, 3 DESC;
 END;
 $$;
--- ========== 20260501081411_5e4ab3c7-b698-46a6-bcea-c749ecd57d64.sql ==========
+
+-- ── 20260501081411_5e4ab3c7-b698-46a6-bcea-c749ecd57d64.sql ──
 -- Top subscriptions report for admins (across all users)
 CREATE OR REPLACE FUNCTION public.get_top_subscriptions(_limit integer DEFAULT 50)
 RETURNS TABLE(
@@ -1977,12 +1999,14 @@ AS $$
 $$;
 
 GRANT EXECUTE ON FUNCTION public.get_top_subscriptions(integer) TO authenticated;
--- ========== 20260501090929_b0b070a3-1ff3-49af-ba72-362ab75f486c.sql ==========
+
+-- ── 20260501090929_b0b070a3-1ff3-49af-ba72-362ab75f486c.sql ──
 -- กันใบสมัคร Tester ซ้ำต่อ user_id (กัน race จาก double-tab/double-click)
 -- ใช้ UNIQUE INDEX แทน UNIQUE CONSTRAINT เพื่อ idempotent (ใช้ IF NOT EXISTS)
 CREATE UNIQUE INDEX IF NOT EXISTS tester_applications_user_id_uidx
   ON public.tester_applications (user_id);
--- ========== 20260502005156_e097517f-9868-454c-9ba4-8f192e05c79e.sql ==========
+
+-- ── 20260502005156_e097517f-9868-454c-9ba4-8f192e05c79e.sql ──
 -- 1) Announcements table
 CREATE TABLE IF NOT EXISTS public.announcements (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -2047,7 +2071,8 @@ AS $$
 $$;
 
 GRANT EXECUTE ON FUNCTION public.touch_last_active() TO authenticated;
--- ========== 20260502011454_e6fe4bab-e82d-4ad9-bbb6-6ae1e63e2272.sql ==========
+
+-- ── 20260502011454_e6fe4bab-e82d-4ad9-bbb6-6ae1e63e2272.sql ──
 -- 1) Announcements: scheduling
 ALTER TABLE public.announcements
   ADD COLUMN IF NOT EXISTS start_at timestamptz,
@@ -2147,7 +2172,8 @@ DROP POLICY IF EXISTS "Owners delete chat images" ON storage.objects;
 CREATE POLICY "Owners delete chat images"
 ON storage.objects FOR DELETE TO authenticated
 USING (bucket_id = 'chat-images' AND (auth.uid()::text = (storage.foldername(name))[1] OR public.has_role(auth.uid(), 'admin')));
--- ========== 20260502012740_2d83cac9-750e-4f01-be47-c4093b393189.sql ==========
+
+-- ── 20260502012740_2d83cac9-750e-4f01-be47-c4093b393189.sql ──
 -- Auto-reply on first user message in a conversation
 CREATE OR REPLACE FUNCTION public.chat_auto_reply()
 RETURNS trigger
@@ -2188,7 +2214,8 @@ CREATE TRIGGER trg_chat_auto_reply
 AFTER INSERT ON public.chat_messages
 FOR EACH ROW
 EXECUTE FUNCTION public.chat_auto_reply();
--- ========== 20260502014315_c6e80581-1d03-4b95-8075-f139c1ab0470.sql ==========
+
+-- ── 20260502014315_c6e80581-1d03-4b95-8075-f139c1ab0470.sql ──
 -- Enable pg_cron and pg_net (no-op if already enabled)
 CREATE EXTENSION IF NOT EXISTS pg_cron;
 CREATE EXTENSION IF NOT EXISTS pg_net;
@@ -2256,10 +2283,12 @@ SELECT cron.schedule(
   '30 3 * * *',
   $$ SELECT public.purge_old_storage(); $$
 );
--- ========== 20260502014335_2af3fd8f-96b2-47c1-b610-36f05adb1965.sql ==========
+
+-- ── 20260502014335_2af3fd8f-96b2-47c1-b610-36f05adb1965.sql ──
 REVOKE ALL ON FUNCTION public.purge_old_storage() FROM PUBLIC, anon, authenticated;
 GRANT EXECUTE ON FUNCTION public.purge_old_storage() TO postgres, service_role;
--- ========== 20260502020805_40d7620c-a354-4aec-8276-07cca2dda618.sql ==========
+
+-- ── 20260502020805_40d7620c-a354-4aec-8276-07cca2dda618.sql ──
 ALTER TABLE public.profiles
   ADD COLUMN IF NOT EXISTS is_active boolean NOT NULL DEFAULT true,
   ADD COLUMN IF NOT EXISTS deactivated_at timestamp with time zone,
@@ -2392,7 +2421,8 @@ SELECT cron.schedule(
   '45 3 * * *',
   $$ SELECT public.purge_inactive_profile_data(50); $$
 );
--- ========== 20260502021747_94db1dcc-ca15-4bf4-96f5-ab2edeb54397.sql ==========
+
+-- ── 20260502021747_94db1dcc-ca15-4bf4-96f5-ab2edeb54397.sql ──
 
 -- Activity Logs table
 CREATE TABLE public.user_activity_logs (
@@ -2553,7 +2583,8 @@ SELECT cron.schedule(
   $$ DELETE FROM public.user_activity_logs WHERE created_at < now() - INTERVAL '60 days'; $$
 );
 
--- ========== 20260502023231_612bffe2-7398-4b8f-9675-37b8128b87ec.sql ==========
+
+-- ── 20260502023231_612bffe2-7398-4b8f-9675-37b8128b87ec.sql ──
 -- =====================================================================
 -- Lock down EXECUTE on SECURITY DEFINER functions (least privilege)
 -- =====================================================================
@@ -2594,9 +2625,11 @@ GRANT EXECUTE ON FUNCTION public.log_user_activity(text) TO authenticated;
 
 -- get_public_profile: viewing others' public profile (signed-in or anon both fine)
 GRANT EXECUTE ON FUNCTION public.get_public_profile(uuid) TO anon, authenticated;
--- ========== 20260502023258_80bdb01a-68fe-4bca-bab7-500822bdbd87.sql ==========
+
+-- ── 20260502023258_80bdb01a-68fe-4bca-bab7-500822bdbd87.sql ──
 REVOKE EXECUTE ON FUNCTION public.log_user_activity(text) FROM PUBLIC, anon;
--- ========== 20260502024243_6fa28f69-d083-4ff1-b8c6-ecf0668eb9d7.sql ==========
+
+-- ── 20260502024243_6fa28f69-d083-4ff1-b8c6-ecf0668eb9d7.sql ──
 -- Enforce Realtime channel-level authorization
 -- Topics in use:
 --   chat_<user_uuid>   → owner only
@@ -2628,7 +2661,8 @@ USING (
   AND public.has_role(auth.uid(), 'admin')
 );
 
--- ========== 20260502025328_68d5ab97-78e4-4f90-a300-a3aab6a893c1.sql ==========
+
+-- ── 20260502025328_68d5ab97-78e4-4f90-a300-a3aab6a893c1.sql ──
 DROP FUNCTION IF EXISTS public.purge_inactive_profile_data(integer);
 
 CREATE OR REPLACE FUNCTION public.purge_inactive_profile_data(_limit integer DEFAULT 25)
@@ -2798,7 +2832,8 @@ END;
 $function$;
 
 REVOKE EXECUTE ON FUNCTION public.force_purge_user(uuid) FROM PUBLIC, anon, authenticated;
--- ========== 20260502030708_38aac6d4-c05f-4dbb-a5a6-9adcb3f79bdc.sql ==========
+
+-- ── 20260502030708_38aac6d4-c05f-4dbb-a5a6-9adcb3f79bdc.sql ──
 CREATE OR REPLACE FUNCTION public.force_purge_user(
   _target_user_id uuid,
   _admin_user_id uuid DEFAULT NULL
@@ -2971,7 +3006,8 @@ BEGIN
   END LOOP;
 END;
 $function$;
--- ========== 20260502090345_2c4ebb45-5ce0-4084-a933-05f17d283e6d.sql ==========
+
+-- ── 20260502090345_2c4ebb45-5ce0-4084-a933-05f17d283e6d.sql ──
 -- Articles table for blog/content engine
 CREATE TABLE public.articles (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -3056,7 +3092,8 @@ AS $$
 $$;
 
 GRANT EXECUTE ON FUNCTION public.increment_article_view(TEXT) TO anon, authenticated;
--- ========== 20260502104413_904325de-a2bb-4664-b5fc-c65f4169ae20.sql ==========
+
+-- ── 20260502104413_904325de-a2bb-4664-b5fc-c65f4169ae20.sql ──
 INSERT INTO storage.buckets (id, name, public) VALUES ('article-images', 'article-images', true) ON CONFLICT (id) DO NOTHING;
 
 CREATE POLICY "Public can view article images"
@@ -3074,14 +3111,29 @@ USING (bucket_id = 'article-images' AND has_role(auth.uid(), 'admin'::app_role))
 CREATE POLICY "Admins delete article images"
 ON storage.objects FOR DELETE TO authenticated
 USING (bucket_id = 'article-images' AND has_role(auth.uid(), 'admin'::app_role));
--- ========== 20260502110722_b305ed04-430b-479d-82b7-0bb49776dd3a.sql ==========
+
+-- ── 20260502110722_b305ed04-430b-479d-82b7-0bb49776dd3a.sql ──
 -- Grant UPDATE on articles to authenticator/anon roles temporarily for bulk content refresh
 GRANT UPDATE ON public.articles TO postgres, authenticator, anon, authenticated, service_role;
--- ========== 20260502110751_c14b47d5-0a30-416e-bed6-a4e5b89601bb.sql ==========
-GRANT UPDATE ON public.articles TO sandbox_exec;
--- ========== 20260502110822_3353aa1e-f0fb-4eed-9104-3081b8bedda8.sql ==========
-REVOKE UPDATE ON public.articles FROM sandbox_exec, postgres, authenticator, anon, authenticated, service_role;
--- ========== 20260503141127_6dc1c278-b657-4b45-8d0f-94e9e29a002a.sql ==========
+
+-- ── 20260502110751_c14b47d5-0a30-416e-bed6-a4e5b89601bb.sql ──
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'sandbox_exec') THEN
+    GRANT UPDATE ON public.articles TO sandbox_exec;
+  END IF;
+END $$;
+
+-- ── 20260502110822_3353aa1e-f0fb-4eed-9104-3081b8bedda8.sql ──
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'sandbox_exec') THEN
+    REVOKE UPDATE ON public.articles FROM sandbox_exec;
+  END IF;
+END $$;
+REVOKE UPDATE ON public.articles FROM postgres, authenticator, anon, authenticated, service_role;
+
+-- ── 20260503141127_6dc1c278-b657-4b45-8d0f-94e9e29a002a.sql ──
 -- Persistent storage for Planner, Feedback, Projects, Assets, Review pins
 -- Additive only — no DROP / TRUNCATE / DELETE on existing tables
 
@@ -3235,7 +3287,8 @@ CREATE POLICY "Owners delete review_pins" ON public.review_pins FOR DELETE TO au
 DROP TRIGGER IF EXISTS trg_review_pins_updated ON public.review_pins;
 CREATE TRIGGER trg_review_pins_updated BEFORE UPDATE ON public.review_pins
 FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
--- ========== 20260503143225_496bf31b-1b33-45de-b485-8864d29f481f.sql ==========
+
+-- ── 20260503143225_496bf31b-1b33-45de-b485-8864d29f481f.sql ──
 
 CREATE TABLE IF NOT EXISTS public.job_trackers (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -3309,7 +3362,8 @@ CREATE INDEX IF NOT EXISTS idx_job_trackers_token ON public.job_trackers(share_t
 CREATE INDEX IF NOT EXISTS idx_job_milestones_job ON public.job_milestones(job_id);
 CREATE INDEX IF NOT EXISTS idx_job_slips_job ON public.job_slips(job_id);
 
--- ========== 20260503144526_d861e0d6-ab17-41f4-ab39-054504387be6.sql ==========
+
+-- ── 20260503144526_d861e0d6-ab17-41f4-ab39-054504387be6.sql ──
 -- 1) Extend job_trackers
 ALTER TABLE public.job_trackers
   ADD COLUMN IF NOT EXISTS tracking_code TEXT,
@@ -3361,7 +3415,8 @@ CREATE POLICY "Owners manage job_events" ON public.job_events FOR ALL TO authent
 CREATE POLICY "Public can view job_events" ON public.job_events FOR SELECT TO anon, authenticated USING (true);
 
 CREATE INDEX IF NOT EXISTS idx_job_events_job ON public.job_events(job_id, created_at DESC);
--- ========== 20260503150524_13fd22b6-3829-49d5-bdc8-fb0df3f286c4.sql ==========
+
+-- ── 20260503150524_13fd22b6-3829-49d5-bdc8-fb0df3f286c4.sql ──
 
 -- Add start_date and payment QR url to job_trackers
 ALTER TABLE public.job_trackers 
@@ -3442,11 +3497,13 @@ FOR EACH ROW EXECUTE FUNCTION public.notify_on_slip_upload();
 -- Allow notifications insert (system via trigger uses SECURITY DEFINER, this is just a safety net)
 -- We don't add a permissive insert policy; trigger runs as definer.
 
--- ========== 20260503154735_f5e90f71-ee98-452b-8b9f-898ad9d69b3f.sql ==========
+
+-- ── 20260503154735_f5e90f71-ee98-452b-8b9f-898ad9d69b3f.sql ──
 ALTER TABLE public.job_slips
   ADD COLUMN IF NOT EXISTS rejected boolean NOT NULL DEFAULT false,
   ADD COLUMN IF NOT EXISTS rejection_reason text NOT NULL DEFAULT '';
--- ========== 20260503154834_d47afd04-7e73-406d-95bc-dac58a995788.sql ==========
+
+-- ── 20260503154834_d47afd04-7e73-406d-95bc-dac58a995788.sql ──
 CREATE OR REPLACE FUNCTION public.log_slip_event()
 RETURNS trigger
 LANGUAGE plpgsql
@@ -3479,7 +3536,8 @@ DROP TRIGGER IF EXISTS trg_log_slip_update ON public.job_slips;
 CREATE TRIGGER trg_log_slip_update
 AFTER UPDATE ON public.job_slips
 FOR EACH ROW EXECUTE FUNCTION public.log_slip_event();
--- ========== 20260504014931_b2ee33d9-1d5d-4f7b-88f3-12420f1baf74.sql ==========
+
+-- ── 20260504014931_b2ee33d9-1d5d-4f7b-88f3-12420f1baf74.sql ──
 
 DROP POLICY IF EXISTS "Public can view job_trackers" ON public.job_trackers;
 DROP POLICY IF EXISTS "Public can view job_events" ON public.job_events;
@@ -3487,7 +3545,8 @@ DROP POLICY IF EXISTS "Public can view job_milestones" ON public.job_milestones;
 DROP POLICY IF EXISTS "Public can view job_slips" ON public.job_slips;
 DROP POLICY IF EXISTS "Public can insert job_slips" ON public.job_slips;
 
--- ========== 20260504015803_2c512b8a-8a5a-4ad2-9b2f-bd4590da7124.sql ==========
+
+-- ── 20260504015803_2c512b8a-8a5a-4ad2-9b2f-bd4590da7124.sql ──
 -- Phase 1.1: Remove overly permissive RLS policies on job tracking tables
 -- (public access is now token-gated via server functions using supabaseAdmin)
 DROP POLICY IF EXISTS "Public can view job_trackers" ON public.job_trackers;
@@ -3502,7 +3561,8 @@ ALTER FUNCTION public.gen_tracking_code() SET search_path = public;
 -- Phase 1.3: Drop the old single-arg force_purge_user overload that relies on auth.uid()
 -- (which is null inside server functions). Keep only the (uuid, uuid) version.
 DROP FUNCTION IF EXISTS public.force_purge_user(uuid);
--- ========== 20260504020554_1e44c653-ceda-431f-afac-49e86fcf17b9.sql ==========
+
+-- ── 20260504020554_1e44c653-ceda-431f-afac-49e86fcf17b9.sql ──
 -- 1. Realtime publications
 DO $$
 BEGIN
@@ -3684,7 +3744,8 @@ DROP TRIGGER IF EXISTS trg_cleanup_announcement_storage ON public.announcements;
 CREATE TRIGGER trg_cleanup_announcement_storage
 AFTER DELETE ON public.announcements
 FOR EACH ROW EXECUTE FUNCTION public.cleanup_announcement_storage();
--- ========== 20260504020624_a4f2919f-232c-4121-92f6-753a463efa27.sql ==========
+
+-- ── 20260504020624_a4f2919f-232c-4121-92f6-753a463efa27.sql ──
 REVOKE EXECUTE ON FUNCTION public._storage_path_from_url(text, text) FROM PUBLIC, anon, authenticated;
 REVOKE EXECUTE ON FUNCTION public._delete_storage_object(text, text) FROM PUBLIC, anon, authenticated;
 REVOKE EXECUTE ON FUNCTION public.cleanup_portfolio_project_storage() FROM PUBLIC, anon, authenticated;
@@ -3693,7 +3754,8 @@ REVOKE EXECUTE ON FUNCTION public.cleanup_job_slip_storage() FROM PUBLIC, anon, 
 REVOKE EXECUTE ON FUNCTION public.cleanup_article_storage() FROM PUBLIC, anon, authenticated;
 REVOKE EXECUTE ON FUNCTION public.cleanup_chat_message_storage() FROM PUBLIC, anon, authenticated;
 REVOKE EXECUTE ON FUNCTION public.cleanup_announcement_storage() FROM PUBLIC, anon, authenticated;
--- ========== 20260504022509_87dda77e-fc88-4661-9c88-001766ccc8e9.sql ==========
+
+-- ── 20260504022509_87dda77e-fc88-4661-9c88-001766ccc8e9.sql ──
 -- Calculator usage tracking
 CREATE TABLE IF NOT EXISTS public.calculator_usage_events (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -3734,7 +3796,8 @@ AS $$
 $$;
 
 GRANT EXECUTE ON FUNCTION public.get_calculator_usage_count() TO anon, authenticated;
--- ========== 20260504025353_6e3115b4-23fd-4b3f-9e3a-6d00bdafd855.sql ==========
+
+-- ── 20260504025353_6e3115b4-23fd-4b3f-9e3a-6d00bdafd855.sql ──
 
 -- 1. Device events table
 CREATE TABLE IF NOT EXISTS public.user_device_events (
@@ -3901,7 +3964,8 @@ $$;
 
 GRANT EXECUTE ON FUNCTION public.get_top_subscriptions(integer) TO authenticated;
 
--- ========== 20260506013236_90cec1c1-0a47-481e-bfdd-31b0babd79d8.sql ==========
+
+-- ── 20260506013236_90cec1c1-0a47-481e-bfdd-31b0babd79d8.sql ──
 
 -- Step comments for job tracker
 CREATE TABLE public.job_tracker_step_comments (
@@ -3971,7 +4035,8 @@ CREATE POLICY "Admins view all ai usage"
   ON public.ai_chat_usage FOR SELECT
   USING (public.has_role(auth.uid(), 'admin'));
 
--- ========== 20260508005154_5acdadca-19b7-473d-8dcb-8e9a3281c0e4.sql ==========
+
+-- ── 20260508005154_5acdadca-19b7-473d-8dcb-8e9a3281c0e4.sql ──
 
 CREATE TABLE public.price_guide_events (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -4003,7 +4068,8 @@ CREATE POLICY "Users insert own price guide events"
 CREATE INDEX idx_price_guide_events_job_type ON public.price_guide_events(job_type);
 CREATE INDEX idx_price_guide_events_user ON public.price_guide_events(user_id);
 
--- ========== 20260509000320_1c97bdb4-46ab-4875-be1f-dda31c85b479.sql ==========
+
+-- ── 20260509000320_1c97bdb4-46ab-4875-be1f-dda31c85b479.sql ──
 
 CREATE TABLE IF NOT EXISTS public.price_guide_overrides (
   job_type text PRIMARY KEY,
@@ -4048,7 +4114,8 @@ ALTER TABLE public.price_guide_events
   ADD COLUMN IF NOT EXISTS reasoning text,
   ADD COLUMN IF NOT EXISTS quantity integer NOT NULL DEFAULT 1;
 
--- ========== 20260510014123_16876819-27ef-4dcb-ae8e-1251ead42739.sql ==========
+
+-- ── 20260510014123_16876819-27ef-4dcb-ae8e-1251ead42739.sql ──
 -- Guest usage tracking for anonymous landing chat
 CREATE TABLE IF NOT EXISTS public.ai_chat_guest_usage (
   guest_id text NOT NULL,
@@ -4066,7 +4133,8 @@ CREATE POLICY "no_client_access_guest_usage"
   ON public.ai_chat_guest_usage FOR SELECT
   USING (false);
 
--- ========== 20260511003617_58871470-efd1-431d-94e4-1f3d29a7a9cf.sql ==========
+
+-- ── 20260511003617_58871470-efd1-431d-94e4-1f3d29a7a9cf.sql ──
 
 -- 1) Trim price_guide_events to last 5 per user
 CREATE OR REPLACE FUNCTION public.trim_price_guide_history()
@@ -4122,7 +4190,8 @@ CREATE POLICY "Admins can view all submissions"
   ON public.survey_responses FOR SELECT
   USING (public.has_role(auth.uid(), 'admin'));
 
--- ========== 20260511101922_b66d1949-bf0f-40d9-bd1f-a65204619b1f.sql ==========
+
+-- ── 20260511101922_b66d1949-bf0f-40d9-bd1f-a65204619b1f.sql ──
 
 -- 1. design_briefs table
 CREATE TABLE public.design_briefs (
@@ -4318,10 +4387,12 @@ CREATE POLICY "Brief refs owner delete"
     AND (storage.foldername(name))[1] = auth.uid()::text
   );
 
--- ========== 20260511143457_65aff0c8-190f-4d60-a9bd-02a76f9684fd.sql ==========
+
+-- ── 20260511143457_65aff0c8-190f-4d60-a9bd-02a76f9684fd.sql ──
 ALTER TABLE public.quotations ADD COLUMN IF NOT EXISTS brief_id uuid;
 CREATE INDEX IF NOT EXISTS idx_quotations_brief_id ON public.quotations(brief_id);
--- ========== 20260511150129_dc7240a3-4389-417c-aab9-a2dcc0d1eaa3.sql ==========
+
+-- ── 20260511150129_dc7240a3-4389-417c-aab9-a2dcc0d1eaa3.sql ──
 
 -- 1. Banner slides table
 CREATE TABLE public.auth_banner_slides (
@@ -4410,7 +4481,8 @@ BEGIN
 END;
 $function$;
 
--- ========== 20260511153738_8d288992-e2e9-4206-a744-6425c0f1b9a3.sql ==========
+
+-- ── 20260511153738_8d288992-e2e9-4206-a744-6425c0f1b9a3.sql ──
 
 -- Vision Canvas main table
 CREATE TABLE public.vision_canvases (
@@ -4500,7 +4572,8 @@ CREATE POLICY "Owners delete reactions" ON public.vision_canvas_reactions
 ALTER PUBLICATION supabase_realtime ADD TABLE public.vision_canvases;
 ALTER PUBLICATION supabase_realtime ADD TABLE public.vision_canvas_reactions;
 
--- ========== 20260511160513_cf6964b8-fab9-45b4-aee7-dde50bdbf041.sql ==========
+
+-- ── 20260511160513_cf6964b8-fab9-45b4-aee7-dde50bdbf041.sql ──
 
 CREATE TABLE public.archetype_results (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -4538,7 +4611,8 @@ ALTER TABLE public.profiles
   ADD COLUMN IF NOT EXISTS archetype text,
   ADD COLUMN IF NOT EXISTS archetype_secondary text;
 
--- ========== 20260512040613_a6af63f7-72fc-4303-8042-38c07b5ea085.sql ==========
+
+-- ── 20260512040613_a6af63f7-72fc-4303-8042-38c07b5ea085.sql ──
 
 CREATE TABLE public.user_color_palettes (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -4580,7 +4654,8 @@ CREATE POLICY "Owners insert saved colors" ON public.user_saved_colors FOR INSER
 CREATE POLICY "Owners update saved colors" ON public.user_saved_colors FOR UPDATE TO authenticated USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
 CREATE POLICY "Owners delete saved colors" ON public.user_saved_colors FOR DELETE TO authenticated USING (auth.uid() = user_id);
 
--- ========== 20260512045506_7acf26f5-2f5e-48dd-a962-59e04b5d477e.sql ==========
+
+-- ── 20260512045506_7acf26f5-2f5e-48dd-a962-59e04b5d477e.sql ──
 
 -- 1. Lock down archetype_results: only owner (or service role) can read
 DROP POLICY IF EXISTS "public_can_select_via_share" ON public.archetype_results;
@@ -4607,7 +4682,8 @@ CREATE POLICY "Brief refs auth insert in own folder"
     )
   );
 
--- ========== 20260512064044_158d6559-66b1-4b04-afa2-9f0e408b7877.sql ==========
+
+-- ── 20260512064044_158d6559-66b1-4b04-afa2-9f0e408b7877.sql ──
 CREATE TABLE public.typo_pairs (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   user_id UUID NOT NULL,
@@ -4630,7 +4706,8 @@ CREATE POLICY "Users delete own typo pairs" ON public.typo_pairs FOR DELETE USIN
 CREATE INDEX idx_typo_pairs_user ON public.typo_pairs(user_id, created_at DESC);
 
 ALTER PUBLICATION supabase_realtime ADD TABLE public.typo_pairs;
--- ========== 20260512071023_855ff03d-cb00-4de3-9ab8-c97c462829dd.sql ==========
+
+-- ── 20260512071023_855ff03d-cb00-4de3-9ab8-c97c462829dd.sql ──
 CREATE TABLE public.spec_checklist_state (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id uuid NOT NULL,
@@ -4662,7 +4739,8 @@ CREATE TRIGGER update_spec_checklist_state_updated_at
   FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
 
 ALTER PUBLICATION supabase_realtime ADD TABLE public.spec_checklist_state;
--- ========== 20260512100638_385ea6e9-a2d1-445d-bbec-7c64a0ec62c6.sql ==========
+
+-- ── 20260512100638_385ea6e9-a2d1-445d-bbec-7c64a0ec62c6.sql ──
 ALTER TABLE public.vision_canvas_reactions
   ADD COLUMN IF NOT EXISTS pin_x numeric,
   ADD COLUMN IF NOT EXISTS pin_y numeric,
@@ -4690,7 +4768,8 @@ END $$;
 ALTER TABLE public.vision_canvas_reactions
   ADD CONSTRAINT vision_canvas_reactions_kind_check
   CHECK (kind IN ('like','comment','pin_comment','vote'));
--- ========== 20260512131454_dc54a7fe-5714-414a-9bd2-8bd8145e3d8e.sql ==========
+
+-- ── 20260512131454_dc54a7fe-5714-414a-9bd2-8bd8145e3d8e.sql ──
 
 -- 1. New columns on planner_posts
 ALTER TABLE public.planner_posts
@@ -4805,7 +4884,8 @@ BEGIN
   END IF;
 END $$;
 
--- ========== 20260512144148_b81d7bbc-fb69-4774-bc8f-e9b0d816c907.sql ==========
+
+-- ── 20260512144148_b81d7bbc-fb69-4774-bc8f-e9b0d816c907.sql ──
 -- Status history table for client invoices
 CREATE TABLE public.finance_invoice_status_history (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -4922,7 +5002,8 @@ BEGIN
   RETURN affected;
 END;
 $$;
--- ========== 20260514015523_6c707efd-0c39-4b19-8439-9da51e59df55.sql ==========
+
+-- ── 20260514015523_6c707efd-0c39-4b19-8439-9da51e59df55.sql ──
 
 CREATE TABLE public.dashboard_jobs (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -4970,7 +5051,8 @@ CREATE INDEX idx_dashboard_tasks_user ON public.dashboard_tasks(user_id, sort_or
 ALTER PUBLICATION supabase_realtime ADD TABLE public.dashboard_jobs;
 ALTER PUBLICATION supabase_realtime ADD TABLE public.dashboard_tasks;
 
--- ========== 20260515001053_8d56f736-05b1-473b-8206-a79fdc16bbc8.sql ==========
+
+-- ── 20260515001053_8d56f736-05b1-473b-8206-a79fdc16bbc8.sql ──
 -- Sub-tasks table for grouped job list
 CREATE TABLE IF NOT EXISTS public.dashboard_job_tasks (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -5024,7 +5106,8 @@ CREATE POLICY "Users delete own notes" ON public.dashboard_notes
 CREATE TRIGGER update_dashboard_notes_updated_at
   BEFORE UPDATE ON public.dashboard_notes
   FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
--- ========== 20260516134211_89e37b0d-6487-4e5f-b320-408e7666743a.sql ==========
+
+-- ── 20260516134211_89e37b0d-6487-4e5f-b320-408e7666743a.sql ──
 CREATE TABLE IF NOT EXISTS public.dashboard_daily_trends (
   trend_date DATE PRIMARY KEY,
   items JSONB NOT NULL DEFAULT '[]'::jsonb,
@@ -5038,7 +5121,8 @@ CREATE POLICY "Anyone can read daily trends"
   FOR SELECT
   USING (true);
 
--- ========== 20260521043342_7924d4de-75a5-42f1-bfc0-92f6489aa1bc.sql ==========
+
+-- ── 20260521043342_7924d4de-75a5-42f1-bfc0-92f6489aa1bc.sql ──
 DROP POLICY IF EXISTS "Public can view share links" ON public.planner_share_links;
 
 CREATE OR REPLACE FUNCTION public.get_planner_share_by_token(_token uuid)
@@ -5066,7 +5150,8 @@ $$;
 GRANT EXECUTE ON FUNCTION public.get_planner_share_by_token(uuid) TO anon, authenticated;
 
 ALTER PUBLICATION supabase_realtime DROP TABLE public.calculator_usage_events;
--- ========== 20260521044228_0d3e587b-393c-4b05-bcf7-c0c474ede22f.sql ==========
+
+-- ── 20260521044228_0d3e587b-393c-4b05-bcf7-c0c474ede22f.sql ──
 CREATE OR REPLACE FUNCTION public.get_planner_posts_by_token(_token uuid)
 RETURNS TABLE (
   id uuid,
@@ -5102,7 +5187,8 @@ AS $$
 $$;
 
 GRANT EXECUTE ON FUNCTION public.get_planner_posts_by_token(uuid) TO anon, authenticated;
--- ========== 20260521045622_2db0fd48-b4e0-48de-a632-13ccb8162a72.sql ==========
+
+-- ── 20260521045622_2db0fd48-b4e0-48de-a632-13ccb8162a72.sql ──
 
 DROP FUNCTION IF EXISTS public.notify_on_comment() CASCADE;
 DROP FUNCTION IF EXISTS public.notify_on_like() CASCADE;
@@ -5253,7 +5339,8 @@ BEGIN
 END;
 $function$;
 
--- ========== 20260521053103_37dce9b6-3c40-4f6a-99f7-338d059c2678.sql ==========
+
+-- ── 20260521053103_37dce9b6-3c40-4f6a-99f7-338d059c2678.sql ──
 -- 1. Remove the bypass policy on planner_posts; clients must go via get_planner_posts_by_token RPC
 DROP POLICY IF EXISTS "Public can view posts via share link" ON public.planner_posts;
 
@@ -5284,7 +5371,8 @@ CREATE POLICY "Users update own ai usage"
   TO authenticated
   USING (auth.uid() = user_id)
   WITH CHECK (auth.uid() = user_id);
--- ========== 20260521053647_4e569216-4df7-4618-8d8d-5566c8f5948f.sql ==========
+
+-- ── 20260521053647_4e569216-4df7-4618-8d8d-5566c8f5948f.sql ──
 -- Tighten public slip upload: require slips/<existing_job_id>/...
 DROP POLICY IF EXISTS "Public upload slips" ON storage.objects;
 
@@ -5301,7 +5389,8 @@ CREATE POLICY "Public upload slips into existing jobs"
       WHERE jt.id::text = (storage.foldername(name))[2]
     )
   );
--- ========== 20260523023300_052376fe-4e41-41fb-a922-9b154702ef66.sql ==========
+
+-- ── 20260523023300_052376fe-4e41-41fb-a922-9b154702ef66.sql ──
 
 create extension if not exists vector;
 
@@ -5430,7 +5519,8 @@ as $$
   limit match_count;
 $$;
 
--- ========== 20260523042421_19c104fc-cabd-452d-a25f-d0f402bd60b1.sql ==========
+
+-- ── 20260523042421_19c104fc-cabd-452d-a25f-d0f402bd60b1.sql ──
 
 -- 1) Make chat-images private and scope SELECT to owner or admin
 UPDATE storage.buckets SET public = false WHERE id = 'chat-images';
@@ -5485,7 +5575,8 @@ USING (
   END
 );
 
--- ========== 20260523043235_0daf7ad4-eeb0-4379-bd63-e67f187e897f.sql ==========
+
+-- ── 20260523043235_0daf7ad4-eeb0-4379-bd63-e67f187e897f.sql ──
 
 -- ============================================
 -- So1o HQ — Internal AI Agency tables
@@ -5824,7 +5915,8 @@ INSERT INTO public.hq_agents (slug, name, title, department, emoji, accent_color
 
 กฎ: ภาษาไทย ≤800 คำ, ห้ามเสนอ patch ที่ขัดกับกฎความปลอดภัย/จริยธรรมของแต่ละ agent');
 
--- ========== 20260523044300_1bed3ee5-0edd-42fb-8838-a24351930ee3.sql ==========
+
+-- ── 20260523044300_1bed3ee5-0edd-42fb-8838-a24351930ee3.sql ──
 -- AI interactions feedback (Like/Dislike on Mentor chat answers)
 CREATE TABLE public.ai_interactions_feedback (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -5901,7 +5993,8 @@ CREATE TRIGGER trg_feedback_to_training
 AFTER INSERT ON public.ai_interactions_feedback
 FOR EACH ROW
 EXECUTE FUNCTION public.feedback_to_training_sample();
--- ========== 20260523045457_1c9df851-0745-403d-b3a2-ea860f3d2283.sql ==========
+
+-- ── 20260523045457_1c9df851-0745-403d-b3a2-ea860f3d2283.sql ──
 -- 1) Tighten job_tracker_step_comments INSERT: authenticated owners only
 DROP POLICY IF EXISTS "Owners insert comments on their jobs" ON public.job_tracker_step_comments;
 CREATE POLICY "Owners insert comments on their jobs"
@@ -5956,11 +6049,13 @@ USING (
     ELSE false
   END
 );
--- ========== 20260524014850_86914ddc-0343-4826-9dae-8ffc69732ddf.sql ==========
+
+-- ── 20260524014850_86914ddc-0343-4826-9dae-8ffc69732ddf.sql ──
 ALTER TABLE public.job_trackers ADD COLUMN IF NOT EXISTS quotation_id uuid;
 ALTER TABLE public.job_trackers ADD COLUMN IF NOT EXISTS brief_id uuid;
 CREATE INDEX IF NOT EXISTS idx_job_trackers_quotation ON public.job_trackers(user_id, quotation_id) WHERE quotation_id IS NOT NULL;
--- ========== 20260527034807_email_infra.sql ==========
+
+-- ── 20260527034807_email_infra.sql ──
 -- Email infrastructure
 -- Creates the queue system, send log, send state, suppression, and unsubscribe
 -- tables used by both auth and transactional emails.
@@ -6264,7 +6359,8 @@ CREATE INDEX IF NOT EXISTS idx_unsubscribe_tokens_token ON public.email_unsubscr
 --    via net.http_post using the vault-stored service_role key.
 --    To revert: SELECT cron.unschedule('process-email-queue');
 
--- ========== 20260527035214_email_infra.sql ==========
+
+-- ── 20260527035214_email_infra.sql ──
 -- Email infrastructure
 -- Creates the queue system, send log, send state, suppression, and unsubscribe
 -- tables used by both auth and transactional emails.
@@ -6568,7 +6664,8 @@ CREATE INDEX IF NOT EXISTS idx_unsubscribe_tokens_token ON public.email_unsubscr
 --    via net.http_post using the vault-stored service_role key.
 --    To revert: SELECT cron.unschedule('process-email-queue');
 
--- ========== 20260527041850_dc38a5c7-1f4e-4a95-aff6-bc9192b1d151.sql ==========
+
+-- ── 20260527041850_dc38a5c7-1f4e-4a95-aff6-bc9192b1d151.sql ──
 -- 1. Drop unused tables from realtime publication (no client subscribes to these)
 ALTER PUBLICATION supabase_realtime DROP TABLE public.typo_pairs;
 ALTER PUBLICATION supabase_realtime DROP TABLE public.spec_checklist_state;
@@ -6602,7 +6699,8 @@ ALTER FUNCTION public.delete_email(text, bigint) SET search_path = pgmq, public,
 ALTER FUNCTION public.read_email_batch(text, integer, integer) SET search_path = pgmq, public, pg_catalog;
 ALTER FUNCTION public.move_to_dlq(text, text, bigint, jsonb) SET search_path = pgmq, public, pg_catalog;
 
--- ========== 20260527051013_a8190e4e-dc78-4077-9158-52a92c7ca599.sql ==========
+
+-- ── 20260527051013_a8190e4e-dc78-4077-9158-52a92c7ca599.sql ──
 
 -- Table for dashboard banner slides (admin-managed)
 CREATE TABLE public.dashboard_banner_slides (
@@ -6664,7 +6762,8 @@ CREATE POLICY "Admins can delete dashboard banner images"
   ON storage.objects FOR DELETE TO authenticated
   USING (bucket_id = 'dashboard-banners' AND has_role(auth.uid(), 'admin'::app_role));
 
--- ========== 20260527063254_f828180e-b6f0-4249-9230-39f18decaa17.sql ==========
+
+-- ── 20260527063254_f828180e-b6f0-4249-9230-39f18decaa17.sql ──
 
 ALTER TABLE public.suppliers
   ADD COLUMN IF NOT EXISTS share_token uuid UNIQUE,
@@ -6692,11 +6791,14 @@ CREATE POLICY "Public can view links of shared suppliers"
       AND s.share_token IS NOT NULL
   ));
 
--- ========== 20260527064731_b2c13032-2c34-4408-a3e5-0a55930c9e18.sql ==========
+
+-- ── 20260527064731_b2c13032-2c34-4408-a3e5-0a55930c9e18.sql ──
 ALTER TABLE public.suppliers ADD COLUMN IF NOT EXISTS map_url TEXT;
--- ========== 20260527070302_598cf540-9ca6-4d0e-9de8-3870b6d406cc.sql ==========
+
+-- ── 20260527070302_598cf540-9ca6-4d0e-9de8-3870b6d406cc.sql ──
 ALTER TABLE public.suppliers ADD COLUMN IF NOT EXISTS share_hidden_fields TEXT[] NOT NULL DEFAULT '{}';
--- ========== 20260527072750_7b7505dd-1c20-41f3-9300-73d98831da40.sql ==========
+
+-- ── 20260527072750_7b7505dd-1c20-41f3-9300-73d98831da40.sql ──
 -- 1. SECURITY DEFINER function returns shared supplier with hidden fields redacted, plus visible links
 CREATE OR REPLACE FUNCTION public.get_shared_supplier_by_token(_token uuid)
 RETURNS jsonb
@@ -6765,7 +6867,8 @@ USING (
   realtime.topic() LIKE 'notif-%'
   AND SUBSTRING(realtime.topic() FROM 7) = (auth.uid())::text
 );
--- ========== 20260527075110_c90cd942-2f01-42b7-b1f8-48035a9802fe.sql ==========
+
+-- ── 20260527075110_c90cd942-2f01-42b7-b1f8-48035a9802fe.sql ──
 
 -- Storage bucket for 50 ทวิ certificate files (private)
 INSERT INTO storage.buckets (id, name, public)
@@ -6789,7 +6892,8 @@ CREATE POLICY "wht-certificates owner delete"
 ON storage.objects FOR DELETE TO authenticated
 USING (bucket_id = 'wht-certificates' AND auth.uid()::text = (storage.foldername(name))[1]);
 
--- ========== 20260527080415_1463860f-bbc9-4867-8eca-96c6e7cd94d7.sql ==========
+
+-- ── 20260527080415_1463860f-bbc9-4867-8eca-96c6e7cd94d7.sql ──
 INSERT INTO storage.buckets (id, name, public)
 VALUES ('expense-receipts', 'expense-receipts', false)
 ON CONFLICT (id) DO NOTHING;
@@ -6809,7 +6913,8 @@ USING (bucket_id = 'expense-receipts' AND auth.uid()::text = (storage.foldername
 CREATE POLICY "expense-receipts owner delete"
 ON storage.objects FOR DELETE TO authenticated
 USING (bucket_id = 'expense-receipts' AND auth.uid()::text = (storage.foldername(name))[1]);
--- ========== 20260527083614_6031e0d0-5699-462b-a0a1-82462a00b147.sql ==========
+
+-- ── 20260527083614_6031e0d0-5699-462b-a0a1-82462a00b147.sql ──
 
 CREATE TABLE public.finance_tax_scenarios (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -6847,7 +6952,8 @@ CREATE TRIGGER trg_finance_tax_scenarios_updated_at
 BEFORE UPDATE ON public.finance_tax_scenarios
 FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
 
--- ========== 20260527085145_fb64a153-496d-4362-8a38-41b191a1893f.sql ==========
+
+-- ── 20260527085145_fb64a153-496d-4362-8a38-41b191a1893f.sql ──
 -- Feature Suggestions
 CREATE TABLE public.feature_suggestions (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -6937,11 +7043,13 @@ INSERT INTO public.changelog_entries (version, title, body, tag, released_at) VA
   ('v1.4.0', 'โหมดจำลองภาษี (Tax Sandbox)', 'ทดลองคำนวณภาษีแบบ Real-time พร้อม AI แนะนำการลดหย่อน และดาวน์โหลด PDF ได้', 'feature', now()),
   ('v1.3.0', 'Job Tracker + สลิปอัปโหลด', 'ลูกค้าอัปโหลดสลิปได้เอง พร้อมระบบยืนยันการรับเงิน', 'feature', now() - interval '7 days'),
   ('v1.2.1', 'ปรับปรุงความเร็วหน้าแดชบอร์ด', 'โหลดเร็วขึ้น ~40% บนมือถือ', 'improvement', now() - interval '14 days');
--- ========== 20260527090100_ea1e6539-aceb-4eb6-9cb2-042c3b7359b5.sql ==========
+
+-- ── 20260527090100_ea1e6539-aceb-4eb6-9cb2-042c3b7359b5.sql ──
 ALTER TABLE public.feedback_jobs
   ADD COLUMN IF NOT EXISTS revision_quota INTEGER,
   ADD COLUMN IF NOT EXISTS quotation_id UUID;
--- ========== 20260527143832_a2b624c7-d34d-4448-84c1-665234fb98a3.sql ==========
+
+-- ── 20260527143832_a2b624c7-d34d-4448-84c1-665234fb98a3.sql ──
 
 CREATE TABLE public.subscriptions (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -7003,7 +7111,8 @@ AS $$
   );
 $$;
 
--- ========== 20260527145930_d92c881b-ce3c-42d4-b734-b637c9764b01.sql ==========
+
+-- ── 20260527145930_d92c881b-ce3c-42d4-b734-b637c9764b01.sql ──
 -- 1) profiles.subscription_tier + seats
 ALTER TABLE public.profiles
   ADD COLUMN IF NOT EXISTS subscription_tier text NOT NULL DEFAULT 'free',
@@ -7132,7 +7241,8 @@ BEGIN
     PERFORM public.sync_user_tier(r.user_id);
   END LOOP;
 END $$;
--- ========== 20260527152449_e3af7eee-72cb-4924-bd12-c769475f7949.sql ==========
+
+-- ── 20260527152449_e3af7eee-72cb-4924-bd12-c769475f7949.sql ──
 -- Tighten public slip-upload storage policy: require share_token in path
 DROP POLICY IF EXISTS "Public upload slips into existing jobs" ON storage.objects;
 
@@ -7171,7 +7281,8 @@ ON public.calculator_usage_events
 FOR SELECT
 TO authenticated
 USING (public.has_role(auth.uid(), 'admin'::public.app_role));
--- ========== 20260528053730_ece7c34f-b407-439c-82a9-6c4e2db2b167.sql ==========
+
+-- ── 20260528053730_ece7c34f-b407-439c-82a9-6c4e2db2b167.sql ──
 -- Remove admin's unrestricted SELECT on profiles (which exposed bank/tax/phone/address to any admin).
 -- Admins keep access to non-sensitive identity columns via a dedicated safe view.
 
@@ -7196,7 +7307,8 @@ GRANT SELECT ON public.admin_profiles_safe TO authenticated;
 
 COMMENT ON VIEW public.admin_profiles_safe IS
   'Admin-only view exposing non-sensitive profile columns. Sensitive fields (bank, tax_id, phone, address, payment QR) are intentionally omitted; admins must never bulk-read those across users. For per-user destructive ops, use server functions with supabaseAdmin.';
--- ========== 20260528053804_ed258ae3-6ea2-4e63-8a9d-dbd816a90465.sql ==========
+
+-- ── 20260528053804_ed258ae3-6ea2-4e63-8a9d-dbd816a90465.sql ──
 -- Replace the SECURITY DEFINER-style view (flagged by the linter) with a
 -- SECURITY DEFINER function that pins search_path and explicitly gates on admin role.
 
@@ -7253,7 +7365,8 @@ GRANT EXECUTE ON FUNCTION public.admin_list_profiles_safe() TO authenticated;
 
 COMMENT ON FUNCTION public.admin_list_profiles_safe() IS
   'Admin-only listing of profiles excluding sensitive fields (bank, tax_id, phone, address, payment QR, terms). Returns empty for non-admins.';
--- ========== 20260528055121_db3c0db3-9f02-4f1b-9375-c4d115e12430.sql ==========
+
+-- ── 20260528055121_db3c0db3-9f02-4f1b-9375-c4d115e12430.sql ──
 
 CREATE TABLE IF NOT EXISTS public.ai_usage_daily (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -7320,7 +7433,8 @@ $$;
 
 GRANT EXECUTE ON FUNCTION public.check_and_increment_ai_usage(uuid, text, integer) TO authenticated, service_role;
 
--- ========== 20260528090419_765707f7-0b86-41ea-8c9a-2ff37210a974.sql ==========
+
+-- ── 20260528090419_765707f7-0b86-41ea-8c9a-2ff37210a974.sql ──
 -- Replace overly-permissive ALL policy with role-scoped one.
 -- service_role bypasses RLS anyway, so this is mainly to silence the linter
 -- and document intent clearly. We scope the policy TO service_role.
@@ -7332,9 +7446,11 @@ FOR ALL
 TO service_role
 USING (true)
 WITH CHECK (true);
--- ========== 20260528155240_61d3cca6-0414-4321-95d4-21232795ab8d.sql ==========
+
+-- ── 20260528155240_61d3cca6-0414-4321-95d4-21232795ab8d.sql ──
 ALTER TABLE public.quotations ADD COLUMN IF NOT EXISTS timeline_enabled boolean NOT NULL DEFAULT true;
--- ========== 20260604120001_fix_sync_user_tier_profile_key.sql ==========
+
+-- ── 20260604120001_fix_sync_user_tier_profile_key.sql ──
 -- profiles use user_id (auth uid), not profiles.id, for tier sync
 CREATE OR REPLACE FUNCTION public.sync_user_tier(_user_id uuid)
 RETURNS void
@@ -7390,11 +7506,13 @@ BEGIN
 END;
 $$;
 
--- ========== 20260604130000_quotations_deposit_due_date.sql ==========
+
+-- ── 20260604130000_quotations_deposit_due_date.sql ──
 ALTER TABLE public.quotations
   ADD COLUMN IF NOT EXISTS deposit_due_date DATE;
 
--- ========== 20260604150000_support_tickets.sql ==========
+
+-- ── 20260604150000_support_tickets.sql ──
 -- Support Tickets (Issue Tracking MVP)
 
 CREATE SEQUENCE IF NOT EXISTS public.support_ticket_number_seq START 1;
@@ -7690,13 +7808,15 @@ CREATE POLICY "ticket-attachments owner or admin delete"
     )
   );
 
--- ========== 20260605100000_quotations_contract.sql ==========
+
+-- ── 20260605100000_quotations_contract.sql ──
 -- Contract fields on quotations (Phase 1.5)
 ALTER TABLE public.quotations
   ADD COLUMN IF NOT EXISTS contract_signed_at timestamptz,
   ADD COLUMN IF NOT EXISTS contract_accepted boolean NOT NULL DEFAULT false;
 
--- ========== 20260605110000_shared_projects_phase2.sql ==========
+
+-- ── 20260605110000_shared_projects_phase2.sql ──
 -- Phase 2: Shared Squad schema (feature-gated in app until enabled)
 CREATE TABLE IF NOT EXISTS public.shared_projects (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -7799,7 +7919,8 @@ CREATE POLICY "project_tasks_member_access" ON public.project_tasks
     )
   );
 
--- ========== 20260605120000_pipeline_supabase_organization.sql ==========
+
+-- ── 20260605120000_pipeline_supabase_organization.sql ──
 -- Pipeline / Contract / Shared Squad — schema organization (idempotent)
 -- Domain: Business Pipeline (quotations ↔ job_trackers ↔ finance_incomes)
 
@@ -7859,3 +7980,5 @@ BEGIN
     COMMENT ON TABLE public.project_tasks IS 'Team kanban tasks within shared_projects';
   END IF;
 END $$;
+
+
