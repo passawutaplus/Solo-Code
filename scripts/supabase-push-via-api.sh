@@ -6,8 +6,15 @@ cd "$(dirname "$0")/.."
 PROJECT_REF="${SUPABASE_PROJECT_REF:-rvnzjiskqliexysicfmh}"
 API="https://api.supabase.com/v1/projects/${PROJECT_REF}"
 
+if [[ -z "${SUPABASE_ACCESS_TOKEN:-}" ]] && [[ -f "${HOME}/.config/supabase/access-token" ]]; then
+  SUPABASE_ACCESS_TOKEN="$(<"${HOME}/.config/supabase/access-token")"
+  export SUPABASE_ACCESS_TOKEN
+fi
+
 if [[ -z "${SUPABASE_ACCESS_TOKEN:-}" ]]; then
   echo "⚠  ตั้ง SUPABASE_ACCESS_TOKEN ก่อน"
+  echo "   export SUPABASE_ACCESS_TOKEN=sbp_...   # https://supabase.com/dashboard/account/tokens"
+  echo "   หรือรัน: npx supabase login"
   exit 1
 fi
 
