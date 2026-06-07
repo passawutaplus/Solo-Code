@@ -4,6 +4,9 @@ project_id = "rvnzjiskqliexysicfmh"
 [api]
 schemas = ["public", "graphql_public", "shared", "anthem", "so1o"]
 
+[auth.password]
+leaked_password_protection = true
+
 [functions.ai-design-chat]
 verify_jwt = false
 
