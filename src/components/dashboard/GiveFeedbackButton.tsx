@@ -8,6 +8,7 @@ import { useMyTickets } from "@/store/supportTickets";
 import { TicketImagePicker } from "@/components/support/TicketImagePicker";
 import { createTicketSchema, type TicketCategory } from "@/lib/ticketSchema";
 import { trackFeature } from "@/lib/featureUsage";
+import { getSupabaseErrorMessage, mapTicketSubmitErrorMessage } from "@/lib/supabaseError";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -81,16 +82,9 @@ export function GiveFeedbackButton({
       void trackFeature("feedback.submit");
       setSubmitted(true);
     } catch (e) {
-      const msg = e instanceof Error ? e.message : "";
-      if (msg.includes("ต้องเข้าสู่ระบบ")) {
-        toast.error("กรุณาเข้าสู่ระบบก่อนส่งฟีดแบ็ก");
-      } else if (msg.includes("support_tickets") || msg.includes("schema cache")) {
-        toast.error("ระบบตั๋วยังไม่พร้อม — ติดต่อแอดมินเพื่ออัปเดตฐานข้อมูล");
-      } else if (msg) {
-        toast.error(msg);
-      } else {
-        toast.error("ส่งไม่สำเร็จ — ลองใหม่อีกครั้ง");
-      }
+      console.error("[feedback]", e);
+      const msg = getSupabaseErrorMessage(e);
+      toast.error(mapTicketSubmitErrorMessage(msg, "ส่งไม่สำเร็จ — ลองใหม่อีกครั้ง"));
     } finally {
       setSending(false);
     }

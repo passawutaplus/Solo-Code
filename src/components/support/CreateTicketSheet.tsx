@@ -16,6 +16,7 @@ import {
 } from "@/lib/ticketSchema";
 import { useMyTickets, type SupportTicket } from "@/store/supportTickets";
 import { trackFeature } from "@/lib/featureUsage";
+import { getSupabaseErrorMessage, mapTicketSubmitErrorMessage } from "@/lib/supabaseError";
 
 export type TicketPrefill = Partial<CreateTicketInput>;
 
@@ -104,7 +105,9 @@ export function CreateTicketForm({
       onCreated?.(ticket);
       toast.success("สร้างตั๋วเรียบร้อย");
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "สร้างตั๋วไม่สำเร็จ");
+      console.error("[ticket.create]", e);
+      const msg = getSupabaseErrorMessage(e);
+      toast.error(mapTicketSubmitErrorMessage(msg, "สร้างตั๋วไม่สำเร็จ"));
     } finally {
       setSubmitting(false);
     }

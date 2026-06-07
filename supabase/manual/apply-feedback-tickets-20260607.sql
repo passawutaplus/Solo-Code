@@ -205,3 +205,6 @@ END;
 $$;
 
 GRANT EXECUTE ON FUNCTION public.get_admin_activity_feed(integer, text, integer) TO authenticated;
+
+-- Refresh PostgREST schema cache so API sees new columns/RPC immediately
+NOTIFY pgrst, 'reload schema';

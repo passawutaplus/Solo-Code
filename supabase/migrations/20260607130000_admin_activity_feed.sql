@@ -140,3 +140,5 @@ END;
 $$;
 
 GRANT EXECUTE ON FUNCTION public.get_admin_activity_feed(integer, text, integer) TO authenticated;
+
+NOTIFY pgrst, 'reload schema';

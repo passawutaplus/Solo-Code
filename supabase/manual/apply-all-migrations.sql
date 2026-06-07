@@ -1,5 +1,5 @@
 -- So1o FULL schema bundle for rvnzjiskqliexysicfmh
--- Generated: 2026-06-07T13:10:18Z
+-- Generated: 2026-06-07T13:22:34Z
 -- Run in Supabase Dashboard → SQL Editor
 -- Or: export SUPABASE_ACCESS_TOKEN=... && ./scripts/supabase-push-via-api.sh
 
@@ -8798,5 +8798,7 @@ END;
 $$;
 
 GRANT EXECUTE ON FUNCTION public.get_admin_activity_feed(integer, text, integer) TO authenticated;
+
+NOTIFY pgrst, 'reload schema';
 
 

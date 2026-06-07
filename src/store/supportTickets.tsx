@@ -9,6 +9,7 @@ import type {
   TicketStatus,
 } from "@/lib/ticketSchema";
 import { compressImageFile, dataUrlToBlob } from "@/lib/imageCompress";
+import { throwIfSupabaseError } from "@/lib/supabaseError";
 
 export interface SupportTicket {
   id: string;
@@ -188,7 +189,7 @@ export function useMyTickets() {
         .select("*")
         .eq("user_id", uid!)
         .order("updated_at", { ascending: false });
-      if (error) throw error;
+      throwIfSupabaseError(error);
       return (data as TicketRow[]).map(rowToTicket);
     },
   });
@@ -214,7 +215,7 @@ export function useMyTickets() {
         })
         .select("*")
         .single();
-      if (error) throw error;
+      throwIfSupabaseError(error);
 
       const files = (input.files ?? []).slice(0, MAX_FILES);
       for (const file of files) {
@@ -226,7 +227,7 @@ export function useMyTickets() {
           file_name: uploaded.fileName,
           mime_type: uploaded.mimeType,
         });
-        if (attErr) throw attErr;
+        throwIfSupabaseError(attErr);
       }
 
       return rowToTicket(ticket as TicketRow);
@@ -246,7 +247,7 @@ export function useMyTickets() {
         event_type: "comment",
         body: body.trim(),
       });
-      if (error) throw error;
+      throwIfSupabaseError(error);
     },
     onSuccess: (_d, vars) => {
       void qc.invalidateQueries({ queryKey: KEY_EVENTS(vars.ticketId) });
@@ -259,7 +260,7 @@ export function useMyTickets() {
         .from("support_tickets")
         .update({ beta_feedback_id: betaFeedbackId })
         .eq("id", ticketId);
-      if (error) throw error;
+      throwIfSupabaseError(error);
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: KEY_MINE(uid) }),
   });
@@ -285,7 +286,7 @@ export function useAllTickets() {
         .from("support_tickets")
         .select("*")
         .order("updated_at", { ascending: false });
-      if (error) throw error;
+      throwIfSupabaseError(error);
       return (data as TicketRow[]).map(rowToTicket);
     },
   });
@@ -310,7 +311,7 @@ export function useAllTickets() {
         .eq("id", input.id)
         .select("*")
         .single();
-      if (error) throw error;
+      throwIfSupabaseError(error);
       return rowToTicket(data as TicketRow);
     },
     onSuccess: () => {
@@ -322,7 +323,7 @@ export function useAllTickets() {
   const remove = useMutation({
     mutationFn: async (id: string) => {
       const { error } = await (supabase as any).from("support_tickets").delete().eq("id", id);
-      if (error) throw error;
+      throwIfSupabaseError(error);
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: KEY_ALL }),
   });
@@ -353,7 +354,7 @@ export function useTicketEvents(ticketId: string | null) {
         .select("*")
         .eq("ticket_id", ticketId!)
         .order("created_at", { ascending: true });
-      if (error) throw error;
+      throwIfSupabaseError(error);
       return (data as EventRow[]).map(rowToEvent);
     },
   });
@@ -369,7 +370,7 @@ export function useTicketAttachments(ticketId: string | null) {
         .select("*")
         .eq("ticket_id", ticketId!)
         .order("created_at", { ascending: true });
-      if (error) throw error;
+      throwIfSupabaseError(error);
       return (data as AttachmentRow[]).map(rowToAttachment);
     },
   });
@@ -377,6 +378,6 @@ export function useTicketAttachments(ticketId: string | null) {
 
 export async function getTicketAttachmentUrl(storagePath: string) {
   const { data, error } = await supabase.storage.from(BUCKET).createSignedUrl(storagePath, 3600);
-  if (error) throw error;
+  throwIfSupabaseError(error);
   return data.signedUrl;
 }
