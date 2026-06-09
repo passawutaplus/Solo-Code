@@ -38,7 +38,7 @@ import { DocList } from "./quotations/DocList";
 import { BulkActionBar } from "./quotations/BulkActionBar";
 import { QuotationMockupDialog } from "./quotations/QuotationMockupDialog";
 import { celebrateFromEdges } from "@/lib/celebrate";
-import { GiveFeedbackButton } from "./GiveFeedbackButton";
+import { PageFooterActions } from "./PageFooterActions";
 
 export function QuotationsTab() {
   const { list, create, remove, duplicate, advanceStatus, update } = useQuotations();
@@ -346,7 +346,7 @@ export function QuotationsTab() {
           </CardContent>
         </Card>
 
-        <GiveFeedbackButton feature="ใบเสนอราคา" label="Quotation / Invoice" />
+        <PageFooterActions feature="ใบเสนอราคา" label="Quotation / Invoice" />
       </div>
 
       <AlertDialog open={!!confirmDel} onOpenChange={(o) => !o && setConfirmDel(null)}>

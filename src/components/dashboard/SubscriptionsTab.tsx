@@ -1,5 +1,5 @@
 import * as React from "react";
-import { GiveFeedbackButton } from "@/components/dashboard/GiveFeedbackButton";
+import { PageFooterActions } from "@/components/dashboard/PageFooterActions";
 import { Button } from "@/components/ui/button";
 import { StatCard } from "./StatCard";
 import { AddSubModal } from "./Modals";
@@ -110,7 +110,7 @@ export function SubscriptionsTab() {
       >
         <PaymentMethodsManager />
       </CollapsibleSection>
-      <GiveFeedbackButton feature="subscriptions" label="Subscription" />
+      <PageFooterActions feature="subscriptions" label="Subscription" />
     </div>
   );
 }

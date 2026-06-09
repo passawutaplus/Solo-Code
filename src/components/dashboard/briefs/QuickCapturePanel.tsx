@@ -128,7 +128,12 @@ export function QuickCapturePanel({
       setResult(r);
       toast.success("AI สรุปบรีฟแล้ว — ตรวจสอบและแก้ไขได้");
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "วิเคราะห์ไม่สำเร็จ");
+      const msg = e instanceof Error ? e.message : "";
+      if (msg.includes("limit_reached")) {
+        toast.error("เครดิต AI หมดแล้ว — เติมเครดิตหรืออัพเกรด Pro");
+      } else {
+        toast.error(msg || "วิเคราะห์ไม่สำเร็จ");
+      }
     } finally {
       setBusy(false);
     }

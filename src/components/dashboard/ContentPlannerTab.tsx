@@ -11,7 +11,7 @@ import { ContentCalendar } from "./planner/ContentCalendar";
 import { UpcomingSidebar } from "./planner/UpcomingSidebar";
 import { RefreshCw, Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { GiveFeedbackButton } from "./GiveFeedbackButton";
+import { PageFooterActions } from "./PageFooterActions";
 import { useSupabaseRecords } from "@/hooks/useSupabaseRecords";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -246,7 +246,7 @@ function ContentPlannerInner() {
         />
       )}
 
-      <GiveFeedbackButton feature="content" label="ปฏิทินคอนเทนต์" />
+      <PageFooterActions feature="content" label="ปฏิทินคอนเทนต์" />
     </div>
   );
 }

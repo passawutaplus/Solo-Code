@@ -24,10 +24,13 @@ export function GiveFeedbackButton({
   feature,
   label,
   className,
+  inline = false,
 }: {
   feature: string;
   label: string;
   className?: string;
+  /** เมื่อใช้ร่วมกับ PageFooterActions — ไม่ห่อด้วย wrapper */
+  inline?: boolean;
 }) {
   const { submit: submitBeta } = useMyBetaFeedback(feature);
   const { create, linkBetaFeedback } = useMyTickets();
@@ -90,8 +93,7 @@ export function GiveFeedbackButton({
     }
   };
 
-  return (
-    <div className={cn("mt-8 flex justify-end pr-1", className)}>
+  const popover = (
       <Popover
         open={open}
         onOpenChange={(o) => {
@@ -108,6 +110,7 @@ export function GiveFeedbackButton({
               "bg-primary/15 backdrop-blur-md border border-primary/30 text-primary",
               "px-3 py-1.5 text-xs font-medium shadow-soft",
               "hover:bg-primary/25 hover:shadow-elevated transition-all",
+              className,
             )}
           >
             <MessageSquareHeart className="h-3.5 w-3.5" />
@@ -201,6 +204,13 @@ export function GiveFeedbackButton({
           )}
         </PopoverContent>
       </Popover>
+  );
+
+  if (inline) return popover;
+
+  return (
+    <div className={cn("mt-8 flex justify-end pr-1", className)}>
+      {popover}
     </div>
   );
 }

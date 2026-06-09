@@ -14,7 +14,7 @@ import {
   Star, Phone, Mail, Globe, Building2, Share2, MapPin, Eye,
 } from "lucide-react";
 import { toast } from "sonner";
-import { GiveFeedbackButton } from "./GiveFeedbackButton";
+import { PageFooterActions } from "./PageFooterActions";
 import { SUPPLIER_CATEGORIES, categoryIcon } from "./suppliers/categories";
 import { SupplierFormDialog } from "./suppliers/SupplierFormDialog";
 import { SupplierShareDialog } from "./suppliers/SupplierShareDialog";
@@ -45,7 +45,7 @@ export function SuppliersTab() {
 
   return (
     <div className="space-y-4">
-      <GiveFeedbackButton feature="Suppliers" label="Suppliers" />
+      <PageFooterActions feature="Suppliers" label="Suppliers" />
 
       <Card className="glass border-border shadow-soft">
         <CardContent className="p-4 sm:p-5">

@@ -1,5 +1,5 @@
 import * as React from "react";
-import { GiveFeedbackButton } from "@/components/dashboard/GiveFeedbackButton";
+import { PageFooterActions } from "@/components/dashboard/PageFooterActions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -168,7 +168,7 @@ export function IncomeTab({ onNavigate }: Props) {
         </React.Suspense>
       </div>
 
-      <GiveFeedbackButton feature="income" label="รายได้" />
+      <PageFooterActions feature="income" label="รายได้" />
     </div>
   );
 }

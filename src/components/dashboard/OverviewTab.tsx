@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Link } from "@tanstack/react-router";
-import { GiveFeedbackButton } from "@/components/dashboard/GiveFeedbackButton";
+import { PageFooterActions } from "@/components/dashboard/PageFooterActions";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/auth/AuthProvider";
 import { StatCard } from "@/components/dashboard/StatCard";
@@ -192,7 +192,7 @@ export function OverviewTab({ onGo }: OverviewTabProps) {
         </div>
       </div>
 
-      <GiveFeedbackButton feature="overview" label="ภาพรวมหน้า Dashboard" />
+      <PageFooterActions feature="overview" label="ภาพรวมหน้า Dashboard" />
     </div>
   );
 }

@@ -25,6 +25,12 @@ import { createCheckoutSession, createPortalSession } from "@/utils/payments.fun
 import { getStripeEnvironment, PRICE_IDS, CREDITS_PER_PRICE } from "@/lib/stripe";
 import { PLANS, type BillingCycle as Cycle } from "@/data/plans";
 import { ANTHEM_SHOWCASE_URL } from "@/lib/productLinks";
+import {
+  AI_CREDIT_TABLE,
+  TOPUP_PACK_ANALYSIS,
+  USAGE_MIX_ASSUMPTION,
+  weightedCreditsPerAction,
+} from "@/lib/aiCreditWeights";
 
 export const Route = createFileRoute("/pricing")({
   head: () => ({
@@ -486,7 +492,9 @@ function PricingPage() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 lg:gap-5 max-w-4xl mx-auto">
-            {TOPUPS.map((pack) => (
+            {TOPUPS.map((pack) => {
+              const analysis = TOPUP_PACK_ANALYSIS.find((p) => p.id === pack.id);
+              return (
               <Card
                 key={pack.id}
                 className={cn(
@@ -515,6 +523,11 @@ function PricingPage() {
                   +{pack.credits.toLocaleString("th-TH")} เครดิต
                 </p>
                 <p className="text-[11px] text-muted-foreground">{pack.perUnit}</p>
+                {analysis && (
+                  <p className="mt-1 text-[11px] text-muted-foreground">
+                    ≈ {analysis.estActions.toLocaleString("th-TH")} ครั้งใช้งานเฉลี่ย
+                  </p>
+                )}
 
                 <Button
                   onClick={() => handleTopup(pack)}
@@ -529,8 +542,42 @@ function PricingPage() {
                   )}
                 </Button>
               </Card>
-            ))}
+            );
+            })}
           </div>
+
+          <p className="mt-4 text-center text-[11px] text-muted-foreground max-w-xl mx-auto">
+            ประมาณการครั้งใช้งานจาก mix สมมติฐาน: Mentor {Math.round((USAGE_MIX_ASSUMPTION.ai_assistant_mentor ?? 0) * 100)}% ·
+            ธุรกิจ {Math.round((USAGE_MIX_ASSUMPTION.ai_assistant_business ?? 0) * 100)}% ·
+            Planner {Math.round((USAGE_MIX_ASSUMPTION.planner_ai_assist ?? 0) * 100)}% ·
+            Smart Brief {Math.round((USAGE_MIX_ASSUMPTION.ai_brief_extract ?? 0) * 100)}%
+            (เฉลี่ย {weightedCreditsPerAction().toFixed(2)} เครดิต/ครั้ง)
+          </p>
+        </section>
+
+        {/* Credit weights */}
+        <section className="mt-14 sm:mt-16 max-w-3xl mx-auto">
+          <div className="text-center mb-6">
+            <h2 className="text-xl sm:text-2xl font-bold tracking-tight">น้ำหนักเครดิตต่อฟีเจอร์</h2>
+            <p className="mt-2 text-sm text-muted-foreground">
+              ราคาแพ็กเดิม · ปรับเฉพาะเครดิตที่หักต่อครั้งใช้งาน ตามต้นทุนโมเดลและความซับซ้อน
+            </p>
+          </div>
+          <Card className="overflow-hidden border border-border">
+            <div className="divide-y divide-border">
+              {AI_CREDIT_TABLE.map((row) => (
+                <div
+                  key={row.feature}
+                  className="flex items-center justify-between gap-4 px-4 sm:px-5 py-3 text-sm"
+                >
+                  <span className="text-foreground/90">{row.label}</span>
+                  <Badge variant="secondary" className="shrink-0 font-mono tabular-nums">
+                    {row.credits} เครดิต
+                  </Badge>
+                </div>
+              ))}
+            </div>
+          </Card>
         </section>
 
         {/* Trust note */}

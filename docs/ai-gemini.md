@@ -7,9 +7,9 @@ So1o ใช้ **Google Gemini API โดยตรง** (ไม่ผ่าน L
 | Variable | ที่ตั้ง | ค่าเริ่มต้น |
 |----------|---------|-------------|
 | `GEMINI_API_KEY` | Server (TanStack) + Supabase Edge secrets | — (required) |
-| `GEMINI_MODEL_FAST` | optional | `gemini-2.0-flash-lite` |
-| `GEMINI_MODEL` | optional | `gemini-2.0-flash` |
-| `GEMINI_MODEL_VISION` | optional | `gemini-2.0-flash` |
+| `GEMINI_MODEL_FAST` | optional | `gemini-2.5-flash-lite` |
+| `GEMINI_MODEL` | optional | `gemini-2.5-flash` |
+| `GEMINI_MODEL_VISION` | optional | `gemini-2.5-flash` |
 
 สร้าง API key ที่ [Google AI Studio](https://aistudio.google.com/apikey)
 
@@ -20,7 +20,7 @@ So1o ใช้ **Google Gemini API โดยตรง** (ไม่ผ่าน L
 ```bash
 supabase secrets set GEMINI_API_KEY=your_key_here
 # optional
-supabase secrets set GEMINI_MODEL_FAST=gemini-2.0-flash-lite
+supabase secrets set GEMINI_MODEL_FAST=gemini-2.5-flash-lite
 ```
 
 Deploy functions:
@@ -47,7 +47,7 @@ supabase functions deploy planner-ai-assist
 
 ## Legacy model names
 
-คอลัมน์ `hq_agents.model` อาจยังเก็บชื่อแบบ `google/gemini-3.1-flash-lite-preview` — โค้ดจะ map เป็น `gemini-2.0-flash-lite` อัตโนมัติผ่าน `normalizeGeminiModel()`.
+คอลัมน์ `hq_agents.model` อาจยังเก็บชื่อแบบ `google/gemini-3.1-flash-lite-preview` หรือ `gemini-2.0-*` — โค้ดจะ map เป็น `gemini-2.5-flash-lite` / `gemini-2.5-flash` อัตโนมัติผ่าน `normalizeGeminiModel()`.
 
 ## สิ่งที่ยังใช้ Lovable (ไม่ใช่ AI)
 

@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { Download, Loader2, ShieldAlert, Trash2 } from "lucide-react";
+import { Download, Loader2, Shield, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
@@ -16,11 +16,16 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import { deleteOwnAccount, exportUserData } from "@/server/account.functions";
 import { toast } from "sonner";
 
 type Props = {
-  onSignOut: () => void;
+  onSignOut?: () => void | Promise<void>;
 };
 
 export function AccountPrivacySection({ onSignOut }: Props) {
@@ -29,6 +34,7 @@ export function AccountPrivacySection({ onSignOut }: Props) {
   const [exporting, setExporting] = React.useState(false);
   const [deleting, setDeleting] = React.useState(false);
   const [confirmText, setConfirmText] = React.useState("");
+  const [advancedOpen, setAdvancedOpen] = React.useState(false);
 
   async function handleExport() {
     setExporting(true);
@@ -59,7 +65,7 @@ export function AccountPrivacySection({ onSignOut }: Props) {
       const res = await deleteFn({ data: { confirm: "DELETE" } });
       if (!res.ok) throw new Error(res.error);
       toast.success(res.message ?? "ปิดบัญชีแล้ว");
-      await onSignOut();
+      await onSignOut?.();
       window.location.href = "/";
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "ลบบัญชีไม่สำเร็จ");
@@ -69,15 +75,15 @@ export function AccountPrivacySection({ onSignOut }: Props) {
   }
 
   return (
-    <Card className="border-destructive/20">
-      <CardContent className="p-5 space-y-4">
+    <Card className="border-border/40">
+      <CardContent className="p-5 space-y-3">
         <div>
-          <h3 className="text-sm font-semibold flex items-center gap-2">
-            <ShieldAlert className="h-4 w-4 text-primary" />
+          <h3 className="text-sm font-semibold flex items-center gap-2 text-muted-foreground">
+            <Shield className="h-4 w-4" />
             ความเป็นส่วนตัว (PDPA)
           </h3>
           <p className="text-xs text-muted-foreground mt-1">
-            สิทธิของคุณตาม PDPA — ส่งออกหรือลบข้อมูลส่วนบุคคล
+            สิทธิของคุณตาม PDPA — ส่งออกข้อมูลส่วนบุคคล
           </p>
         </div>
 
@@ -90,64 +96,85 @@ export function AccountPrivacySection({ onSignOut }: Props) {
             disabled={exporting}
             className="gap-1.5"
           >
-            {exporting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Download className="h-3.5 w-3.5" />}
+            {exporting ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            ) : (
+              <Download className="h-3.5 w-3.5" />
+            )}
             ดาวน์โหลดข้อมูลของฉัน
           </Button>
-          <Button asChild size="sm" variant="ghost">
+          <Button asChild size="sm" variant="ghost" className="text-muted-foreground">
             <Link to="/privacy">นโยบาย PDPA</Link>
           </Button>
         </div>
 
-        <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-4 space-y-3">
-          <p className="text-xs text-muted-foreground leading-relaxed">
-            การลบบัญชีจะปิดการใช้งานทันที และลบข้อมูลถาวรภายใน 30 วัน
-            หากมีแผน Pro ที่ active กรุณายกเลิก subscription ใน{" "}
-            <strong>จัดการการชำระเงิน</strong> ก่อน
-          </p>
-
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button type="button" size="sm" variant="destructive" className="gap-1.5">
-                <Trash2 className="h-3.5 w-3.5" />
-                ลบบัญชีถาวร
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>ยืนยันการลบบัญชี?</AlertDialogTitle>
-                <AlertDialogDescription asChild>
-                  <div className="space-y-3 text-sm">
-                    <p>การกระทำนี้ไม่สามารถย้อนกลับได้ ข้อมูลงาน ลูกค้า และใบเสนอราคาจะถูกลบตามนโยบาย</p>
-                    <p>
-                      พิมพ์ <strong className="font-mono text-foreground">DELETE</strong> เพื่อยืนยัน
-                    </p>
-                    <Input
-                      value={confirmText}
-                      onChange={(e) => setConfirmText(e.target.value)}
-                      placeholder="DELETE"
-                      className="font-mono"
-                      autoComplete="off"
-                    />
-                  </div>
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel onClick={() => setConfirmText("")}>ยกเลิก</AlertDialogCancel>
-                <AlertDialogAction
-                  onClick={(e) => {
-                    e.preventDefault();
-                    void handleDelete();
-                  }}
-                  disabled={deleting || confirmText !== "DELETE"}
-                  className="bg-destructive hover:bg-destructive/90"
+        <Collapsible open={advancedOpen} onOpenChange={setAdvancedOpen}>
+          <CollapsibleTrigger asChild>
+            <button
+              type="button"
+              className="flex items-center gap-1.5 text-[11px] text-muted-foreground hover:text-foreground transition-colors pt-1"
+            >
+              <ChevronDown
+                className={`h-3.5 w-3.5 transition-transform ${advancedOpen ? "rotate-180" : ""}`}
+              />
+              ตัวเลือกขั้นสูง
+            </button>
+          </CollapsibleTrigger>
+          <CollapsibleContent className="pt-3 space-y-2">
+            <p className="text-[11px] text-muted-foreground leading-relaxed">
+              การลบบัญชีจะปิดการใช้งานทันที และลบข้อมูลถาวรภายใน 30 วัน
+              หากมีแผน Pro ที่ active กรุณายกเลิก subscription ในหน้าจัดการการชำระเงินก่อน
+            </p>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="ghost"
+                  className="h-8 text-[11px] text-muted-foreground hover:text-destructive px-2"
                 >
-                  {deleting && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
-                  ลบบัญชี
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-        </div>
+                  ลบบัญชีถาวร…
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>ยืนยันการลบบัญชี?</AlertDialogTitle>
+                  <AlertDialogDescription asChild>
+                    <div className="space-y-3 text-sm">
+                      <p>
+                        การกระทำนี้ไม่สามารถย้อนกลับได้ ข้อมูลงาน ลูกค้า และใบเสนอราคาจะถูกลบตามนโยบาย
+                      </p>
+                      <p>
+                        พิมพ์ <strong className="font-mono text-foreground">DELETE</strong> เพื่อยืนยัน
+                      </p>
+                      <Input
+                        value={confirmText}
+                        onChange={(e) => setConfirmText(e.target.value)}
+                        placeholder="DELETE"
+                        className="font-mono"
+                        autoComplete="off"
+                      />
+                    </div>
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel onClick={() => setConfirmText("")}>ยกเลิก</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={(e) => {
+                      e.preventDefault();
+                      void handleDelete();
+                    }}
+                    disabled={deleting || confirmText !== "DELETE"}
+                    className="bg-destructive hover:bg-destructive/90"
+                  >
+                    {deleting && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+                    ลบบัญชี
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </CollapsibleContent>
+        </Collapsible>
       </CardContent>
     </Card>
   );

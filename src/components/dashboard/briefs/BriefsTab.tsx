@@ -35,6 +35,7 @@ import { QuickCapturePanel } from "./QuickCapturePanel";
 import { ClientBrandAssetsField } from "./ClientBrandAssetsField";
 import { mergeFieldClass } from "@/lib/formFieldStyles";
 import { consumeOpenBriefMode } from "@/lib/pipelineNewDeal";
+import { PageFooterActions } from "@/components/dashboard/PageFooterActions";
 
 
 function rowToBrief(r: any): DesignBrief {
@@ -237,6 +238,8 @@ export function BriefsTab() {
           ))}
         </div>
       )}
+
+      <PageFooterActions feature="smart-brief" label="Smart Brief" />
     </div>
   );
 }

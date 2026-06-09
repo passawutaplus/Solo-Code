@@ -2,7 +2,7 @@ import * as React from "react";
 import { safeHref } from "@/lib/security";
 import { useSupabaseRecords } from "@/hooks/useSupabaseRecords";
 import { Loader2 as LoaderIcon } from "lucide-react";
-import { GiveFeedbackButton } from "@/components/dashboard/GiveFeedbackButton";
+import { PageFooterActions } from "@/components/dashboard/PageFooterActions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -628,7 +628,7 @@ export function AssetsTab() {
         />
 
 
-        <GiveFeedbackButton feature="assets" label="Assets" />
+        <PageFooterActions feature="assets" label="Assets" />
       </div>
     </TooltipProvider>
   );

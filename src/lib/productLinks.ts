@@ -2,6 +2,26 @@
 export const ANTHEM_SHOWCASE_URL =
   (import.meta.env.VITE_ANTHEM_APP_URL as string | undefined) ?? "http://localhost:8081/";
 
+function anthemBaseUrl() {
+  return ANTHEM_SHOWCASE_URL.replace(/\/$/, "");
+}
+
+/** Public showcase feed (an1hem). */
+export function anthemShowcaseUrl() {
+  return `${anthemBaseUrl()}/`;
+}
+
+/**
+ * Handoff to an1hem profile — anthem can resolve `so1o_uid` when SSO is unified.
+ */
+export function anthemProfileUrl(so1oUserId?: string | null) {
+  const base = anthemBaseUrl();
+  if (so1oUserId) {
+    return `${base}/profile?so1o_uid=${encodeURIComponent(so1oUserId)}`;
+  }
+  return `${base}/profile`;
+}
+
 export const FREE_QUOTATION_URL = "https://freelance-invoice-taupe.vercel.app/";
 
 /**

@@ -6,6 +6,9 @@ import {
   fetchUrlAsInlinePart,
   geminiChatWithParts,
 } from "@/lib/geminiServer";
+import { assertAiCreditsAvailable, debitAiCredits } from "@/lib/aiCreditsServer";
+
+const FEATURE = "ai_brief_from_images";
 
 const InputSchema = z.object({
   imageUrls: z.array(z.string().url()).min(1).max(6),
@@ -28,7 +31,10 @@ const SYSTEM_PROMPT = `คุณคือ Senior Art Director ช่วยฟร
 export const aiBriefFromImages = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) => InputSchema.parse(d))
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
+    const { userId } = context;
+    await assertAiCreditsAvailable(userId, FEATURE);
+
     const userParts = [
       {
         text: `วิเคราะห์รูปอ้างอิงต่อไปนี้และสรุปเป็น JSON ตาม schema${data.hint ? `\nบริบทเพิ่มเติม: ${data.hint}` : ""}`,
@@ -49,6 +55,13 @@ export const aiBriefFromImages = createServerFn({ method: "POST" })
     } catch {
       throw new Error("AI ตอบกลับในรูปแบบไม่ถูกต้อง");
     }
+
+    const quota = await debitAiCredits({
+      userId,
+      feature: FEATURE,
+      idempotencyKey: crypto.randomUUID(),
+    });
+    if (!quota.allowed) throw new Error("limit_reached");
 
     return {
       project_type: typeof parsed.project_type === "string" ? parsed.project_type : "",

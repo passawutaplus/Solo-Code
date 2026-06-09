@@ -46,7 +46,7 @@ import { ClientsProvider, useClients, clientsKey } from "@/store/clients";
 import { useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/auth/AuthProvider";
 import { toast } from "sonner";
-import { GiveFeedbackButton } from "./GiveFeedbackButton";
+import { PageFooterActions } from "./PageFooterActions";
 import { supabase } from "@/integrations/supabase/client";
 import {
   DndContext,
@@ -450,7 +450,7 @@ function ProjectsTabInner() {
         </CardContent>
       </Card>
 
-      <GiveFeedbackButton feature="To Do List" label="To Do List" />
+      <PageFooterActions feature="To Do List" label="To Do List" />
 
       <DndContext sensors={sensors} onDragStart={onDragStart} onDragEnd={onDragEnd}>
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">

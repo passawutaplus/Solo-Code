@@ -7,6 +7,7 @@ import { Newspaper, ExternalLink, Sparkles, Loader2, ArrowRight } from "lucide-r
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
+import { PageFooterActions } from "@/components/dashboard/PageFooterActions";
 
 export function TrendsTab() {
   const fetchTrends = useServerFn(getDailyTrends);
@@ -202,6 +203,8 @@ export function TrendsTab() {
           <Loader2 className="h-3 w-3" /> เนื้อหาอัปเดตอัตโนมัติทุก 6 ชั่วโมง · powered by So1o AI
         </p>
       )}
+
+      <PageFooterActions feature="trends" label="ข่าวสาร & เทรนด์" />
     </div>
   );
 }

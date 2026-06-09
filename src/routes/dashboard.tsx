@@ -48,7 +48,6 @@ const InspireTab = React.lazy(() =>
 import { trackFeature } from "@/lib/featureUsage";
 import { AnnouncementBanner } from "@/components/AnnouncementBanner";
 import { DashboardBannerSlider } from "@/components/DashboardBannerSlider";
-import { InstallAppButton } from "@/components/pwa/InstallAppButton";
 import { useTrackActivity } from "@/hooks/useTrackActivity";
 import { useLogActivity } from "@/hooks/useLogActivity";
 import logoUrl from "@/assets/solo-freelancer-logo.webp";
@@ -190,7 +189,6 @@ function Dashboard() {
                   >
                     <FlaskConical className="h-3.5 w-3.5" /> Labs
                   </Link>
-                  <InstallAppButton variant="icon" />
                   <NotificationBell />
                 </div>
               </div>

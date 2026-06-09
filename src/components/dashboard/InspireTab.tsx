@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Sparkles, ArrowUpRight, Compass } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { GiveFeedbackButton } from "@/components/dashboard/GiveFeedbackButton";
+import { PageFooterActions } from "@/components/dashboard/PageFooterActions";
 import { safeHref } from "@/lib/security";
 import {
   CATEGORIES,
@@ -113,7 +113,7 @@ export function InspireTab() {
         </div>
       )}
 
-      <GiveFeedbackButton feature="inspire" label="Inspire" />
+      <PageFooterActions feature="inspire" label="Inspire" />
     </div>
   );
 }

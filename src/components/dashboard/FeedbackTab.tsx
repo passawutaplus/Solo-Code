@@ -17,7 +17,7 @@ import { PreSubmitChecklist } from "./feedback/PreSubmitChecklist";
 import { useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/auth/AuthProvider";
 import { clientsKey } from "@/store/clients";
-import { GiveFeedbackButton } from "./GiveFeedbackButton";
+import { PageFooterActions } from "./PageFooterActions";
 import { useSupabaseRecords } from "@/hooks/useSupabaseRecords";
 
 type FeedbackRow = {
@@ -99,7 +99,6 @@ function FeedbackTabInner() {
 
   return (
     <div className="space-y-5">
-      <GiveFeedbackButton feature="Feedback" label="Feedback ลูกค้า" />
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           <MessageSquare className="h-5 w-5 text-primary" />
@@ -165,6 +164,8 @@ function FeedbackTabInner() {
       )}
 
       <PreSubmitChecklist />
+
+      <PageFooterActions feature="Feedback" label="Feedback ลูกค้า" />
     </div>
   );
 }

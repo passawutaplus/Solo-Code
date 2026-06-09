@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Link } from "@tanstack/react-router";
-import { GiveFeedbackButton } from "@/components/dashboard/GiveFeedbackButton";
+import { PageFooterActions } from "@/components/dashboard/PageFooterActions";
 import { useAuth } from "@/auth/AuthProvider";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
@@ -10,12 +10,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Loader2, Upload, LogOut, ShieldCheck, RotateCcw, Image as ImageIcon, Sun, Moon, ArrowLeft } from "lucide-react";
+import { Loader2, Upload, LogOut, ShieldCheck, RotateCcw, Image as ImageIcon } from "lucide-react";
 import { compressImageFile, dataUrlToBlob } from "@/lib/imageCompress";
-import { useTheme } from "@/hooks/useTheme";
-import { InstallAppButton } from "@/components/pwa/InstallAppButton";
-import { BillingSettingsSection } from "@/components/dashboard/settings/BillingSettingsSection";
-import { AccountPrivacySection } from "@/components/dashboard/settings/AccountPrivacySection";
+import { AiUsageSettingsSection } from "@/components/dashboard/settings/AiUsageSettingsSection";
+import { SettingsQuickLinksSection } from "@/components/dashboard/settings/SettingsQuickLinksSection";
+import { DisplayThemeSection } from "@/components/dashboard/settings/DisplayThemeSection";
 
 const CURRENCIES = [
   { value: "THB", label: "฿ (THB)" },
@@ -195,51 +194,9 @@ export function SettingsTab() {
     toast.info("รีเซ็ตเป็นค่าที่บันทึกล่าสุดแล้ว");
   }
 
-  const { theme, setTheme } = useTheme();
-
   return (
     <div className="space-y-4 pb-24 lg:pb-4">
-      <BillingSettingsSection />
-      <AccountPrivacySection onSignOut={signOut} />
-
-      <Card className="glass border-border shadow-soft">
-        <CardContent className="p-4 sm:p-5">
-          <div className="flex items-center justify-between gap-3 flex-wrap">
-            <div>
-              <h2 className="text-sm font-semibold tracking-tight">ธีมการแสดงผล</h2>
-              <p className="text-xs text-muted-foreground">เลือกโหมดสว่างหรือมืดตามที่คุณชอบ</p>
-            </div>
-            <div className="flex items-center gap-2 flex-wrap">
-              <Button asChild variant="outline" size="sm" className="h-8 gap-1.5">
-                <Link to="/">
-                  <ArrowLeft className="h-4 w-4" /> กลับหน้าฟีด
-                </Link>
-              </Button>
-              <InstallAppButton variant="full" />
-              <div className="inline-flex rounded-xl border border-border/60 bg-muted/40 p-1">
-                <Button
-                  type="button"
-                  size="sm"
-                  variant={theme === "light" ? "default" : "ghost"}
-                  onClick={() => setTheme("light")}
-                  className="h-8 gap-1.5 rounded-lg"
-                >
-                  <Sun className="h-4 w-4" /> Light
-                </Button>
-                <Button
-                  type="button"
-                  size="sm"
-                  variant={theme === "dark" ? "default" : "ghost"}
-                  onClick={() => setTheme("dark")}
-                  className="h-8 gap-1.5 rounded-lg"
-                >
-                  <Moon className="h-4 w-4" /> Dark
-                </Button>
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      <AiUsageSettingsSection />
 
       <Card className="glass border-border shadow-soft">
         <CardContent className="p-4 sm:p-5">
@@ -401,7 +358,12 @@ export function SettingsTab() {
           </form>
         </CardContent>
       </Card>
-      <GiveFeedbackButton feature="settings" label="ตั้งค่า" />
+
+      <SettingsQuickLinksSection />
+
+      <DisplayThemeSection />
+
+      <PageFooterActions feature="settings" label="ตั้งค่า" />
     </div>
   );
 }

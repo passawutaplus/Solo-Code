@@ -54,7 +54,7 @@ serve(async (req) => {
     if (!quota.allowed) {
       return new Response(
         JSON.stringify({
-          error: `ใช้ AI ครบโควต้าวันนี้แล้ว (${quota.count}/${quota.limit}) ลองใหม่พรุ่งนี้นะครับ`,
+          error: `เครดิต AI หมดแล้ว — อัพเกรดหรือเติมเครดิตได้ที่ตั้งค่า`,
           quota,
         }),
         { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } },

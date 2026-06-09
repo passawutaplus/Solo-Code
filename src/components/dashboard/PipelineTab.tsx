@@ -15,7 +15,7 @@ import {
 } from "@/lib/pipelineStatus";
 import { PipelineKanban } from "./pipeline/PipelineKanban";
 import { DealDrawer } from "./pipeline/DealDrawer";
-import { GiveFeedbackButton } from "./GiveFeedbackButton";
+import { PageFooterActions } from "./PageFooterActions";
 import { SQUAD_PRICING } from "@/lib/sharedSquad";
 import { consumePipelineNewDeal } from "@/lib/pipelineNewDeal";
 import { PipelineNewDealButton } from "./layout/PipelineNewDealButton";
@@ -178,7 +178,7 @@ export function PipelineTab({ onNavigate, onGoTab, onOpenQuotation }: Props) {
         </div>
       </div>
 
-      <GiveFeedbackButton feature="pipeline" label="Pipeline" />
+      <PageFooterActions feature="pipeline" label="Pipeline" />
 
       {liveSelected && (
         <>

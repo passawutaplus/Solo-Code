@@ -3,6 +3,8 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { AuthProvider } from "@/auth/AuthProvider";
 import { CookieConsent } from "@/components/CookieConsent";
 import { DraggableFabDock } from "@/components/DraggableFabDock";
+import { AssistantProvider } from "@/context/AssistantContext";
+import { AssistantSidebar } from "@/components/assistant/AssistantSidebar";
 import type { RouterAppContext } from "@/router";
 // Side-effect import: patches window.fetch to attach Supabase bearer token
 // to TanStack server-function requests so `requireSupabaseAuth` middleware works.
@@ -127,9 +129,12 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <Outlet />
-        <CookieConsent />
-        <DraggableFabDock />
+        <AssistantProvider>
+          <Outlet />
+          <CookieConsent />
+          <DraggableFabDock />
+          <AssistantSidebar />
+        </AssistantProvider>
       </AuthProvider>
     </QueryClientProvider>
   );

@@ -13,7 +13,7 @@ import { toast } from "sonner";
 import { CONTRACTS } from "./clients/shared";
 import { SavedClientCard } from "./clients/SavedClientCard";
 import { ClientFormDialog } from "./clients/ClientFormDialog";
-import { GiveFeedbackButton } from "./GiveFeedbackButton";
+import { PageFooterActions } from "./PageFooterActions";
 import { ClientInvoicesSection } from "./clients/ClientInvoicesSection";
 import { useClientInvoices } from "@/store/clientInvoices";
 
@@ -42,7 +42,7 @@ function ClientsTabInner() {
 
   return (
     <div className="space-y-5">
-      <GiveFeedbackButton feature="ลูกค้า" label="ลูกค้า (CRM)" />
+      <PageFooterActions feature="ลูกค้า" label="ลูกค้า (CRM)" />
       <div className="grid gap-4 sm:grid-cols-3">
         <StatCard accent label="ค้างรับทั้งหมด" value={`฿${formatTHB(receivable)}`} sub={`${unpaidCount} ใบ`} icon={<Users className="h-5 w-5" />} />
         <StatCard label="เกินกำหนด" value={`฿${formatTHB(overdue)}`} sub="ต้องตามเก็บ" icon={<AlertTriangle className="h-5 w-5" />} />

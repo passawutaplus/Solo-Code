@@ -7,7 +7,6 @@ import { Toaster } from "@/components/ui/sonner";
 import { LabsTabLazy } from "@/components/dashboard/labs/LabsTabLazy";
 import { NotificationBell } from "@/components/NotificationBell";
 
-import { InstallAppButton } from "@/components/pwa/InstallAppButton";
 import { useTrackActivity } from "@/hooks/useTrackActivity";
 import { useLogActivity } from "@/hooks/useLogActivity";
 import logoUrl from "@/assets/solo-freelancer-logo.webp";
@@ -80,7 +79,6 @@ function LabsPage() {
             </div>
           </div>
           <div className="flex items-center gap-2 shrink-0">
-            <InstallAppButton variant="icon" />
             <NotificationBell />
 
             {isAdmin && (

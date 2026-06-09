@@ -177,6 +177,7 @@ async function handleSubscriptionUpsert(
   );
 
   await syncTier(userId);
+  await getSupabase().rpc("reset_ai_period_on_renewal", { _user_id: userId });
 
   if (isCreation && (subscription.status === "active" || subscription.status === "trialing")) {
     await enqueueEmail({
@@ -315,6 +316,7 @@ async function handleInvoicePaymentSucceeded(invoice: any, env: StripeEnv) {
     const sub = await stripe.subscriptions.retrieve(subId);
     const userId = sub.metadata?.userId;
     if (!userId) return;
+    await getSupabase().rpc("reset_ai_period_on_renewal", { _user_id: userId });
     await enqueueEmail({
       userId,
       templateName: "payment-receipt",

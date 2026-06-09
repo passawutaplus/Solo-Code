@@ -67,8 +67,10 @@ export function useSubscription() {
   // "cannot add postgres_changes callbacks after subscribe()").
   React.useEffect(() => {
     if (!userId) return;
-    const invalidate = () =>
+    const invalidate = () => {
       queryClient.invalidateQueries({ queryKey: ["subscription", userId, env] });
+      queryClient.invalidateQueries({ queryKey: ["ai-usage", userId] });
+    };
     const topic = `subs-${userId}-${Math.random().toString(36).slice(2, 10)}`;
     const ch = supabase
       .channel(topic)

@@ -1,5 +1,5 @@
 import * as React from "react";
-import { GiveFeedbackButton } from "@/components/dashboard/GiveFeedbackButton";
+import { PageFooterActions } from "@/components/dashboard/PageFooterActions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { MessageSquarePlus, GitCompareArrows } from "lucide-react";
@@ -84,7 +84,7 @@ export function ReviewTab() {
           </div>
         </CardContent>
       </Card>
-      <GiveFeedbackButton feature="review" label="รีวิวงาน" />
+      <PageFooterActions feature="review" label="รีวิวงาน" />
     </div>
   );
 }

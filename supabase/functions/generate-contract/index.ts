@@ -8,6 +8,10 @@ import {
   getGeminiApiKey,
   normalizeGeminiModel,
 } from "../_shared/gemini.ts";
+import { debitAiQuota, getAiUsageSummary } from "../_shared/ai-quota.ts";
+
+const CONTRACT_FEATURE = "generate_contract";
+const CONTRACT_COST = 8;
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -91,6 +95,12 @@ Deno.serve(async (req) => {
   const parsed = PayloadSchema.safeParse(raw);
   if (!parsed.success) return json({ error: parsed.error.flatten().fieldErrors }, 400);
 
+  const userId = claims.claims.sub as string;
+  const summary = await getAiUsageSummary(userId);
+  if ((summary.total_remaining ?? 0) < CONTRACT_COST) {
+    return json({ error: "limit_reached", ...summary }, 429);
+  }
+
   try {
     const model = normalizeGeminiModel("google/gemini-2.5-flash", defaultModel());
     const draft = await geminiGenerateText(getGeminiApiKey(), model, {
@@ -100,6 +110,12 @@ Deno.serve(async (req) => {
       ],
       temperature: 0.3,
     });
+
+    const quota = await debitAiQuota(userId, CONTRACT_FEATURE, crypto.randomUUID());
+    if (!quota.allowed) {
+      return json({ error: "limit_reached", ...quota }, 429);
+    }
+
     return json({ draft });
   } catch (e) {
     if (e instanceof GeminiError && e.status === 429) {

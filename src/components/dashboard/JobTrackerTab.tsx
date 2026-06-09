@@ -23,7 +23,7 @@ import {
 import type { FinanceSub } from "./FinanceTab";
 import { toast } from "sonner";
 import { formatTHB } from "@/data/mockData";
-import { GiveFeedbackButton } from "@/components/dashboard/GiveFeedbackButton";
+import { PageFooterActions } from "@/components/dashboard/PageFooterActions";
 import { useClients } from "@/store/clients";
 import { useQuotations, computeTotals } from "@/store/quotations";
 import { ClientFormDialog } from "@/components/dashboard/clients/ClientFormDialog";
@@ -164,7 +164,7 @@ export function JobTrackerTab({ onSubChange }: { onSubChange?: (sub: FinanceSub)
         </div>
       )}
 
-      <GiveFeedbackButton feature="job-tracker" label="Job Tracker" />
+      <PageFooterActions feature="job-tracker" label="Job Tracker" />
     </div>
   );
 

@@ -20,15 +20,15 @@ export function getGeminiApiKey(): string {
 }
 
 export function defaultFastModel(): string {
-  return process.env.GEMINI_MODEL_FAST ?? "gemini-2.0-flash-lite";
+  return process.env.GEMINI_MODEL_FAST ?? "gemini-2.5-flash-lite";
 }
 
 export function defaultModel(): string {
-  return process.env.GEMINI_MODEL ?? "gemini-2.0-flash";
+  return process.env.GEMINI_MODEL ?? "gemini-2.5-flash";
 }
 
 export function defaultVisionModel(): string {
-  return process.env.GEMINI_MODEL_VISION ?? "gemini-2.0-flash";
+  return process.env.GEMINI_MODEL_VISION ?? "gemini-2.5-flash";
 }
 
 /** Map legacy Lovable gateway model ids to Gemini API model ids. */
@@ -37,10 +37,12 @@ export function normalizeGeminiModel(model?: string, fallback?: string): string 
   let m = model.trim();
   if (m.startsWith("google/")) m = m.slice(7);
   const ALIASES: Record<string, string> = {
-    "gemini-3.1-flash-lite-preview": "gemini-2.0-flash-lite",
-    "gemini-3-flash-preview": "gemini-2.0-flash",
-    "gemini-2.5-flash-lite": "gemini-2.0-flash-lite",
-    "gemini-2.5-flash": "gemini-2.0-flash",
+    "gemini-3.1-flash-lite-preview": "gemini-2.5-flash-lite",
+    "gemini-3-flash-preview": "gemini-2.5-flash",
+    "gemini-2.0-flash-lite": "gemini-2.5-flash-lite",
+    "gemini-2.0-flash": "gemini-2.5-flash",
+    "gemini-2.5-flash-lite": "gemini-2.5-flash-lite",
+    "gemini-2.5-flash": "gemini-2.5-flash",
   };
   return ALIASES[m] ?? m;
 }

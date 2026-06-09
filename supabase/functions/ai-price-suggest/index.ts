@@ -55,7 +55,7 @@ Deno.serve(async (req) => {
     const quota = await checkAiQuota(userId, "ai_price_suggest", pro);
     if (!quota.allowed) {
       return json(req, {
-        error: `ใช้ AI ครบโควต้าวันนี้แล้ว (${quota.count}/${quota.limit}) ลองใหม่พรุ่งนี้นะครับ`,
+        error: `เครดิต AI หมดแล้ว — อัพเกรดหรือเติมเครดิตได้ที่ตั้งค่า`,
         quota,
       }, 429);
     }

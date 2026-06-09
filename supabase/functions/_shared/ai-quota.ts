@@ -1,46 +1,81 @@
-// Shared daily quota guard for AI edge functions.
-// Backed by public.check_and_increment_ai_usage(user_id, feature, limit) RPC.
+// Shared AI credits guard for edge functions.
+// Backed by public.debit_ai_credits(user_id, feature, environment, idempotency_key) RPC.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
-
-export const FREE_DAILY_LIMIT = 10;
-export const PRO_DAILY_LIMIT = 100;
 
 export interface QuotaResult {
   allowed: boolean;
-  count: number;
-  limit: number;
+  cost?: number;
+  included_used?: number;
+  included_limit?: number;
+  included_remaining?: number;
+  purchased_balance?: number;
+  total_remaining?: number;
   reason?: string;
 }
 
+function paymentsEnv(): "sandbox" | "live" {
+  const env = Deno.env.get("STRIPE_ENVIRONMENT");
+  return env === "live" ? "live" : "sandbox";
+}
+
+export async function getAiUsageSummary(userId: string): Promise<QuotaResult & { total_remaining?: number }> {
+  const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
+  const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+  if (!SUPABASE_URL || !SERVICE_KEY) {
+    return { allowed: false, reason: "server_misconfiguration", total_remaining: 0 };
+  }
+  const admin = createClient(SUPABASE_URL, SERVICE_KEY);
+  const { data, error } = await admin.rpc("get_ai_usage_summary", {
+    _user_id: userId,
+    _environment: paymentsEnv(),
+  });
+  if (error) {
+    console.error("[ai-quota] summary rpc error", error.message);
+    return { allowed: false, reason: "quota_check_failed", total_remaining: 0 };
+  }
+  return data as QuotaResult & { total_remaining?: number };
+}
+
 /**
- * Atomically check + increment daily AI usage for a user.
- * Returns { allowed, count, limit }. When `allowed` is false the caller MUST short-circuit.
- *
- * Uses service role so the counter cannot be bypassed by mutating the user JWT.
+ * Atomically debit AI credits for a user/feature.
+ * Returns quota summary. When `allowed` is false the caller MUST short-circuit.
  */
-export async function checkAiQuota(
+export async function debitAiQuota(
   userId: string,
   feature: string,
-  isPro: boolean,
+  idempotencyKey?: string,
 ): Promise<QuotaResult> {
   const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
   const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
   if (!SUPABASE_URL || !SERVICE_KEY) {
-    // Fail closed when misconfigured.
-    return { allowed: false, count: 0, limit: 0, reason: "server_misconfiguration" };
+    return { allowed: false, reason: "server_misconfiguration" };
   }
   const admin = createClient(SUPABASE_URL, SERVICE_KEY);
-  const limit = isPro ? PRO_DAILY_LIMIT : FREE_DAILY_LIMIT;
-  const { data, error } = await admin.rpc("check_and_increment_ai_usage", {
+  const { data, error } = await admin.rpc("debit_ai_credits", {
     _user_id: userId,
     _feature: feature,
-    _limit: limit,
+    _environment: paymentsEnv(),
+    _idempotency_key: idempotencyKey ?? null,
   });
   if (error) {
     console.error(`[ai-quota:${feature}] rpc error`, error.message);
-    return { allowed: false, count: 0, limit, reason: "quota_check_failed" };
+    return { allowed: false, reason: "quota_check_failed" };
   }
   return data as QuotaResult;
+}
+
+/** @deprecated Use debitAiQuota — kept for gradual migration */
+export async function checkAiQuota(
+  userId: string,
+  feature: string,
+  _isPro: boolean,
+): Promise<QuotaResult & { count: number; limit: number }> {
+  const result = await debitAiQuota(userId, feature);
+  return {
+    ...result,
+    count: result.included_used ?? 0,
+    limit: result.included_limit ?? 0,
+  };
 }
 
 /** Returns true if the user has an active Pro/Inhouse subscription. */

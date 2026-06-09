@@ -2,7 +2,7 @@ import * as React from "react";
 import { Scale, Copy, Check } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { GiveFeedbackButton } from "@/components/dashboard/GiveFeedbackButton";
+import { PageFooterActions } from "@/components/dashboard/PageFooterActions";
 import {
   CLIENT_MESSAGE_TEMPLATES,
   LEGAL_INTRO,
@@ -110,7 +110,7 @@ export function LegalDeskTab({
         ตั้งสิทธิลิขสิทธิ์ใน Pipeline → เปิดดีล → ปุ่ม &quot;ตั้งสิทธิ์ลิขสิทธิ์&quot;
       </p>
 
-      <GiveFeedbackButton feature="legal-desk" label="Legal Desk" />
+      <PageFooterActions feature="legal-desk" label="Legal Desk" />
     </div>
   );
 }
