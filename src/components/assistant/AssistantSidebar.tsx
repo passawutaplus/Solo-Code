@@ -136,6 +136,8 @@ export function AssistantSidebar() {
   const isMobile = useIsMobile();
   const { view, close, collapseToMini, sidebarWidth, setSidebarWidth } = useAssistant();
   const open = view === "sidebar";
+  const { width, onResizePointerDown, onResizePointerMove, onResizePointerUp } =
+    useResizableSidebar(close, sidebarWidth, setSidebarWidth);
 
   if (!user) return null;
 
@@ -150,9 +152,6 @@ export function AssistantSidebar() {
       </Sheet>
     );
   }
-
-  const { width, onResizePointerDown, onResizePointerMove, onResizePointerUp } =
-    useResizableSidebar(close, sidebarWidth, setSidebarWidth);
 
   if (!open) return null;
 
