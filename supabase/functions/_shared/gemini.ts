@@ -136,6 +136,141 @@ export async function geminiGenerateText(
   return extractTextFromResponse(json).trim();
 }
 
+function extractStreamDelta(json: Record<string, unknown>): string {
+  const candidates = json.candidates as Array<Record<string, unknown>> | undefined;
+  const parts = (candidates?.[0]?.content as Record<string, unknown> | undefined)?.parts as
+    | Array<Record<string, unknown>>
+    | undefined;
+  if (!parts?.length) return "";
+  return parts.map((p) => String(p.text ?? "")).join("");
+}
+
+/** Stream Gemini output as So1o SSE (`data: {"delta":"..."}`). */
+export function geminiStreamAsSo1oSse(
+  apiKey: string,
+  model: string,
+  messages: GeminiChatMessage[],
+): ReadableStream<Uint8Array> {
+  const { systemInstruction, contents } = splitMessages(messages);
+  const url =
+    `${GEMINI_BASE}/models/${model}:streamGenerateContent?alt=sse&key=${encodeURIComponent(apiKey)}`;
+  const reqBody: Record<string, unknown> = { contents };
+  if (systemInstruction) reqBody.systemInstruction = systemInstruction;
+
+  const encoder = new TextEncoder();
+  return new ReadableStream({
+    async start(controller) {
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(reqBody),
+      });
+      if (!res.ok) {
+        controller.error(await parseGeminiError(res));
+        return;
+      }
+      const reader = res.body?.getReader();
+      if (!reader) {
+        controller.error(new GeminiError("empty stream", 500));
+        return;
+      }
+      const decoder = new TextDecoder();
+      let buffer = "";
+      try {
+        while (true) {
+          const { value, done } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split("\n");
+          buffer = lines.pop() ?? "";
+          for (const line of lines) {
+            if (!line.startsWith("data:")) continue;
+            const payload = line.slice(5).trim();
+            if (!payload || payload === "[DONE]") continue;
+            try {
+              const chunk = JSON.parse(payload) as Record<string, unknown>;
+              const delta = extractStreamDelta(chunk);
+              if (delta) {
+                controller.enqueue(
+                  encoder.encode(`data: ${JSON.stringify({ delta })}\n\n`),
+                );
+              }
+            } catch {
+              /* ignore malformed chunk */
+            }
+          }
+        }
+      } finally {
+        controller.close();
+      }
+    },
+  });
+}
+
+/** Structured output via Gemini function calling. */
+export async function geminiGenerateWithFunction(
+  apiKey: string,
+  model: string,
+  options: {
+    messages: GeminiChatMessage[];
+    functionName: string;
+    description: string;
+    functionSchema: Record<string, unknown>;
+    temperature?: number;
+  },
+): Promise<Record<string, unknown>> {
+  const { systemInstruction, contents } = splitMessages(options.messages);
+  const body: Record<string, unknown> = {
+    contents,
+    tools: [{
+      functionDeclarations: [{
+        name: options.functionName,
+        description: options.description,
+        parameters: options.functionSchema,
+      }],
+    }],
+    toolConfig: {
+      functionCallingConfig: {
+        mode: "ANY",
+        allowedFunctionNames: [options.functionName],
+      },
+    },
+  };
+  if (systemInstruction) body.systemInstruction = systemInstruction;
+  if (options.temperature != null) {
+    body.generationConfig = { temperature: options.temperature };
+  }
+
+  const url = `${GEMINI_BASE}/models/${model}:generateContent?key=${encodeURIComponent(apiKey)}`;
+  const res = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) throw await parseGeminiError(res);
+
+  const json = (await res.json()) as Record<string, unknown>;
+  const parts = ((json.candidates as Array<Record<string, unknown>> | undefined)?.[0]
+    ?.content as Record<string, unknown> | undefined)?.parts as
+    | Array<Record<string, unknown>>
+    | undefined;
+
+  for (const part of parts ?? []) {
+    const fc = part.functionCall as { name?: string; args?: Record<string, unknown> } | undefined;
+    if (fc?.args && typeof fc.args === "object") return fc.args;
+  }
+
+  const text = extractTextFromResponse(json);
+  if (text) {
+    try {
+      return JSON.parse(text) as Record<string, unknown>;
+    } catch {
+      throw new GeminiError("invalid function json", 500);
+    }
+  }
+  throw new GeminiError("empty function response", 500);
+}
+
 export async function geminiEmbedText(
   apiKey: string,
   text: string,

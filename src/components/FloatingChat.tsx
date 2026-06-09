@@ -1,7 +1,7 @@
 import * as React from "react";
 import { useAuth } from "@/auth/AuthProvider";
 import { Button } from "@/components/ui/button";
-import { Sparkles, X, Maximize2 } from "lucide-react";
+import { Sparkles, X, PanelRightOpen } from "lucide-react";
 import { useAssistant } from "@/context/AssistantContext";
 import { AssistantChatPanel, AssistantCreditBar } from "@/components/assistant/AssistantChatPanel";
 import { getPresetConfig } from "@/lib/aiAssistantPresets";
@@ -57,10 +57,10 @@ export function FloatingChat({
                 size="sm"
                 variant="ghost"
                 className="h-7 w-7 p-0"
-                title="ขยายเป็นแถบข้าง"
+                title="เปิดแถบข้างขวา"
                 onClick={() => openSidebar()}
               >
-                <Maximize2 className="h-3.5 w-3.5" />
+                <PanelRightOpen className="h-3.5 w-3.5" />
               </Button>
               <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={close}>
                 <X className="h-4 w-4" />

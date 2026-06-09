@@ -19,7 +19,6 @@ import { AssistantChatPanel, AssistantCreditBar } from "@/components/assistant/A
 import { ASSISTANT_PRESETS } from "@/lib/aiAssistantPresets";
 import type { AssistantPreset } from "@/context/AssistantContext";
 import { useAiUsage } from "@/hooks/useAiUsage";
-import { describeAiCreditsPlan } from "@/lib/aiCredits";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/creative-partner")({
@@ -114,8 +113,6 @@ function CreativePartnerPage() {
     ? "bg-card/80 border-border/60 backdrop-blur-xl"
     : "bg-white border-border/80 shadow-sm";
 
-  const planHint = describeAiCreditsPlan(usage);
-
   return (
     <div className={cn("min-h-screen flex transition-colors", shell)}>
       {/* Sidebar */}
@@ -180,7 +177,6 @@ function CreativePartnerPage() {
         <div className={cn("p-3 border-t space-y-2", dark ? "border-border/40" : "border-border/60")}>
           <div className={cn("rounded-xl border p-3", panel)}>
             <AssistantCreditBar />
-            <p className="text-[9px] text-muted-foreground mt-2 leading-snug">{planHint}</p>
           </div>
           <div className="flex flex-wrap gap-x-2 gap-y-1 text-[10px] text-muted-foreground px-1">
             <Link to="/privacy" className="hover:text-foreground">Privacy</Link>

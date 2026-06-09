@@ -165,7 +165,9 @@ export function AssistantChatPanel({
             <div className="mt-1 text-[10px]">
               ยาวไม่เกิน 500 ตัวอักษร · ใช้ {presetConfig.cost} เครดิต/คำถาม
             </div>
-            <div className="mt-2 text-[10px] text-muted-foreground/80">{planHint}</div>
+            {compact && planHint && (
+              <div className="mt-2 text-[10px] text-muted-foreground/80">{planHint}</div>
+            )}
           </div>
         ) : (
           messages.map((m, idx) => (
