@@ -6,7 +6,7 @@ export const SIDEBAR_MIN_WIDTH = 300;
 export const SIDEBAR_MAX_WIDTH = 720;
 export const SIDEBAR_CLOSE_WIDTH = 200;
 
-function loadWidth(): number {
+export function loadSidebarWidth(): number {
   if (typeof window === "undefined") return SIDEBAR_DEFAULT_WIDTH;
   try {
     const n = Number(localStorage.getItem(STORAGE_KEY));
@@ -17,8 +17,11 @@ function loadWidth(): number {
   return SIDEBAR_DEFAULT_WIDTH;
 }
 
-export function useResizableSidebar(onClose: () => void) {
-  const [width, setWidth] = React.useState(loadWidth);
+export function useResizableSidebar(
+  onClose: () => void,
+  width: number,
+  setWidth: (w: number) => void,
+) {
   const drag = React.useRef<{ startX: number; startW: number } | null>(null);
 
   const onResizePointerDown = React.useCallback((e: React.PointerEvent) => {
@@ -32,7 +35,7 @@ export function useResizableSidebar(onClose: () => void) {
     const delta = drag.current.startX - e.clientX;
     const next = Math.max(120, Math.min(SIDEBAR_MAX_WIDTH, drag.current.startW + delta));
     setWidth(next);
-  }, []);
+  }, [setWidth]);
 
   const onResizePointerUp = React.useCallback((e: React.PointerEvent) => {
     if (!drag.current) return;
@@ -42,7 +45,7 @@ export function useResizableSidebar(onClose: () => void) {
     drag.current = null;
     if (finalW < SIDEBAR_CLOSE_WIDTH) {
       onClose();
-      setWidth(loadWidth());
+      setWidth(loadSidebarWidth());
       return;
     }
     const clamped = Math.max(SIDEBAR_MIN_WIDTH, Math.min(SIDEBAR_MAX_WIDTH, finalW));
@@ -52,7 +55,7 @@ export function useResizableSidebar(onClose: () => void) {
     } catch {
       /* noop */
     }
-  }, [onClose]);
+  }, [onClose, setWidth]);
 
   return {
     width,

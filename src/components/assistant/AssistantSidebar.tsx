@@ -134,7 +134,7 @@ function SidebarChrome({
 export function AssistantSidebar() {
   const { user } = useAuth();
   const isMobile = useIsMobile();
-  const { view, close, collapseToMini } = useAssistant();
+  const { view, close, collapseToMini, sidebarWidth, setSidebarWidth } = useAssistant();
   const open = view === "sidebar";
 
   if (!user) return null;
@@ -152,7 +152,7 @@ export function AssistantSidebar() {
   }
 
   const { width, onResizePointerDown, onResizePointerMove, onResizePointerUp } =
-    useResizableSidebar(close);
+    useResizableSidebar(close, sidebarWidth, setSidebarWidth);
 
   if (!open) return null;
 

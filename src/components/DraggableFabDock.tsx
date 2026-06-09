@@ -1,5 +1,7 @@
 import * as React from "react";
 import { FloatingChat } from "@/components/FloatingChat";
+import { useAssistant } from "@/context/AssistantContext";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { DASH_MOBILE_NAV_SPACER_PX } from "@/lib/layoutConstants";
 import { cn } from "@/lib/utils";
 
@@ -38,7 +40,7 @@ function loadPos(): DockPos | null {
   return null;
 }
 
-function defaultPos(): DockPos {
+function defaultPos(rightInset: number): DockPos {
   if (typeof window === "undefined") return { x: 0, y: 0 };
   const w = window.innerWidth;
   const h = window.innerHeight;
@@ -47,33 +49,40 @@ function defaultPos(): DockPos {
       ? DASH_MOBILE_NAV_SPACER_PX + 48
       : 24;
   return {
-    x: w - DOCK_WIDTH - MARGIN,
+    x: w - DOCK_WIDTH - rightInset,
     y: h - DOCK_HEIGHT - bottomOffset,
   };
 }
 
-function clampPos(p: DockPos): DockPos {
+function clampPos(p: DockPos, rightInset: number): DockPos {
   if (typeof window === "undefined") return p;
   const w = window.innerWidth;
   const h = window.innerHeight;
   return {
-    x: Math.max(MARGIN, Math.min(p.x, w - DOCK_WIDTH - MARGIN)),
+    x: Math.max(MARGIN, Math.min(p.x, w - DOCK_WIDTH - rightInset)),
     y: Math.max(MARGIN, Math.min(p.y, h - DOCK_HEIGHT - MARGIN)),
   };
 }
 
-function snapToEdge(p: DockPos): DockPos {
+function snapToEdge(p: DockPos, rightInset: number): DockPos {
   if (typeof window === "undefined") return p;
   const w = window.innerWidth;
-  const distLeft = p.x;
-  const distRight = w - (p.x + DOCK_WIDTH);
-  const snappedX = distLeft < distRight ? MARGIN : w - DOCK_WIDTH - MARGIN;
-  return clampPos({ x: snappedX, y: p.y });
+  const maxX = w - DOCK_WIDTH - rightInset;
+  const distLeft = p.x - MARGIN;
+  const distRight = maxX - p.x;
+  const snappedX = distLeft < distRight ? MARGIN : maxX;
+  return clampPos({ x: snappedX, y: p.y }, rightInset);
 }
 
 export function DraggableFabDock() {
   const modalOpen = useModalOpen();
-  const [pos, setPos] = React.useState<DockPos>(() => clampPos(loadPos() ?? defaultPos()));
+  const { view, sidebarWidth } = useAssistant();
+  const isMobile = useIsMobile();
+  const rightInset = view === "sidebar" && !isMobile ? sidebarWidth + MARGIN : MARGIN;
+
+  const [pos, setPos] = React.useState<DockPos>(() =>
+    clampPos(loadPos() ?? defaultPos(MARGIN), MARGIN),
+  );
   const [dragging, setDragging] = React.useState(false);
   const skipClickRef = React.useRef(false);
   const dragState = React.useRef<{
@@ -86,14 +95,18 @@ export function DraggableFabDock() {
   } | null>(null);
 
   React.useEffect(() => {
-    const onResize = () => setPos((p) => clampPos(p));
+    setPos((p) => clampPos(p, rightInset));
+  }, [rightInset]);
+
+  React.useEffect(() => {
+    const onResize = () => setPos((p) => clampPos(p, rightInset));
     window.addEventListener("resize", onResize);
     window.addEventListener("orientationchange", onResize);
     return () => {
       window.removeEventListener("resize", onResize);
       window.removeEventListener("orientationchange", onResize);
     };
-  }, []);
+  }, [rightInset]);
 
   const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
     if (e.button !== 0 && e.pointerType === "mouse") return;
@@ -119,7 +132,7 @@ export function DraggableFabDock() {
       setDragging(true);
       (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
     }
-    setPos(clampPos({ x: s.origX + dx, y: s.origY + dy }));
+    setPos(clampPos({ x: s.origX + dx, y: s.origY + dy }, rightInset));
   };
 
   const onPointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
@@ -132,7 +145,7 @@ export function DraggableFabDock() {
     }
     if (s.moved) {
       skipClickRef.current = true;
-      const snapped = snapToEdge(pos);
+      const snapped = snapToEdge(pos, rightInset);
       setPos(snapped);
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(snapped));

@@ -1,4 +1,5 @@
 import * as React from "react";
+import { loadSidebarWidth } from "@/hooks/useResizableSidebar";
 
 export type AssistantView = "closed" | "mini" | "sidebar";
 export type AssistantPreset = "mentor" | "business" | "copy" | "legal";
@@ -19,6 +20,8 @@ function loadPreset(): AssistantPreset {
 type AssistantContextValue = {
   view: AssistantView;
   preset: AssistantPreset;
+  sidebarWidth: number;
+  setSidebarWidth: (width: number) => void;
   setPreset: (preset: AssistantPreset) => void;
   openMini: () => void;
   openSidebar: () => void;
@@ -31,6 +34,7 @@ const AssistantContext = React.createContext<AssistantContextValue | null>(null)
 export function AssistantProvider({ children }: { children: React.ReactNode }) {
   const [view, setView] = React.useState<AssistantView>("closed");
   const [preset, setPresetState] = React.useState<AssistantPreset>(loadPreset);
+  const [sidebarWidth, setSidebarWidth] = React.useState(loadSidebarWidth);
 
   const setPreset = React.useCallback((next: AssistantPreset) => {
     setPresetState(next);
@@ -47,8 +51,18 @@ export function AssistantProvider({ children }: { children: React.ReactNode }) {
   const collapseToMini = React.useCallback(() => setView("mini"), []);
 
   const value = React.useMemo(
-    () => ({ view, preset, setPreset, openMini, openSidebar, close, collapseToMini }),
-    [view, preset, setPreset, openMini, openSidebar, close, collapseToMini],
+    () => ({
+      view,
+      preset,
+      sidebarWidth,
+      setSidebarWidth,
+      setPreset,
+      openMini,
+      openSidebar,
+      close,
+      collapseToMini,
+    }),
+    [view, preset, sidebarWidth, setPreset, openMini, openSidebar, close, collapseToMini],
   );
 
   return <AssistantContext.Provider value={value}>{children}</AssistantContext.Provider>;

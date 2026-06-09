@@ -1,5 +1,11 @@
 -- Free tier: 5 AI credits per day for the first 15 days after signup (Bangkok calendar).
 
+ALTER TABLE public.ai_tier_config DROP CONSTRAINT IF EXISTS ai_tier_config_monthly_included_check;
+ALTER TABLE public.ai_tier_config ADD CONSTRAINT ai_tier_config_monthly_included_check CHECK (monthly_included >= 0);
+
+ALTER TABLE public.user_ai_period DROP CONSTRAINT IF EXISTS user_ai_period_included_limit_check;
+ALTER TABLE public.user_ai_period ADD CONSTRAINT user_ai_period_included_limit_check CHECK (included_limit >= 0);
+
 UPDATE public.ai_tier_config SET monthly_included = 0, updated_at = now() WHERE tier = 'free';
 
 CREATE OR REPLACE FUNCTION public._ai_free_trial_days_left(_user_id uuid)
