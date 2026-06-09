@@ -12,7 +12,7 @@ import { toast } from "sonner";
 export function DisplayThemeSection() {
   const { theme, setTheme } = useTheme();
   const { profile, refreshProfile } = useAuth();
-  const locale = pickLocale((profile as { locale?: string } | null)?.locale);
+  const locale = pickLocale(profile?.locale);
   const [savingLocale, setSavingLocale] = React.useState(false);
 
   async function setLocale(next: UserLocale) {
@@ -20,7 +20,7 @@ export function DisplayThemeSection() {
     setSavingLocale(true);
     const { error } = await supabase
       .from("profiles")
-      .update({ locale: next } as Record<string, unknown>)
+      .update({ locale: next })
       .eq("user_id", profile.user_id);
     setSavingLocale(false);
     if (error) {

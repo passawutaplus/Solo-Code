@@ -4019,6 +4019,11 @@ export type Database = {
           is_verified?: boolean
           last_active_at?: string | null
           line_id?: string
+          line_linked_at?: string | null
+          line_messaging_user_id?: string | null
+          line_notify_enabled?: boolean
+          line_notify_prefs?: Json
+          locale?: string
           location?: string
           logo_url?: string | null
           notify_email?: boolean

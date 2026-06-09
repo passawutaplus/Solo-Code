@@ -36,23 +36,17 @@ function LineGlyphBadge({ className }: { className?: string }) {
 export function LineNotificationSection() {
   const { isPro, tier } = useSubscription();
   const { profile, refreshProfile } = useAuth();
-  const locale = pickLocale((profile as { locale?: string } | null)?.locale);
+  const locale = pickLocale(profile?.locale);
   const [saving, setSaving] = React.useState(false);
   const [enabled, setEnabled] = React.useState(false);
   const [prefs, setPrefs] = React.useState(mergeLineNotifyPrefs(null));
 
-  const linked = Boolean(
-    (profile as { line_messaging_user_id?: string | null } | null)?.line_messaging_user_id,
-  );
-  const linkedAt = (profile as { line_linked_at?: string | null } | null)?.line_linked_at;
+  const linked = Boolean(profile?.line_messaging_user_id);
+  const linkedAt = profile?.line_linked_at;
 
   React.useEffect(() => {
-    const p = profile as {
-      line_notify_enabled?: boolean;
-      line_notify_prefs?: unknown;
-    } | null;
-    setEnabled(!!p?.line_notify_enabled);
-    setPrefs(mergeLineNotifyPrefs(p?.line_notify_prefs));
+    setEnabled(!!profile?.line_notify_enabled);
+    setPrefs(mergeLineNotifyPrefs(profile?.line_notify_prefs));
   }, [profile]);
 
   const t = (th: string, en: string) => (locale === "en" ? en : th);
@@ -65,7 +59,7 @@ export function LineNotificationSection() {
       .update({
         line_notify_enabled: nextEnabled,
         line_notify_prefs: nextPrefs,
-      } as Record<string, unknown>)
+      })
       .eq("user_id", profile.user_id);
     setSaving(false);
     if (error) {
