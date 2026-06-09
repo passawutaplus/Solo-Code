@@ -14,12 +14,12 @@ export function SupportSidebarButton({
 }) {
   return (
     <SidebarMenuButton
-      tooltip="ช่วยเหลือ"
+      tooltip="Help"
       className={cn(MENU_BTN, "w-full")}
       onClick={onOpen}
     >
       <LifeBuoy className="h-4 w-4 shrink-0" />
-      {!collapsed && <span className="text-xs font-medium truncate">ช่วยเหลือ</span>}
+      {!collapsed && <span className="text-xs font-medium truncate">Help</span>}
     </SidebarMenuButton>
   );
 }

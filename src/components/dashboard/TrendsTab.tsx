@@ -2,6 +2,7 @@ import * as React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { getDailyTrends, type DailyTrendItem } from "@/lib/dailyTrends.functions";
+import { DAILY_TRENDS_QUERY_KEY, DAILY_TRENDS_STALE_MS } from "@/hooks/useDailyTrendsPrefetch";
 import { safeHref } from "@/lib/security";
 import { Newspaper, ExternalLink, Sparkles, Loader2, ArrowRight, Globe } from "lucide-react";
 import { getFaviconUrl } from "@/lib/favicon";
@@ -9,14 +10,19 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { PageFooterActions } from "@/components/dashboard/PageFooterActions";
+import { TrendCoverImage } from "@/components/dashboard/TrendCoverImage";
 
 export function TrendsTab() {
   const fetchTrends = useServerFn(getDailyTrends);
-  const { data, isLoading } = useQuery({
-    queryKey: ["daily-trends"],
+  const { data, isLoading, isFetching } = useQuery({
+    queryKey: DAILY_TRENDS_QUERY_KEY,
     queryFn: () => fetchTrends(),
-    staleTime: 1000 * 60 * 60 * 6,
+    staleTime: DAILY_TRENDS_STALE_MS,
+    refetchInterval: (query) =>
+      query.state.data?.status === "pending" ? 5000 : false,
   });
+
+  const isPending = data?.status === "pending" && (data.items?.length ?? 0) === 0;
 
   const items: DailyTrendItem[] = data?.items ?? [];
   const [activeCat, setActiveCat] = React.useState<string>("ทั้งหมด");
@@ -90,8 +96,22 @@ export function TrendsTab() {
         </div>
       )}
 
+      {/* Pending — cache not ready yet, warming in background */}
+      {!isLoading && isPending && (
+        <div className="rounded-2xl border border-dashed border-primary/30 bg-primary/5 p-10 text-center space-y-3">
+          <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto" />
+          <p className="text-sm font-semibold">กำลังเตรียมข่าววันนี้ให้อยู่…</p>
+          <p className="text-xs text-muted-foreground max-w-sm mx-auto">
+            ระบบดึงข่าวจากแหล่งจริงแล้วสรุปเป็นภาษาไทย — ใช้เวลาสักครู่ หน้านี้จะอัปเดตอัตโนมัติ
+          </p>
+          {isFetching && (
+            <p className="text-[11px] text-muted-foreground/70">กำลังตรวจสอบอีกครั้ง…</p>
+          )}
+        </div>
+      )}
+
       {/* Loading */}
-      {isLoading && (
+      {isLoading && !data && (
         <div className="space-y-4">
           <Skeleton className="h-72 w-full rounded-2xl" />
           <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-4">
@@ -106,9 +126,22 @@ export function TrendsTab() {
       {!isLoading && featured && (
         <article className="group relative overflow-hidden rounded-2xl border border-border bg-card shadow-card hover:shadow-elevated transition-all">
           <div className="grid md:grid-cols-[1.1fr_1fr] gap-0">
-            <div className="relative bg-gradient-to-br from-primary/20 via-primary/10 to-transparent p-8 sm:p-10 flex items-center justify-center min-h-[220px]">
-              <div className="absolute inset-0 opacity-30 bg-[radial-gradient(circle_at_30%_30%,hsl(var(--primary)/0.4),transparent_60%)]" />
-              <span className="relative text-[120px] leading-none drop-shadow-sm">{featured.emoji}</span>
+            <div className="relative bg-gradient-to-br from-primary/20 via-primary/10 to-transparent flex items-center justify-center min-h-[220px] overflow-hidden">
+              {featured.image_url && safeHref(featured.image_url) ? (
+                <>
+                  <TrendCoverImage
+                    item={featured}
+                    variant="featured"
+                    className="absolute inset-0 w-full h-full"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-card/90 via-card/30 to-transparent" />
+                </>
+              ) : (
+                <>
+                  <div className="absolute inset-0 opacity-30 bg-[radial-gradient(circle_at_30%_30%,hsl(var(--primary)/0.4),transparent_60%)]" />
+                  <TrendCoverImage item={featured} variant="featured" className="relative" />
+                </>
+              )}
             </div>
             <div className="p-6 sm:p-8 flex flex-col justify-center">
               <div className="inline-flex items-center gap-1.5 rounded-full bg-primary/15 text-primary px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider w-fit">
@@ -162,9 +195,19 @@ export function TrendsTab() {
                   className="group block overflow-hidden rounded-xl border border-border bg-card hover:shadow-elevated hover:-translate-y-1 hover:border-primary/40 transition-all"
                 >
                   <div className="relative h-28 bg-gradient-to-br from-primary/15 via-primary-soft/40 to-card flex items-center justify-center overflow-hidden">
-                    <span className="text-5xl group-hover:scale-110 transition-transform duration-300">
-                      {t.emoji}
-                    </span>
+                    {t.image_url && safeHref(t.image_url) ? (
+                      <TrendCoverImage
+                        item={t}
+                        variant="card"
+                        className="absolute inset-0 w-full h-full group-hover:scale-105 transition-transform duration-300"
+                      />
+                    ) : (
+                      <TrendCoverImage
+                        item={t}
+                        variant="card"
+                        className="group-hover:scale-110 transition-transform duration-300"
+                      />
+                    )}
                     <span className="absolute top-2.5 left-2.5 rounded-full bg-card/90 backdrop-blur text-primary text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 border border-border">
                       {t.category}
                     </span>
@@ -195,7 +238,7 @@ export function TrendsTab() {
         </section>
       )}
 
-      {!isLoading && filtered.length === 0 && (
+      {!isLoading && !isPending && filtered.length === 0 && (
         <div className="rounded-xl border border-dashed border-border p-12 text-center text-sm text-muted-foreground">
           ยังไม่มีข่าวสารในหมวดนี้
         </div>
@@ -203,7 +246,7 @@ export function TrendsTab() {
 
       {data?.date && (
         <p className="text-center text-[11px] text-muted-foreground/70 pt-2 flex items-center justify-center gap-1.5">
-          <Loader2 className="h-3 w-3" /> ดึงข่าวจาก RSS รายวัน · สรุปภาษาไทยโดย So1o AI
+          <Loader2 className="h-3 w-3" /> ดึงข่าวจาก RSS รายวัน · สรุปภาษาไทยน้ำเสียงกันเองโดย So1o AI
         </p>
       )}
 

@@ -62,7 +62,7 @@ export function PipelineNewDealButton({
             ) : (
               <Plus className="h-4 w-4" />
             )}
-            สร้างดีลใหม่
+            New Deal
           </Button>
         </PopoverTrigger>
         <PopoverContent align="end" className="w-72 p-2">
@@ -78,7 +78,7 @@ export function PipelineNewDealButton({
         <PopoverTrigger asChild>
           <button
             type="button"
-            title="สร้างดีลใหม่"
+            title="New Deal"
             className="mx-auto flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-[#FF5F05] to-orange-400 text-white shadow-soft hover:scale-105 transition-transform"
           >
             <PersonLaptopIcon className="h-4 w-4" />
@@ -107,9 +107,9 @@ export function PipelineNewDealButton({
             <PersonLaptopIcon className="h-4 w-4" />
           </span>
           <span className="min-w-0 flex-1">
-            <span className="block text-xs font-bold leading-tight truncate">สร้างดีลใหม่</span>
+            <span className="block text-xs font-bold leading-tight truncate">New Deal</span>
             <span className="block text-[10px] text-white/85 leading-tight truncate">
-              Smart Brief หรือใบเสนอราคา
+              Smart Brief or Quotation
             </span>
           </span>
           <Plus className="h-4 w-4 shrink-0 opacity-90" />
@@ -137,7 +137,7 @@ function DealOptions({
   return (
     <div className="space-y-1.5">
       <p className="px-1 pb-0.5 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
-        เริ่มดีลใหม่
+        Start new deal
       </p>
       <button
         type="button"
@@ -151,7 +151,7 @@ function DealOptions({
           <span className="min-w-0">
             <span className="block text-xs font-semibold text-foreground">Smart Brief</span>
             <span className="block text-[10px] text-muted-foreground leading-snug mt-0.5">
-              จัดบรีฟให้ตรงกับลูกค้าเป็นหลักฐาน — ส่งลิงก์ให้กรอกหรือยืนยันร่วมกันก่อนเสนอราคา
+              Align the brief with your client — share a link to fill in or confirm before quoting.
             </span>
           </span>
         </div>
@@ -166,9 +166,9 @@ function DealOptions({
             <FileText className="h-3.5 w-3.5" />
           </span>
           <span className="min-w-0">
-            <span className="block text-xs font-semibold text-foreground">ใบเสนอราคาเลย</span>
+            <span className="block text-xs font-semibold text-foreground">Quotation now</span>
             <span className="block text-[10px] text-muted-foreground leading-snug mt-0.5">
-              ทางลัดสำหรับงานที่คุยจบแล้ว — ข้ามบรีฟหรือกลับมาทำทีหลังได้
+              Shortcut when the scope is settled — skip the brief or add it later.
             </span>
           </span>
         </div>

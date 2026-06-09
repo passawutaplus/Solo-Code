@@ -73,26 +73,26 @@ interface NavGroup {
 
 const GROUPS: NavGroup[] = [
   {
-    label: "งานลูกค้า",
+    label: "Client Work",
     icon: Briefcase,
     items: [
       { label: "Pipeline", icon: Kanban, section: "finance", sub: "pipeline" },
       { label: "Smart Brief", icon: Lightbulb, section: "planner", sub: "briefs" },
       { label: "Quotation", icon: FileText, section: "finance", sub: "quotations" },
-      { label: "Job tracker", icon: Workflow, section: "finance", sub: "jobs" },
+      { label: "Job Tracker", icon: Workflow, section: "finance", sub: "jobs" },
     ],
   },
   {
-    label: "การเงิน",
+    label: "Finance",
     icon: Wallet,
     items: [
-      { label: "รายได้", icon: Coins, section: "finance", sub: "income" },
-      { label: "ภาษี", icon: Calculator, section: "finance", sub: "tax" },
+      { label: "Income", icon: Coins, section: "finance", sub: "income" },
+      { label: "Tax", icon: Calculator, section: "finance", sub: "tax" },
       { label: "Subscription", icon: CreditCard, section: "finance", sub: "subs" },
     ],
   },
   {
-    label: "วางแผน",
+    label: "Planning",
     icon: CalendarDays,
     items: [
       { label: "Content", icon: CalendarDays, section: "planner", sub: "content" },
@@ -101,20 +101,20 @@ const GROUPS: NavGroup[] = [
     ],
   },
   {
-    label: "ข้อมูล",
+    label: "Data",
     icon: Database,
     items: [
-      { label: "Client", icon: Users, section: "mydata", sub: "clients" },
+      { label: "Clients", icon: Users, section: "mydata", sub: "clients" },
       { label: "Suppliers", icon: Truck, section: "mydata", sub: "suppliers" },
       { label: "Assets", icon: FolderOpen, section: "mydata", sub: "assets" },
       { label: "Legal Desk", icon: Scale, section: "mydata", sub: "legal" },
     ],
   },
   {
-    label: "อื่นๆ",
+    label: "More",
     icon: Compass,
     items: [
-      { label: "ข่าวสาร & เทรนด์", icon: Newspaper, section: "trends" },
+      { label: "News & Trends", icon: Newspaper, section: "trends" },
       { label: "Inspire", icon: Compass, section: "inspire" },
     ],
   },
@@ -311,11 +311,11 @@ export function DashboardSidebar({ active, activeSub, setActive }: DashboardSide
             <SidebarMenuButton
               isActive={active === "settings"}
               onClick={() => setActive("settings")}
-              tooltip="Setting"
+              tooltip="Settings"
               className={MENU_BTN}
             >
               <Settings className="h-4 w-4 shrink-0" />
-              {!collapsed && <span className="text-xs font-medium truncate">Setting</span>}
+              {!collapsed && <span className="text-xs font-medium truncate">Settings</span>}
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
@@ -338,7 +338,7 @@ function ProPlanCard({ collapsed }: { collapsed: boolean }) {
     return (
       <Link
         to="/pricing"
-        title={isPro ? "Pro Member" : "อัพเกรด Pro"}
+        title={isPro ? "Pro Member" : "Upgrade Pro"}
         className={`mx-auto h-9 w-9 rounded-full flex items-center justify-center shadow-soft transition-transform hover:scale-105 ${
           isPro ? "bg-gradient-to-br from-primary to-orange-400 text-white" : "bg-white text-primary"
         }`}
@@ -362,7 +362,7 @@ function ProPlanCard({ collapsed }: { collapsed: boolean }) {
           <CheckCircle2 className="h-3.5 w-3.5 shrink-0" />
           <span className="text-xs font-bold truncate">Pro Member</span>
         </div>
-        <p className="text-[9px] text-muted-foreground mt-0.5 truncate">จัดการ subscription</p>
+        <p className="text-[9px] text-muted-foreground mt-0.5 truncate">Manage subscription</p>
       </Link>
     );
   }
@@ -374,10 +374,10 @@ function ProPlanCard({ collapsed }: { collapsed: boolean }) {
     >
       <div className="flex items-center justify-center gap-1">
         <Sparkles className="h-3.5 w-3.5 shrink-0" />
-        <span className="text-xs font-bold truncate">อัพเกรด Pro</span>
+        <span className="text-xs font-bold truncate">Upgrade Pro</span>
       </div>
       <p className="text-[9px] text-white/90 mt-0.5 leading-tight line-clamp-2">
-        249฿/เดือน · ฟรี 1 ปีสำหรับ 100 คนแรก
+        ฿249/mo · Free 1 year for first 100 users
       </p>
     </Link>
   );

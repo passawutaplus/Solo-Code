@@ -50,6 +50,7 @@ import { AnnouncementBanner } from "@/components/AnnouncementBanner";
 import { DashboardBannerSlider } from "@/components/DashboardBannerSlider";
 import { useTrackActivity } from "@/hooks/useTrackActivity";
 import { useLogActivity } from "@/hooks/useLogActivity";
+import { useDailyTrendsPrefetch } from "@/hooks/useDailyTrendsPrefetch";
 import logoUrl from "@/assets/solo-freelancer-logo.webp";
 
 export const Route = createFileRoute("/dashboard")({
@@ -154,6 +155,7 @@ function Dashboard() {
 
   useTrackActivity(user?.id);
   useLogActivity(user?.id, "dashboard_view");
+  useDailyTrendsPrefetch();
   React.useEffect(() => {
     trackFeature(`dashboard.${section}`);
   }, [section]);

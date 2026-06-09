@@ -34,6 +34,11 @@ export interface Profile {
   is_active?: boolean;
   deactivated_at?: string | null;
   purge_after?: string | null;
+  locale?: string;
+  line_messaging_user_id?: string | null;
+  line_linked_at?: string | null;
+  line_notify_enabled?: boolean;
+  line_notify_prefs?: Record<string, boolean>;
 }
 
 interface AuthContextValue {

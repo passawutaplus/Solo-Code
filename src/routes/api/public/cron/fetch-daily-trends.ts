@@ -1,9 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import {
-  cacheDailyTrends,
-  fetchAndSummarizeTrends,
-  todayISO,
-} from "@/lib/dailyTrends.functions";
+import { runDailyTrendsGeneration, todayISO } from "@/lib/dailyTrends.functions";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
 export const Route = createFileRoute("/api/public/cron/fetch-daily-trends")({
@@ -45,22 +41,18 @@ export const Route = createFileRoute("/api/public/cron/fetch-daily-trends")({
           }
         }
 
-        const { items, feedCount, source } = await fetchAndSummarizeTrends();
-
         try {
-          await cacheDailyTrends(date, items);
+          const result = await runDailyTrendsGeneration(force);
+          return Response.json({
+            ok: true,
+            date: result.date,
+            itemCount: result.items.length,
+            status: result.status,
+          });
         } catch (e) {
-          console.error("[fetch-daily-trends] cache error:", e);
-          return Response.json({ error: "Failed to cache trends" }, { status: 500 });
+          console.error("[fetch-daily-trends] error:", e);
+          return Response.json({ error: "Failed to generate trends" }, { status: 500 });
         }
-
-        return Response.json({
-          ok: true,
-          date,
-          itemCount: items.length,
-          feedCount,
-          source,
-        });
       },
     },
   },
