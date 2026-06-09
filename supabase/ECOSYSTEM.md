@@ -46,6 +46,7 @@ cd Anthem-Code && node scripts/run-seed.mjs
 
 - **So1o** — `db: { schema: 'public' }` (ค่าเริ่มต้น)
 - **an1hem** — `Anthem-Code/src/integrations/supabase/db.ts` route ตารางอัตโนมัติ
+- **Ops Hub** — `Ops-Hub/` monitor รวมทั้งสองแอป · `hq.solofreelancer.com`
 - **profiles** — ใช้ `user_id` (= `auth.uid()`), ไม่ใช่ `id` แถวภายใน
 
 ## Edge Functions (an1hem)

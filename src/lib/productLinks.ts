@@ -2,6 +2,9 @@
 export const ANTHEM_SHOWCASE_URL =
   (import.meta.env.VITE_ANTHEM_APP_URL as string | undefined) ?? "http://localhost:8081/";
 
+export const OPS_HUB_URL =
+  (import.meta.env.VITE_OPS_HUB_URL as string | undefined) ?? "http://localhost:3090";
+
 function anthemBaseUrl() {
   return ANTHEM_SHOWCASE_URL.replace(/\/$/, "");
 }

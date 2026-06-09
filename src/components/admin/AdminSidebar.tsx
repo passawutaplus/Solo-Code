@@ -25,7 +25,9 @@ import {
   Banknote,
   Cpu,
   HeartPulse,
+  ExternalLink,
 } from "lucide-react";
+import { OPS_HUB_URL } from "@/lib/productLinks";
 import {
   Sidebar,
   SidebarContent,
@@ -283,6 +285,14 @@ export function AdminSidebar({
                     <LayoutDashboard className="h-4 w-4 shrink-0" />
                     {!collapsed && <span className="text-xs">My Desk</span>}
                   </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild tooltip="Ops Hub — monitor รวม So1o + an1hem">
+                  <a href={OPS_HUB_URL} target="_blank" rel="noopener noreferrer" className="gap-2">
+                    <ExternalLink className="h-4 w-4 shrink-0" />
+                    {!collapsed && <span className="text-xs">Ops Hub</span>}
+                  </a>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
