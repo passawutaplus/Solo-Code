@@ -54,6 +54,7 @@ GRANT ALL ON public.user_ai_period TO service_role;
 
 ALTER TABLE public.user_ai_period ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users view own ai period" ON public.user_ai_period;
 CREATE POLICY "Users view own ai period"
   ON public.user_ai_period FOR SELECT
   TO authenticated
@@ -79,6 +80,7 @@ GRANT ALL ON public.ai_credit_ledger TO service_role;
 
 ALTER TABLE public.ai_credit_ledger ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users view own ai ledger" ON public.ai_credit_ledger;
 CREATE POLICY "Users view own ai ledger"
   ON public.ai_credit_ledger FOR SELECT
   TO authenticated
