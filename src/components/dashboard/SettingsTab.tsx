@@ -20,7 +20,7 @@ import { Loader2, Upload, LogOut, ShieldCheck, RotateCcw, Image as ImageIcon } f
 import { compressImageFile, dataUrlToBlob } from "@/lib/imageCompress";
 import { AiUsageSettingsSection } from "@/components/dashboard/settings/AiUsageSettingsSection";
 import { AccountIdentityBadge } from "@/components/dashboard/AccountIdentityBadge";
-import { StorageUsageSection } from "@/components/dashboard/settings/StorageUsageSection";
+import { StorageUsageSettingsSection } from "@/components/dashboard/settings/StorageUsageSettingsSection";
 import { LineNotificationSection } from "@/components/dashboard/settings/LineNotificationSection";
 import { SettingsQuickLinksSection } from "@/components/dashboard/settings/SettingsQuickLinksSection";
 import { DisplayThemeSection } from "@/components/dashboard/settings/DisplayThemeSection";
@@ -179,7 +179,7 @@ export function SettingsTab() {
       <TierMembershipCard />
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
         <AiUsageSettingsSection />
-        <StorageUsageSection />
+        <StorageUsageSettingsSection />
       </div>
       <LineNotificationSection />
       <DocumentBrandingSection />
