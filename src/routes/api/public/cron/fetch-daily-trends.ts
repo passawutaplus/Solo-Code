@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { runDailyTrendsGeneration, todayISO } from "@/lib/dailyTrends.functions";
+import { runDailyTrendsGeneration, todayISO } from "@/lib/dailyTrends.server";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
 export const Route = createFileRoute("/api/public/cron/fetch-daily-trends")({

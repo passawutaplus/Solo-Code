@@ -1,6 +1,6 @@
 import * as React from "react";
 import { safeHref } from "@/lib/security";
-import type { DailyTrendItem } from "@/lib/dailyTrends.functions";
+import type { DailyTrendItem } from "@/lib/dailyTrends.types";
 
 interface TrendCoverImageProps {
   item: DailyTrendItem;
