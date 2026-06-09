@@ -30,3 +30,6 @@ verify_jwt = false
 
 [functions.job-match-dispatch]
 verify_jwt = false
+
+[functions.line-queue-process]
+verify_jwt = false

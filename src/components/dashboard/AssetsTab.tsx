@@ -1,4 +1,5 @@
 import * as React from "react";
+import { getFaviconUrl } from "@/lib/favicon";
 import { safeHref } from "@/lib/security";
 import { useSupabaseRecords } from "@/hooks/useSupabaseRecords";
 import { Loader2 as LoaderIcon } from "lucide-react";
@@ -985,15 +986,6 @@ const BrandCard = React.memo(function BrandCard({
 });
 
 // ============= Link row =============
-function getFaviconUrl(rawUrl: string): string | null {
-  try {
-    const u = new URL(rawUrl);
-    return `https://www.google.com/s2/favicons?domain=${u.hostname}&sz=64`;
-  } catch {
-    return null;
-  }
-}
-
 function LinkRow({ link: l, onEdit, onDelete }: { link: LinkAsset; onEdit: () => void; onDelete: () => void }) {
   const favicon = getFaviconUrl(l.url);
   const [faviconBroken, setFaviconBroken] = React.useState(false);

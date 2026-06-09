@@ -3,7 +3,8 @@ import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { getDailyTrends, type DailyTrendItem } from "@/lib/dailyTrends.functions";
 import { safeHref } from "@/lib/security";
-import { Newspaper, ExternalLink, Sparkles, Loader2, ArrowRight } from "lucide-react";
+import { Newspaper, ExternalLink, Sparkles, Loader2, ArrowRight, Globe } from "lucide-react";
+import { getFaviconUrl } from "@/lib/favicon";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
@@ -65,7 +66,7 @@ export function TrendsTab() {
             </div>
           </div>
           <Badge variant="outline" className="gap-1 border-primary/30 text-primary">
-            <Sparkles className="h-3 w-3" /> อัปเดตโดย AI
+            <Sparkles className="h-3 w-3" /> สรุปจากข่าวจริง
           </Badge>
         </div>
       </header>
@@ -127,6 +128,7 @@ export function TrendsTab() {
                   className="mt-5 w-fit"
                 >
                   <Button size="sm" className="gap-1.5">
+                    <SourceFavicon url={featured.source_url} />
                     อ่านบทความเต็มที่ {featured.source ?? "แหล่งอ้างอิง"}
                     <ArrowRight className="h-3.5 w-3.5" />
                   </Button>
@@ -176,7 +178,8 @@ export function TrendsTab() {
                     </p>
                     {t.source && (
                       <div className="mt-3 pt-3 border-t border-border/60 flex items-center justify-between gap-2">
-                        <span className="text-[11px] text-muted-foreground font-medium truncate">
+                        <span className="text-[11px] text-muted-foreground font-medium truncate inline-flex items-center gap-1.5">
+                          {t.source_url && <SourceFavicon url={t.source_url} size={16} />}
                           {t.source}
                         </span>
                         {href && (
@@ -200,11 +203,28 @@ export function TrendsTab() {
 
       {data?.date && (
         <p className="text-center text-[11px] text-muted-foreground/70 pt-2 flex items-center justify-center gap-1.5">
-          <Loader2 className="h-3 w-3" /> เนื้อหาอัปเดตอัตโนมัติทุก 6 ชั่วโมง · powered by So1o AI
+          <Loader2 className="h-3 w-3" /> ดึงข่าวจาก RSS รายวัน · สรุปภาษาไทยโดย So1o AI
         </p>
       )}
 
       <PageFooterActions feature="trends" label="ข่าวสาร & เทรนด์" />
     </div>
+  );
+}
+
+function SourceFavicon({ url, size = 14 }: { url: string; size?: number }) {
+  const favicon = getFaviconUrl(url, 32);
+  const [broken, setBroken] = React.useState(false);
+  if (!favicon || broken) {
+    return <Globe className="shrink-0 text-muted-foreground" style={{ width: size, height: size }} />;
+  }
+  return (
+    <img
+      src={favicon}
+      alt=""
+      className="shrink-0 rounded-sm"
+      style={{ width: size, height: size }}
+      onError={() => setBroken(true)}
+    />
   );
 }

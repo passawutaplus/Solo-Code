@@ -45,6 +45,7 @@ import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/e
 import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
+import { Route as ApiPublicCronFetchDailyTrendsRouteImport } from './routes/api/public/cron/fetch-daily-trends'
 
 const UnsubscribeRoute = UnsubscribeRouteImport.update({
   id: '/unsubscribe',
@@ -230,6 +231,12 @@ const ApiPublicPaymentsWebhookRoute =
     path: '/api/public/payments/webhook',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicCronFetchDailyTrendsRoute =
+  ApiPublicCronFetchDailyTrendsRouteImport.update({
+    id: '/api/public/cron/fetch-daily-trends',
+    path: '/api/public/cron/fetch-daily-trends',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -262,6 +269,7 @@ export interface FileRoutesByFullPath {
   '/vision/$token': typeof VisionTokenRoute
   '/blog/': typeof BlogIndexRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
+  '/api/public/cron/fetch-daily-trends': typeof ApiPublicCronFetchDailyTrendsRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -300,6 +308,7 @@ export interface FileRoutesByTo {
   '/vision/$token': typeof VisionTokenRoute
   '/blog': typeof BlogIndexRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
+  '/api/public/cron/fetch-daily-trends': typeof ApiPublicCronFetchDailyTrendsRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -339,6 +348,7 @@ export interface FileRoutesById {
   '/vision/$token': typeof VisionTokenRoute
   '/blog/': typeof BlogIndexRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
+  '/api/public/cron/fetch-daily-trends': typeof ApiPublicCronFetchDailyTrendsRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -379,6 +389,7 @@ export interface FileRouteTypes {
     | '/vision/$token'
     | '/blog/'
     | '/lovable/email/suppression'
+    | '/api/public/cron/fetch-daily-trends'
     | '/api/public/payments/webhook'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -417,6 +428,7 @@ export interface FileRouteTypes {
     | '/vision/$token'
     | '/blog'
     | '/lovable/email/suppression'
+    | '/api/public/cron/fetch-daily-trends'
     | '/api/public/payments/webhook'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -455,6 +467,7 @@ export interface FileRouteTypes {
     | '/vision/$token'
     | '/blog/'
     | '/lovable/email/suppression'
+    | '/api/public/cron/fetch-daily-trends'
     | '/api/public/payments/webhook'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -492,6 +505,7 @@ export interface RootRouteChildren {
   VisionTokenRoute: typeof VisionTokenRoute
   BlogIndexRoute: typeof BlogIndexRoute
   LovableEmailSuppressionRoute: typeof LovableEmailSuppressionRoute
+  ApiPublicCronFetchDailyTrendsRoute: typeof ApiPublicCronFetchDailyTrendsRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
   LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
   LovableEmailAuthWebhookRoute: typeof LovableEmailAuthWebhookRoute
@@ -754,6 +768,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicPaymentsWebhookRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/cron/fetch-daily-trends': {
+      id: '/api/public/cron/fetch-daily-trends'
+      path: '/api/public/cron/fetch-daily-trends'
+      fullPath: '/api/public/cron/fetch-daily-trends'
+      preLoaderRoute: typeof ApiPublicCronFetchDailyTrendsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -798,6 +819,7 @@ const rootRouteChildren: RootRouteChildren = {
   VisionTokenRoute: VisionTokenRoute,
   BlogIndexRoute: BlogIndexRoute,
   LovableEmailSuppressionRoute: LovableEmailSuppressionRoute,
+  ApiPublicCronFetchDailyTrendsRoute: ApiPublicCronFetchDailyTrendsRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
   LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
   LovableEmailAuthWebhookRoute: LovableEmailAuthWebhookRoute,

@@ -50,4 +50,4 @@ export function LineContactChip({ className }: { className?: string }) {
   );
 }
 
-export { LINE_URL, LINE_ID };
+export { LINE_URL, LINE_ID, LineGlyph };

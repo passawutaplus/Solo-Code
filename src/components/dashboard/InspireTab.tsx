@@ -1,5 +1,6 @@
 import * as React from "react";
-import { Sparkles, ArrowUpRight, Compass } from "lucide-react";
+import { Sparkles, ArrowUpRight, Compass, Globe } from "lucide-react";
+import { getFaviconUrl } from "@/lib/favicon";
 import { Badge } from "@/components/ui/badge";
 import { PageFooterActions } from "@/components/dashboard/PageFooterActions";
 import { safeHref } from "@/lib/security";
@@ -66,6 +67,7 @@ export function InspireTab() {
           {CATEGORIES.map((cat) => {
             const isActive = active === cat.id;
             const count = counts[cat.id] || 0;
+            const Icon = cat.icon;
             return (
               <button
                 key={cat.id}
@@ -76,7 +78,7 @@ export function InspireTab() {
                     : "bg-card text-foreground border-border hover:border-[#FF5F05]/40 hover:-translate-y-0.5"
                 }`}
               >
-                <span>{cat.emoji}</span>
+                <Icon className="h-3.5 w-3.5 shrink-0" />
                 <span>{cat.label}</span>
                 <span
                   className={`text-[10px] rounded-full px-1.5 py-0.5 font-bold ${
@@ -119,10 +121,11 @@ export function InspireTab() {
 }
 
 function CategoryDivider({ cat, count }: { cat: CategoryMeta; count: number }) {
+  const Icon = cat.icon;
   return (
     <div className="flex items-center gap-3">
       <div className="inline-flex items-center gap-2 rounded-full bg-card border border-border px-3 py-1.5 shadow-soft">
-        <span className="text-base leading-none">{cat.emoji}</span>
+        <Icon className="h-3.5 w-3.5 shrink-0" />
         <span className="text-sm font-bold tracking-tight">{cat.label}</span>
         <span className="text-[10px] font-bold text-muted-foreground bg-muted rounded-full px-1.5 py-0.5">
           {count}
@@ -136,6 +139,9 @@ function CategoryDivider({ cat, count }: { cat: CategoryMeta; count: number }) {
 function ResourceCard({ resource }: { resource: InspireResource }) {
   const href = safeHref(resource.url) ?? "#";
   const categoryMeta = CATEGORIES.find((c) => c.id === resource.category);
+  const CatIcon = categoryMeta?.icon;
+  const favicon = getFaviconUrl(resource.domain, 32);
+  const [faviconBroken, setFaviconBroken] = React.useState(false);
 
   return (
     <a
@@ -147,12 +153,26 @@ function ResourceCard({ resource }: { resource: InspireResource }) {
       <div className="relative rounded-[14px] bg-card h-full flex flex-col p-5">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0 flex-1">
-            <h3 className="text-base font-bold tracking-tight group-hover:text-[#FF5F05] transition-colors truncate">
-              {resource.name}
-            </h3>
-            {categoryMeta && (
+            <div className="flex items-center gap-2.5">
+              <div className="h-8 w-8 shrink-0 rounded-lg bg-muted flex items-center justify-center overflow-hidden">
+                {favicon && !faviconBroken ? (
+                  <img
+                    src={favicon}
+                    alt=""
+                    className="h-5 w-5"
+                    onError={() => setFaviconBroken(true)}
+                  />
+                ) : (
+                  <Globe className="h-4 w-4 text-muted-foreground" />
+                )}
+              </div>
+              <h3 className="text-base font-bold tracking-tight group-hover:text-[#FF5F05] transition-colors truncate">
+                {resource.name}
+              </h3>
+            </div>
+            {categoryMeta && CatIcon && (
               <span className="mt-1 inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                <span>{categoryMeta.emoji}</span>
+                <CatIcon className="h-3.5 w-3.5 shrink-0" />
                 {categoryMeta.label}
               </span>
             )}
