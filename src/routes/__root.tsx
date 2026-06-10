@@ -10,6 +10,7 @@ import type { RouterAppContext } from "@/router";
 // Side-effect import: patches window.fetch to attach Supabase bearer token
 // to TanStack server-function requests so `requireSupabaseAuth` middleware works.
 import "@/integrations/supabase/server-fn-fetch";
+import { SITE_NAME, SITE_URL, DEFAULT_OG_IMAGE } from "@/lib/siteUrl";
 
 import appCss from "../styles.css?url";
 
@@ -40,10 +41,19 @@ export const Route = createRootRouteWithContext<RouterAppContext>()({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
-      { name: "author", content: "So1o Freelancer" },
-      { property: "og:site_name", content: "So1o Freelancer" },
+      { title: `${SITE_NAME} — หลังบ้านครบวงจรสำหรับฟรีแลนซ์` },
+      {
+        name: "description",
+        content:
+          "หลังบ้านครบวงจรสำหรับฟรีแลนซ์ไทย — ลูกค้า ใบเสนอราคา การเงิน ภาษี Smart Brief และ Creative Labs",
+      },
+      { name: "author", content: SITE_NAME },
+      { property: "og:site_name", content: SITE_NAME },
       { property: "og:type", content: "website" },
+      { property: "og:locale", content: "th_TH" },
+      { property: "og:image", content: DEFAULT_OG_IMAGE },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:image", content: DEFAULT_OG_IMAGE },
       { name: "google-site-verification", content: "48ogbmyN8trqi-SFjJjYN-mQ5eGjM9f54QDZwZljT5U" },
       // PWA / cross-platform native-app meta
       { name: "theme-color", content: "#FFFFFF", media: "(prefers-color-scheme: light)" },
@@ -65,14 +75,14 @@ export const Route = createRootRouteWithContext<RouterAppContext>()({
           "@graph": [
             {
               "@type": "Organization",
-              name: "So1o Freelancer",
-              url: "https://solofreelancer.com/",
-              logo: "https://storage.googleapis.com/gpt-engineer-file-uploads/SB11sYmcAcWg6RHXTfd1y5NFKnt2/social-images/social-1777699020537-WELLCOME_(1).webp",
+              name: SITE_NAME,
+              url: `${SITE_URL}/`,
+              logo: DEFAULT_OG_IMAGE,
             },
             {
               "@type": "WebSite",
-              name: "So1o Freelancer",
-              url: "https://solofreelancer.com/",
+              name: SITE_NAME,
+              url: `${SITE_URL}/`,
               inLanguage: "th-TH",
             },
           ],
@@ -113,7 +123,7 @@ export const Route = createRootRouteWithContext<RouterAppContext>()({
 
 function RootShell({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="th">
       <head>
         <HeadContent />
       </head>

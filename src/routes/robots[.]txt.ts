@@ -1,6 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-
-const SITE_URL = "https://solofreelancer.com";
+import { SITE_URL } from "@/lib/siteUrl";
 
 export const Route = createFileRoute("/robots.txt")({
   server: {
@@ -12,6 +11,8 @@ export const Route = createFileRoute("/robots.txt")({
           "Disallow: /dashboard",
           "Disallow: /admin",
           "Disallow: /apply",
+          "Disallow: /labs",
+          "Disallow: /survey",
           "Disallow: /api/",
           "",
           `Sitemap: ${SITE_URL}/sitemap.xml`,

@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import { Loader2, Upload, LogOut, ShieldCheck, RotateCcw, Image as ImageIcon } from "lucide-react";
 import { compressImageFile, dataUrlToBlob } from "@/lib/imageCompress";
 import { AiUsageSettingsSection } from "@/components/dashboard/settings/AiUsageSettingsSection";
+import { AccountIdentityBadge } from "@/components/dashboard/AccountIdentityBadge";
 import { StorageUsageSection } from "@/components/dashboard/settings/StorageUsageSection";
 import { LineNotificationSection } from "@/components/dashboard/settings/LineNotificationSection";
 import { SettingsQuickLinksSection } from "@/components/dashboard/settings/SettingsQuickLinksSection";
@@ -198,22 +199,27 @@ export function SettingsTab() {
 
   return (
     <div className="space-y-4 pb-24 lg:pb-4">
-      <AiUsageSettingsSection />
-      <StorageUsageSection />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
+        <AiUsageSettingsSection />
+        <StorageUsageSection />
+      </div>
       <LineNotificationSection />
 
       <Card className="glass border-border shadow-soft">
         <CardContent className="p-4 sm:p-5">
-          <div className="flex items-center justify-between mb-5">
+          <div className="flex items-center justify-between mb-5 gap-4">
             <div>
               <h2 className="text-sm font-semibold tracking-tight">ตั้งค่าโปรไฟล์ร้าน</h2>
               <p className="text-xs text-muted-foreground">ข้อมูลนี้จะแสดงในใบเสนอราคาและเอกสารที่ส่งให้ลูกค้า</p>
             </div>
-            {isAdmin && (
-              <span className="inline-flex items-center gap-1 text-[10px] font-medium bg-foreground text-background px-2 py-1 rounded-full">
-                <ShieldCheck className="h-3 w-3" /> ADMIN
-              </span>
-            )}
+            <div className="flex items-start gap-3 shrink-0">
+              <AccountIdentityBadge variant="settings" />
+              {isAdmin && (
+                <span className="inline-flex items-center gap-1 text-[10px] font-medium bg-foreground text-background px-2 py-1 rounded-full">
+                  <ShieldCheck className="h-3 w-3" /> ADMIN
+                </span>
+              )}
+            </div>
           </div>
 
           <form onSubmit={onSave} className="space-y-5">

@@ -15,6 +15,7 @@ export const Route = createFileRoute("/survey")({
     meta: [
       { title: "ตอบแบบสอบถาม So1o — ช่วยเราเข้าใจคุณดีขึ้น" },
       { name: "description", content: "ตอบ 5 คำถามสั้นๆ เพื่อให้ So1o ปรับฟีเจอร์ให้เหมาะกับคุณที่สุด" },
+      { name: "robots", content: "noindex,nofollow" },
       { property: "og:title", content: "แบบสอบถาม So1o" },
       { property: "og:description", content: "ตอบ 5 คำถามสั้นๆ ใช้เวลาไม่เกิน 1 นาที" },
     ],

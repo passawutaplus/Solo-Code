@@ -1,22 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { listArticleSitemap } from "@/server/articles.functions";
+import { SITE_URL } from "@/lib/siteUrl";
 
-const SITE_URL = "https://solofreelancer.com";
-
+/** Only indexable public pages — exclude noindex / auth / app routes. */
 const PUBLIC_ROUTES: Array<{ path: string; changefreq: string; priority: string }> = [
   { path: "/", changefreq: "weekly", priority: "1.0" },
   { path: "/blog", changefreq: "daily", priority: "0.8" },
-  { path: "/auth", changefreq: "monthly", priority: "0.5" },
-  { path: "/auth/forgot", changefreq: "yearly", priority: "0.2" },
-  { path: "/reset-password", changefreq: "yearly", priority: "0.2" },
-  { path: "/survey", changefreq: "monthly", priority: "0.3" },
-  { path: "/creative-partner", changefreq: "monthly", priority: "0.6" },
-  { path: "/dashboard", changefreq: "monthly", priority: "0.4" },
-  { path: "/apply", changefreq: "monthly", priority: "0.4" },
-  { path: "/labs", changefreq: "monthly", priority: "0.4" },
-  { path: "/admin", changefreq: "monthly", priority: "0.3" },
-  { path: "/llms.txt", changefreq: "monthly", priority: "0.2" },
-  { path: "/pricing", changefreq: "monthly", priority: "0.8" },
+  { path: "/pricing", changefreq: "monthly", priority: "0.9" },
+  { path: "/creative-partner", changefreq: "monthly", priority: "0.7" },
   { path: "/privacy", changefreq: "yearly", priority: "0.3" },
   { path: "/terms", changefreq: "yearly", priority: "0.3" },
   { path: "/cookies", changefreq: "yearly", priority: "0.3" },
@@ -25,7 +16,7 @@ const PUBLIC_ROUTES: Array<{ path: string; changefreq: string; priority: string 
 
 function xmlEscape(s: string): string {
   return s.replace(/[<>&'"]/g, (c) =>
-    c === "<" ? "&lt;" : c === ">" ? "&gt;" : c === "&" ? "&amp;" : c === "'" ? "&apos;" : "&quot;"
+    c === "<" ? "&lt;" : c === ">" ? "&gt;" : c === "&" ? "&amp;" : c === "'" ? "&apos;" : "&quot;",
   );
 }
 
@@ -43,7 +34,9 @@ export const Route = createFileRoute("/sitemap.xml")({
         let articleUrls: string[] = [];
         try {
           const { articles } = await listArticleSitemap();
-          articleUrls = (articles as Array<{ slug: string; published_at?: string | null; updated_at?: string | null }>).map((a) => {
+          articleUrls = (
+            articles as Array<{ slug: string; published_at?: string | null; updated_at?: string | null }>
+          ).map((a) => {
             const lastmod = (a.updated_at || a.published_at || today).slice(0, 10);
             return `  <url>\n    <loc>${SITE_URL}/blog/${xmlEscape(a.slug)}</loc>\n    <lastmod>${lastmod}</lastmod>\n    <changefreq>monthly</changefreq>\n    <priority>0.7</priority>\n  </url>`;
           });

@@ -1,6 +1,5 @@
 import * as React from "react";
 import { FileText, Lightbulb, Loader2, Plus } from "lucide-react";
-import { PersonLaptopIcon } from "@/components/icons/PersonLaptopIcon";
 import {
   Popover,
   PopoverContent,
@@ -21,6 +20,9 @@ type Props = {
   onCreateQuotation?: () => void | Promise<void>;
   creating?: boolean;
 };
+
+const TRIGGER_CLASS =
+  "flex items-center justify-center rounded-full bg-[#FF5F05] text-white shadow-soft hover:bg-[#E85604] hover:scale-105 active:scale-95 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50";
 
 export function PipelineNewDealButton({
   variant = "sidebar",
@@ -53,7 +55,7 @@ export function PipelineNewDealButton({
         <PopoverTrigger asChild>
           <Button
             size="sm"
-            className="gap-1.5 text-white shrink-0"
+            className="gap-1.5 text-white shrink-0 rounded-full px-3.5"
             style={{ background: "#FF5F05" }}
             disabled={creating}
           >
@@ -72,54 +74,29 @@ export function PipelineNewDealButton({
     );
   }
 
-  if (collapsed) {
-    return (
-      <Popover open={open} onOpenChange={setOpen}>
-        <PopoverTrigger asChild>
-          <button
-            type="button"
-            title="New Deal"
-            className="mx-auto flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-[#FF5F05] to-orange-400 text-white shadow-soft hover:scale-105 transition-transform"
-          >
-            <PersonLaptopIcon className="h-4 w-4" />
-          </button>
-        </PopoverTrigger>
-        <PopoverContent side="right" align="end" className="w-72 p-2">
-          <DealOptions onBrief={goBrief} onQuotation={goQuotation} />
-        </PopoverContent>
-      </Popover>
-    );
-  }
+  const sizeClass = collapsed ? "h-9 w-9" : "h-10 w-10 mx-auto";
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <button
           type="button"
-          className={cn(
-            "w-full min-w-0 rounded-xl px-3 py-2.5 text-left text-white shadow-soft",
-            "bg-gradient-to-br from-[#FF5F05] to-orange-400",
-            "hover:brightness-105 active:scale-[0.99] transition-all",
-            "flex items-center gap-2",
-          )}
+          title="New Deal"
+          disabled={creating}
+          className={cn(TRIGGER_CLASS, sizeClass, creating && "opacity-70 pointer-events-none")}
         >
-          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/20">
-            <PersonLaptopIcon className="h-4 w-4" />
-          </span>
-          <span className="min-w-0 flex-1">
-            <span className="block text-xs font-bold leading-tight truncate">New Deal</span>
-            <span className="block text-[10px] text-white/85 leading-tight truncate">
-              Smart Brief or Quotation
-            </span>
-          </span>
-          <Plus className="h-4 w-4 shrink-0 opacity-90" />
+          {creating ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Plus className="h-5 w-5" strokeWidth={2.5} />
+          )}
         </button>
       </PopoverTrigger>
       <PopoverContent
-        side="top"
+        side={collapsed ? "right" : "top"}
         align="center"
         sideOffset={8}
-        className="w-[calc(var(--sidebar-width)-1rem)] max-w-[15rem] p-2"
+        className={cn("p-2", collapsed ? "w-72" : "w-[calc(var(--sidebar-width)-1rem)] max-w-[15rem]")}
       >
         <DealOptions onBrief={goBrief} onQuotation={goQuotation} />
       </PopoverContent>

@@ -1,5 +1,4 @@
 import * as React from "react";
-import { Link } from "@tanstack/react-router";
 import {
   LayoutDashboard,
   Newspaper,
@@ -17,9 +16,6 @@ import {
   Truck,
   FolderOpen,
   Settings,
-  Rocket,
-  Sparkles,
-  CheckCircle2,
   ChevronRight,
   Briefcase,
   Wallet,
@@ -45,8 +41,8 @@ import {
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { cn } from "@/lib/utils";
 import logoUrl from "@/assets/solo-freelancer-logo.webp";
-import { useSubscription } from "@/hooks/useSubscription";
 import { PipelineNewDealButton } from "./PipelineNewDealButton";
+import { AccountIdentityBadge } from "@/components/dashboard/AccountIdentityBadge";
 import { SupportSidebarButton } from "./SupportSidebarButton";
 import { SupportFab } from "@/components/support/SupportFab";
 
@@ -301,7 +297,7 @@ export function DashboardSidebar({ active, activeSub, setActive }: DashboardSide
           collapsed={collapsed}
           onNavigate={(tab, sub) => setActive(tab as DashSection, sub)}
         />
-        <ProPlanCard collapsed={collapsed} />
+        <AccountIdentityBadge collapsed={collapsed} />
 
         <SidebarMenu className="min-w-0">
           <SidebarMenuItem>
@@ -327,58 +323,5 @@ export function DashboardSidebar({ active, activeSub, setActive }: DashboardSide
         onClose={() => setSupportOpen(false)}
       />
     </Sidebar>
-  );
-}
-
-function ProPlanCard({ collapsed }: { collapsed: boolean }) {
-  const { tier, isLoading } = useSubscription();
-  const isPro = tier === "pro";
-
-  if (collapsed) {
-    return (
-      <Link
-        to="/pricing"
-        title={isPro ? "Pro Member" : "Upgrade Pro"}
-        className={`mx-auto h-9 w-9 rounded-full flex items-center justify-center shadow-soft transition-transform hover:scale-105 ${
-          isPro ? "bg-gradient-to-br from-primary to-orange-400 text-white" : "bg-white text-primary"
-        }`}
-      >
-        {isPro ? <CheckCircle2 className="h-4 w-4" /> : <Rocket className="h-4 w-4" />}
-      </Link>
-    );
-  }
-
-  if (isLoading) {
-    return <div className="h-12 w-full rounded-lg bg-white/10 animate-pulse" />;
-  }
-
-  if (isPro) {
-    return (
-      <Link
-        to="/pricing"
-        className="block w-full min-w-0 rounded-lg bg-white shadow-soft px-2.5 py-2 text-center hover:shadow-md transition-shadow"
-      >
-        <div className="flex items-center justify-center gap-1 text-primary">
-          <CheckCircle2 className="h-3.5 w-3.5 shrink-0" />
-          <span className="text-xs font-bold truncate">Pro Member</span>
-        </div>
-        <p className="text-[9px] text-muted-foreground mt-0.5 truncate">Manage subscription</p>
-      </Link>
-    );
-  }
-
-  return (
-    <Link
-      to="/pricing"
-      className="block w-full min-w-0 rounded-lg bg-gradient-to-br from-primary to-orange-400 text-white shadow-soft px-2.5 py-2 text-center hover:brightness-105 transition-all"
-    >
-      <div className="flex items-center justify-center gap-1">
-        <Sparkles className="h-3.5 w-3.5 shrink-0" />
-        <span className="text-xs font-bold truncate">Upgrade Pro</span>
-      </div>
-      <p className="text-[9px] text-white/90 mt-0.5 leading-tight line-clamp-2">
-        ฿249/mo · Free 1 year for first 100 users
-      </p>
-    </Link>
   );
 }

@@ -76,7 +76,7 @@ export function AiUsageSettingsSection() {
     : null;
 
   return (
-    <Card className="border-border/60 overflow-hidden">
+    <Card className="border-border/60 overflow-hidden h-full">
       <Collapsible open={open} onOpenChange={setOpen}>
         <CardContent className="p-0">
           <div className="p-5 space-y-3">

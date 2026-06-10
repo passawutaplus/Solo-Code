@@ -1,7 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { ANTHEM_SHOWCASE_URL } from "@/lib/productLinks";
-
-const SITE_URL = "https://solofreelancer.com";
+import { SITE_URL } from "@/lib/siteUrl";
 
 export const Route = createFileRoute("/llms.txt")({
   server: {
@@ -15,6 +14,7 @@ export const Route = createFileRoute("/llms.txt")({
 
 - [Home](${SITE_URL}/): ภาพรวมแอปและเครื่องคำนวณราคางานฟรีแลนซ์ฟรี
 - [Blog](${SITE_URL}/blog): บทความและเทคนิคสำหรับฟรีแลนซ์ไทย
+- [Pricing](${SITE_URL}/pricing): แพ็กเกจ Free / Pro / In-House
 - [Creative Partner AI](${SITE_URL}/creative-partner): AI ที่ปรึกษาด้านงานออกแบบ สี ฟอนต์ คอนเซปต์
 - [Sign in](${SITE_URL}/auth): เข้าสู่ระบบหรือสมัครสมาชิก
 
