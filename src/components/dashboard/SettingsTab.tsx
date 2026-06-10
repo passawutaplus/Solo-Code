@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import { Loader2, Upload, LogOut, ShieldCheck, RotateCcw, Image as ImageIcon } from "lucide-react";
 import { compressImageFile, dataUrlToBlob } from "@/lib/imageCompress";
 import { AiUsageSettingsSection } from "@/components/dashboard/settings/AiUsageSettingsSection";
+import { StorageUsageSection } from "@/components/dashboard/settings/StorageUsageSection";
 import { LineNotificationSection } from "@/components/dashboard/settings/LineNotificationSection";
 import { SettingsQuickLinksSection } from "@/components/dashboard/settings/SettingsQuickLinksSection";
 import { DisplayThemeSection } from "@/components/dashboard/settings/DisplayThemeSection";
@@ -198,6 +199,7 @@ export function SettingsTab() {
   return (
     <div className="space-y-4 pb-24 lg:pb-4">
       <AiUsageSettingsSection />
+      <StorageUsageSection />
       <LineNotificationSection />
 
       <Card className="glass border-border shadow-soft">

@@ -56,3 +56,16 @@ export function aiUsagePercent(used: number, limit: number): number {
   if (limit <= 0) return 100;
   return Math.min(100, Math.round((used / limit) * 100));
 }
+
+/** Countdown bar fill — 100% when full, shrinks as credits are spent. */
+export function aiRemainingPercent(remaining: number, capacity: number): number {
+  if (capacity <= 0) return 0;
+  return Math.min(100, Math.round((remaining / capacity) * 100));
+}
+
+/** Bar color from credits left: <10 red, <20 yellow, else primary. */
+export function aiRemainingBarColor(remaining: number): string {
+  if (remaining < 10) return "bg-destructive";
+  if (remaining < 20) return "bg-amber-500";
+  return "bg-primary";
+}
