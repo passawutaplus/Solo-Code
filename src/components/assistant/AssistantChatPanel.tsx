@@ -23,6 +23,7 @@ import { toast } from "sonner";
 import { useServerFn } from "@tanstack/react-start";
 import { aiAssistant } from "@/lib/aiAssistant.functions";
 import { trackFeature } from "@/lib/featureUsage";
+import type { AiUsageSummary } from "@/lib/aiCredits";
 import { useAiUsage } from "@/hooks/useAiUsage";
 import { aiUsagePercent, describeAiCreditsPlan } from "@/lib/aiCredits";
 import type { AssistantPreset } from "@/context/AssistantContext";
@@ -31,6 +32,60 @@ import { getPresetConfig } from "@/lib/aiAssistantPresets";
 type Msg = { id: string; role: "user" | "assistant"; content: string; created_at: string };
 
 const MAX_CHARS = 500;
+const STREAM_URL = "/api/assistant/stream";
+
+async function getAuthToken(): Promise<string | null> {
+  const { data } = await supabase.auth.getSession();
+  return data.session?.access_token ?? null;
+}
+
+async function consumeAssistantSse(
+  resp: Response,
+  onDelta: (text: string) => void,
+): Promise<{ answer: string; usage?: AiUsageSummary }> {
+  const reader = resp.body!.getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
+  let acc = "";
+  let usage: AiUsageSummary | undefined;
+
+  while (true) {
+    const { value, done } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+    const events = buffer.split("\n\n");
+    buffer = events.pop() ?? "";
+    for (const evt of events) {
+      const dataLine = evt.split("\n").find((l) => l.startsWith("data:"));
+      const eventLine = evt.split("\n").find((l) => l.startsWith("event:"));
+      if (!dataLine) continue;
+      const payload = dataLine.slice(5).trim();
+      try {
+        const j = JSON.parse(payload) as Record<string, unknown>;
+        if (eventLine?.includes("error")) {
+          throw new Error(String(j.error ?? "ai_error"));
+        }
+        if (eventLine?.includes("done")) {
+          if (j.usage && typeof j.usage === "object") {
+            usage = j.usage as AiUsageSummary;
+          }
+          const answer = String(j.answer ?? acc).trim();
+          if (answer) acc = answer;
+          continue;
+        }
+        if (typeof j.delta === "string") {
+          acc += j.delta;
+          onDelta(acc);
+        }
+      } catch (e) {
+        if (e instanceof SyntaxError) continue;
+        throw e;
+      }
+    }
+  }
+
+  return { answer: acc.trim(), usage };
+}
 
 type QuickAction = { label: string; icon: typeof Palette; prompt: string };
 
@@ -132,22 +187,70 @@ export function AssistantChatPanel({
     if (!text || limitReached) return;
     setSending(true);
     void trackFeature("ai.chat.assistant");
-    const tempId = `tmp_${Date.now()}`;
-    setMessages((prev) => [...prev, { id: tempId, role: "user", content: text, created_at: new Date().toISOString() }]);
+
+    const userMsgId = `u_${Date.now()}`;
+    const assistantMsgId = `a_${Date.now()}`;
+    const now = new Date().toISOString();
+    setMessages((prev) => [
+      ...prev,
+      { id: userMsgId, role: "user", content: text, created_at: now },
+      { id: assistantMsgId, role: "assistant", content: "", created_at: now },
+    ]);
     setBody("");
-    try {
-      await assistantFn({ data: { message: text, preset } });
-      await loadMessages();
-      void refetchUsage();
-    } catch (e) {
-      const msg = e instanceof Error ? e.message : "ส่งไม่สำเร็จ";
+
+    const handleError = (raw: string) => {
+      const msg = raw || "ส่งไม่สำเร็จ";
       if (msg.includes("limit_reached")) {
         toast.error("เครดิต AI หมดแล้ว — อัพเกรดหรือเติมเครดิตได้ที่ตั้งค่า");
         void refetchUsage();
       } else {
         toast.error(msg);
       }
-      setMessages((prev) => prev.filter((m) => m.id !== tempId));
+      setMessages((prev) => prev.filter((m) => m.id !== userMsgId && m.id !== assistantMsgId));
+    };
+
+    try {
+      const token = await getAuthToken();
+      if (!token) throw new Error("unauthorized");
+
+      const resp = await fetch(STREAM_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ message: text, preset }),
+      });
+
+      if (resp.status === 429) {
+        handleError("limit_reached");
+        return;
+      }
+
+      if (!resp.ok || !resp.body) {
+        // Fallback to non-streaming server function
+        const result = await assistantFn({ data: { message: text, preset } });
+        setMessages((prev) =>
+          prev.map((m) =>
+            m.id === assistantMsgId
+              ? { ...m, content: result.answer, created_at: new Date().toISOString() }
+              : m,
+          ),
+        );
+        void refetchUsage();
+        return;
+      }
+
+      const { answer } = await consumeAssistantSse(resp, (acc) => {
+        setMessages((prev) =>
+          prev.map((m) => (m.id === assistantMsgId ? { ...m, content: acc } : m)),
+        );
+      });
+
+      if (!answer) throw new Error("empty_response");
+      void refetchUsage();
+    } catch (e) {
+      handleError(e instanceof Error ? e.message : "ส่งไม่สำเร็จ");
     } finally {
       setSending(false);
     }
@@ -184,7 +287,7 @@ export function AssistantChatPanel({
             />
           ))
         )}
-        {sending && (
+        {sending && messages[messages.length - 1]?.role === "user" && (
           <div className="flex justify-start">
             <div className="bg-muted rounded-2xl rounded-bl-sm px-3 py-2">
               <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" />

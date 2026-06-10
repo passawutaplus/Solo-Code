@@ -15,32 +15,38 @@ export function useDailyTrendsPrefetch() {
   React.useEffect(() => {
     let cancelled = false;
 
-    void (async () => {
-      try {
-        const data = await queryClient.fetchQuery({
-          queryKey: DAILY_TRENDS_QUERY_KEY,
-          queryFn: () => fetchTrends(),
-          staleTime: DAILY_TRENDS_STALE_MS,
-        });
+    // Defer so first paint + AI chat are not competing with trends generation.
+    const timer = window.setTimeout(() => {
+      if (cancelled) return;
 
-        if (cancelled || data.status !== "pending") return;
-
-        warmTrends()
-          .then(() => {
-            if (!cancelled) {
-              void queryClient.invalidateQueries({ queryKey: DAILY_TRENDS_QUERY_KEY });
-            }
-          })
-          .catch(() => {
-            // generation failed — TrendsTab shows pending state
+      void (async () => {
+        try {
+          const data = await queryClient.fetchQuery({
+            queryKey: DAILY_TRENDS_QUERY_KEY,
+            queryFn: () => fetchTrends(),
+            staleTime: DAILY_TRENDS_STALE_MS,
           });
-      } catch {
-        // prefetch failed silently
-      }
-    })();
+
+          if (cancelled || data.status !== "pending") return;
+
+          warmTrends()
+            .then(() => {
+              if (!cancelled) {
+                void queryClient.invalidateQueries({ queryKey: DAILY_TRENDS_QUERY_KEY });
+              }
+            })
+            .catch(() => {
+              // generation failed — TrendsTab shows pending state
+            });
+        } catch {
+          // prefetch failed silently
+        }
+      })();
+    }, 4000);
 
     return () => {
       cancelled = true;
+      window.clearTimeout(timer);
     };
   }, [queryClient, fetchTrends, warmTrends]);
 }

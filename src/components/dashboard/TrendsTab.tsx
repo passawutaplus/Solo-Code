@@ -6,7 +6,6 @@ import { DAILY_TRENDS_QUERY_KEY, DAILY_TRENDS_STALE_MS } from "@/hooks/useDailyT
 import { safeHref } from "@/lib/security";
 import { Newspaper, ExternalLink, Sparkles, Loader2, ArrowRight, Globe } from "lucide-react";
 import { getFaviconUrl } from "@/lib/favicon";
-import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { PageFooterActions } from "@/components/dashboard/PageFooterActions";
@@ -71,9 +70,6 @@ export function TrendsTab() {
               </p>
             </div>
           </div>
-          <Badge variant="outline" className="gap-1 border-primary/30 text-primary">
-            <Sparkles className="h-3 w-3" /> สรุปจากข่าวจริง
-          </Badge>
         </div>
       </header>
 
@@ -242,12 +238,6 @@ export function TrendsTab() {
         <div className="rounded-xl border border-dashed border-border p-12 text-center text-sm text-muted-foreground">
           ยังไม่มีข่าวสารในหมวดนี้
         </div>
-      )}
-
-      {data?.date && (
-        <p className="text-center text-[11px] text-muted-foreground/70 pt-2 flex items-center justify-center gap-1.5">
-          <Loader2 className="h-3 w-3" /> ดึงข่าวจาก RSS รายวัน · สรุปภาษาไทยน้ำเสียงกันเองโดย So1o AI
-        </p>
       )}
 
       <PageFooterActions feature="trends" label="ข่าวสาร & เทรนด์" />

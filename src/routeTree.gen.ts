@@ -39,6 +39,7 @@ import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as AuthForgotRouteImport } from './routes/auth.forgot'
 import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
 import { Route as LovableEmailSuppressionRouteImport } from './routes/lovable/email/suppression'
+import { Route as ApiAssistantStreamRouteImport } from './routes/api/assistant/stream'
 import { Route as LovableEmailTransactionalSendRouteImport } from './routes/lovable/email/transactional/send'
 import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
@@ -197,6 +198,11 @@ const LovableEmailSuppressionRoute = LovableEmailSuppressionRouteImport.update({
   path: '/lovable/email/suppression',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAssistantStreamRoute = ApiAssistantStreamRouteImport.update({
+  id: '/api/assistant/stream',
+  path: '/api/assistant/stream',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LovableEmailTransactionalSendRoute =
   LovableEmailTransactionalSendRouteImport.update({
     id: '/lovable/email/transactional/send',
@@ -268,6 +274,7 @@ export interface FileRoutesByFullPath {
   '/track/$token': typeof TrackTokenRoute
   '/vision/$token': typeof VisionTokenRoute
   '/blog/': typeof BlogIndexRoute
+  '/api/assistant/stream': typeof ApiAssistantStreamRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/api/public/cron/fetch-daily-trends': typeof ApiPublicCronFetchDailyTrendsRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
@@ -307,6 +314,7 @@ export interface FileRoutesByTo {
   '/track/$token': typeof TrackTokenRoute
   '/vision/$token': typeof VisionTokenRoute
   '/blog': typeof BlogIndexRoute
+  '/api/assistant/stream': typeof ApiAssistantStreamRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/api/public/cron/fetch-daily-trends': typeof ApiPublicCronFetchDailyTrendsRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
@@ -347,6 +355,7 @@ export interface FileRoutesById {
   '/track/$token': typeof TrackTokenRoute
   '/vision/$token': typeof VisionTokenRoute
   '/blog/': typeof BlogIndexRoute
+  '/api/assistant/stream': typeof ApiAssistantStreamRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/api/public/cron/fetch-daily-trends': typeof ApiPublicCronFetchDailyTrendsRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
@@ -388,6 +397,7 @@ export interface FileRouteTypes {
     | '/track/$token'
     | '/vision/$token'
     | '/blog/'
+    | '/api/assistant/stream'
     | '/lovable/email/suppression'
     | '/api/public/cron/fetch-daily-trends'
     | '/api/public/payments/webhook'
@@ -427,6 +437,7 @@ export interface FileRouteTypes {
     | '/track/$token'
     | '/vision/$token'
     | '/blog'
+    | '/api/assistant/stream'
     | '/lovable/email/suppression'
     | '/api/public/cron/fetch-daily-trends'
     | '/api/public/payments/webhook'
@@ -466,6 +477,7 @@ export interface FileRouteTypes {
     | '/track/$token'
     | '/vision/$token'
     | '/blog/'
+    | '/api/assistant/stream'
     | '/lovable/email/suppression'
     | '/api/public/cron/fetch-daily-trends'
     | '/api/public/payments/webhook'
@@ -504,6 +516,7 @@ export interface RootRouteChildren {
   TrackTokenRoute: typeof TrackTokenRoute
   VisionTokenRoute: typeof VisionTokenRoute
   BlogIndexRoute: typeof BlogIndexRoute
+  ApiAssistantStreamRoute: typeof ApiAssistantStreamRoute
   LovableEmailSuppressionRoute: typeof LovableEmailSuppressionRoute
   ApiPublicCronFetchDailyTrendsRoute: typeof ApiPublicCronFetchDailyTrendsRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
@@ -726,6 +739,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LovableEmailSuppressionRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/assistant/stream': {
+      id: '/api/assistant/stream'
+      path: '/api/assistant/stream'
+      fullPath: '/api/assistant/stream'
+      preLoaderRoute: typeof ApiAssistantStreamRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/lovable/email/transactional/send': {
       id: '/lovable/email/transactional/send'
       path: '/lovable/email/transactional/send'
@@ -818,6 +838,7 @@ const rootRouteChildren: RootRouteChildren = {
   TrackTokenRoute: TrackTokenRoute,
   VisionTokenRoute: VisionTokenRoute,
   BlogIndexRoute: BlogIndexRoute,
+  ApiAssistantStreamRoute: ApiAssistantStreamRoute,
   LovableEmailSuppressionRoute: LovableEmailSuppressionRoute,
   ApiPublicCronFetchDailyTrendsRoute: ApiPublicCronFetchDailyTrendsRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,

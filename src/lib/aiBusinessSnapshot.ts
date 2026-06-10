@@ -35,9 +35,7 @@ export async function buildBusinessSnapshot(
     supabase.from("saved_clients").select("id,name,payment_terms,created_at").eq("user_id", userId),
     supabase
       .from("quotations")
-      .select(
-        "id,number,project_name,client_name,status,due_date,paid_partial,items,addons,difficulties,hidden_cost,discount_value,discount_kind,vat_enabled,vat_rate,wht_enabled,wht_rate,deposit_preset,payment_terms,hourly_days,hourly_hours",
-      )
+      .select("number,project_name,client_name,status,due_date,paid_partial")
       .eq("user_id", userId)
       .order("updated_at", { ascending: false })
       .limit(80),

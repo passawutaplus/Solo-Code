@@ -83,6 +83,28 @@ export function mapGeminiError(err: unknown): Error {
   return new Error(`Gemini ไม่ตอบสนอง: ${msg.slice(0, 160)}`);
 }
 
+function buildGenerativeModel(
+  apiKey: string,
+  modelId: string,
+  options: {
+    systemInstruction?: string;
+    temperature?: number;
+    maxOutputTokens?: number;
+    json?: boolean;
+  },
+) {
+  const genAI = new GoogleGenerativeAI(apiKey);
+  return genAI.getGenerativeModel({
+    model: modelId,
+    systemInstruction: options.systemInstruction,
+    generationConfig: {
+      temperature: options.temperature,
+      maxOutputTokens: options.maxOutputTokens,
+      ...(options.json ? { responseMimeType: "application/json" as const } : {}),
+    },
+  });
+}
+
 export async function geminiChat(options: {
   model?: string;
   messages: ChatMessage[];
@@ -93,19 +115,41 @@ export async function geminiChat(options: {
   const apiKey = getGeminiApiKey();
   const modelId = normalizeGeminiModel(options.model, defaultFastModel());
   const { systemInstruction, contents } = splitMessages(options.messages);
-  const genAI = new GoogleGenerativeAI(apiKey);
-  const model = genAI.getGenerativeModel({
-    model: modelId,
+  const model = buildGenerativeModel(apiKey, modelId, {
     systemInstruction,
-    generationConfig: {
-      temperature: options.temperature,
-      maxOutputTokens: options.maxOutputTokens,
-      ...(options.json ? { responseMimeType: "application/json" as const } : {}),
-    },
+    temperature: options.temperature,
+    maxOutputTokens: options.maxOutputTokens,
+    json: options.json,
   });
   try {
     const result = await model.generateContent({ contents });
     return { text: result.response.text().trim() };
+  } catch (e) {
+    throw mapGeminiError(e);
+  }
+}
+
+/** Stream text deltas from Gemini (for SSE assistant routes). */
+export async function* geminiChatStream(options: {
+  model?: string;
+  messages: ChatMessage[];
+  temperature?: number;
+  maxOutputTokens?: number;
+}): AsyncGenerator<string> {
+  const apiKey = getGeminiApiKey();
+  const modelId = normalizeGeminiModel(options.model, defaultFastModel());
+  const { systemInstruction, contents } = splitMessages(options.messages);
+  const model = buildGenerativeModel(apiKey, modelId, {
+    systemInstruction,
+    temperature: options.temperature,
+    maxOutputTokens: options.maxOutputTokens,
+  });
+  try {
+    const result = await model.generateContentStream({ contents });
+    for await (const chunk of result.stream) {
+      const text = chunk.text();
+      if (text) yield text;
+    }
   } catch (e) {
     throw mapGeminiError(e);
   }

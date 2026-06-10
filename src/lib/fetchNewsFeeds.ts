@@ -13,7 +13,7 @@ export interface RawNewsArticle {
 
 const FEED_TIMEOUT_MS = 10_000;
 const MAX_AGE_MS = 48 * 60 * 60 * 1000;
-const MAX_PER_FEED = 2;
+const MAX_PER_FEED = 4;
 
 function stripTags(html: string): string {
   return html
