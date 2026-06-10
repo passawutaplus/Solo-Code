@@ -33,6 +33,7 @@ import { Route as TrackTokenRouteImport } from './routes/track.$token'
 import { Route as SupplierTokenRouteImport } from './routes/supplier.$token'
 import { Route as PlannerTokenRouteImport } from './routes/planner.$token'
 import { Route as LicenseTokenRouteImport } from './routes/license.$token'
+import { Route as HelpTaxRouteImport } from './routes/help.tax'
 import { Route as EmailUnsubscribeRouteImport } from './routes/email/unsubscribe'
 import { Route as BriefTokenRouteImport } from './routes/brief.$token'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
@@ -47,6 +48,7 @@ import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/em
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
 import { Route as ApiPublicCronFetchDailyTrendsRouteImport } from './routes/api/public/cron/fetch-daily-trends'
+import { Route as ApiPublicCronDeadlineRemindersRouteImport } from './routes/api/public/cron/deadline-reminders'
 
 const UnsubscribeRoute = UnsubscribeRouteImport.update({
   id: '/unsubscribe',
@@ -168,6 +170,11 @@ const LicenseTokenRoute = LicenseTokenRouteImport.update({
   path: '/license/$token',
   getParentRoute: () => rootRouteImport,
 } as any)
+const HelpTaxRoute = HelpTaxRouteImport.update({
+  id: '/help/tax',
+  path: '/help/tax',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const EmailUnsubscribeRoute = EmailUnsubscribeRouteImport.update({
   id: '/email/unsubscribe',
   path: '/email/unsubscribe',
@@ -243,6 +250,12 @@ const ApiPublicCronFetchDailyTrendsRoute =
     path: '/api/public/cron/fetch-daily-trends',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicCronDeadlineRemindersRoute =
+  ApiPublicCronDeadlineRemindersRouteImport.update({
+    id: '/api/public/cron/deadline-reminders',
+    path: '/api/public/cron/deadline-reminders',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -268,6 +281,7 @@ export interface FileRoutesByFullPath {
   '/blog/$slug': typeof BlogSlugRoute
   '/brief/$token': typeof BriefTokenRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
+  '/help/tax': typeof HelpTaxRoute
   '/license/$token': typeof LicenseTokenRoute
   '/planner/$token': typeof PlannerTokenRoute
   '/supplier/$token': typeof SupplierTokenRoute
@@ -276,6 +290,7 @@ export interface FileRoutesByFullPath {
   '/blog/': typeof BlogIndexRoute
   '/api/assistant/stream': typeof ApiAssistantStreamRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
+  '/api/public/cron/deadline-reminders': typeof ApiPublicCronDeadlineRemindersRoute
   '/api/public/cron/fetch-daily-trends': typeof ApiPublicCronFetchDailyTrendsRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
@@ -308,6 +323,7 @@ export interface FileRoutesByTo {
   '/blog/$slug': typeof BlogSlugRoute
   '/brief/$token': typeof BriefTokenRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
+  '/help/tax': typeof HelpTaxRoute
   '/license/$token': typeof LicenseTokenRoute
   '/planner/$token': typeof PlannerTokenRoute
   '/supplier/$token': typeof SupplierTokenRoute
@@ -316,6 +332,7 @@ export interface FileRoutesByTo {
   '/blog': typeof BlogIndexRoute
   '/api/assistant/stream': typeof ApiAssistantStreamRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
+  '/api/public/cron/deadline-reminders': typeof ApiPublicCronDeadlineRemindersRoute
   '/api/public/cron/fetch-daily-trends': typeof ApiPublicCronFetchDailyTrendsRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
@@ -349,6 +366,7 @@ export interface FileRoutesById {
   '/blog/$slug': typeof BlogSlugRoute
   '/brief/$token': typeof BriefTokenRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
+  '/help/tax': typeof HelpTaxRoute
   '/license/$token': typeof LicenseTokenRoute
   '/planner/$token': typeof PlannerTokenRoute
   '/supplier/$token': typeof SupplierTokenRoute
@@ -357,6 +375,7 @@ export interface FileRoutesById {
   '/blog/': typeof BlogIndexRoute
   '/api/assistant/stream': typeof ApiAssistantStreamRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
+  '/api/public/cron/deadline-reminders': typeof ApiPublicCronDeadlineRemindersRoute
   '/api/public/cron/fetch-daily-trends': typeof ApiPublicCronFetchDailyTrendsRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
@@ -391,6 +410,7 @@ export interface FileRouteTypes {
     | '/blog/$slug'
     | '/brief/$token'
     | '/email/unsubscribe'
+    | '/help/tax'
     | '/license/$token'
     | '/planner/$token'
     | '/supplier/$token'
@@ -399,6 +419,7 @@ export interface FileRouteTypes {
     | '/blog/'
     | '/api/assistant/stream'
     | '/lovable/email/suppression'
+    | '/api/public/cron/deadline-reminders'
     | '/api/public/cron/fetch-daily-trends'
     | '/api/public/payments/webhook'
     | '/lovable/email/auth/preview'
@@ -431,6 +452,7 @@ export interface FileRouteTypes {
     | '/blog/$slug'
     | '/brief/$token'
     | '/email/unsubscribe'
+    | '/help/tax'
     | '/license/$token'
     | '/planner/$token'
     | '/supplier/$token'
@@ -439,6 +461,7 @@ export interface FileRouteTypes {
     | '/blog'
     | '/api/assistant/stream'
     | '/lovable/email/suppression'
+    | '/api/public/cron/deadline-reminders'
     | '/api/public/cron/fetch-daily-trends'
     | '/api/public/payments/webhook'
     | '/lovable/email/auth/preview'
@@ -471,6 +494,7 @@ export interface FileRouteTypes {
     | '/blog/$slug'
     | '/brief/$token'
     | '/email/unsubscribe'
+    | '/help/tax'
     | '/license/$token'
     | '/planner/$token'
     | '/supplier/$token'
@@ -479,6 +503,7 @@ export interface FileRouteTypes {
     | '/blog/'
     | '/api/assistant/stream'
     | '/lovable/email/suppression'
+    | '/api/public/cron/deadline-reminders'
     | '/api/public/cron/fetch-daily-trends'
     | '/api/public/payments/webhook'
     | '/lovable/email/auth/preview'
@@ -510,6 +535,7 @@ export interface RootRouteChildren {
   BlogSlugRoute: typeof BlogSlugRoute
   BriefTokenRoute: typeof BriefTokenRoute
   EmailUnsubscribeRoute: typeof EmailUnsubscribeRoute
+  HelpTaxRoute: typeof HelpTaxRoute
   LicenseTokenRoute: typeof LicenseTokenRoute
   PlannerTokenRoute: typeof PlannerTokenRoute
   SupplierTokenRoute: typeof SupplierTokenRoute
@@ -518,6 +544,7 @@ export interface RootRouteChildren {
   BlogIndexRoute: typeof BlogIndexRoute
   ApiAssistantStreamRoute: typeof ApiAssistantStreamRoute
   LovableEmailSuppressionRoute: typeof LovableEmailSuppressionRoute
+  ApiPublicCronDeadlineRemindersRoute: typeof ApiPublicCronDeadlineRemindersRoute
   ApiPublicCronFetchDailyTrendsRoute: typeof ApiPublicCronFetchDailyTrendsRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
   LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
@@ -697,6 +724,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LicenseTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/help/tax': {
+      id: '/help/tax'
+      path: '/help/tax'
+      fullPath: '/help/tax'
+      preLoaderRoute: typeof HelpTaxRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/email/unsubscribe': {
       id: '/email/unsubscribe'
       path: '/email/unsubscribe'
@@ -795,6 +829,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicCronFetchDailyTrendsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/cron/deadline-reminders': {
+      id: '/api/public/cron/deadline-reminders'
+      path: '/api/public/cron/deadline-reminders'
+      fullPath: '/api/public/cron/deadline-reminders'
+      preLoaderRoute: typeof ApiPublicCronDeadlineRemindersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -832,6 +873,7 @@ const rootRouteChildren: RootRouteChildren = {
   BlogSlugRoute: BlogSlugRoute,
   BriefTokenRoute: BriefTokenRoute,
   EmailUnsubscribeRoute: EmailUnsubscribeRoute,
+  HelpTaxRoute: HelpTaxRoute,
   LicenseTokenRoute: LicenseTokenRoute,
   PlannerTokenRoute: PlannerTokenRoute,
   SupplierTokenRoute: SupplierTokenRoute,
@@ -840,6 +882,7 @@ const rootRouteChildren: RootRouteChildren = {
   BlogIndexRoute: BlogIndexRoute,
   ApiAssistantStreamRoute: ApiAssistantStreamRoute,
   LovableEmailSuppressionRoute: LovableEmailSuppressionRoute,
+  ApiPublicCronDeadlineRemindersRoute: ApiPublicCronDeadlineRemindersRoute,
   ApiPublicCronFetchDailyTrendsRoute: ApiPublicCronFetchDailyTrendsRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
   LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,

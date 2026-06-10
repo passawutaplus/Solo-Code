@@ -3,9 +3,7 @@ import { render } from '@react-email/components'
 import { createClient } from '@supabase/supabase-js'
 import { createFileRoute } from '@tanstack/react-router'
 import { TEMPLATES } from '@/lib/email-templates/registry'
-
-// Configuration baked in at scaffold time
-const SITE_NAME = "so1o-freelancer-managment"
+import { SITE_NAME } from '@/lib/siteUrl'
 // SENDER_DOMAIN is the verified sender subdomain FQDN (e.g., "notify.example.com").
 // It MUST match the subdomain delegated to Lovable's nameservers. NEVER use the root domain.
 const SENDER_DOMAIN = "notify.solofreelancer.com"
@@ -141,7 +139,7 @@ export const Route = createFileRoute("/lovable/email/transactional/send")({
           'https://www.solofreelancer.com',
           'https://so1o-freelancer-managment.lovable.app',
         ]
-        const URL_FIELDS = ['actionUrl', 'receiptUrl', 'ctaUrl', 'manageUrl', 'invoiceUrl']
+        const URL_FIELDS = ['actionUrl', 'receiptUrl', 'ctaUrl', 'manageUrl', 'invoiceUrl', 'portalUrl']
         for (const field of URL_FIELDS) {
           const v = templateData[field]
           if (typeof v === 'string' && v.length > 0) {

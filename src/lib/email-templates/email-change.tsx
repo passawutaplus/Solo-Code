@@ -1,6 +1,5 @@
 import * as React from 'react'
-import { Body, Button, Container, Head, Heading, Hr, Html, Preview, Text } from '@react-email/components'
-import { main, container, brandBar, h1, text, button, footer, divider, brand } from './_brand'
+import { EmailLayout, EmailButton, EmailText, brand } from './layout'
 
 interface EmailChangeEmailProps {
   siteName: string
@@ -11,27 +10,24 @@ interface EmailChangeEmailProps {
 }
 
 export const EmailChangeEmail = ({ siteName, oldEmail, newEmail, confirmationUrl }: EmailChangeEmailProps) => (
-  <Html lang="th" dir="ltr">
-    <Head />
-    <Preview>ยืนยันการเปลี่ยนอีเมล {siteName}</Preview>
-    <Body style={main}>
-      <Container style={container}>
-        <Text style={brandBar}>So1o</Text>
-        <Heading style={h1}>ยืนยันการเปลี่ยนอีเมล</Heading>
-        <Text style={text}>
-          คุณขอเปลี่ยนอีเมลของบัญชี {siteName} จาก
-          {' '}<strong style={{ color: brand.ink }}>{oldEmail}</strong>{' '}
-          เป็น <strong style={{ color: brand.orange }}>{newEmail}</strong>
-        </Text>
-        <Button style={button} href={confirmationUrl}>ยืนยันการเปลี่ยนแปลง</Button>
-        <Hr style={divider} />
-        <Text style={footer}>
-          ถ้าคุณไม่ได้เป็นคนทำรายการนี้ โปรดเปลี่ยนรหัสผ่านทันทีเพื่อความปลอดภัย<br />
-          So1o · solofreelancer.com
-        </Text>
-      </Container>
-    </Body>
-  </Html>
+  <EmailLayout
+    preview={`ยืนยันการเปลี่ยนอีเมล ${siteName}`}
+    badge="So1o · เปลี่ยนอีเมล"
+    title="ยืนยันการเปลี่ยนอีเมล"
+    footerNote={
+      <>
+        ถ้าคุณไม่ได้เป็นคนทำรายการนี้ โปรดเปลี่ยนรหัสผ่านทันทีเพื่อความปลอดภัย<br />
+        So1o · solofreelancer.com
+      </>
+    }
+  >
+    <EmailText>
+      คุณขอเปลี่ยนอีเมลของบัญชี {siteName} จาก{' '}
+      <strong style={{ color: brand.ink }}>{oldEmail}</strong>{' '}
+      เป็น <strong style={{ color: brand.orange }}>{newEmail}</strong>
+    </EmailText>
+    <EmailButton href={confirmationUrl}>ยืนยันการเปลี่ยนแปลง</EmailButton>
+  </EmailLayout>
 )
 
 export default EmailChangeEmail

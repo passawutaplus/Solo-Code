@@ -112,6 +112,11 @@ export function OverviewTab({ onGo }: OverviewTabProps) {
           quotations: snap?.quotations ?? 0,
           jobs: jobsList.length,
           incomes: finance.incomes.length,
+          hasBrand: !!(
+            profile?.logo_url ||
+            profile?.brand_name ||
+            (profile?.bank_account_number && profile?.bank_name)
+          ),
         }}
       />
 

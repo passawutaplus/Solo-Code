@@ -6,6 +6,7 @@ import { SITE_URL } from "@/lib/siteUrl";
 const PUBLIC_ROUTES: Array<{ path: string; changefreq: string; priority: string }> = [
   { path: "/", changefreq: "weekly", priority: "1.0" },
   { path: "/blog", changefreq: "daily", priority: "0.8" },
+  { path: "/help/tax", changefreq: "monthly", priority: "0.8" },
   { path: "/pricing", changefreq: "monthly", priority: "0.9" },
   { path: "/creative-partner", changefreq: "monthly", priority: "0.7" },
   { path: "/privacy", changefreq: "yearly", priority: "0.3" },

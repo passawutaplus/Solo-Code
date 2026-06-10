@@ -31,3 +31,10 @@ bun.lockb
 .DS_Store
 .idea/**
 .vscode/**
+
+# Deploy bundles (inline edge function source — slows agent search)
+supabase/.bundle-*.json
+supabase/.tmp-*.json
+supabase/.mcp-payload.json
+supabase/.deploy-payloads/**
+supabase/.temp/**

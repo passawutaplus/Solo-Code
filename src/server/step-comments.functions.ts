@@ -3,6 +3,8 @@ import { getRequest } from "@tanstack/react-start/server";
 import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { notifyFreelancer, getFreelancerDisplayName } from "@/server/emailNotify.server";
+import { canonicalUrl } from "@/lib/siteUrl";
 
 const ListSchema = z.object({ token: z.string().uuid() });
 
@@ -59,7 +61,7 @@ export const addStepComment = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const { data: job } = await supabaseAdmin
       .from("job_trackers")
-      .select("id, user_id")
+      .select("id, user_id, title, client_name")
       .eq("share_token", data.token)
       .maybeSingle();
     if (!job) throw new Error("Invalid token");
@@ -70,14 +72,33 @@ export const addStepComment = createServerFn({ method: "POST" })
     const authorRole: "owner" | "client" =
       requesterUserId && requesterUserId === job.user_id ? "owner" : "client";
 
+    const body = data.body.trim();
     const { error } = await supabaseAdmin
       .from("job_tracker_step_comments")
       .insert({
         job_id: job.id,
         step_index: data.step_index,
         author_role: authorRole,
-        body: data.body.trim(),
+        body,
       });
     if (error) throw new Error(error.message);
+
+    if (authorRole === "client" && job.user_id) {
+      const recipientName = await getFreelancerDisplayName(job.user_id);
+      const preview = body.length > 120 ? `${body.slice(0, 117)}...` : body;
+      void notifyFreelancer({
+        userId: job.user_id,
+        templateName: "project-alert",
+        templateData: {
+          recipientName,
+          projectName: job.title ?? "โปรเจกต์",
+          alertType: "comment",
+          message: `${job.client_name ?? "ลูกค้า"} แสดงความคิดเห็น: "${preview}"`,
+          actionUrl: canonicalUrl("/dashboard?tab=projects"),
+        },
+        idempotencyKey: `comment-${job.id}-${Date.now().toString(36)}`,
+      });
+    }
+
     return { ok: true, author_role: authorRole };
   });

@@ -1,7 +1,6 @@
 import * as React from 'react'
-import { Body, Button, Container, Head, Heading, Hr, Html, Preview, Text } from '@react-email/components'
 import type { TemplateEntry } from './registry'
-import { main, container, brandBar, h1, text, button, footer, divider, card, cardLabel, cardRow, brand } from './_brand'
+import { EmailLayout, EmailCard, EmailCardRow, EmailButton, EmailText } from './layout'
 
 interface WelcomeProProps {
   priceId?: string
@@ -19,34 +18,31 @@ const planLabel = (priceId?: string) => {
 }
 
 const WelcomeProEmail = ({ priceId }: WelcomeProProps) => (
-  <Html lang="th" dir="ltr">
-    <Head />
-    <Preview>ยินดีต้อนรับสู่ So1o {planLabel(priceId)} — ปลดล็อกทุกฟีเจอร์แล้ว</Preview>
-    <Body style={main}>
-      <Container style={container}>
-        <Text style={brandBar}>So1o · สมัครสำเร็จ</Text>
-        <Heading style={h1}>🎉 ยินดีต้อนรับสู่ {planLabel(priceId)}!</Heading>
-        <Text style={text}>
-          ขอบคุณที่ไว้วางใจ So1o ครับ — บัญชีของคุณได้รับการอัปเกรดเรียบร้อยแล้ว
-          ทุกฟีเจอร์ระดับโปรพร้อมใช้งานทันที
-        </Text>
-        <div style={card}>
-          <p style={cardLabel}>สิ่งที่คุณปลดล็อกได้</p>
-          <p style={{ ...cardRow, color: brand.ink, margin: '4px 0 6px' }}>✓ Job Tracker ไม่จำกัด</p>
-          <p style={{ ...cardRow, margin: '4px 0 6px' }}>✓ AI Mentor ขั้นสูงไม่จำกัด</p>
-          <p style={{ ...cardRow, margin: '4px 0 6px' }}>✓ Content Planner + AI Assist</p>
-          <p style={{ ...cardRow, margin: '4px 0 6px' }}>✓ Design Brief แบบมืออาชีพ</p>
-          <p style={{ ...cardRow, margin: '4px 0 0' }}>✓ Public Tracking Links ไม่จำกัด</p>
-        </div>
-        <Button style={button} href="https://solofreelancer.com/dashboard">เปิด Dashboard</Button>
-        <Hr style={divider} />
-        <Text style={footer}>
-          มีข้อสงสัยตอบกลับเมลนี้ได้เลยครับ<br />
-          So1o · เครื่องมือสำหรับฟรีแลนซ์ไทย · solofreelancer.com
-        </Text>
-      </Container>
-    </Body>
-  </Html>
+  <EmailLayout
+    preview={`ยินดีต้อนรับสู่ So1o ${planLabel(priceId)} — ปลดล็อกทุกฟีเจอร์แล้ว`}
+    badge="So1o · สมัครสำเร็จ"
+    badgeTone="success"
+    title={`🎉 ยินดีต้อนรับสู่ ${planLabel(priceId)}!`}
+    footerNote={
+      <>
+        มีข้อสงสัยตอบกลับเมลนี้ได้เลยครับ<br />
+        So1o · เครื่องมือสำหรับฟรีแลนซ์ไทย · solofreelancer.com
+      </>
+    }
+  >
+    <EmailText>
+      ขอบคุณที่ไว้วางใจ So1o ครับ — บัญชีของคุณได้รับการอัปเกรดเรียบร้อยแล้ว
+      ทุกฟีเจอร์ระดับโปรพร้อมใช้งานทันที
+    </EmailText>
+    <EmailCard>
+      <EmailCardRow>✓ Job Tracker ไม่จำกัด</EmailCardRow>
+      <EmailCardRow>✓ AI Mentor ขั้นสูงไม่จำกัด</EmailCardRow>
+      <EmailCardRow>✓ Content Planner + AI Assist</EmailCardRow>
+      <EmailCardRow>✓ Design Brief แบบมืออาชีพ</EmailCardRow>
+      <EmailCardRow>✓ Public Tracking Links ไม่จำกัด</EmailCardRow>
+    </EmailCard>
+    <EmailButton href="https://solofreelancer.com/dashboard">เปิด Dashboard</EmailButton>
+  </EmailLayout>
 )
 
 export const template = {

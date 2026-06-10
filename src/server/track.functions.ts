@@ -1,6 +1,8 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { notifyFreelancer, getFreelancerDisplayName } from "@/server/emailNotify.server";
+import { canonicalUrl } from "@/lib/siteUrl";
 
 const TokenSchema = z.object({ token: z.string().uuid() });
 
@@ -159,7 +161,7 @@ export const submitTrackingSlip = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const { data: job, error: jErr } = await supabaseAdmin
       .from("job_trackers")
-      .select("id")
+      .select("id, user_id, title, client_name, deposit_paid, final_paid, total_amount, deposit_percent, share_token")
       .eq("share_token", data.token)
       .maybeSingle();
     if (jErr) throw new Error(jErr.message);
@@ -169,6 +171,36 @@ export const submitTrackingSlip = createServerFn({ method: "POST" })
       .from("job_slips")
       .insert({ job_id: job.id, slip_url: data.slip_url, note: data.note ?? "" });
     if (error) throw new Error(error.message);
+
+    if (job.user_id) {
+      const paymentType = !job.deposit_paid ? "deposit" : !job.final_paid ? "final" : "partial";
+      const depositAmt = job.total_amount
+        ? Math.round(job.total_amount * ((job.deposit_percent ?? 50) / 100))
+        : null;
+      const amountLabel =
+        paymentType === "deposit" && depositAmt != null
+          ? `฿${depositAmt.toLocaleString("th-TH")}`
+          : job.total_amount
+            ? `฿${Math.round(job.total_amount).toLocaleString("th-TH")}`
+            : undefined;
+
+      const recipientName = await getFreelancerDisplayName(job.user_id);
+      void notifyFreelancer({
+        userId: job.user_id,
+        templateName: "deposit-received",
+        templateData: {
+          recipientName,
+          clientName: job.client_name ?? "ลูกค้า",
+          projectName: job.title ?? "โปรเจกต์",
+          paymentType,
+          amount: amountLabel,
+          note: data.note?.trim() || undefined,
+          actionUrl: canonicalUrl("/dashboard?tab=projects"),
+        },
+        idempotencyKey: `slip-${job.id}-${Date.now().toString(36)}`,
+      });
+    }
+
     return { ok: true };
   });
 

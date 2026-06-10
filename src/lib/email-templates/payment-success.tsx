@@ -1,7 +1,6 @@
 import * as React from 'react'
-import { Body, Button, Container, Head, Heading, Hr, Html, Preview, Text } from '@react-email/components'
 import type { TemplateEntry } from './registry'
-import { main, container, brandBar, h1, text, button, footer, divider, card, cardLabel, cardRow, brand } from './_brand'
+import { EmailLayout, EmailCard, EmailCardLabel, EmailCardRow, EmailButton, EmailText, brand } from './layout'
 
 interface PaymentSuccessProps {
   recipientName?: string
@@ -34,42 +33,40 @@ const PaymentSuccessEmail = ({
   currency = 'THB',
   paymentDate = new Date().toLocaleDateString('th-TH'),
   invoiceNumber = '—',
-  receiptUrl = 'https://solofreelancer.com',
+  receiptUrl = 'https://solofreelancer.com/dashboard',
 }: PaymentSuccessProps) => (
-  <Html lang="th" dir="ltr">
-    <Head />
-    <Preview>ได้รับเงินจาก {clientName} เรียบร้อย</Preview>
-    <Body style={main}>
-      <Container style={container}>
-        <Text style={brandBar}>So1o · ชำระเงินสำเร็จ</Text>
-        <Heading style={h1}>💰 ได้เงินแล้ว!</Heading>
-        <Text style={text}>
-          ยินดีด้วยครับ {recipientName} — {clientName} ชำระเงินสำหรับ
-          {' '}<strong style={{ color: brand.ink }}>{projectName}</strong> เรียบร้อยแล้ว
-        </Text>
-        <div style={card}>
-          <p style={cardLabel}>จำนวนเงิน</p>
-          <p style={{ fontSize: '28px', fontWeight: 700, color: brand.orange, margin: '0 0 18px', letterSpacing: '-0.01em' }}>
-            {formatAmount(amount, currency)}
-          </p>
-          <p style={cardLabel}>ลูกค้า</p>
-          <p style={{ ...cardRow, color: brand.ink, fontWeight: 600, margin: '0 0 14px' }}>{clientName}</p>
-          <p style={cardLabel}>โปรเจกต์</p>
-          <p style={{ ...cardRow, margin: '0 0 14px' }}>{projectName}</p>
-          <p style={cardLabel}>เลขที่ใบแจ้งหนี้</p>
-          <p style={{ ...cardRow, margin: '0 0 14px' }}>{invoiceNumber}</p>
-          <p style={cardLabel}>วันที่ชำระ</p>
-          <p style={{ ...cardRow, margin: 0 }}>{paymentDate}</p>
-        </div>
-        <Button style={button} href={receiptUrl}>ดูใบเสร็จ</Button>
-        <Hr style={divider} />
-        <Text style={footer}>
-          ตัวเลขทั้งหมดเป็นการคำนวณเบื้องต้น โปรดเก็บบันทึกไว้สำหรับการยื่นภาษีนะครับ<br />
-          So1o · เครื่องมือสำหรับฟรีแลนซ์ไทย · solofreelancer.com
-        </Text>
-      </Container>
-    </Body>
-  </Html>
+  <EmailLayout
+    preview={`ได้รับเงินจาก ${clientName} เรียบร้อย`}
+    badge="So1o · ชำระเงินสำเร็จ"
+    badgeTone="success"
+    title="💰 ได้เงินแล้ว!"
+    footerNote={
+      <>
+        ตัวเลขทั้งหมดเป็นการคำนวณเบื้องต้น โปรดเก็บบันทึกไว้สำหรับการยื่นภาษีนะครับ<br />
+        So1o · เครื่องมือสำหรับฟรีแลนซ์ไทย · solofreelancer.com
+      </>
+    }
+  >
+    <EmailText>
+      ยินดีด้วยครับ {recipientName} — {clientName} ชำระเงินสำหรับ{' '}
+      <strong style={{ color: brand.ink }}>{projectName}</strong> เรียบร้อยแล้ว
+    </EmailText>
+    <EmailCard>
+      <EmailCardLabel>จำนวนเงิน</EmailCardLabel>
+      <p style={{ fontSize: '28px', fontWeight: 700, color: brand.orange, margin: '0 0 16px' }}>
+        {formatAmount(amount, currency)}
+      </p>
+      <EmailCardLabel>ลูกค้า</EmailCardLabel>
+      <EmailCardRow highlight>{clientName}</EmailCardRow>
+      <EmailCardLabel>โปรเจกต์</EmailCardLabel>
+      <EmailCardRow>{projectName}</EmailCardRow>
+      <EmailCardLabel>เลขที่ใบแจ้งหนี้</EmailCardLabel>
+      <EmailCardRow>{invoiceNumber}</EmailCardRow>
+      <EmailCardLabel>วันที่ชำระ</EmailCardLabel>
+      <EmailCardRow>{paymentDate}</EmailCardRow>
+    </EmailCard>
+    <EmailButton href={receiptUrl}>ดูใบเสร็จ</EmailButton>
+  </EmailLayout>
 )
 
 export const template = {
@@ -87,7 +84,7 @@ export const template = {
     currency: 'THB',
     paymentDate: '27 พ.ค. 2026',
     invoiceNumber: 'INV-2026-0042',
-    receiptUrl: 'https://solofreelancer.com/dashboard/invoices',
+    receiptUrl: 'https://solofreelancer.com/dashboard',
   },
 } satisfies TemplateEntry
 

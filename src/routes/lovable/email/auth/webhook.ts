@@ -10,14 +10,15 @@ import { MagicLinkEmail } from '@/lib/email-templates/magic-link'
 import { RecoveryEmail } from '@/lib/email-templates/recovery'
 import { EmailChangeEmail } from '@/lib/email-templates/email-change'
 import { ReauthenticationEmail } from '@/lib/email-templates/reauthentication'
+import { SITE_NAME, SITE_URL } from '@/lib/siteUrl'
 
 const EMAIL_SUBJECTS: Record<string, string> = {
-  signup: 'Confirm your email',
-  invite: "You've been invited",
-  magiclink: 'Your login link',
-  recovery: 'Reset your password',
-  email_change: 'Confirm your new email',
-  reauthentication: 'Your verification code',
+  signup: 'ยืนยันอีเมลของคุณ — So1o',
+  invite: 'คุณได้รับคำเชิญเข้าร่วม So1o',
+  magiclink: 'ลิงก์เข้าสู่ระบบ So1o',
+  recovery: 'รีเซ็ตรหัสผ่าน So1o',
+  email_change: 'ยืนยันการเปลี่ยนอีเมล — So1o',
+  reauthentication: 'รหัสยืนยันตัวตนของคุณ — So1o',
 }
 
 // Template mapping
@@ -30,10 +31,7 @@ const EMAIL_TEMPLATES: Record<string, React.ComponentType<any>> = {
   reauthentication: ReauthenticationEmail,
 }
 
-// Configuration
-const SITE_NAME = "so1o-freelancer-managment"
 const SENDER_DOMAIN = "notify.solofreelancer.com"
-const ROOT_DOMAIN = "solofreelancer.com"
 const FROM_DOMAIN = "solofreelancer.com"
 
 function redactEmail(email: string | null | undefined): string {
@@ -134,7 +132,7 @@ export const Route = createFileRoute("/lovable/email/auth/webhook")({
         // Build template props from payload.data (HookData structure)
         const templateProps = {
           siteName: SITE_NAME,
-          siteUrl: `https://${ROOT_DOMAIN}`,
+          siteUrl: SITE_URL,
           recipient: payload.data.email,
           confirmationUrl: payload.data.url,
           token: payload.data.token,

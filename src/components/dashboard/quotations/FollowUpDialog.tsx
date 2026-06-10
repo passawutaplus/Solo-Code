@@ -4,49 +4,33 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Copy, MessageCircle, Phone, Mail } from "lucide-react";
+import { Copy, MessageCircle, Phone, Mail, Loader2, Send } from "lucide-react";
 import { toast } from "sonner";
-import { computeTotals, type Quotation, useQuotations } from "@/store/quotations";
+import { useServerFn } from "@tanstack/react-start";
+import { type Quotation, useQuotations } from "@/store/quotations";
+import {
+  daysOverdue,
+  isOverdue,
+  outstandingAmount,
+  buildFollowUpMessage,
+  type FollowUpTone,
+} from "@/lib/email/followUpMessage";
+import { sendPaymentFollowUpEmail } from "@/server/followUpEmail.functions";
 
-export function daysOverdue(q: Quotation): number {
-  if (!q.dueDate || q.status === "completed" || q.status === "rejected") return 0;
-  const due = new Date(q.dueDate); due.setHours(0, 0, 0, 0);
-  const today = new Date(); today.setHours(0, 0, 0, 0);
-  return Math.floor((today.getTime() - due.getTime()) / 86400000);
-}
+export { daysOverdue, isOverdue, outstandingAmount };
 
-export function isOverdue(q: Quotation): boolean {
-  return (q.status === "pending_payment" || q.status === "pending_receipt") && daysOverdue(q) > 0;
-}
-
-export function outstandingAmount(q: Quotation): number {
-  const t = computeTotals(q);
-  const lateFee = isOverdue(q) ? (t.grandTotal * (q.lateFeePercent || 0)) / 100 : 0;
-  return Math.max(0, t.grandTotal + lateFee - (q.paidPartial || 0));
-}
-
-const TEMPLATES = [
-  {
-    id: "soft", label: "นุ่มนวล", tone: "bg-emerald-500/15 text-emerald-700",
-    build: (q: Quotation, amount: number) =>
-      `สวัสดีครับ/ค่ะ คุณ${q.clientName}\n\nขอแจ้งเตือนยอดชำระค่าบริการ "${q.projectName}" จำนวน ฿${amount.toLocaleString("th-TH")}\nครบกำหนดวันที่ ${q.dueDate ?? "-"}\n\nหากชำระแล้วขอบคุณมากครับ/ค่ะ 🙏\n— ข้อความอัตโนมัติจากระบบ Sololab`,
-  },
-  {
-    id: "formal", label: "ทางการ", tone: "bg-amber-500/15 text-amber-700",
-    build: (q: Quotation, amount: number) =>
-      `เรียน คุณ${q.clientName}\n\nขออนุญาตติดตามการชำระเงินตามใบแจ้งหนี้ ${q.invoiceNumber ?? q.number}\nยอด ฿${amount.toLocaleString("th-TH")} ซึ่งเกินกำหนดมาแล้ว ${daysOverdue(q)} วัน\n\nรบกวนแจ้งกำหนดการชำระเงินภายใน 3 วันทำการนะครับ/ค่ะ\n— ข้อความอัตโนมัติจากระบบ Sololab`,
-  },
-  {
-    id: "urgent", label: "เร่งด่วน", tone: "bg-destructive/15 text-destructive",
-    build: (q: Quotation, amount: number) =>
-      `เรียน คุณ${q.clientName}\n\nแจ้งระงับงานชั่วคราว เนื่องจากมียอดค้างชำระตาม ${q.invoiceNumber ?? q.number} จำนวน ฿${amount.toLocaleString("th-TH")} เกินกำหนดมาแล้ว ${daysOverdue(q)} วัน\n\nกรุณาดำเนินการชำระภายใน 24 ชั่วโมง มิฉะนั้นทางเราขอสงวนสิทธิ์ดำเนินการตามขั้นตอนถัดไป\n— ข้อความอัตโนมัติจากระบบ Sololab`,
-  },
+const TONE_OPTIONS: { id: FollowUpTone; label: string; tone: string }[] = [
+  { id: "soft", label: "นุ่มนวล", tone: "bg-emerald-500/15 text-emerald-700" },
+  { id: "formal", label: "ทางการ", tone: "bg-amber-500/15 text-amber-700" },
+  { id: "urgent", label: "เร่งด่วน", tone: "bg-destructive/15 text-destructive" },
 ];
 
 export function FollowUpDialog({ q, open, onClose }: { q: Quotation | null; open: boolean; onClose: () => void }) {
   const { update } = useQuotations();
-  const [tplId, setTplId] = React.useState("soft");
+  const sendBrandedEmail = useServerFn(sendPaymentFollowUpEmail);
+  const [tplId, setTplId] = React.useState<FollowUpTone>("soft");
   const [partial, setPartial] = React.useState("");
+  const [sending, setSending] = React.useState(false);
 
   React.useEffect(() => {
     if (open && q) {
@@ -57,8 +41,7 @@ export function FollowUpDialog({ q, open, onClose }: { q: Quotation | null; open
 
   if (!q) return null;
   const amount = outstandingAmount(q);
-  const tpl = TEMPLATES.find((t) => t.id === tplId)!;
-  const message = tpl.build(q, amount);
+  const message = buildFollowUpMessage(q, amount, tplId);
 
   const recordFollowup = () => update(q.id, { lastFollowupAt: new Date().toISOString() });
 
@@ -70,19 +53,43 @@ export function FollowUpDialog({ q, open, onClose }: { q: Quotation | null; open
 
   const openLine = () => {
     const url = `https://line.me/R/msg/text/?${encodeURIComponent(message)}`;
-    window.open(url, "_blank"); recordFollowup();
+    window.open(url, "_blank");
+    recordFollowup();
   };
 
   const openWhatsApp = () => {
     const phone = (q.clientPhone ?? "").replace(/\D/g, "");
-    const url = phone ? `https://wa.me/${phone}?text=${encodeURIComponent(message)}` : `https://wa.me/?text=${encodeURIComponent(message)}`;
-    window.open(url, "_blank"); recordFollowup();
+    const url = phone
+      ? `https://wa.me/${phone}?text=${encodeURIComponent(message)}`
+      : `https://wa.me/?text=${encodeURIComponent(message)}`;
+    window.open(url, "_blank");
+    recordFollowup();
   };
 
   const openMail = () => {
-    if (!q.clientEmail) { toast.error("ไม่มีอีเมลลูกค้า"); return; }
+    if (!q.clientEmail) {
+      toast.error("ไม่มีอีเมลลูกค้า");
+      return;
+    }
     window.location.href = `mailto:${q.clientEmail}?subject=${encodeURIComponent(`ติดตามการชำระเงิน ${q.invoiceNumber ?? q.number}`)}&body=${encodeURIComponent(message)}`;
     recordFollowup();
+  };
+
+  const sendEmail = async () => {
+    if (!q.clientEmail) {
+      toast.error("ไม่มีอีเมลลูกค้า — ใส่ในใบเสนอราคาก่อน");
+      return;
+    }
+    setSending(true);
+    try {
+      const res = await sendBrandedEmail({ data: { quotationId: q.id, tone: tplId } });
+      toast.success(`ส่งอีเมลแบรนด์ So1o ให้ ${res.sentTo} แล้ว`);
+      recordFollowup();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "ส่งอีเมลไม่สำเร็จ");
+    } finally {
+      setSending(false);
+    }
   };
 
   const recordPartial = async () => {
@@ -120,19 +127,34 @@ export function FollowUpDialog({ q, open, onClose }: { q: Quotation | null; open
           <div>
             <Label className="text-[11px] text-muted-foreground">ระดับข้อความ</Label>
             <div className="grid grid-cols-3 gap-2 mt-1">
-              {TEMPLATES.map((t) => (
-                <button key={t.id} onClick={() => setTplId(t.id)}
+              {TONE_OPTIONS.map((t) => (
+                <button
+                  key={t.id}
+                  onClick={() => setTplId(t.id)}
                   className={`rounded-lg border px-3 py-2 text-xs font-medium transition-all ${
                     tplId === t.id ? "border-primary " + t.tone : "border-border hover:border-primary/40"
-                  }`}>{t.label}</button>
+                  }`}
+                >
+                  {t.label}
+                </button>
               ))}
             </div>
           </div>
 
           <div>
-            <Label className="text-[11px] text-muted-foreground">ข้อความที่จะส่ง (แก้ไขได้)</Label>
+            <Label className="text-[11px] text-muted-foreground">ข้อความที่จะส่ง</Label>
             <Textarea rows={8} value={message} readOnly className="text-xs mt-1 font-mono" />
           </div>
+
+          <Button
+            size="lg"
+            className="w-full gap-1.5 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white"
+            disabled={sending || !q.clientEmail}
+            onClick={sendEmail}
+          >
+            {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+            ส่งอีเมลแบรนด์ So1o ให้ลูกค้า
+          </Button>
 
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
             <Button size="sm" variant="outline" onClick={copy}><Copy className="h-3.5 w-3.5" />Copy</Button>

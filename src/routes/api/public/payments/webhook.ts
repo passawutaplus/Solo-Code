@@ -208,6 +208,12 @@ async function handleSubscriptionUpsert(
       message: `บัตรเครดิตถูกปฏิเสธสำหรับ ${priceId}`,
     });
   } else if (subscription.cancel_at_period_end) {
+    await enqueueEmail({
+      userId,
+      templateName: "subscription-scheduled-cancel",
+      templateData: { priceId, endsAt: tsToIso(periodEnd) },
+      idempotencyKey: `scheduled-cancel-${subscription.id}`,
+    });
     await logPaymentNotification({
       userId,
       eventType: "subscription.scheduled_cancel",

@@ -1,7 +1,6 @@
 import * as React from 'react'
-import { Body, Button, Container, Head, Heading, Hr, Html, Preview, Text } from '@react-email/components'
 import type { TemplateEntry } from './registry'
-import { main, container, brandBar, h1, text, button, footer, divider, card, cardLabel, cardRow, brand } from './_brand'
+import { EmailLayout, EmailCard, EmailCardLabel, EmailCardRow, EmailButton, EmailText, brand } from './layout'
 
 interface ProjectAlertProps {
   recipientName?: string
@@ -19,45 +18,51 @@ const ALERT_LABEL: Record<NonNullable<ProjectAlertProps['alertType']>, string> =
   analysis_complete: 'วิเคราะห์บรีฟเสร็จแล้ว',
 }
 
+const ALERT_BADGE: Record<NonNullable<ProjectAlertProps['alertType']>, string> = {
+  deadline: 'So1o · ใกล้ครบกำหนด',
+  comment: 'So1o · คอมเมนต์ใหม่',
+  status: 'So1o · อัปเดตสถานะ',
+  analysis_complete: 'So1o · AI วิเคราะห์เสร็จ',
+}
+
 const ProjectAlertEmail = ({
   recipientName = 'คุณ',
   projectName = 'โปรเจกต์ของคุณ',
   alertType = 'status',
   message = 'มีความเคลื่อนไหวใหม่ในโปรเจกต์ของคุณ',
-  actionUrl = 'https://solofreelancer.com',
+  actionUrl = 'https://solofreelancer.com/dashboard',
   dueDate,
 }: ProjectAlertProps) => (
-  <Html lang="th" dir="ltr">
-    <Head />
-    <Preview>{ALERT_LABEL[alertType]} — {projectName}</Preview>
-    <Body style={main}>
-      <Container style={container}>
-        <Text style={brandBar}>So1o · แจ้งเตือนโปรเจกต์</Text>
-        <Heading style={h1}>{ALERT_LABEL[alertType]}</Heading>
-        <Text style={text}>
-          สวัสดีครับ {recipientName} — มีอัปเดตจากโปรเจกต์ <strong style={{ color: brand.ink }}>{projectName}</strong> ที่คุณควรดูครับ
-        </Text>
-        <div style={card}>
-          <p style={cardLabel}>โปรเจกต์</p>
-          <p style={{ ...cardRow, color: brand.ink, fontWeight: 600, margin: '0 0 14px' }}>{projectName}</p>
-          <p style={cardLabel}>รายละเอียด</p>
-          <p style={{ ...cardRow, margin: dueDate ? '0 0 14px' : 0 }}>{message}</p>
-          {dueDate ? (
-            <>
-              <p style={cardLabel}>กำหนดส่ง</p>
-              <p style={{ ...cardRow, color: brand.orange, fontWeight: 600, margin: 0 }}>{dueDate}</p>
-            </>
-          ) : null}
-        </div>
-        <Button style={button} href={actionUrl}>เปิดดูโปรเจกต์</Button>
-        <Hr style={divider} />
-        <Text style={footer}>
-          คุณได้รับอีเมลนี้เพราะมีกิจกรรมใหม่ในโปรเจกต์ของคุณ<br />
-          So1o · solofreelancer.com
-        </Text>
-      </Container>
-    </Body>
-  </Html>
+  <EmailLayout
+    preview={`${ALERT_LABEL[alertType]} — ${projectName}`}
+    badge={ALERT_BADGE[alertType]}
+    badgeTone={alertType === 'deadline' ? 'warning' : 'brand'}
+    title={ALERT_LABEL[alertType]}
+    footerNote={
+      <>
+        คุณได้รับอีเมลนี้เพราะมีกิจกรรมใหม่ในโปรเจกต์ของคุณ<br />
+        So1o · solofreelancer.com
+      </>
+    }
+  >
+    <EmailText>
+      สวัสดีครับ {recipientName} — มีอัปเดตจากโปรเจกต์{' '}
+      <strong style={{ color: brand.ink }}>{projectName}</strong> ที่คุณควรดูครับ
+    </EmailText>
+    <EmailCard>
+      <EmailCardLabel>โปรเจกต์</EmailCardLabel>
+      <EmailCardRow highlight>{projectName}</EmailCardRow>
+      <EmailCardLabel>รายละเอียด</EmailCardLabel>
+      <EmailCardRow>{message}</EmailCardRow>
+      {dueDate ? (
+        <>
+          <EmailCardLabel>กำหนดส่ง</EmailCardLabel>
+          <EmailCardRow highlight>{dueDate}</EmailCardRow>
+        </>
+      ) : null}
+    </EmailCard>
+    <EmailButton href={actionUrl}>เปิดดูโปรเจกต์</EmailButton>
+  </EmailLayout>
 )
 
 export const template = {

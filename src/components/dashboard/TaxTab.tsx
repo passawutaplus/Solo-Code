@@ -18,6 +18,9 @@ import { DeductionsPanel } from "./tax/DeductionsPanel";
 import { TaxBracketGauge, AiTaxInsight } from "./tax/TaxBracketGauge";
 import { TaxDisclaimer, TaxFilingReminder } from "./tax/TaxDisclaimer";
 import { TaxSimulator } from "./tax/TaxSimulator";
+import { TaxWorkflowGuide } from "./tax/TaxWorkflowGuide";
+import { exportAccountantPackage } from "./tax/exportAccountantPackage";
+import { useAuth } from "@/auth/AuthProvider";
 
 const WHTCertificates = React.lazy(() =>
   import("./tax/WHTCertificates").then((m) => ({ default: m.WHTCertificates })),
@@ -50,7 +53,27 @@ export function TaxTab({ onNavigate, onSubChange }: Props) {
   } = useTaxEstimate();
   const [simOpen, setSimOpen] = React.useState(false);
   const { list: quotations } = useQuotations();
+  const { profile } = useAuth();
   const closedDeals = quotations.filter((q) => q.status === "completed").length;
+  const taxYear = new Date().getFullYear();
+
+  const workflowDone = {
+    income: incomes.length > 0,
+    wht: incomes.some((i) => i.certificateReceived || i.certificateNo),
+    expense: workExpenses.length > 0 || expenseMethod === "lumpsum",
+    estimate: incomes.length > 0,
+    export: false,
+  };
+
+  const handleAccountantExport = () => {
+    exportAccountantPackage({
+      year: taxYear,
+      incomes,
+      est,
+      expenseMethod,
+      brandName: profile?.brand_name ?? profile?.display_name ?? undefined,
+    });
+  };
 
   const gaugeAngle = (vatPct / 100) * 180;
 
@@ -90,6 +113,12 @@ export function TaxTab({ onNavigate, onSubChange }: Props) {
 
       <TaxDisclaimer />
       <TaxFilingReminder />
+
+      <TaxWorkflowGuide
+        onNavigate={onNavigate}
+        onExport={handleAccountantExport}
+        done={workflowDone}
+      />
 
       <button
         type="button"
@@ -299,9 +328,14 @@ export function TaxTab({ onNavigate, onSubChange }: Props) {
               />
             </div>
             <TaxDisclaimer compact />
-            <Button onClick={() => exportIncomeCsv(incomes)} variant="outline" className="w-full gap-1.5 mt-2" size="sm">
-              <Download className="h-3.5 w-3.5" /> Export CSV (รายได้)
-            </Button>
+            <div className="flex flex-col gap-2 mt-2">
+              <Button onClick={() => exportIncomeCsv(incomes)} variant="outline" className="w-full gap-1.5" size="sm">
+                <Download className="h-3.5 w-3.5" /> Export CSV (รายได้)
+              </Button>
+              <Button onClick={handleAccountantExport} className="w-full gap-1.5" size="sm">
+                <Download className="h-3.5 w-3.5" /> ส่งนักบัญชี (สรุป + CSV)
+              </Button>
+            </div>
           </CardContent>
         </Card>
       </div>

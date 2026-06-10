@@ -51,6 +51,7 @@ import { DashboardBannerSlider } from "@/components/DashboardBannerSlider";
 import { useTrackActivity } from "@/hooks/useTrackActivity";
 import { useLogActivity } from "@/hooks/useLogActivity";
 import { useDailyTrendsPrefetch } from "@/hooks/useDailyTrendsPrefetch";
+import { OnboardingFlow } from "@/components/onboarding/OnboardingFlow";
 import logoUrl from "@/assets/solo-freelancer-logo.webp";
 
 export const Route = createFileRoute("/dashboard")({
@@ -162,6 +163,7 @@ function Dashboard() {
 
   return (
     <FinanceProvider>
+      <OnboardingFlow />
       <SidebarProvider>
         <div className="relative min-h-screen flex w-full bg-background">
           <DashboardSidebar active={section} activeSub={sub} setActive={updateSection} />

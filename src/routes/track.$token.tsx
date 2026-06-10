@@ -1,10 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { RouteError } from "@/components/RouteError";
 import * as React from "react";
 import { createPortal } from "react-dom";
 import { runPrintToPdf } from "@/lib/printPdf";
 import { LineHeaderButton } from "@/components/LineContactButton";
 import { getPublicTrackingJob, submitTrackingSlip, deleteTrackingSlip, replaceTrackingSlip } from "@/server/track.functions";
+import { acceptQuotationByToken } from "@/server/portalEmail.functions";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -17,7 +19,7 @@ import { Dialog, DialogContent, DialogCloseButton, DialogHeader, DialogTitle } f
 import {
   Loader2, Lock, Unlock, Download, Upload, CheckCircle2, Receipt, Copy, Hash, RefreshCw,
   LayoutDashboard, Wallet, Clock, FolderOpen, FileText, ClipboardList, ChevronDown,
-  Printer, Trash2, RotateCw,
+  Printer, Trash2, RotateCw, ThumbsUp,
 } from "lucide-react";
 import { toast } from "sonner";
 import { celebrateFromEdges as celebrate } from "@/lib/celebrate";
@@ -417,7 +419,9 @@ function TrackPage() {
               <SlipsGallery slips={slips} token={token} onChanged={load} />
             )}
 
-            {quotation && <QuotationCard q={quotation} job={job} />}
+            {quotation && (
+              <QuotationCard q={quotation} job={job} token={token} onAccepted={load} />
+            )}
           </TabsContent>
 
 
@@ -546,7 +550,7 @@ function PaymentBlock({
 }) {
   const isFinal = kind === "final";
   return (
-    <Card className={isFinal ? "border-orange-400 bg-orange-50/70 ring-2 ring-orange-200" : "border-orange-300 bg-orange-50/50"}>
+    <Card id={isFinal ? undefined : "deposit"} className={isFinal ? "border-orange-400 bg-orange-50/70 ring-2 ring-orange-200" : "border-orange-300 bg-orange-50/50"}>
       <CardContent className="p-4 space-y-3">
         <div className="flex items-center gap-2">
           <Receipt className="h-4 w-4 text-orange-600" />
@@ -770,9 +774,46 @@ function SlipsGallery({
   );
 }
 
-function QuotationCard({ q, job }: { q: PublicQuotation; job: Job }) {
+function QuotationCard({
+  q,
+  job,
+  token,
+  onAccepted,
+}: {
+  q: PublicQuotation;
+  job: Job;
+  token: string;
+  onAccepted: () => void;
+}) {
+  const acceptFn = useServerFn(acceptQuotationByToken);
   const [fullOpen, setFullOpen] = React.useState(false);
+  const [clientName, setClientName] = React.useState(job.client_name ?? "");
+  const [accepting, setAccepting] = React.useState(false);
+  const [accepted, setAccepted] = React.useState(
+    q.status === "pending_payment" || q.status === "pending_receipt" || q.status === "completed",
+  );
+  const canAccept = !accepted && ["draft", "pending_approval", "sent"].includes(q.status);
   const itemsSubtotal = q.totals.itemsSubtotal ?? q.items.reduce((s, it) => s + it.quantity * it.unitPrice, 0);
+
+  async function handleAccept() {
+    if (!clientName.trim()) {
+      toast.error("กรุณากรอกชื่อของคุณ");
+      return;
+    }
+    setAccepting(true);
+    try {
+      await acceptFn({ data: { token, clientName: clientName.trim() } });
+      setAccepted(true);
+      toast.success("ยอมรับใบเสนอราคาแล้ว — ฟรีแลนซ์จะดำเนินการต่อให้ครับ/ค่ะ");
+      celebrate();
+      onAccepted();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "ยอมรับไม่สำเร็จ");
+    } finally {
+      setAccepting(false);
+    }
+  }
+
   return (
     <Card className="border-orange-200 bg-gradient-to-br from-orange-50/60 to-white">
       <CardContent className="p-4 space-y-3">
@@ -843,6 +884,39 @@ function QuotationCard({ q, job }: { q: PublicQuotation; job: Job }) {
         >
           <FileText className="h-3.5 w-3.5" /> ดู PDF ใบเสนอราคาฉบับเต็ม
         </Button>
+
+        {canAccept && (
+          <div className="rounded-xl border border-emerald-200 bg-emerald-50/80 p-3 space-y-2">
+            <p className="text-xs font-semibold text-emerald-900 flex items-center gap-1.5">
+              <ThumbsUp className="h-3.5 w-3.5" /> ยอมรับใบเสนอราคา
+            </p>
+            <p className="text-[11px] text-emerald-800/90 leading-relaxed">
+              กดยอมรับเมื่อเห็นด้วยกับรายการและราคา — ฟรีแลนซ์จะได้รับแจ้งเตือนทันที
+            </p>
+            <input
+              type="text"
+              value={clientName}
+              onChange={(e) => setClientName(e.target.value)}
+              placeholder="ชื่อของคุณ (สำหรับยืนยัน)"
+              className="w-full rounded-lg border border-emerald-200 bg-white px-3 py-2 text-xs"
+            />
+            <Button
+              className="w-full gap-1.5 bg-emerald-600 hover:bg-emerald-700"
+              disabled={accepting}
+              onClick={handleAccept}
+            >
+              {accepting ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
+              ยอมรับใบเสนอราคา
+            </Button>
+          </div>
+        )}
+
+        {accepted && (
+          <div className="flex items-center gap-2 rounded-lg bg-emerald-100 border border-emerald-200 px-3 py-2 text-xs text-emerald-800">
+            <CheckCircle2 className="h-4 w-4 shrink-0" />
+            ยอมรับใบเสนอราคาแล้ว — ชำระมัดจำได้ด้านบน
+          </div>
+        )}
       </CardContent>
 
       <QuotationFullDialog q={q} job={job} open={fullOpen} onOpenChange={setFullOpen} />

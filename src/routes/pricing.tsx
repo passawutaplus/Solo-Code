@@ -466,7 +466,7 @@ function PricingPage() {
                         variant="secondary"
                         className="w-full cursor-not-allowed"
                       >
-                        Coming Soon
+                        เร็วๆ นี้ (Q1 2027)
                       </Button>
                     )}
                   </div>

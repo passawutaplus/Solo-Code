@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 
 const STEPS = [
+  { id: "brand", label: "ตั้งค่าโปรไฟล์ร้าน (โลโก้/ธนาคาร)", tab: "settings" as const },
   { id: "client", label: "เพิ่มลูกค้าคนแรก", tab: "mydata", sub: "clients" },
   { id: "quotation", label: "สร้างใบเสนอราคา / ดีล", tab: "finance", sub: "pipeline" },
   { id: "tracker", label: "แชร์ Job Tracker ให้ลูกค้า", tab: "finance", sub: "jobs" },
@@ -28,6 +29,7 @@ export function OnboardingChecklist({
     quotations: number;
     jobs: number;
     incomes: number;
+    hasBrand?: boolean;
   };
 }) {
   const { user, profile } = useAuth();
@@ -43,6 +45,7 @@ export function OnboardingChecklist({
   }, [profile?.onboarding_data]);
 
   const autoDone: OnboardingProgress = {
+    brand: stats.hasBrand ?? false,
     client: stats.clients > 0,
     quotation: stats.quotations > 0,
     tracker: stats.jobs > 0,
@@ -81,7 +84,7 @@ export function OnboardingChecklist({
             ซ่อน
           </button>
         </div>
-        <p className="text-xs text-muted-foreground">ทำครบ 5 ขั้นเพื่อบริหารงานแบบมืออาชีพ</p>
+        <p className="text-xs text-muted-foreground">ทำครบ {STEPS.length} ขั้นเพื่อบริหารงานแบบมืออาชีพ</p>
       </CardHeader>
       <CardContent className="space-y-1.5">
         {STEPS.map((step) => {
