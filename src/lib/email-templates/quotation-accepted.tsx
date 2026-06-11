@@ -19,9 +19,10 @@ const QuotationAcceptedEmail = ({
 }: Props) => (
   <EmailLayout
     preview={`${clientName} ยอมรับใบเสนอราคา ${quotationNumber} แล้ว`}
-    badge="So1o · ลูกค้ายอมรับแล้ว"
+    badge="ลูกค้ายอมรับแล้ว"
     badgeTone="success"
-    title="🎉 ลูกค้ายอมรับใบเสนอราคาแล้ว!"
+    icon="celebration"
+    title="ลูกค้ายอมรับใบเสนอราคาแล้ว"
   >
     <EmailText>
       ยินดีด้วยครับ {recipientName} — <strong style={{ color: brand.ink }}>{clientName}</strong>{' '}
@@ -46,7 +47,7 @@ export const template = {
   subject: (data: Record<string, unknown>) => {
     const client = (data?.clientName as string) ?? 'ลูกค้า'
     const num = (data?.quotationNumber as string) ?? ''
-    return `[So1o] ${client} ยอมรับใบเสนอราคา ${num} แล้ว 🎉`
+    return `[So1o] ${client} ยอมรับใบเสนอราคา ${num} แล้ว`
   },
   displayName: 'Quotation accepted',
   previewData: {

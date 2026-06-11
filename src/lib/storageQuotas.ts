@@ -60,17 +60,26 @@ export const STORAGE_CATEGORIES: StorageCategoryMeta[] = [
  *
  * At 400 Pro users × 300 MB avg ≈ 120 GB → plan Supabase overage or tiered caps before scale.
  */
-export const STORAGE_QUOTA_BYTES: Record<Tier, number> = {
-  free: 150 * 1024 * 1024,
+/** So1o My Desk storage pool (separate from Anthem `project-media`). */
+export const SO1O_STORAGE_QUOTA_BYTES: Record<Tier, number> = {
+  free: 50 * 1024 * 1024,
   pro: 2 * 1024 * 1024 * 1024,
+  pro_plus: 4 * 1024 * 1024 * 1024,
   inhouse: 10 * 1024 * 1024 * 1024,
 };
 
-export const STORAGE_QUOTA_LABEL: Record<Tier, string> = {
-  free: "150 MB",
+/** @deprecated Use SO1O_STORAGE_QUOTA_BYTES */
+export const STORAGE_QUOTA_BYTES = SO1O_STORAGE_QUOTA_BYTES;
+
+export const SO1O_STORAGE_QUOTA_LABEL: Record<Tier, string> = {
+  free: "50 MB",
   pro: "2 GB",
+  pro_plus: "4 GB",
   inhouse: "10 GB",
 };
+
+/** @deprecated Use SO1O_STORAGE_QUOTA_LABEL */
+export const STORAGE_QUOTA_LABEL = SO1O_STORAGE_QUOTA_LABEL;
 
 /** Buckets scanned for a user's files (path `{userId}/…` unless noted). */
 export const USER_STORAGE_BUCKETS = [

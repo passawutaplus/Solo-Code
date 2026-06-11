@@ -19,10 +19,10 @@ const ALERT_LABEL: Record<NonNullable<ProjectAlertProps['alertType']>, string> =
 }
 
 const ALERT_BADGE: Record<NonNullable<ProjectAlertProps['alertType']>, string> = {
-  deadline: 'So1o · ใกล้ครบกำหนด',
-  comment: 'So1o · คอมเมนต์ใหม่',
-  status: 'So1o · อัปเดตสถานะ',
-  analysis_complete: 'So1o · AI วิเคราะห์เสร็จ',
+  deadline: 'ใกล้ครบกำหนด',
+  comment: 'คอมเมนต์ใหม่',
+  status: 'อัปเดตสถานะ',
+  analysis_complete: 'AI วิเคราะห์เสร็จ',
 }
 
 const ProjectAlertEmail = ({
@@ -37,13 +37,9 @@ const ProjectAlertEmail = ({
     preview={`${ALERT_LABEL[alertType]} — ${projectName}`}
     badge={ALERT_BADGE[alertType]}
     badgeTone={alertType === 'deadline' ? 'warning' : 'brand'}
+    icon="bell"
     title={ALERT_LABEL[alertType]}
-    footerNote={
-      <>
-        คุณได้รับอีเมลนี้เพราะมีกิจกรรมใหม่ในโปรเจกต์ของคุณ<br />
-        So1o · solofreelancer.com
-      </>
-    }
+    footerNote="คุณได้รับอีเมลนี้เพราะมีกิจกรรมใหม่ในโปรเจกต์ของคุณ"
   >
     <EmailText>
       สวัสดีครับ {recipientName} — มีอัปเดตจากโปรเจกต์{' '}

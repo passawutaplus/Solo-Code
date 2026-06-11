@@ -297,7 +297,6 @@ export function DashboardSidebar({ active, activeSub, setActive }: DashboardSide
           collapsed={collapsed}
           onNavigate={(tab, sub) => setActive(tab as DashSection, sub)}
         />
-        <AccountIdentityBadge collapsed={collapsed} />
 
         <SidebarMenu className="min-w-0">
           <SidebarMenuItem>
@@ -315,6 +314,8 @@ export function DashboardSidebar({ active, activeSub, setActive }: DashboardSide
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
+
+        <AccountIdentityBadge collapsed={collapsed} />
       </SidebarFooter>
 
       <SupportFab

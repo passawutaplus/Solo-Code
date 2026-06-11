@@ -46,6 +46,8 @@ const InspireTab = React.lazy(() =>
 );
 
 import { trackFeature } from "@/lib/featureUsage";
+import { parseAnthemDashboardParams, storeAnthemQuotationHandoff } from "@/lib/ecosystemHandoff";
+import { supabase } from "@/integrations/supabase/client";
 import { AnnouncementBanner } from "@/components/AnnouncementBanner";
 import { DashboardBannerSlider } from "@/components/DashboardBannerSlider";
 import { useTrackActivity } from "@/hooks/useTrackActivity";
@@ -160,6 +162,71 @@ function Dashboard() {
   React.useEffect(() => {
     trackFeature(`dashboard.${section}`);
   }, [section]);
+
+  // Anthem → So1o quotation deep-link handoff
+  React.useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = parseAnthemDashboardParams(window.location.search);
+    if (!params.fromAnthem) return;
+
+    void (async () => {
+      let clientName = params.clientName;
+      let projectTitle = params.projectTitle;
+      let clientEmail = params.clientEmail;
+      let clientPhone = params.clientPhone;
+      let message = params.message;
+      let deadline = params.deadline;
+      let requestId = params.requestId;
+
+      if (params.requestId) {
+        const { data: hire } = await supabase
+          .from("hiring_requests")
+          .select("id, client_name, email, phone, message, deadline, project_title, budget_amount")
+          .eq("id", params.requestId)
+          .maybeSingle();
+        if (hire) {
+          clientName = hire.client_name ?? clientName;
+          projectTitle = hire.project_title ?? projectTitle;
+          clientEmail = hire.email ?? clientEmail;
+          clientPhone = hire.phone ?? clientPhone;
+          message = hire.message ?? message;
+          deadline = hire.deadline ?? deadline;
+          requestId = hire.id;
+        }
+      }
+
+      const notesParts: string[] = [];
+      if (message) notesParts.push(message);
+      if (deadline) notesParts.push(`กำหนดส่ง: ${deadline}`);
+      if (params.conversationId) notesParts.push(`แชท Anthem: ${params.conversationId}`);
+
+      storeAnthemQuotationHandoff({
+        projectName: projectTitle || "งานจาก Anthem",
+        clientName: clientName || "ลูกค้า Anthem",
+        clientEmail,
+        clientPhone,
+        endDate: deadline,
+        notes: notesParts.length ? notesParts.join("\n\n") : undefined,
+        ecosystemLinkId: params.linkId,
+        conversationId: params.conversationId,
+        requestId,
+      });
+
+      if (params.linkId) {
+        await supabase
+          .from("ecosystem_links")
+          .update({ meta: { converted_at: new Date().toISOString(), target: "quotation_handoff" } })
+          .eq("id", params.linkId);
+      }
+
+      updateSection("finance", "quotations");
+      const url = new URL(window.location.href);
+      ["from", "conversation_id", "request_id", "client_name", "project_title", "client_email", "client_phone", "message", "deadline", "link_id"].forEach(
+        (k) => url.searchParams.delete(k),
+      );
+      window.history.replaceState({}, "", url.toString());
+    })();
+  }, [updateSection]);
 
   return (
     <FinanceProvider>

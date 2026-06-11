@@ -104,7 +104,7 @@ function PricingPage() {
     return false;
   };
 
-  const handleCheckoutPlan = async (planId: "pro" | "inhouse") => {
+  const handleCheckoutPlan = async (planId: "pro" | "pro_plus" | "inhouse") => {
     if (!ensureAuth("/pricing")) return;
     setLoadingId(planId);
     try {
@@ -112,6 +112,8 @@ function PricingPage() {
       let quantity: number | undefined;
       if (planId === "pro") {
         priceId = cycle === "monthly" ? PRICE_IDS.pro_monthly : PRICE_IDS.pro_yearly;
+      } else if (planId === "pro_plus") {
+        priceId = cycle === "monthly" ? PRICE_IDS.pro_plus_monthly : PRICE_IDS.pro_plus_yearly;
       } else {
         priceId = cycle === "monthly" ? PRICE_IDS.inhouse_monthly : PRICE_IDS.inhouse_yearly;
         quantity = seats;
@@ -185,9 +187,11 @@ function PricingPage() {
             <span className="text-xs text-muted-foreground">
               {tier === "inhouse"
                 ? "🏢 คุณคือ In-House Member"
-                : tier === "pro"
-                  ? "✨ คุณคือ Pro Member"
-                  : "แพ็กเกจปัจจุบัน: Free"}
+                : tier === "pro_plus"
+                  ? "✨ คุณคือ Pro+ Member"
+                  : tier === "pro"
+                    ? "✨ คุณคือ Pro Member"
+                    : "แพ็กเกจปัจจุบัน: Free"}
             </span>
           )}
         </div>
@@ -284,14 +288,16 @@ function PricingPage() {
         </div>
 
         {/* Subscription cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 lg:gap-6 max-w-5xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 lg:gap-6 max-w-6xl mx-auto">
           {PLANS.map((plan) => {
             const basePrice = cycle === "monthly" ? plan.monthly : plan.yearly;
             const isInhouse = plan.id === "inhouse";
             const displayPrice = isInhouse ? basePrice * seats : basePrice;
             const isCurrent = tier === "free" && plan.id === "free";
             const isCurrentPaid =
-              (tier === "pro" && plan.id === "pro") || (tier === "inhouse" && plan.id === "inhouse");
+              (tier === "pro" && plan.id === "pro") ||
+              (tier === "pro_plus" && plan.id === "pro_plus") ||
+              (tier === "inhouse" && plan.id === "inhouse");
 
             return (
               <div key={plan.id} className="relative">
@@ -444,31 +450,35 @@ function PricingPage() {
                           "จัดการ Subscription"
                         )}
                       </Button>
-                    ) : plan.id === "pro" ? (
+                    ) : plan.id === "pro" || plan.id === "pro_plus" ? (
                       <Button
-                        onClick={() => handleCheckoutPlan("pro")}
-                        disabled={loadingId === "pro"}
+                        onClick={() => handleCheckoutPlan(plan.id as "pro" | "pro_plus")}
+                        disabled={loadingId === plan.id}
                         className={cn(
                           "w-full",
                           plan.highlighted &&
                             "bg-gradient-to-r from-primary to-orange-400 text-white hover:opacity-90 border-0",
                         )}
                       >
-                        {loadingId === "pro" ? (
+                        {loadingId === plan.id ? (
                           <Loader2 className="h-4 w-4 animate-spin" />
                         ) : (
                           plan.cta
                         )}
                       </Button>
-                    ) : (
+                    ) : plan.id === "inhouse" ? (
                       <Button
-                        disabled
-                        variant="secondary"
-                        className="w-full cursor-not-allowed"
+                        onClick={() => handleCheckoutPlan("inhouse")}
+                        disabled={loadingId === "inhouse"}
+                        className="w-full"
                       >
-                        เร็วๆ นี้ (Q1 2027)
+                        {loadingId === "inhouse" ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          plan.cta
+                        )}
                       </Button>
-                    )}
+                    ) : null}
                   </div>
                 </Card>
               </div>

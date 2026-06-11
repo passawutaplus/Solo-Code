@@ -21,8 +21,13 @@ type Props = {
   creating?: boolean;
 };
 
-const TRIGGER_CLASS =
-  "flex items-center justify-center rounded-full bg-[#FF5F05] text-white shadow-soft hover:bg-[#E85604] hover:scale-105 active:scale-95 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50";
+const SIDEBAR_TRIGGER_CLASS =
+  "flex items-center justify-center rounded-lg bg-white/15 backdrop-blur-md border border-white/25 text-white shadow-soft hover:bg-white/20 active:scale-[0.98] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50";
+
+const SIDEBAR_TRIGGER_COLLAPSED_CLASS =
+  "flex items-center justify-center rounded-full bg-white/15 backdrop-blur-md border border-white/25 text-white shadow-soft hover:bg-white/20 active:scale-95 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50";
+
+const SIDEBAR_LABEL_CLASS = "text-xs font-semibold text-white";
 
 export function PipelineNewDealButton({
   variant = "sidebar",
@@ -74,8 +79,6 @@ export function PipelineNewDealButton({
     );
   }
 
-  const sizeClass = collapsed ? "h-9 w-9" : "h-10 w-10 mx-auto";
-
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
@@ -83,12 +86,18 @@ export function PipelineNewDealButton({
           type="button"
           title="New Deal"
           disabled={creating}
-          className={cn(TRIGGER_CLASS, sizeClass, creating && "opacity-70 pointer-events-none")}
+          className={cn(
+            collapsed ? SIDEBAR_TRIGGER_COLLAPSED_CLASS : SIDEBAR_TRIGGER_CLASS,
+            collapsed ? "h-9 w-9 mx-auto" : "w-full px-3 py-2.5",
+            creating && "opacity-70 pointer-events-none",
+          )}
         >
           {creating ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
+            <Loader2 className="h-4 w-4 animate-spin text-white" />
+          ) : collapsed ? (
+            <Plus className="h-4 w-4 text-white" strokeWidth={2.5} />
           ) : (
-            <Plus className="h-5 w-5" strokeWidth={2.5} />
+            <span className={SIDEBAR_LABEL_CLASS}>+ New Deal</span>
           )}
         </button>
       </PopoverTrigger>

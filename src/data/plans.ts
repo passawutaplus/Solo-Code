@@ -1,4 +1,4 @@
-export type PlanId = "free" | "pro" | "inhouse";
+export type PlanId = "free" | "pro" | "pro_plus" | "inhouse";
 export type BillingCycle = "monthly" | "yearly";
 
 export interface Plan {
@@ -48,6 +48,21 @@ export const PLANS: Plan[] = [
     ],
     cta: "อัพเกรดเป็น Pro",
     highlighted: true,
+  },
+  {
+    id: "pro_plus",
+    name: "Pro+",
+    tagline: "Ecosystem เต็ม — Auto-link Anthem + เครดิต AI มากขึ้น",
+    monthly: 399,
+    yearly: 3828,
+    features: [
+      "ทุกอย่างใน Pro",
+      "AI 1,400 เครดิต/รอบ",
+      "So1o Storage 4 GB + Anthem 2.5 GB",
+      "Auto CRM / Quote จากแชท Anthem (เร็วๆ นี้)",
+      "Priority Support",
+    ],
+    cta: "อัพเกรดเป็น Pro+",
   },
   {
     id: "inhouse",

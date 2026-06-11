@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { RouteError } from "@/components/RouteError";
+import { HttpErrorPage } from "@/components/HttpErrorPage";
 import * as React from "react";
 import { createPortal } from "react-dom";
 import { runPrintToPdf } from "@/lib/printPdf";
@@ -177,14 +178,7 @@ function TrackPage() {
     );
   }
   if (notFound || !job) {
-    return (
-      <div className="min-h-screen flex items-center justify-center text-center p-6">
-        <div>
-          <h1 className="text-lg font-semibold">ไม่พบงานนี้</h1>
-          <p className="text-sm text-muted-foreground mt-1">ลิงก์อาจหมดอายุหรือถูกลบไปแล้ว</p>
-        </div>
-      </div>
-    );
+    return <HttpErrorPage kind="token" code={404} showRetry={false} />;
   }
 
   const stepIdx = job.current_step;

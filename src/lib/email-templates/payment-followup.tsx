@@ -1,6 +1,7 @@
 import * as React from 'react'
 import type { TemplateEntry } from './registry'
 import { EmailLayout, EmailCard, EmailCardLabel, EmailCardRow, EmailButton, EmailText, brand } from './layout'
+import type { IconName } from './icons'
 
 interface Props {
   clientName?: string
@@ -16,9 +17,21 @@ interface Props {
 }
 
 const TONE_BADGE: Record<NonNullable<Props['tone']>, { label: string; tone: 'brand' | 'warning' | 'neutral' }> = {
-  soft: { label: 'So1o · แจ้งเตือนการชำระ', tone: 'brand' },
-  formal: { label: 'So1o · ติดตามการชำระ', tone: 'neutral' },
-  urgent: { label: 'So1o · เร่งด่วน', tone: 'warning' },
+  soft: { label: 'แจ้งเตือนการชำระ', tone: 'brand' },
+  formal: { label: 'ติดตามการชำระ', tone: 'neutral' },
+  urgent: { label: 'เร่งด่วน', tone: 'warning' },
+}
+
+const TONE_TITLE: Record<NonNullable<Props['tone']>, string> = {
+  soft: 'แจ้งเตือนยอดชำระ',
+  formal: 'ติดตามการชำระเงิน',
+  urgent: 'แจ้งยอดค้างชำระเร่งด่วน',
+}
+
+const TONE_ICON: Record<NonNullable<Props['tone']>, IconName> = {
+  soft: 'receipt',
+  formal: 'receipt',
+  urgent: 'warning',
 }
 
 const PaymentFollowupEmail = ({
@@ -34,24 +47,15 @@ const PaymentFollowupEmail = ({
   portalUrl = 'https://solofreelancer.com',
 }: Props) => {
   const badge = TONE_BADGE[tone]
-  const title = tone === 'urgent'
-    ? '⚠️ แจ้งยอดค้างชำระเร่งด่วน'
-    : tone === 'formal'
-      ? '📋 ติดตามการชำระเงิน'
-      : '🙏 แจ้งเตือนยอดชำระ'
 
   return (
     <EmailLayout
       preview={`${freelancerName} แจ้งยอดชำระ ${amount} — ${projectName}`}
       badge={badge.label}
       badgeTone={badge.tone}
-      title={title}
-      footerNote={
-        <>
-          อีเมลนี้ส่งจาก {freelancerName} ผ่าน So1o Freelancer<br />
-          solofreelancer.com
-        </>
-      }
+      icon={TONE_ICON[tone]}
+      title={TONE_TITLE[tone]}
+      footerNote={`อีเมลนี้ส่งจาก ${freelancerName} ผ่าน So1o Freelancer`}
     >
       <EmailText>
         สวัสดีครับ/ค่ะ {clientName} — {freelancerName} ขอแจ้งเตือนการชำระเงินสำหรับโปรเจกต์{' '}

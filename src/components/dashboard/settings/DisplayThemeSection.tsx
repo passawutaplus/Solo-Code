@@ -33,52 +33,47 @@ export function DisplayThemeSection() {
 
   return (
     <Card className="glass border-border shadow-soft">
-      <CardContent className="p-4 sm:p-5 space-y-4">
-        <div className="flex items-center justify-between gap-3 flex-wrap">
+      <CardContent className="p-4 sm:p-5 space-y-3">
+        <div className="flex items-start justify-between gap-3 flex-wrap">
           <div>
             <h2 className="text-sm font-semibold tracking-tight">
-              {locale === "en" ? "Theme & language" : "ธีม & ภาษา"}
+              {locale === "en" ? "Display mode" : "ปรับโหมด"}
             </h2>
             <p className="text-xs text-muted-foreground">
               {locale === "en"
-                ? "Display mode and notification language (LINE, etc.)"
+                ? "Theme and notification language (LINE, etc.)"
                 : "โหมดแสดงผลและภาษาข้อความแจ้งเตือน (LINE ฯลฯ)"}
             </p>
           </div>
-          <div className="flex items-center gap-2 flex-wrap">
-            <Button asChild variant="outline" size="sm" className="h-8 gap-1.5">
-              <Link to="/">
-                <ArrowLeft className="h-4 w-4" /> กลับหน้าฟีด
-              </Link>
-            </Button>
-            <div className="inline-flex rounded-xl border border-border/60 bg-muted/40 p-1">
-              <Button
-                type="button"
-                size="sm"
-                variant={theme === "light" ? "default" : "ghost"}
-                onClick={() => setTheme("light")}
-                className="h-8 gap-1.5 rounded-lg"
-              >
-                <Sun className="h-4 w-4" /> Light
-              </Button>
-              <Button
-                type="button"
-                size="sm"
-                variant={theme === "dark" ? "default" : "ghost"}
-                onClick={() => setTheme("dark")}
-                className="h-8 gap-1.5 rounded-lg"
-              >
-                <Moon className="h-4 w-4" /> Dark
-              </Button>
-            </div>
-          </div>
+          <Button asChild variant="outline" size="sm" className="h-8 gap-1.5 shrink-0">
+            <Link to="/">
+              <ArrowLeft className="h-4 w-4" /> กลับหน้าฟีด
+            </Link>
+          </Button>
         </div>
 
-        <div className="flex items-center justify-between gap-3 flex-wrap pt-1 border-t border-border/50">
-          <p className="text-xs text-muted-foreground">
-            {locale === "en" ? "Notification language" : "ภาษาแจ้งเตือน"}
-            {savingLocale && <Loader2 className="inline h-3 w-3 ml-1.5 animate-spin" />}
-          </p>
+        <div className="flex items-center justify-end gap-2 flex-wrap">
+          <div className="inline-flex rounded-xl border border-border/60 bg-muted/40 p-1">
+            <Button
+              type="button"
+              size="sm"
+              variant={theme === "light" ? "default" : "ghost"}
+              onClick={() => setTheme("light")}
+              className="h-8 gap-1.5 rounded-lg"
+            >
+              <Sun className="h-4 w-4" /> Light
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              variant={theme === "dark" ? "default" : "ghost"}
+              onClick={() => setTheme("dark")}
+              className="h-8 gap-1.5 rounded-lg"
+            >
+              <Moon className="h-4 w-4" /> Dark
+            </Button>
+          </div>
+
           <div className="inline-flex rounded-xl border border-border/60 bg-muted/40 p-1">
             <Button
               type="button"
@@ -101,6 +96,8 @@ export function DisplayThemeSection() {
               English
             </Button>
           </div>
+
+          {savingLocale && <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" />}
         </div>
       </CardContent>
     </Card>

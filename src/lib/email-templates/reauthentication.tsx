@@ -8,14 +8,10 @@ interface ReauthenticationEmailProps { token: string }
 export const ReauthenticationEmail = ({ token }: ReauthenticationEmailProps) => (
   <EmailLayout
     preview="รหัสยืนยันตัวตนของคุณ"
-    badge="So1o · ยืนยันตัวตน"
+    badge="ยืนยันตัวตน"
+    icon="mail"
     title="ยืนยันตัวตนอีกครั้ง"
-    footerNote={
-      <>
-        รหัสนี้จะหมดอายุภายในไม่กี่นาที ห้ามแชร์ให้คนอื่นเด็ดขาด<br />
-        So1o · solofreelancer.com
-      </>
-    }
+    footerNote="รหัสนี้จะหมดอายุภายในไม่กี่นาที ห้ามแชร์ให้คนอื่นเด็ดขาด"
   >
     <EmailText>กรอกรหัสด้านล่างเพื่อยืนยันว่าเป็นคุณนะครับ:</EmailText>
     <Text style={code}>{token}</Text>

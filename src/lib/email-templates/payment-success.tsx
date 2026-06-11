@@ -37,15 +37,11 @@ const PaymentSuccessEmail = ({
 }: PaymentSuccessProps) => (
   <EmailLayout
     preview={`ได้รับเงินจาก ${clientName} เรียบร้อย`}
-    badge="So1o · ชำระเงินสำเร็จ"
+    badge="ชำระเงินสำเร็จ"
     badgeTone="success"
-    title="💰 ได้เงินแล้ว!"
-    footerNote={
-      <>
-        ตัวเลขทั้งหมดเป็นการคำนวณเบื้องต้น โปรดเก็บบันทึกไว้สำหรับการยื่นภาษีนะครับ<br />
-        So1o · เครื่องมือสำหรับฟรีแลนซ์ไทย · solofreelancer.com
-      </>
-    }
+    icon="payment"
+    title="ได้รับเงินแล้ว"
+    footerNote="ตัวเลขทั้งหมดเป็นการคำนวณเบื้องต้น โปรดเก็บบันทึกไว้สำหรับการยื่นภาษีนะครับ"
   >
     <EmailText>
       ยินดีด้วยครับ {recipientName} — {clientName} ชำระเงินสำหรับ{' '}

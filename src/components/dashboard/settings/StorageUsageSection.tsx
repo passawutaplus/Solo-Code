@@ -45,7 +45,7 @@ import type { StorageCategoryUsage, UserStorageUsageResponse } from "@/lib/stora
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
-const TIER_LABEL = { free: "Free", pro: "Pro", inhouse: "In-House" } as const;
+const TIER_LABEL = { free: "Free", pro: "Pro", pro_plus: "Pro+", inhouse: "In-House" } as const;
 
 const PURGE_WARNINGS: Record<StorageCategoryId, string> = {
   photos:
@@ -128,7 +128,7 @@ export function StorageUsageSection() {
                   <div className="min-w-0">
                     <h3 className="text-sm font-semibold flex items-center gap-2">
                       <HardDrive className="h-4 w-4 text-sky-500 shrink-0" />
-                      พื้นที่จัดเก็บข้อมูล
+                      พื้นที่ So1o (หลังบ้าน)
                       <ChevronDown
                         className={cn(
                           "h-4 w-4 text-muted-foreground transition-transform",
@@ -228,8 +228,19 @@ export function StorageUsageSection() {
             <CollapsibleContent>
               <div className="px-5 pb-5 space-y-3 border-t border-border/40 pt-4">
                 <p className="text-[11px] text-muted-foreground leading-relaxed">
-                  โควต้าตามแพ็กเกจ: Free {STORAGE_QUOTA_LABEL.free} · Pro {STORAGE_QUOTA_LABEL.pro} ·
-                  In-House {STORAGE_QUOTA_LABEL.inhouse} — รวมไฟล์บน Supabase Storage + ประมาณการข้อมูลในฐานข้อมูล
+                  โควต้า So1o: Free {STORAGE_QUOTA_LABEL.free} · Pro {STORAGE_QUOTA_LABEL.pro} · Pro+{" "}
+                  {STORAGE_QUOTA_LABEL.pro_plus} · In-House {STORAGE_QUOTA_LABEL.inhouse}
+                </p>
+                <p className="text-[11px] text-muted-foreground leading-relaxed rounded-lg border border-border/50 bg-muted/20 px-3 py-2">
+                  กระเป๋า Anthem (ผลงาน/แชท) แยกต่างหาก — จัดการที่{" "}
+                  <a
+                    href={`${(import.meta.env.VITE_ANTHEM_APP_URL as string | undefined)?.replace(/\/$/, "") || "http://localhost:8081"}/settings`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-primary hover:underline"
+                  >
+                    Anthem Settings → พื้นที่ Anthem
+                  </a>
                 </p>
 
                 {STORAGE_CATEGORIES.map((meta) => {

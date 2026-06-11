@@ -12,14 +12,10 @@ interface SignupEmailProps {
 export const SignupEmail = ({ siteName, siteUrl, recipient, confirmationUrl }: SignupEmailProps) => (
   <EmailLayout
     preview={`ยืนยันอีเมลของคุณกับ ${siteName}`}
-    badge="So1o · ยืนยันอีเมล"
+    badge="ยืนยันอีเมล"
+    icon="mail"
     title="ยินดีต้อนรับสู่ครอบครัวฟรีแลนซ์"
-    footerNote={
-      <>
-        ถ้าคุณไม่ได้สมัครบัญชี ไม่ต้องทำอะไรครับ — อีเมลนี้จะหมดอายุภายในไม่กี่ชั่วโมง<br />
-        So1o · solofreelancer.com
-      </>
-    }
+    footerNote="ถ้าคุณไม่ได้สมัครบัญชี ไม่ต้องทำอะไรครับ — อีเมลนี้จะหมดอายุภายในไม่กี่ชั่วโมง"
   >
     <EmailText>
       ขอบคุณที่สมัครใช้งาน <Link href={siteUrl} style={link}>{siteName}</Link> ครับ

@@ -8,11 +8,12 @@ interface PastDueProps {
 
 const PastDueEmail = ({ priceId = 'pro' }: PastDueProps) => (
   <EmailLayout
-    preview="⚠️ การชำระเงินไม่สำเร็จ — กรุณาอัปเดตวิธีชำระเงิน"
-    badge="So1o · แจ้งเตือนการชำระเงิน"
+    preview="การชำระเงินไม่สำเร็จ — กรุณาอัปเดตวิธีชำระเงิน"
+    badge="แจ้งเตือนการชำระเงิน"
     badgeTone="warning"
-    title="⚠️ บัตรเครดิตของคุณถูกปฏิเสธ"
-    footerNote="ติดปัญหา? ตอบกลับเมลนี้ได้เลยครับ · So1o · solofreelancer.com"
+    icon="warning"
+    title="การชำระเงินไม่สำเร็จ"
+    footerNote="ติดปัญหา? ตอบกลับเมลนี้ได้เลยครับ"
   >
     <EmailText>
       เราพยายามตัดเงินรอบบิลของแพ็กเกจ <strong>{priceId}</strong> แต่ไม่สำเร็จ
@@ -27,7 +28,7 @@ const PastDueEmail = ({ priceId = 'pro' }: PastDueProps) => (
 
 export const template = {
   component: PastDueEmail,
-  subject: () => `⚠️ [So1o] การชำระเงินไม่สำเร็จ — โปรดอัปเดตบัตร`,
+  subject: () => `[So1o] การชำระเงินไม่สำเร็จ — โปรดอัปเดตบัตร`,
   displayName: 'Subscription past due',
   previewData: { priceId: 'pro_monthly' },
 } satisfies TemplateEntry

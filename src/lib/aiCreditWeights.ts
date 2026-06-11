@@ -14,12 +14,16 @@ export const AI_FEATURE_CREDITS = {
   generate_contract: 8,
   ai_brief_extract: 10,
   ai_brief_from_images: 8,
+  anthem_portfolio_copy: 2,
+  anthem_chat_draft: 1,
+  anthem_brief_from_chat: 10,
+  anthem_assistant_mentor: 1,
 } as const;
 
 export type AiFeatureKey = keyof typeof AI_FEATURE_CREDITS;
 
 export const AI_FEATURE_LABELS: Record<AiFeatureKey, string> = {
-  ai_assistant_mentor: "So1o Assistant — Mentor",
+  ai_assistant_mentor: "So1o Assistant — Mentor (เว็บ + LINE)",
   ai_assistant_copy: "So1o Assistant — Copywriter",
   ai_assistant_legal: "So1o Assistant — Legal",
   ai_assistant_business: "So1o Assistant — ธุรกิจ",
@@ -30,6 +34,10 @@ export const AI_FEATURE_LABELS: Record<AiFeatureKey, string> = {
   generate_contract: "สร้างสัญญา AI",
   ai_brief_extract: "Smart Brief — Quick Capture",
   ai_brief_from_images: "Smart Brief — วิเคราะห์รูป",
+  anthem_portfolio_copy: "Anthem — เขียนผลงาน",
+  anthem_chat_draft: "Anthem — ร่างตอบแชท",
+  anthem_brief_from_chat: "Anthem — สรุปบรีฟจากแชท",
+  anthem_assistant_mentor: "Anthem AI Mentor",
 };
 
 /** สมมติฐาน mix การใช้งานเฉลี่ย (ปรับจาก ledger จริงเมื่อมีข้อมูล) */

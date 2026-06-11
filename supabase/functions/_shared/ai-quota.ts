@@ -13,6 +13,15 @@ export interface QuotaResult {
   reason?: string;
 }
 
+/** LINE / UI suffix — remaining / total pool (included + purchased). */
+export function formatAiCreditSuffix(
+  quota: Pick<QuotaResult, "total_remaining" | "included_used">,
+): string {
+  const remaining = quota.total_remaining ?? 0;
+  const total = Math.max((quota.included_used ?? 0) + remaining, 1);
+  return `credit ai : ${remaining}/${total}`;
+}
+
 function paymentsEnv(): "sandbox" | "live" {
   const env = Deno.env.get("STRIPE_ENVIRONMENT");
   return env === "live" ? "live" : "sandbox";
@@ -90,5 +99,5 @@ export async function isProUser(userId: string): Promise<boolean> {
     .eq("user_id", userId)
     .maybeSingle();
   const tier = (data?.subscription_tier ?? "free") as string;
-  return tier === "pro" || tier === "inhouse";
+  return tier === "pro" || tier === "pro_plus" || tier === "inhouse";
 }

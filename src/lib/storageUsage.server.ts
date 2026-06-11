@@ -187,7 +187,7 @@ async function resolveTier(userId: string): Promise<Tier> {
     .eq("user_id", userId)
     .maybeSingle();
   const t = profile?.subscription_tier;
-  if (t === "pro" || t === "inhouse") return t;
+  if (t === "pro" || t === "pro_plus" || t === "inhouse") return t;
   return "free";
 }
 

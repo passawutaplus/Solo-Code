@@ -33,3 +33,12 @@ verify_jwt = false
 
 [functions.line-queue-process]
 verify_jwt = false
+
+[functions.line-connect]
+verify_jwt = false
+
+[functions.line-webhook]
+verify_jwt = false
+
+[functions.line-link-account]
+verify_jwt = false

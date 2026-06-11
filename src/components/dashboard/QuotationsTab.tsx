@@ -39,6 +39,7 @@ import { BulkActionBar } from "./quotations/BulkActionBar";
 import { QuotationMockupDialog } from "./quotations/QuotationMockupDialog";
 import { celebrateFromEdges } from "@/lib/celebrate";
 import { PageFooterActions } from "./PageFooterActions";
+import { consumeAnthemQuotationHandoff } from "@/lib/ecosystemHandoff";
 
 export function QuotationsTab() {
   const { list, create, remove, duplicate, advanceStatus, update } = useQuotations();
@@ -54,6 +55,7 @@ export function QuotationsTab() {
   // Hand-off from Smart Brief → auto-create OR refresh existing linked quotation.
   // Wait until `list` is loaded (so we can detect a pre-existing quotation tied to the brief).
   const handoffConsumedRef = React.useRef(false);
+  const anthemHandoffConsumedRef = React.useRef(false);
   const openIdConsumedRef = React.useRef(false);
   const listLoaded = React.useRef(false);
 
@@ -76,6 +78,64 @@ export function QuotationsTab() {
     }
     if (found) setEditingId(id);
   }, [list]);
+
+  React.useEffect(() => {
+    if (anthemHandoffConsumedRef.current) return;
+    if (!listLoaded.current && list.length === 0) {
+      const t = setTimeout(() => { listLoaded.current = true; }, 400);
+      return () => clearTimeout(t);
+    }
+    listLoaded.current = true;
+    const anthemInit = consumeAnthemQuotationHandoff();
+    if (!anthemInit) return;
+    anthemHandoffConsumedRef.current = true;
+
+    const requestId = anthemInit.requestId;
+    const existing = requestId
+      ? list.find((q) => q.notes?.includes(`anthem_request:${requestId}`))
+      : undefined;
+
+    const noteBlock = [
+      anthemInit.notes,
+      anthemInit.conversationId ? `แชท Anthem: ${anthemInit.conversationId}` : "",
+      requestId ? `anthem_request:${requestId}` : "",
+    ]
+      .filter(Boolean)
+      .join("\n\n");
+
+    if (existing) {
+      update(existing.id, {
+        projectName: anthemInit.projectName || existing.projectName,
+        clientName: anthemInit.clientName || existing.clientName,
+        clientEmail: anthemInit.clientEmail || existing.clientEmail,
+        clientPhone: anthemInit.clientPhone || existing.clientPhone,
+        endDate: anthemInit.endDate || existing.endDate,
+        notes: noteBlock || existing.notes,
+      })
+        .then(() => {
+          setEditingId(existing.id);
+          toast.success(`เปิดใบเสนอราคา ${existing.number} จากงาน Anthem`);
+        })
+        .catch((e) => toast.error(e instanceof Error ? e.message : "อัปเดตไม่สำเร็จ"));
+      return;
+    }
+
+    create({
+      projectName: anthemInit.projectName,
+      clientName: anthemInit.clientName,
+      clientEmail: anthemInit.clientEmail,
+      clientPhone: anthemInit.clientPhone,
+      endDate: anthemInit.endDate,
+      notes: noteBlock,
+    })
+      .then((q) => {
+        if (q?.id) {
+          setEditingId(q.id);
+          toast.success("สร้างใบเสนอราคาจากงาน Anthem แล้ว — กรอกราคาให้ครบได้เลย");
+        }
+      })
+      .catch((e) => toast.error(e instanceof Error ? e.message : "สร้างไม่สำเร็จ"));
+  }, [create, update, list]);
 
   React.useEffect(() => {
     // Only run once the list query has resolved (even if empty)

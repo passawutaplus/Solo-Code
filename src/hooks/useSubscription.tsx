@@ -18,7 +18,7 @@ export interface SubscriptionRow {
   environment: string;
 }
 
-export type Tier = "free" | "pro" | "inhouse";
+export type Tier = "free" | "pro" | "pro_plus" | "inhouse";
 
 export function useSubscription() {
   const { user } = useAuth();
@@ -110,7 +110,7 @@ export function useSubscription() {
 
   // Profile tier wins if active; else fall back to free
   const tier: Tier = profileTier !== "free" ? profileTier : isActive ? "pro" : "free";
-  const isPro = tier === "pro" || tier === "inhouse";
+  const isPro = tier === "pro" || tier === "pro_plus" || tier === "inhouse";
 
   return {
     subscription: sub,

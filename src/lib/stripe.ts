@@ -15,6 +15,8 @@ export function getStripeEnvironment(): StripeEnv {
 export const PRICE_IDS = {
   pro_monthly: "pro_monthly",
   pro_yearly: "pro_yearly",
+  pro_plus_monthly: "pro_plus_monthly",
+  pro_plus_yearly: "pro_plus_yearly",
   inhouse_monthly: "inhouse_monthly",
   inhouse_yearly: "inhouse_yearly",
   credits_100: "credits_100",

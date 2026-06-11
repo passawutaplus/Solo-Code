@@ -158,6 +158,7 @@ async function handleSubscriptionUpsert(
   const periodStart = item?.current_period_start ?? subscription.current_period_start;
   const periodEnd = item?.current_period_end ?? subscription.current_period_end;
   const priceId = resolvePriceId(item);
+  const seatQuantity = Math.max(1, Number(item?.quantity) || 1);
 
   await getSupabase().from("subscriptions").upsert(
     {
@@ -166,6 +167,7 @@ async function handleSubscriptionUpsert(
       stripe_customer_id: subscription.customer,
       product_id: item?.price?.product ?? "unknown",
       price_id: priceId,
+      seat_quantity: seatQuantity,
       status: subscription.status,
       current_period_start: tsToIso(periodStart),
       current_period_end: tsToIso(periodEnd),

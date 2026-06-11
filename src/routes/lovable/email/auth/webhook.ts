@@ -11,8 +11,15 @@ import { RecoveryEmail } from '@/lib/email-templates/recovery'
 import { EmailChangeEmail } from '@/lib/email-templates/email-change'
 import { ReauthenticationEmail } from '@/lib/email-templates/reauthentication'
 import { SITE_NAME, SITE_URL } from '@/lib/siteUrl'
+import { resolveAuthEmailBrand } from '@/lib/email/authBrand'
+import {
+  ANTHEM_AUTH_SUBJECTS,
+  ANTHEM_EMAIL_TEMPLATES,
+  ANTHEM_SITE_NAME,
+  ANTHEM_SITE_URL,
+} from '@/lib/email/anthemAuthTemplates'
 
-const EMAIL_SUBJECTS: Record<string, string> = {
+const SOLO_EMAIL_SUBJECTS: Record<string, string> = {
   signup: 'ยืนยันอีเมลของคุณ — So1o',
   invite: 'คุณได้รับคำเชิญเข้าร่วม So1o',
   magiclink: 'ลิงก์เข้าสู่ระบบ So1o',
@@ -21,8 +28,7 @@ const EMAIL_SUBJECTS: Record<string, string> = {
   reauthentication: 'รหัสยืนยันตัวตนของคุณ — So1o',
 }
 
-// Template mapping
-const EMAIL_TEMPLATES: Record<string, React.ComponentType<any>> = {
+const SOLO_EMAIL_TEMPLATES: Record<string, React.ComponentType<any>> = {
   signup: SignupEmail,
   invite: InviteEmail,
   magiclink: MagicLinkEmail,
@@ -120,7 +126,14 @@ export const Route = createFileRoute("/lovable/email/auth/webhook")({
           run_id,
         })
 
-        const EmailTemplate = EMAIL_TEMPLATES[emailType]
+        const brand = resolveAuthEmailBrand(payload.data.url)
+        const templates = brand === 'anthem' ? ANTHEM_EMAIL_TEMPLATES : SOLO_EMAIL_TEMPLATES
+        const subjects = brand === 'anthem' ? ANTHEM_AUTH_SUBJECTS : SOLO_EMAIL_SUBJECTS
+        const siteName = brand === 'anthem' ? ANTHEM_SITE_NAME : SITE_NAME
+        const siteUrl = brand === 'anthem' ? ANTHEM_SITE_URL : SITE_URL
+        const fromName = brand === 'anthem' ? ANTHEM_SITE_NAME : SITE_NAME
+
+        const EmailTemplate = templates[emailType]
         if (!EmailTemplate) {
           console.error('Unknown email type', { emailType, run_id })
           return Response.json(
@@ -131,8 +144,8 @@ export const Route = createFileRoute("/lovable/email/auth/webhook")({
 
         // Build template props from payload.data (HookData structure)
         const templateProps = {
-          siteName: SITE_NAME,
-          siteUrl: SITE_URL,
+          siteName,
+          siteUrl,
           recipient: payload.data.email,
           confirmationUrl: payload.data.url,
           token: payload.data.token,
@@ -175,9 +188,9 @@ export const Route = createFileRoute("/lovable/email/auth/webhook")({
             run_id,
             message_id: messageId,
             to: payload.data.email,
-            from: `${SITE_NAME} <noreply@${FROM_DOMAIN}>`,
+            from: `${fromName} <noreply@${FROM_DOMAIN}>`,
             sender_domain: SENDER_DOMAIN,
-            subject: EMAIL_SUBJECTS[emailType] || 'Notification',
+            subject: subjects[emailType] || 'Notification',
             html,
             text,
             purpose: 'transactional',

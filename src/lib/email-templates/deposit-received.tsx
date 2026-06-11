@@ -29,9 +29,10 @@ const DepositReceivedEmail = ({
 }: Props) => (
   <EmailLayout
     preview={`${clientName} อัปโหลดสลิป${PAYMENT_LABEL[paymentType]} — ${projectName}`}
-    badge="So1o · สลิปใหม่"
+    badge="สลิปใหม่"
     badgeTone="brand"
-    title="💳 ลูกค้าอัปโหลดสลิปแล้ว"
+    icon="payment"
+    title="ลูกค้าอัปโหลดสลิปแล้ว"
   >
     <EmailText>
       สวัสดีครับ {recipientName} — <strong style={{ color: brand.ink }}>{clientName}</strong>{' '}

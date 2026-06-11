@@ -1,4 +1,5 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { HttpErrorPage } from "@/components/HttpErrorPage";
 import { safeHref } from "@/lib/security";
 import * as React from "react";
 import { getArticleBySlug, incrementArticleView, listPublishedArticles } from "@/server/articles.functions";
@@ -70,21 +71,19 @@ export const Route = createFileRoute("/blog/$slug")({
     };
   },
   notFoundComponent: () => (
-    <div className="min-h-screen flex items-center justify-center px-4">
-      <div className="text-center max-w-md">
-        <h1 className="text-3xl font-bold">ไม่พบบทความ</h1>
-        <p className="mt-2 text-sm text-muted-foreground">บทความนี้อาจถูกลบหรือยังไม่ได้เผยแพร่</p>
-        <Button asChild className="mt-6"><Link to="/blog">กลับไปหน้ารวมบทความ</Link></Button>
-      </div>
-    </div>
+    <HttpErrorPage
+      kind="article"
+      code={404}
+      showRetry={false}
+      extraAction={{
+        labelTh: "กลับไปหน้ารวมบทความ",
+        labelEn: "All articles",
+        to: "/blog",
+      }}
+    />
   ),
   errorComponent: ({ error }) => (
-    <div className="min-h-screen flex items-center justify-center px-4 text-center">
-      <div>
-        <h1 className="text-2xl font-bold">เกิดข้อผิดพลาด</h1>
-        <p className="mt-2 text-sm text-muted-foreground">{error.message}</p>
-      </div>
-    </div>
+    <HttpErrorPage kind="500" code={500} errorMessage={error.message} />
   ),
   component: ArticlePage,
 });

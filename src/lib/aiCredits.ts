@@ -2,9 +2,10 @@
 
 export const FREE_STARTER_CREDITS = 25;
 
-export const AI_TIER_MONTHLY: Record<"free" | "pro" | "inhouse", number> = {
+export const AI_TIER_MONTHLY: Record<"free" | "pro" | "pro_plus" | "inhouse", number> = {
   free: FREE_STARTER_CREDITS,
   pro: 800,
+  pro_plus: 1400,
   inhouse: 2000,
 };
 

@@ -24,7 +24,7 @@ import { getStripeEnvironment } from "@/lib/stripe";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
-const TIER_LABEL = { free: "Free", pro: "Pro", inhouse: "In-House" } as const;
+const TIER_LABEL = { free: "Free", pro: "Pro", pro_plus: "Pro+", inhouse: "In-House" } as const;
 
 export function AiUsageSettingsSection() {
   const { tier, isPro, isActive, subscription, isLoading: subLoading } = useSubscription();

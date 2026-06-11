@@ -32,6 +32,7 @@ import { ImageUploadField } from "./jobtracker/ImageUploadField";
 import { uploadJobTrackerImage } from "./jobtracker/uploadImage";
 import { StepComments } from "./jobtracker/StepComments";
 import { JobLicenseCertificateButton } from "@/components/legal-desk/JobLicenseCertificateButton";
+import { PostToAnthemBanner } from "@/components/dashboard/ecosystem/PostToAnthemBanner";
 
 type JobSlip = {
   id: string;
@@ -514,6 +515,10 @@ function JobCard({ job, allJobs, onChanged }: { job: Job; allJobs: Job[]; onChan
             )}
           </Button>
         )}
+        {(isLast || job.status === "completed") && (
+          <PostToAnthemBanner jobTitle={job.title} clientName={job.client_name} />
+        )}
+
         <div className="flex gap-1.5">
           {!isLast ? (
             <Button size="sm" className="h-9 flex-1 gap-1.5" onClick={() => setAdvanceOpen(true)} disabled={busy}>

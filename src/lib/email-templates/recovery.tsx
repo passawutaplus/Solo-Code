@@ -6,14 +6,10 @@ interface RecoveryEmailProps { siteName: string; confirmationUrl: string }
 export const RecoveryEmail = ({ siteName, confirmationUrl }: RecoveryEmailProps) => (
   <EmailLayout
     preview={`รีเซ็ตรหัสผ่าน ${siteName}`}
-    badge="So1o · รีเซ็ตรหัสผ่าน"
+    badge="รีเซ็ตรหัสผ่าน"
+    icon="mail"
     title="รีเซ็ตรหัสผ่านของคุณ"
-    footerNote={
-      <>
-        ถ้าคุณไม่ได้ขอรีเซ็ต ไม่ต้องทำอะไรครับ รหัสผ่านเดิมยังใช้งานได้ตามปกติ<br />
-        So1o · solofreelancer.com
-      </>
-    }
+    footerNote="ถ้าคุณไม่ได้ขอรีเซ็ต ไม่ต้องทำอะไรครับ รหัสผ่านเดิมยังใช้งานได้ตามปกติ"
   >
     <EmailText>
       มีคำขอรีเซ็ตรหัสผ่านบัญชี {siteName} ของคุณเข้ามา

@@ -27,6 +27,7 @@ import { JobTrackerMiniWidget } from "./overview/JobTrackerMiniWidget";
 import { OnboardingChecklist } from "./overview/OnboardingChecklist";
 import { PipelineMiniWidget } from "./overview/PipelineMiniWidget";
 import { PipelineNewDealButton } from "./layout/PipelineNewDealButton";
+import { AnthemJobsPanel } from "./ecosystem/AnthemJobsPanel";
 import { Kanban, FileText, Calculator } from "lucide-react";
 
 interface OverviewTabProps {
@@ -179,6 +180,8 @@ export function OverviewTab({ onGo }: OverviewTabProps) {
         <JobTrackerMiniWidget onGo={onGo} />
         <DebtWidget onGo={onGo} />
       </div>
+
+      <AnthemJobsPanel onOpenQuotations={() => onGo("finance", "quotations")} />
 
 
       {/* Quick Note */}

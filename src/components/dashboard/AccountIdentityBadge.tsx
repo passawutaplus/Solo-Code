@@ -46,12 +46,17 @@ export function AccountIdentityBadge({
   }
 
   return (
-    <div className={cn("w-full min-w-0 rounded-lg bg-white/10 px-2.5 py-2 text-center", className)}>
-      <p className="text-[11px] text-white/90">
+    <div
+      className={cn(
+        "w-full min-w-0 border-t border-white/15 pt-2 mt-0.5 text-center",
+        className,
+      )}
+    >
+      <p className="text-[11px] text-white/75">
         รหัสลูกค้า:{" "}
-        <span className="font-semibold text-white tabular-nums">{customerId}</span>
+        <span className="font-semibold text-white/90 tabular-nums">{customerId}</span>
       </p>
-      <p className="text-[9px] text-white/70 mt-0.5 truncate">{brand}</p>
+      <p className="text-[9px] text-white/55 mt-0.5 truncate">{brand}</p>
     </div>
   );
 }

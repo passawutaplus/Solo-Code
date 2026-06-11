@@ -3,6 +3,7 @@ import * as React from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2 } from "lucide-react";
 import { RouteError } from "@/components/RouteError";
+import { HttpErrorPage } from "@/components/HttpErrorPage";
 import { SupplierPaper, type PaperLink } from "@/components/dashboard/suppliers/SupplierPaper";
 
 export const Route = createFileRoute("/supplier/$token")({
@@ -63,14 +64,7 @@ function PublicSupplierPage() {
   }
 
   if (notFound || !data) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-muted/30 p-6 text-center">
-        <div>
-          <p className="text-sm font-semibold mb-2">ไม่พบ Supplier นี้</p>
-          <p className="text-xs text-muted-foreground">ลิงก์อาจถูกปิดหรือไม่ถูกต้อง</p>
-        </div>
-      </div>
-    );
+    return <HttpErrorPage kind="token" code={404} showRetry={false} />;
   }
 
   return (

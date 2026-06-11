@@ -12,14 +12,10 @@ interface EmailChangeEmailProps {
 export const EmailChangeEmail = ({ siteName, oldEmail, newEmail, confirmationUrl }: EmailChangeEmailProps) => (
   <EmailLayout
     preview={`ยืนยันการเปลี่ยนอีเมล ${siteName}`}
-    badge="So1o · เปลี่ยนอีเมล"
+    badge="เปลี่ยนอีเมล"
+    icon="mail"
     title="ยืนยันการเปลี่ยนอีเมล"
-    footerNote={
-      <>
-        ถ้าคุณไม่ได้เป็นคนทำรายการนี้ โปรดเปลี่ยนรหัสผ่านทันทีเพื่อความปลอดภัย<br />
-        So1o · solofreelancer.com
-      </>
-    }
+    footerNote="ถ้าคุณไม่ได้เป็นคนทำรายการนี้ โปรดเปลี่ยนรหัสผ่านทันทีเพื่อความปลอดภัย"
   >
     <EmailText>
       คุณขอเปลี่ยนอีเมลของบัญชี {siteName} จาก{' '}

@@ -13,7 +13,7 @@ export const TICKET_PRIORITIES = ["critical", "high", "medium", "low"] as const;
 
 export const TICKET_CATEGORIES = ["bug", "improvement", "question", "other"] as const;
 
-export const TICKET_SOURCES = ["feedback_button", "support_hub", "admin_manual"] as const;
+export const TICKET_SOURCES = ["feedback_button", "support_hub", "admin_manual", "error_page"] as const;
 
 export type TicketStatus = (typeof TICKET_STATUSES)[number];
 export type TicketPriority = (typeof TICKET_PRIORITIES)[number];
@@ -88,6 +88,7 @@ export const SOURCE_LABELS: Record<TicketSource, string> = {
   feedback_button: "Give Feedback",
   support_hub: "Support Hub",
   admin_manual: "Admin",
+  error_page: "Error Page",
 };
 
 export type CreateTicketInput = z.infer<typeof createTicketSchema>;

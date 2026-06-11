@@ -6,6 +6,9 @@ export type LineNotifyKind =
   | "portal_brief"
   | "portal_planner"
   | "portal_quotation"
+  | "anthem_hire"
+  | "anthem_chat"
+  | "anthem_job_match"
   | "support_ticket"
   | "billing";
 
@@ -17,6 +20,9 @@ export const DEFAULT_LINE_NOTIFY_PREFS: Record<LineNotifyKind, boolean> = {
   portal_brief: true,
   portal_planner: true,
   portal_quotation: true,
+  anthem_hire: true,
+  anthem_chat: true,
+  anthem_job_match: true,
   support_ticket: false,
   billing: false,
 };
@@ -36,7 +42,7 @@ export interface LineNotifyGroup {
 export const LINE_NOTIFY_GROUPS: LineNotifyGroup[] = [
   {
     id: "portal",
-    label: { th: "จากลูกค้าใน Portal", en: "Customer portal" },
+    label: { th: "จากลูกค้าในหน้าที่แชร์", en: "Customer portal" },
     description: {
       th: "แจ้งเตือนเมื่อลูกค้าทำอะไรบนหน้าที่คุณแชร์ให้",
       en: "When clients act on your shared links",
@@ -46,7 +52,7 @@ export const LINE_NOTIFY_GROUPS: LineNotifyGroup[] = [
         key: "portal_slip",
         label: { th: "อัปโหลดสลิปชำระเงิน", en: "Payment slip uploaded" },
         hint: {
-          th: "Job Tracker — ลูกค้าส่งสลิปในลิงก์ติดตามงาน",
+          th: "ติดตามงาน — ลูกค้าส่งสลิปในลิงก์ติดตามงาน",
           en: "Job Tracker — client uploads a slip on the tracking page",
         },
       },
@@ -54,7 +60,7 @@ export const LINE_NOTIFY_GROUPS: LineNotifyGroup[] = [
         key: "portal_tracker_comment",
         label: { th: "คอมเมนต์ในงาน", en: "Job step comment" },
         hint: {
-          th: "Job Tracker — ลูกค้าแสดงความคิดเห็นในขั้นตอนงาน",
+          th: "ติดตามงาน — ลูกค้าแสดงความคิดเห็นในขั้นตอนงาน",
           en: "Job Tracker — client comments on a workflow step",
         },
       },
@@ -62,7 +68,7 @@ export const LINE_NOTIFY_GROUPS: LineNotifyGroup[] = [
         key: "portal_brief",
         label: { th: "ยืนยันบรีฟงาน", en: "Brief confirmed" },
         hint: {
-          th: "Design Brief — ลูกค้ากดยืนยันบรีฟครบถ้วน",
+          th: "บรีฟงาน — ลูกค้ากดยืนยันบรีฟครบถ้วน",
           en: "Design Brief — client confirms the creative brief",
         },
       },
@@ -70,7 +76,7 @@ export const LINE_NOTIFY_GROUPS: LineNotifyGroup[] = [
         key: "portal_planner",
         label: { th: "อนุมัติ / ขอแก้คอนเทนต์", en: "Content approval" },
         hint: {
-          th: "Content Planner — ลูกค้าอนุมัติหรือขอแก้โพสต์",
+          th: "วางแผนคอนเทนต์ — ลูกค้าอนุมัติหรือขอแก้โพสต์",
           en: "Content Planner — client approves or requests changes",
         },
       },
@@ -85,10 +91,35 @@ export const LINE_NOTIFY_GROUPS: LineNotifyGroup[] = [
     ],
   },
   {
-    id: "system",
-    label: { th: "ระบบ & บัญชี", en: "Account & support" },
+    id: "anthem",
+    label: { th: "จากหน้าร้านโชว์เคส", en: "Anthem showcase" },
     description: {
-      th: "การแจ้งเตือนจาก So1o โดยตรง",
+      th: "คำขอจ้าง แชท และงานที่ตรงสกิลจากหน้าร้าน",
+      en: "Hire requests, chat, and job matches from Anthem",
+    },
+    kinds: [
+      {
+        key: "anthem_hire",
+        label: { th: "คำขอจ้างงานใหม่", en: "New hire request" },
+        hint: { th: "มีลูกค้าส่งคำขอจ้างจากผลงาน", en: "Someone requested to hire you" },
+      },
+      {
+        key: "anthem_chat",
+        label: { th: "ข้อความแชทใหม่", en: "New chat message" },
+        hint: { th: "แชทจ้างงานหรือคอลแลป", en: "Hire or collab live chat" },
+      },
+      {
+        key: "anthem_job_match",
+        label: { th: "งานตรงสกิล", en: "Job match" },
+        hint: { th: "ประกาศงานที่ตรงกับสกิลของคุณ", en: "Job board match for your skills" },
+      },
+    ],
+  },
+  {
+    id: "system",
+    label: { th: "ระบบและบัญชี", en: "Account & support" },
+    description: {
+      th: "การแจ้งเตือนจากระบบโดยตรง",
       en: "Notifications from So1o itself",
     },
     kinds: [

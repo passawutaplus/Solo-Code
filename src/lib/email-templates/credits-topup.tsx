@@ -11,10 +11,11 @@ interface CreditsTopupProps {
 const CreditsTopupEmail = ({ credits = 0, balance = 0 }: CreditsTopupProps) => (
   <EmailLayout
     preview={`เติมเครดิตสำเร็จ +${credits} (ยอดรวม ${balance})`}
-    badge="So1o · เติมเครดิตสำเร็จ"
+    badge="เติมเครดิตสำเร็จ"
     badgeTone="success"
-    title={`⚡ +${credits} AI Credits`}
-    footerNote="เครดิตไม่หมดอายุ · So1o · solofreelancer.com"
+    icon="credits"
+    title={`+${credits} AI Credits`}
+    footerNote="เครดิตไม่หมดอายุ"
   >
     <EmailText>การเติมเครดิตของคุณเรียบร้อยแล้ว ใช้งาน AI Mentor / Brief / Image ได้ทันที</EmailText>
     <EmailCard>

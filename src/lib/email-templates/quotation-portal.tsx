@@ -21,14 +21,10 @@ const QuotationPortalEmail = ({
 }: QuotationPortalProps) => (
   <EmailLayout
     preview={`${freelancerName} ส่งใบเสนอราคา — ${projectName}`}
-    badge="So1o · ใบเสนอราคา & ติดตามงาน"
+    badge="ใบเสนอราคา & ติดตามงาน"
+    icon="document"
     title="ใบเสนอราคาพร้อมแล้ว"
-    footerNote={
-      <>
-        อีเมลนี้ส่งจาก So1o ในนาม {freelancerName}<br />
-        So1o · solofreelancer.com
-      </>
-    }
+    footerNote={`อีเมลนี้ส่งจาก So1o ในนาม ${freelancerName}`}
   >
     <EmailText>
       สวัสดีครับ/ค่ะ {clientName} — {freelancerName} ส่งลิงก์ให้ดูใบเสนอราคาและติดตามงาน{' '}

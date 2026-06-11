@@ -29,8 +29,9 @@ const fmtDate = (iso?: string | null) => {
 const ScheduledCancelEmail = ({ priceId, endsAt = null }: Props) => (
   <EmailLayout
     preview={`กำหนดยกเลิก ${planLabel(priceId)} เมื่อ ${fmtDate(endsAt)}`}
-    badge="So1o · กำหนดยกเลิก"
+    badge="กำหนดยกเลิก"
     badgeTone="neutral"
+    icon="cancel"
     title="ยืนยันการกำหนดยกเลิก"
   >
     <EmailText>

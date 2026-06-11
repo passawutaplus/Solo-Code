@@ -15,15 +15,11 @@ const fmtDate = (iso?: string | null) => {
 const CanceledEmail = ({ endsAt = null }: CanceledProps) => (
   <EmailLayout
     preview={`ยืนยันการยกเลิก subscription — คุณยังใช้งานได้ถึง ${fmtDate(endsAt)}`}
-    badge="So1o · ยืนยันการยกเลิก"
+    badge="ยืนยันการยกเลิก"
     badgeTone="neutral"
+    icon="cancel"
     title="ขอบคุณที่อยู่กับเรามาตลอด"
-    footerNote={
-      <>
-        มีข้อเสนอแนะอยากบอกเรา? ตอบกลับเมลนี้ได้เลย — เราอ่านทุกฉบับครับ<br />
-        So1o · solofreelancer.com
-      </>
-    }
+    footerNote="มีข้อเสนอแนะอยากบอกเรา? ตอบกลับเมลนี้ได้เลย — เราอ่านทุกฉบับครับ"
   >
     <EmailText>เราได้รับคำขอยกเลิก subscription ของคุณเรียบร้อยแล้ว</EmailText>
     <EmailText>

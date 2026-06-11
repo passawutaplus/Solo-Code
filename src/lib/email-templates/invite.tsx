@@ -7,14 +7,10 @@ interface InviteEmailProps { siteName: string; siteUrl: string; confirmationUrl:
 export const InviteEmail = ({ siteName, siteUrl, confirmationUrl }: InviteEmailProps) => (
   <EmailLayout
     preview={`คุณได้รับเชิญเข้าร่วม ${siteName}`}
-    badge="So1o · คำเชิญ"
+    badge="คำเชิญ"
+    icon="mail"
     title="คุณได้รับคำเชิญ"
-    footerNote={
-      <>
-        ถ้าคุณไม่ได้คาดหวังคำเชิญนี้ ลบอีเมลนี้ทิ้งได้เลยครับ<br />
-        So1o · solofreelancer.com
-      </>
-    }
+    footerNote="ถ้าคุณไม่ได้คาดหวังคำเชิญนี้ ลบอีเมลนี้ทิ้งได้เลยครับ"
   >
     <EmailText>
       คุณได้รับเชิญให้เข้าร่วม <Link href={siteUrl} style={link}>{siteName}</Link>{' '}

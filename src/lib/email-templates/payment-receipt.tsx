@@ -18,14 +18,10 @@ const fmtDate = (iso?: string | null) => {
 const ReceiptEmail = ({ amount = '0', currency = 'THB', nextBillingDate = null, invoiceUrl = null }: ReceiptProps) => (
   <EmailLayout
     preview={`ใบเสร็จ So1o — ${amount} ${currency}`}
-    badge="So1o · ใบเสร็จ"
+    badge="ใบเสร็จ"
+    icon="receipt"
     title="ขอบคุณสำหรับการต่ออายุ"
-    footerNote={
-      <>
-        ยกเลิกหรือเปลี่ยนวิธีชำระเงินได้ที่หน้า Pricing → จัดการ Subscription<br />
-        So1o · solofreelancer.com
-      </>
-    }
+    footerNote="ยกเลิกหรือเปลี่ยนวิธีชำระเงินได้ที่หน้า Pricing → จัดการ Subscription"
   >
     <EmailText>การชำระเงินรอบบิลของคุณสำเร็จเรียบร้อยครับ</EmailText>
     <EmailCard>

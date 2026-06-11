@@ -18,7 +18,9 @@ import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as RefundRouteImport } from './routes/refund'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as PricingRouteImport } from './routes/pricing'
+import { Route as MaintenanceRouteImport } from './routes/maintenance'
 import { Route as LlmsDottxtRouteImport } from './routes/llms[.]txt'
+import { Route as LineLinkRouteImport } from './routes/line-link'
 import { Route as LabsRouteImport } from './routes/labs'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as CreativePartnerRouteImport } from './routes/creative-partner'
@@ -95,9 +97,19 @@ const PricingRoute = PricingRouteImport.update({
   path: '/pricing',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MaintenanceRoute = MaintenanceRouteImport.update({
+  id: '/maintenance',
+  path: '/maintenance',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LlmsDottxtRoute = LlmsDottxtRouteImport.update({
   id: '/llms.txt',
   path: '/llms.txt',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LineLinkRoute = LineLinkRouteImport.update({
+  id: '/line-link',
+  path: '/line-link',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LabsRoute = LabsRouteImport.update({
@@ -266,7 +278,9 @@ export interface FileRoutesByFullPath {
   '/creative-partner': typeof CreativePartnerRoute
   '/dashboard': typeof DashboardRoute
   '/labs': typeof LabsRoute
+  '/line-link': typeof LineLinkRoute
   '/llms.txt': typeof LlmsDottxtRoute
+  '/maintenance': typeof MaintenanceRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/refund': typeof RefundRoute
@@ -308,7 +322,9 @@ export interface FileRoutesByTo {
   '/creative-partner': typeof CreativePartnerRoute
   '/dashboard': typeof DashboardRoute
   '/labs': typeof LabsRoute
+  '/line-link': typeof LineLinkRoute
   '/llms.txt': typeof LlmsDottxtRoute
+  '/maintenance': typeof MaintenanceRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/refund': typeof RefundRoute
@@ -351,7 +367,9 @@ export interface FileRoutesById {
   '/creative-partner': typeof CreativePartnerRoute
   '/dashboard': typeof DashboardRoute
   '/labs': typeof LabsRoute
+  '/line-link': typeof LineLinkRoute
   '/llms.txt': typeof LlmsDottxtRoute
+  '/maintenance': typeof MaintenanceRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/refund': typeof RefundRoute
@@ -395,7 +413,9 @@ export interface FileRouteTypes {
     | '/creative-partner'
     | '/dashboard'
     | '/labs'
+    | '/line-link'
     | '/llms.txt'
+    | '/maintenance'
     | '/pricing'
     | '/privacy'
     | '/refund'
@@ -437,7 +457,9 @@ export interface FileRouteTypes {
     | '/creative-partner'
     | '/dashboard'
     | '/labs'
+    | '/line-link'
     | '/llms.txt'
+    | '/maintenance'
     | '/pricing'
     | '/privacy'
     | '/refund'
@@ -479,7 +501,9 @@ export interface FileRouteTypes {
     | '/creative-partner'
     | '/dashboard'
     | '/labs'
+    | '/line-link'
     | '/llms.txt'
+    | '/maintenance'
     | '/pricing'
     | '/privacy'
     | '/refund'
@@ -522,7 +546,9 @@ export interface RootRouteChildren {
   CreativePartnerRoute: typeof CreativePartnerRoute
   DashboardRoute: typeof DashboardRoute
   LabsRoute: typeof LabsRoute
+  LineLinkRoute: typeof LineLinkRoute
   LlmsDottxtRoute: typeof LlmsDottxtRoute
+  MaintenanceRoute: typeof MaintenanceRoute
   PricingRoute: typeof PricingRoute
   PrivacyRoute: typeof PrivacyRoute
   RefundRoute: typeof RefundRoute
@@ -619,11 +645,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PricingRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/maintenance': {
+      id: '/maintenance'
+      path: '/maintenance'
+      fullPath: '/maintenance'
+      preLoaderRoute: typeof MaintenanceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/llms.txt': {
       id: '/llms.txt'
       path: '/llms.txt'
       fullPath: '/llms.txt'
       preLoaderRoute: typeof LlmsDottxtRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/line-link': {
+      id: '/line-link'
+      path: '/line-link'
+      fullPath: '/line-link'
+      preLoaderRoute: typeof LineLinkRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/labs': {
@@ -860,7 +900,9 @@ const rootRouteChildren: RootRouteChildren = {
   CreativePartnerRoute: CreativePartnerRoute,
   DashboardRoute: DashboardRoute,
   LabsRoute: LabsRoute,
+  LineLinkRoute: LineLinkRoute,
   LlmsDottxtRoute: LlmsDottxtRoute,
+  MaintenanceRoute: MaintenanceRoute,
   PricingRoute: PricingRoute,
   PrivacyRoute: PrivacyRoute,
   RefundRoute: RefundRoute,
