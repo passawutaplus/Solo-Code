@@ -11,6 +11,7 @@ import type { RouterAppContext } from "@/router";
 // Side-effect import: patches window.fetch to attach Supabase bearer token
 // to TanStack server-function requests so `requireSupabaseAuth` middleware works.
 import "@/integrations/supabase/server-fn-fetch";
+import { DemoModeBanner } from "@/components/DemoModeBanner";
 import { SITE_NAME, SITE_URL, DEFAULT_OG_IMAGE } from "@/lib/siteUrl";
 
 import appCss from "../styles.css?url";
@@ -132,6 +133,7 @@ function RootComponent() {
       <AuthProvider>
         <AssistantProvider>
           <AssistantPushLayout>
+            <DemoModeBanner />
             <Outlet />
             <CookieConsent />
           </AssistantPushLayout>

@@ -1,5 +1,7 @@
-/** Canonical public origin — keep in sync with nginx/Caddy and Search Console. */
-export const SITE_URL = "https://solofreelancer.com";
+/** Canonical public origin — override with VITE_SITE_URL on Vercel preview / staging. */
+export const SITE_URL =
+  (import.meta.env.VITE_SITE_URL as string | undefined)?.trim().replace(/\/$/, "") ||
+  "https://solofreelancer.com";
 
 export const SITE_NAME = "So1o Freelancer";
 
