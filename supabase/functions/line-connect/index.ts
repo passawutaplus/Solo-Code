@@ -116,6 +116,17 @@ Deno.serve(async (req) => {
       verified = await verifyLineIdToken(body.id_token);
     }
 
+    const { data: otherProfile } = await admin
+      .from("profiles")
+      .select("user_id")
+      .eq("line_messaging_user_id", verified.lineUserId)
+      .neq("user_id", userId)
+      .maybeSingle();
+
+    if (otherProfile) {
+      return json({ error: "line_already_linked" }, 409);
+    }
+
     const { error } = await admin
       .from("profiles")
       .update({

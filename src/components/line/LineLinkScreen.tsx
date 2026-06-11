@@ -63,7 +63,13 @@ async function callLineConnect(payload: Record<string, string>) {
   });
 
   const data = await res.json();
-  if (!res.ok) throw new Error(data?.error ?? "เชื่อม LINE ไม่สำเร็จ");
+  if (!res.ok) {
+    const code = data?.error as string | undefined;
+    if (code === "line_already_linked") {
+      throw new Error("บัญชี LINE นี้เชื่อมกับ So1o อื่นแล้ว — ยกเลิกการเชื่อมที่บัญชีเดิมก่อน");
+    }
+    throw new Error(code ?? "เชื่อม LINE ไม่สำเร็จ");
+  }
   return data as LineMeta & { ok: boolean; line_user_id?: string };
 }
 
@@ -74,7 +80,7 @@ export function LineLinkScreen() {
   const [message, setMessage] = React.useState("");
   const [lineMeta, setLineMeta] = React.useState<LineMeta>({});
   const [unlinking, setUnlinking] = React.useState(false);
-  const ranRef = React.useRef(false);
+  const oauthCodeProcessedRef = React.useRef(false);
 
   const alreadyLinked = Boolean(profile?.line_messaging_user_id);
 
@@ -126,8 +132,7 @@ export function LineLinkScreen() {
   }, [refreshProfile]);
 
   React.useEffect(() => {
-    if (authLoading || ranRef.current) return;
-    ranRef.current = true;
+    if (authLoading) return;
 
     const params = new URLSearchParams(window.location.search);
     const code = params.get("code");
@@ -140,7 +145,8 @@ export function LineLinkScreen() {
       return;
     }
 
-    if (code) {
+    if (code && !oauthCodeProcessedRef.current) {
+      oauthCodeProcessedRef.current = true;
       const saved = sessionStorage.getItem(LINE_OAUTH_STATE_KEY);
       if (!saved || saved !== state) {
         setPhase("error");

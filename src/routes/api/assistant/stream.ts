@@ -7,7 +7,7 @@ import {
   persistAssistantMessages,
   prepareAssistantRequest,
 } from "@/lib/aiAssistantCore";
-import { debitAiCredits, getAiUsageSummary } from "@/lib/aiCreditsServer";
+import { debitAiCredits, getAiUsageSummary, refundAiCredits } from "@/lib/aiCreditsServer";
 import { defaultFastModel, geminiChatStream } from "@/lib/geminiServer";
 
 const PRESETS = new Set<AssistantPreset>(["mentor", "business", "copy", "legal"]);
@@ -56,7 +56,7 @@ export const Route = createFileRoute("/api/assistant/stream")({
 
         const { supabase, userId } = auth;
 
-        let body: { message?: string; preset?: string };
+        let body: { message?: string; preset?: string; request_id?: string };
         try {
           body = await request.json();
         } catch {
@@ -64,6 +64,7 @@ export const Route = createFileRoute("/api/assistant/stream")({
         }
 
         const message = String(body?.message ?? "").trim().slice(0, 500);
+        const requestId = String(body?.request_id ?? "").trim().slice(0, 64);
         if (!message) {
           return Response.json({ error: "empty_message" }, { status: 400 });
         }
@@ -86,6 +87,32 @@ export const Route = createFileRoute("/api/assistant/stream")({
           return Response.json({ error: "limit_reached" }, { status: 429 });
         }
 
+        const idempotencyKey = requestId
+          ? `assistant-stream:${userId}:${requestId}`
+          : `assistant-stream:${userId}:${prepared.preset}:${message}`;
+
+        const quota = await debitAiCredits({
+          userId,
+          feature: prepared.config.feature,
+          idempotencyKey,
+        });
+        if (!quota.allowed) {
+          return Response.json({ error: "limit_reached" }, { status: 429 });
+        }
+
+        const refundKey = `refund:${idempotencyKey}`;
+        const maybeRefund = async () => {
+          try {
+            await refundAiCredits({
+              userId,
+              originalIdempotencyKey: idempotencyKey,
+              refundIdempotencyKey: refundKey,
+            });
+          } catch {
+            // refund is best-effort; user may need support if this fails
+          }
+        };
+
         const encoder = new TextEncoder();
         const stream = new ReadableStream({
           async start(controller) {
@@ -102,27 +129,25 @@ export const Route = createFileRoute("/api/assistant/stream")({
 
               const safeReply = fullReply.trim();
               if (!safeReply) {
+                await maybeRefund();
                 controller.enqueue(encoder.encode(sseLine("error", { error: "empty_response" })));
                 return;
               }
 
-              const quota = await debitAiCredits({
-                userId,
-                feature: prepared.config.feature,
-                idempotencyKey: crypto.randomUUID(),
-              });
-              if (!quota.allowed) {
-                controller.enqueue(encoder.encode(sseLine("error", { error: "limit_reached" })));
+              try {
+                await persistAssistantMessages(
+                  supabase,
+                  userId,
+                  prepared.preset,
+                  prepared.message,
+                  safeReply,
+                );
+              } catch (persistErr) {
+                await maybeRefund();
+                const msg = persistErr instanceof Error ? persistErr.message : "persist_failed";
+                controller.enqueue(encoder.encode(sseLine("error", { error: msg })));
                 return;
               }
-
-              await persistAssistantMessages(
-                supabase,
-                userId,
-                prepared.preset,
-                prepared.message,
-                safeReply,
-              );
 
               controller.enqueue(
                 encoder.encode(
@@ -141,6 +166,7 @@ export const Route = createFileRoute("/api/assistant/stream")({
                 ),
               );
             } catch (e) {
+              await maybeRefund();
               const msg = e instanceof Error ? e.message : "ai_error";
               controller.enqueue(encoder.encode(sseLine("error", { error: msg })));
             } finally {

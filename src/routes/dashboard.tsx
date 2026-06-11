@@ -165,7 +165,7 @@ function Dashboard() {
 
   // Anthem → So1o quotation deep-link handoff
   React.useEffect(() => {
-    if (typeof window === "undefined") return;
+    if (typeof window === "undefined" || !user?.id) return;
     const params = parseAnthemDashboardParams(window.location.search);
     if (!params.fromAnthem) return;
 
@@ -183,6 +183,7 @@ function Dashboard() {
           .from("hiring_requests")
           .select("id, client_name, email, phone, message, deadline, project_title, budget_amount")
           .eq("id", params.requestId)
+          .eq("freelancer_id", user.id)
           .maybeSingle();
         if (hire) {
           clientName = hire.client_name ?? clientName;
@@ -213,10 +214,23 @@ function Dashboard() {
       });
 
       if (params.linkId) {
-        await supabase
-          .from("ecosystem_links")
-          .update({ meta: { converted_at: new Date().toISOString(), target: "quotation_handoff" } })
-          .eq("id", params.linkId);
+        const ownsLink =
+          !requestId ||
+          (
+            await supabase
+              .from("hiring_requests")
+              .select("id")
+              .eq("id", requestId)
+              .eq("freelancer_id", user.id)
+              .maybeSingle()
+          ).data != null;
+
+        if (ownsLink) {
+          await supabase
+            .from("ecosystem_links")
+            .update({ meta: { converted_at: new Date().toISOString(), target: "quotation_handoff" } })
+            .eq("id", params.linkId);
+        }
       }
 
       updateSection("finance", "quotations");
@@ -226,7 +240,7 @@ function Dashboard() {
       );
       window.history.replaceState({}, "", url.toString());
     })();
-  }, [updateSection]);
+  }, [updateSection, user?.id]);
 
   return (
     <FinanceProvider>

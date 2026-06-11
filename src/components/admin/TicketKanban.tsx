@@ -122,11 +122,13 @@ function KanbanColumn({
 export function TicketKanban({
   tickets,
   userMap,
+  dragDisabled = false,
   onStatusChange,
   onSelect,
 }: {
   tickets: SupportTicket[];
   userMap: Map<string, string>;
+  dragDisabled?: boolean;
   onStatusChange: (id: string, status: TicketStatus) => void;
   onSelect: (t: SupportTicket) => void;
 }) {
@@ -149,6 +151,7 @@ export function TicketKanban({
 
   const onDragEnd = (e: DragEndEvent) => {
     setActiveId(null);
+    if (dragDisabled) return;
     const overId = e.over?.id;
     if (!overId || !e.active.id) return;
     const ticketId = String(e.active.id);

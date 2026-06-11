@@ -59,3 +59,18 @@ export async function debitAiCredits(opts: {
   if (error) throw new Error(error.message);
   return data as DebitResult;
 }
+
+/** Reverse a prior debit when the AI request fails after charge. */
+export async function refundAiCredits(opts: {
+  userId: string;
+  originalIdempotencyKey: string;
+  refundIdempotencyKey: string;
+}): Promise<{ refunded: boolean }> {
+  const { data, error } = await (supabaseAdmin as any).rpc("refund_ai_credits", {
+    _user_id: opts.userId,
+    _original_idempotency_key: opts.originalIdempotencyKey,
+    _refund_idempotency_key: opts.refundIdempotencyKey,
+  });
+  if (error) throw new Error(error.message);
+  return data as { refunded: boolean };
+}

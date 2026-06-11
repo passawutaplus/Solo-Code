@@ -39,7 +39,10 @@ import { BulkActionBar } from "./quotations/BulkActionBar";
 import { QuotationMockupDialog } from "./quotations/QuotationMockupDialog";
 import { celebrateFromEdges } from "@/lib/celebrate";
 import { PageFooterActions } from "./PageFooterActions";
-import { consumeAnthemQuotationHandoff } from "@/lib/ecosystemHandoff";
+import {
+  ANTHEM_HANDOFF_EVENT,
+  consumeAnthemQuotationHandoff,
+} from "@/lib/ecosystemHandoff";
 
 export function QuotationsTab() {
   const { list, create, remove, duplicate, advanceStatus, update } = useQuotations();
@@ -56,6 +59,7 @@ export function QuotationsTab() {
   // Wait until `list` is loaded (so we can detect a pre-existing quotation tied to the brief).
   const handoffConsumedRef = React.useRef(false);
   const anthemHandoffConsumedRef = React.useRef(false);
+  const [anthemHandoffVersion, setAnthemHandoffVersion] = React.useState(0);
   const openIdConsumedRef = React.useRef(false);
   const listLoaded = React.useRef(false);
 
@@ -78,6 +82,15 @@ export function QuotationsTab() {
     }
     if (found) setEditingId(id);
   }, [list]);
+
+  React.useEffect(() => {
+    const onHandoff = () => {
+      anthemHandoffConsumedRef.current = false;
+      setAnthemHandoffVersion((v) => v + 1);
+    };
+    window.addEventListener(ANTHEM_HANDOFF_EVENT, onHandoff);
+    return () => window.removeEventListener(ANTHEM_HANDOFF_EVENT, onHandoff);
+  }, []);
 
   React.useEffect(() => {
     if (anthemHandoffConsumedRef.current) return;
@@ -135,7 +148,7 @@ export function QuotationsTab() {
         }
       })
       .catch((e) => toast.error(e instanceof Error ? e.message : "สร้างไม่สำเร็จ"));
-  }, [create, update, list]);
+  }, [create, update, list, anthemHandoffVersion]);
 
   React.useEffect(() => {
     // Only run once the list query has resolved (even if empty)

@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import type { DailyTrendsResponse } from "@/lib/dailyTrends.types";
 
 export type { DailyTrendItem, DailyTrendsResponse, DailyTrendsStatus } from "@/lib/dailyTrends.types";
@@ -10,9 +11,10 @@ export const getDailyTrends = createServerFn({ method: "GET" }).handler(
   },
 );
 
-export const generateDailyTrends = createServerFn({ method: "POST" }).handler(
-  async (): Promise<DailyTrendsResponse> => {
+/** Authenticated warm-up only — expensive RSS+AI work must not be public. */
+export const generateDailyTrends = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async (): Promise<DailyTrendsResponse> => {
     const { runDailyTrendsGeneration } = await import("@/lib/dailyTrends.server");
     return runDailyTrendsGeneration(false);
-  },
-);
+  });

@@ -95,11 +95,20 @@ export function AdminTicketsSection() {
     return tickets.find((t) => t.id === selected.id) ?? null;
   }, [selected, tickets]);
 
+  const updatingIdsRef = React.useRef(new Set<string>());
+  const [dragDisabled, setDragDisabled] = React.useState(false);
+
   const onStatusChange = async (id: string, status: TicketStatus) => {
+    if (updatingIdsRef.current.has(id)) return;
+    updatingIdsRef.current.add(id);
+    setDragDisabled(true);
     try {
       await update({ id, status });
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "อัปเดตสถานะตั๋วไม่สำเร็จ");
+    } finally {
+      updatingIdsRef.current.delete(id);
+      if (updatingIdsRef.current.size === 0) setDragDisabled(false);
     }
   };
 
@@ -229,6 +238,7 @@ export function AdminTicketsSection() {
             <TicketKanban
               tickets={filtered}
               userMap={userMap}
+              dragDisabled={dragDisabled}
               onStatusChange={onStatusChange}
               onSelect={setSelected}
             />

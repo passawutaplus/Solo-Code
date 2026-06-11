@@ -219,7 +219,7 @@ export function AssistantChatPanel({
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ message: text, preset }),
+        body: JSON.stringify({ message: text, preset, request_id: userMsgId }),
       });
 
       if (resp.status === 429) {
@@ -229,7 +229,7 @@ export function AssistantChatPanel({
 
       if (!resp.ok || !resp.body) {
         // Fallback to non-streaming server function
-        const result = await assistantFn({ data: { message: text, preset } });
+        const result = await assistantFn({ data: { message: text, preset, request_id: userMsgId } });
         setMessages((prev) =>
           prev.map((m) =>
             m.id === assistantMsgId

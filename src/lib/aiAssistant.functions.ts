@@ -12,6 +12,7 @@ import {
 const InputSchema = z.object({
   message: z.string().min(1).max(500),
   preset: z.enum(["mentor", "business", "copy", "legal"]).optional(),
+  request_id: z.string().max(64).optional(),
 });
 
 /** Non-streaming fallback — prefer /api/assistant/stream from the client. */
@@ -30,6 +31,19 @@ export const aiAssistant = createServerFn({ method: "POST" })
       throw new Error("limit_reached");
     }
 
+    const idempotencyKey = data.request_id
+      ? `assistant-fn:${userId}:${data.request_id}`
+      : `assistant-fn:${userId}:${prepared.preset}:${data.message.trim()}`;
+
+    const quota = await debitAiCredits({
+      userId,
+      feature: prepared.config.feature,
+      idempotencyKey,
+    });
+    if (!quota.allowed) {
+      throw new Error("limit_reached");
+    }
+
     const { text: answer } = await geminiChat({
       model: defaultFastModel(),
       messages: prepared.chatMessages,
@@ -39,15 +53,6 @@ export const aiAssistant = createServerFn({ method: "POST" })
     const safeReply = (answer || "").trim();
     if (!safeReply) {
       throw new Error("empty_response");
-    }
-
-    const quota = await debitAiCredits({
-      userId,
-      feature: prepared.config.feature,
-      idempotencyKey: crypto.randomUUID(),
-    });
-    if (!quota.allowed) {
-      throw new Error("limit_reached");
     }
 
     await persistAssistantMessages(

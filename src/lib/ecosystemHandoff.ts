@@ -14,9 +14,12 @@ export type AnthemQuotationHandoff = {
   requestId?: string;
 };
 
+export const ANTHEM_HANDOFF_EVENT = "so1o:anthem-handoff";
+
 export function storeAnthemQuotationHandoff(payload: AnthemQuotationHandoff): void {
   try {
     sessionStorage.setItem(ANTHEM_QUOTATION_HANDOFF_KEY, JSON.stringify(payload));
+    window.dispatchEvent(new CustomEvent(ANTHEM_HANDOFF_EVENT));
   } catch {
     /* noop */
   }

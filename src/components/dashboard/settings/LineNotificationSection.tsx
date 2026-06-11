@@ -81,7 +81,11 @@ export function LineNotificationSection() {
       : t("ปิดการแจ้งเตือน", "Notifications off")
     : t("ยังไม่ได้เชื่อมบัญชี", "Not linked");
 
-  async function persist(nextEnabled: boolean, nextPrefs: typeof prefs) {
+  async function persist(
+    nextEnabled: boolean,
+    nextPrefs: typeof prefs,
+    rollback: { enabled: boolean; prefs: typeof prefs },
+  ) {
     if (!profile?.user_id) return;
     setSaving(true);
     const { error } = await supabase
@@ -93,6 +97,8 @@ export function LineNotificationSection() {
       .eq("user_id", profile.user_id);
     setSaving(false);
     if (error) {
+      setEnabled(rollback.enabled);
+      setPrefs(rollback.prefs);
       toast.error(t("บันทึกไม่สำเร็จ", "Could not save settings"));
       return;
     }
@@ -101,14 +107,16 @@ export function LineNotificationSection() {
   }
 
   function toggleMaster(checked: boolean) {
+    const rollback = { enabled, prefs };
     setEnabled(checked);
-    void persist(checked, prefs);
+    void persist(checked, prefs, rollback);
   }
 
   function toggleKind(key: LineNotifyKind, checked: boolean) {
+    const rollback = { enabled, prefs };
     const next = { ...prefs, [key]: checked };
     setPrefs(next);
-    void persist(enabled, next);
+    void persist(enabled, next, rollback);
   }
 
   function sampleErrorMessage(err: unknown): string {

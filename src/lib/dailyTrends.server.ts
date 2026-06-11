@@ -55,10 +55,14 @@ const FALLBACK_TRENDS: DailyTrendItem[] = [
   },
 ];
 
+const BANGKOK_TZ = "Asia/Bangkok";
+
 export function todayISO(): string {
-  const d = new Date();
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  return new Intl.DateTimeFormat("en-CA", { timeZone: BANGKOK_TZ }).format(new Date());
 }
+
+let activeGeneration: Promise<DailyTrendsResponse> | null = null;
+let activeGenerationDate: string | null = null;
 
 function normalizeUrl(url: string): string {
   try {
@@ -312,7 +316,7 @@ export async function readDailyTrends(): Promise<DailyTrendsResponse> {
   return { date, items: [], status: "pending" };
 }
 
-/** Generate + cache trends (cron or background warm-up only). */
+/** Generate + cache trends (cron or authenticated background warm-up only). */
 export async function runDailyTrendsGeneration(force = false): Promise<DailyTrendsResponse> {
   const date = todayISO();
 
@@ -330,16 +334,36 @@ export async function runDailyTrendsGeneration(force = false): Promise<DailyTren
         status: "ready",
       };
     }
+
+    if (activeGeneration && activeGenerationDate === date) {
+      return activeGeneration;
+    }
   }
 
-  const { items } = await fetchAndSummarizeTrends();
+  const task = (async (): Promise<DailyTrendsResponse> => {
+    const { items } = await fetchAndSummarizeTrends();
+
+    try {
+      await cacheDailyTrends(date, items);
+    } catch {
+      return { date, items: [], status: "pending" };
+    }
+
+    return { date, items, status: "ready" };
+  })();
+
+  if (!force) {
+    activeGeneration = task;
+    activeGenerationDate = date;
+  }
 
   try {
-    await cacheDailyTrends(date, items);
-  } catch {
-    // ignore cache failure
+    return await task;
+  } finally {
+    if (!force && activeGeneration === task) {
+      activeGeneration = null;
+      activeGenerationDate = null;
+    }
   }
-
-  return { date, items, status: "ready" };
 }
 
