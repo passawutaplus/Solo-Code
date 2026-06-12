@@ -10,6 +10,10 @@ export const LINE_TEST_SAMPLES: Array<{ kind: LineNotifyKind; body: string }> = 
   { kind: "anthem_hire", body: "มีลูกค้าส่งคำขอจ้างงาน Logo Design" },
   { kind: "anthem_chat", body: "ลูกค้าส่งข้อความในแชทจ้างงาน" },
   { kind: "anthem_job_match", body: "พบงาน UI Design ที่ตรงกับทักษะของคุณ" },
+  { kind: "inhouse_invite", body: "ทีม Passa Studio เชิญคุณเข้าร่วม In-House workspace" },
+  { kind: "inhouse_member_join", body: "คุณสมชาย เข้าร่วมทีม Passa Studio แล้ว" },
+  { kind: "inhouse_chat", body: "มีข้อความใหม่ในช่อง #general" },
+  { kind: "inhouse_task", body: "มอบหมายงาน: ออกแบบ Hero section — due วันนี้" },
   { kind: "billing", body: "ต่ออายุโปรสำเร็จ — ฿249" },
 ];
 

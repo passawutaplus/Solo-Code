@@ -13,7 +13,7 @@ import {
   ANTHEM_AUTH_SUBJECTS,
   SITE_NAME as ANTHEM_SITE_NAME,
   SITE_URL as ANTHEM_SITE_URL,
-} from '../../../../Anthem-Code/src/lib/email-templates/index.ts'
+} from './anthem-vendor/templates/index.ts'
 
 export const ANTHEM_EMAIL_TEMPLATES: Record<string, ComponentType<any>> = {
   signup: AnthemSignupEmail,

@@ -9,6 +9,8 @@ services:
         VITE_SUPABASE_PROJECT_ID: ${VITE_SUPABASE_PROJECT_ID:-}
         VITE_EARLY_ACCESS: ${VITE_EARLY_ACCESS:-false}
         VITE_PAYMENTS_CLIENT_TOKEN: ${VITE_PAYMENTS_CLIENT_TOKEN:-}
+        VITE_ANTHEM_APP_URL: ${VITE_ANTHEM_APP_URL:-}
+        VITE_OPS_HUB_URL: ${VITE_OPS_HUB_URL:-}
     ports:
       - "${APP_PORT:-3000}:3000"
     env_file:
@@ -16,13 +18,13 @@ services:
     environment:
       PORT: "3000"
       HOST: "0.0.0.0"
-      # Runtime (server routes / SSR) — not inlined at build
-      SUPABASE_URL: ${SUPABASE_URL}
-      SUPABASE_PUBLISHABLE_KEY: ${SUPABASE_PUBLISHABLE_KEY}
-      SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY:-}
-      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
-      STRIPE_SANDBOX_API_KEY: ${STRIPE_SANDBOX_API_KEY:-}
-      STRIPE_LIVE_API_KEY: ${STRIPE_LIVE_API_KEY:-}
+      NODE_ENV: production
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 45s
     restart: unless-stopped
 
   # Optional: hot-reload dev server

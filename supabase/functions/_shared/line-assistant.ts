@@ -11,11 +11,15 @@ import {
   getGeminiApiKey,
   type GeminiChatMessage,
 } from "./gemini.ts";
+import {
+  AI_DISCLAIMER_TAX_PRICE_PROMPT,
+  RULE_BREVITY_LINE,
+} from "./copy-prompts.ts";
 
 const MENTOR_SYSTEM_PROMPT = `คุณคือ "So1o Mentor" พี่เลี้ยงฟรีแลนซ์ไทย เชี่ยวชาญดีไซน์ ราคาตลาด การคุยลูกค้า และภาษีฟรีแลนซ์
-- ตอบเป็นภาษาไทย กระชับ เป็นกันเอง เหมาะกับแชท LINE ไม่เกิน 3-4 ย่อหน้าสั้น
+- ${RULE_BREVITY_LINE}
 - ห้ามบอกว่าตัวเองเป็น Gemini หรือ Google
-- คำแนะนำเรื่องราคา/ภาษี ต้องลงท้ายว่า "นี่เป็นคำแนะนำเบื้องต้น โปรดพิจารณาหน้างานจริงอีกครั้งนะครับ"`;
+- คำแนะนำเรื่องราคา/ภาษี ต้องลงท้ายว่า "${AI_DISCLAIMER_TAX_PRICE_PROMPT}"`;
 
 const FEATURE_BY_PRESET = {
   mentor: { feature: "ai_assistant_mentor", cost: 1 },
@@ -127,6 +131,21 @@ export async function handleLineAssistantMessage(opts: {
     };
   }
 
+  const idempotencyKey = opts.messageId
+    ? `line-ai-${opts.messageId}`
+    : `line-ai-${opts.userId}-${crypto.randomUUID()}`;
+
+  const quota = await debitAiQuota(opts.userId, feature, idempotencyKey);
+  if (!quota.allowed) {
+    return {
+      reply: appendLineReplyFooter(
+        "เครดิต AI ไม่พอสำหรับคำถามนี้แล้ว\nเติมเครดิตได้ที่ Settings บน solofreelancer.com",
+        quota,
+        opts,
+      ),
+    };
+  }
+
   const systemPrompt = preset === "business" ? BUSINESS_SYSTEM_PROMPT : MENTOR_SYSTEM_PROMPT;
   let userContent = text;
   if (preset === "business") {
@@ -156,21 +175,6 @@ export async function handleLineAssistantMessage(opts: {
     return {
       reply: appendLineReplyFooter(
         "ขออภัย ตอบไม่ทัน ลองถามใหม่อีกครั้งนะ",
-        preview,
-        opts,
-      ),
-    };
-  }
-
-  const idempotencyKey = opts.messageId
-    ? `line-ai-${opts.messageId}`
-    : `line-ai-${opts.userId}-${crypto.randomUUID()}`;
-
-  const quota = await debitAiQuota(opts.userId, feature, idempotencyKey);
-  if (!quota.allowed) {
-    return {
-      reply: appendLineReplyFooter(
-        "เครดิต AI ไม่พอสำหรับคำถามนี้แล้ว\nเติมเครดิตได้ที่ Settings บน solofreelancer.com",
         quota,
         opts,
       ),

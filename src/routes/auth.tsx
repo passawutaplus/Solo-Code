@@ -54,10 +54,10 @@ function AuthPage() {
     }
     if (!loading && user) {
       setFadeOut(true);
-      const dest = isAdmin ? "/admin" : postAuthPath;
+      const dest = rawRedirect ? postAuthPath : isAdmin ? "/admin" : postAuthPath;
       setTimeout(() => navigate({ to: dest }), 300);
     }
-  }, [user, isAdmin, profile?.is_active, loading, navigate, signOut, postAuthPath]);
+  }, [user, isAdmin, profile?.is_active, loading, navigate, signOut, postAuthPath, rawRedirect]);
 
   return (
     <div className={cn("relative min-h-screen bg-background overflow-hidden transition-opacity duration-300", fadeOut && "opacity-0")}>

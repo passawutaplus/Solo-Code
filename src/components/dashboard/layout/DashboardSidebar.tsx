@@ -45,6 +45,8 @@ import { PipelineNewDealButton } from "./PipelineNewDealButton";
 import { AccountIdentityBadge } from "@/components/dashboard/AccountIdentityBadge";
 import { SupportSidebarButton } from "./SupportSidebarButton";
 import { SupportFab } from "@/components/support/SupportFab";
+import { SidebarUpgradeBadge } from "./SidebarUpgradeBadge";
+import { InhouseSidebarNav } from "@/components/inhouse/InhouseSidebarNav";
 
 export type DashSection = "overview" | "trends" | "inspire" | "finance" | "planner" | "mydata" | "settings";
 
@@ -276,15 +278,17 @@ export function DashboardSidebar({ active, activeSub, setActive }: DashboardSide
                 </SidebarMenuButton>
               </SidebarMenuItem>
 
-              {GROUPS.map((group) => (
-                <NavCollapsibleGroup
-                  key={group.label}
-                  group={group}
-                  collapsed={collapsed}
-                  active={active}
-                  activeSub={activeSub}
-                  setActive={setActive}
-                />
+              {GROUPS.map((group, idx) => (
+                <React.Fragment key={group.label}>
+                  <NavCollapsibleGroup
+                    group={group}
+                    collapsed={collapsed}
+                    active={active}
+                    activeSub={activeSub}
+                    setActive={setActive}
+                  />
+                  {idx === 0 && <InhouseSidebarNav collapsed={collapsed} />}
+                </React.Fragment>
               ))}
             </SidebarMenu>
           </SidebarGroupContent>
@@ -316,6 +320,7 @@ export function DashboardSidebar({ active, activeSub, setActive }: DashboardSide
         </SidebarMenu>
 
         <AccountIdentityBadge collapsed={collapsed} />
+        <SidebarUpgradeBadge collapsed={collapsed} />
       </SidebarFooter>
 
       <SupportFab

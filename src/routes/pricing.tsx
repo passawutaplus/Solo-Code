@@ -13,16 +13,28 @@ import {
   Users,
   LayoutGrid,
   ExternalLink,
+  ChevronDown,
+  AlertCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import { TierDetailsSection } from "@/components/tier/TierDetailsSection";
+import type { PlanId } from "@/data/plans";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/auth/AuthProvider";
 import { useSubscription } from "@/hooks/useSubscription";
-import { createCheckoutSession, createPortalSession } from "@/utils/payments.functions";
-import { getStripeEnvironment, PRICE_IDS, CREDITS_PER_PRICE } from "@/lib/stripe";
+import { createCheckoutSession, createPortalSession, upgradeSubscriptionTier } from "@/utils/payments.functions";
+import { getStripeEnvironment, PRICE_IDS, CREDITS_PER_PRICE, PX_PER_PRICE } from "@/lib/stripe";
+import { isPaymentFnError, tierLabel, type UpgradeTargetTier } from "@/lib/subscriptionTiers";
+import type { Tier } from "@/hooks/useSubscription";
 import { PLANS, type BillingCycle as Cycle } from "@/data/plans";
 import { ANTHEM_SHOWCASE_URL } from "@/lib/productLinks";
 import {
@@ -39,12 +51,13 @@ export const Route = createFileRoute("/pricing")({
       {
         name: "description",
         content:
-          "เลือกแพ็กเกจที่เหมาะกับคุณ — Free, Pro, In-House และ Top-up Credits เริ่มต้น 0 บาท ฟรีตลอดชีพสำหรับ 100 คนแรกด้วยโค้ด SO1OBETA",
+          "เลือกแพ็กเกจที่เหมาะกับคุณ — Free, Pro, Pro+, In-House และ Top-up Credits เริ่มต้น 0 บาท ฟรีตลอดชีพสำหรับ 100 คนแรกด้วยโค้ด SO1OBETA",
       },
       { property: "og:title", content: "ราคา — So1o Freelancer" },
       {
         property: "og:description",
-        content: "อัพเกรด Pro เริ่มต้น 249฿/เดือน · In-House สำหรับทีม · 100 คนแรกได้ฟรี 1 ปี",
+        content:
+          "อัพเกรด Pro เริ่มต้น 249฿/เดือน · Pro+ 399฿/เดือน · In-House สำหรับทีม · 100 คนแรกได้ฟรี 1 ปี",
       },
     ],
   }),
@@ -86,16 +99,56 @@ const TOPUPS: TopupPack[] = [
   },
 ];
 
+interface PxPack {
+  id: keyof typeof PX_PER_PRICE;
+  name: string;
+  amount: number;
+  px: number;
+  badge?: string;
+}
+
+const PX_TOPUPS: PxPack[] = [
+  { id: "px_500", name: "Starter", amount: 500, px: 500 },
+  { id: "px_2000", name: "Creator", amount: 2000, px: 2000, badge: "ยอดนิยม" },
+  { id: "px_10000", name: "Studio", amount: 10000, px: 10000, badge: "คุ้มสุด" },
+];
+
+const PLAN_RANK: Record<Tier | "free", number> = {
+  free: 0,
+  pro: 1,
+  pro_plus: 2,
+  inhouse: 3,
+};
+
+function isHigherPlan(current: Tier, planId: string): planId is UpgradeTargetTier {
+  return PLAN_RANK[planId as Tier] > PLAN_RANK[current];
+}
+
+function formatCheckoutError(e: unknown, fallback: string): string {
+  if (e instanceof Response) {
+    if (e.status === 401) return "เซสชันหมดอายุ กรุณาเข้าสู่ระบบใหม่";
+    return `เกิดข้อผิดพลาด (${e.status}) — ลองใหม่อีกครั้ง`;
+  }
+  if (e && typeof e === "object" && "message" in e) {
+    const msg = String((e as { message: unknown }).message);
+    if (/unauthorized|401/i.test(msg)) return "เซสชันหมดอายุ กรุณาเข้าสู่ระบบใหม่";
+    if (msg && msg !== "[object Object]") return msg;
+  }
+  return fallback;
+}
+
 function PricingPage() {
   const [cycle, setCycle] = React.useState<Cycle>("yearly");
   const [loadingId, setLoadingId] = React.useState<string | null>(null);
+  const [checkoutError, setCheckoutError] = React.useState<string | null>(null);
   const [seats, setSeats] = React.useState<number>(3);
   const { user } = useAuth();
-  const { tier, subscription } = useSubscription();
+  const { tier, subscription, isPro, isActive, refetch } = useSubscription();
   const navigate = useNavigate();
 
   const checkout = useServerFn(createCheckoutSession);
   const portal = useServerFn(createPortalSession);
+  const upgradeTier = useServerFn(upgradeSubscriptionTier);
 
   const ensureAuth = (returnTo: string) => {
     if (user) return true;
@@ -104,8 +157,20 @@ function PricingPage() {
     return false;
   };
 
+  const checkoutFail = (result: unknown, fallback: string) => {
+    if (isPaymentFnError(result)) return result.error;
+    if (!result || typeof result !== "object" || !("url" in result)) return fallback;
+    return null;
+  };
+
+  const failCheckout = (message: string) => {
+    setCheckoutError(message);
+    toast.error(message);
+  };
+
   const handleCheckoutPlan = async (planId: "pro" | "pro_plus" | "inhouse") => {
     if (!ensureAuth("/pricing")) return;
+    setCheckoutError(null);
     setLoadingId(planId);
     try {
       let priceId: string;
@@ -128,31 +193,98 @@ function PricingPage() {
           cancelUrl: `${origin}/pricing?canceled=1`,
         },
       });
-      if ("error" in result) throw new Error(result.error);
-      window.location.href = result.url;
-    } catch (e: any) {
-      toast.error(e?.message ?? "ไม่สามารถเริ่ม checkout ได้");
+      const err = checkoutFail(result, "ไม่สามารถเริ่ม checkout ได้");
+      if (err) throw new Error(err);
+      window.location.href = (result as { url: string }).url;
+    } catch (e: unknown) {
+      failCheckout(formatCheckoutError(e, "ไม่สามารถเริ่ม checkout ได้"));
+    } finally {
+      setLoadingId(null);
+    }
+  };
+
+  const handleUpgradePlan = async (targetTier: UpgradeTargetTier) => {
+    if (!ensureAuth("/pricing")) return;
+    setCheckoutError(null);
+    setLoadingId(targetTier);
+    try {
+      const result = await upgradeTier({
+        data: {
+          environment: getStripeEnvironment(),
+          targetTier,
+          quantity: targetTier === "inhouse" ? seats : undefined,
+        },
+      });
+      if (isPaymentFnError(result)) throw new Error(result.error);
+      if (!result || typeof result !== "object" || !("ok" in result)) {
+        throw new Error("ไม่สามารถอัปเกรดได้");
+      }
+      await refetch();
+      toast.success(`อัปเกรดเป็น ${tierLabel(targetTier)} สำเร็จ`);
+      navigate({ to: "/dashboard" });
+    } catch (e: unknown) {
+      failCheckout(formatCheckoutError(e, "ไม่สามารถอัปเกรดได้"));
+    } finally {
       setLoadingId(null);
     }
   };
 
   const handleTopup = async (pack: TopupPack) => {
     if (!ensureAuth("/pricing")) return;
+    setCheckoutError(null);
     setLoadingId(pack.id);
     try {
       const origin = window.location.origin;
+      const params = new URLSearchParams(window.location.search);
+      const returnTo = params.get("return");
+      const successUrl = returnTo
+        ? `${returnTo}${returnTo.includes("?") ? "&" : "?"}topup=success`
+        : `${origin}/dashboard?topup=success`;
+      const cancelUrl = returnTo ?? `${origin}/pricing?canceled=1`;
       const result = await checkout({
         data: {
           priceId: pack.id,
           environment: getStripeEnvironment(),
-          successUrl: `${origin}/dashboard?topup=success`,
-          cancelUrl: `${origin}/pricing?canceled=1`,
+          successUrl,
+          cancelUrl,
         },
       });
-      if ("error" in result) throw new Error(result.error);
-      window.location.href = result.url;
-    } catch (e: any) {
-      toast.error(e?.message ?? "ไม่สามารถเริ่ม checkout ได้");
+      const err = checkoutFail(result, "ไม่สามารถเริ่ม checkout ได้");
+      if (err) throw new Error(err);
+      window.location.href = (result as { url: string }).url;
+    } catch (e: unknown) {
+      failCheckout(formatCheckoutError(e, "ไม่สามารถเริ่ม checkout ได้"));
+    } finally {
+      setLoadingId(null);
+    }
+  };
+
+  const handlePxTopup = async (pack: PxPack) => {
+    if (!ensureAuth("/pricing")) return;
+    setCheckoutError(null);
+    setLoadingId(pack.id);
+    try {
+      const origin = window.location.origin;
+      const params = new URLSearchParams(window.location.search);
+      const returnTo = params.get("return");
+      const successUrl = returnTo
+        ? `${returnTo}${returnTo.includes("?") ? "&" : "?"}topup=success`
+        : `${origin}/pricing?px=success`;
+      const cancelUrl = returnTo ?? `${origin}/pricing?px=canceled`;
+      const result = await checkout({
+        data: {
+          priceId: pack.id,
+          environment: getStripeEnvironment(),
+          successUrl,
+          cancelUrl,
+        },
+      });
+      const err = checkoutFail(result, "ไม่สามารถเริ่ม checkout ได้");
+      if (err) throw new Error(err);
+      window.location.href = (result as { url: string }).url;
+    } catch (e: unknown) {
+      failCheckout(formatCheckoutError(e, "ไม่สามารถเริ่ม checkout ได้"));
+    } finally {
       setLoadingId(null);
     }
   };
@@ -166,10 +298,13 @@ function PricingPage() {
           returnUrl: `${window.location.origin}/pricing`,
         },
       });
-      if ("error" in result) throw new Error(result.error);
-      window.open(result.url, "_blank");
-    } catch (e: any) {
-      toast.error(e?.message ?? "ไม่สามารถเปิดหน้าจัดการได้");
+      if (isPaymentFnError(result)) throw new Error(result.error);
+      if (!result || typeof result !== "object" || !("url" in result)) {
+        throw new Error("ไม่สามารถเปิดหน้าจัดการได้");
+      }
+      window.open((result as { url: string }).url, "_blank");
+    } catch (e: unknown) {
+      toast.error(formatCheckoutError(e, "ไม่สามารถเปิดหน้าจัดการได้"));
     } finally {
       setLoadingId(null);
     }
@@ -216,6 +351,14 @@ function PricingPage() {
             </p>
           </div>
         </div>
+
+        {checkoutError && (
+          <Alert variant="destructive" className="mb-8 max-w-3xl mx-auto">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>ไม่สามารถเปิด Stripe Checkout ได้</AlertTitle>
+            <AlertDescription>{checkoutError}</AlertDescription>
+          </Alert>
+        )}
 
         {/* Ecosystem — one subscription, two apps */}
         <div className="mb-10 max-w-3xl mx-auto rounded-2xl border border-primary/25 bg-gradient-to-br from-primary/10 via-card to-card p-5 sm:p-6 shadow-sm">
@@ -416,13 +559,36 @@ function PricingPage() {
                   )}
 
                   <ul className="mt-6 space-y-2.5 flex-1">
-                    {plan.features.map((f) => (
+                    {plan.highlights.map((f) => (
                       <li key={f} className="flex items-start gap-2.5 text-sm">
                         <Check className="h-4 w-4 text-primary mt-0.5 shrink-0" />
                         <span className="text-foreground/80">{f}</span>
                       </li>
                     ))}
                   </ul>
+
+                  {plan.details.length > 0 && (
+                    <Collapsible className="mt-4">
+                      <CollapsibleTrigger asChild>
+                        <button
+                          type="button"
+                          className="flex w-full items-center justify-center gap-1.5 text-xs font-medium text-primary hover:underline group"
+                        >
+                          ดูรายละเอียดเพิ่มเติม
+                          <ChevronDown className="h-3.5 w-3.5 transition-transform group-data-[state=open]:rotate-180" />
+                        </button>
+                      </CollapsibleTrigger>
+                      <CollapsibleContent>
+                        <ul className="mt-3 space-y-2 rounded-xl border border-border/60 bg-muted/20 p-3">
+                          {plan.details.map((d) => (
+                            <li key={d} className="text-xs text-muted-foreground leading-relaxed">
+                              {d}
+                            </li>
+                          ))}
+                        </ul>
+                      </CollapsibleContent>
+                    </Collapsible>
+                  )}
 
                   <div className="mt-7">
                     {plan.id === "free" ? (
@@ -447,7 +613,23 @@ function PricingPage() {
                         {loadingId === "manage" ? (
                           <Loader2 className="h-4 w-4 animate-spin" />
                         ) : (
-                          "จัดการ Subscription"
+                          "แพ็กเกจปัจจุบัน"
+                        )}
+                      </Button>
+                    ) : user && isPro && isActive && isHigherPlan(tier, plan.id) ? (
+                      <Button
+                        onClick={() => handleUpgradePlan(plan.id as UpgradeTargetTier)}
+                        disabled={loadingId === plan.id}
+                        className={cn(
+                          "w-full",
+                          plan.highlighted &&
+                            "bg-gradient-to-r from-primary to-orange-400 text-white hover:opacity-90 border-0",
+                        )}
+                      >
+                        {loadingId === plan.id ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          `อัปเกรด ${tierLabel(plan.id as UpgradeTargetTier)}`
                         )}
                       </Button>
                     ) : plan.id === "pro" || plan.id === "pro_plus" ? (
@@ -467,17 +649,31 @@ function PricingPage() {
                         )}
                       </Button>
                     ) : plan.id === "inhouse" ? (
-                      <Button
-                        onClick={() => handleCheckoutPlan("inhouse")}
-                        disabled={loadingId === "inhouse"}
-                        className="w-full"
-                      >
-                        {loadingId === "inhouse" ? (
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                        ) : (
-                          plan.cta
-                        )}
-                      </Button>
+                      user && isPro && isActive && tier !== "inhouse" ? (
+                        <Button
+                          onClick={() => handleUpgradePlan("inhouse")}
+                          disabled={loadingId === "inhouse"}
+                          className="w-full"
+                        >
+                          {loadingId === "inhouse" ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            "อัปเกรด In-House"
+                          )}
+                        </Button>
+                      ) : (
+                        <Button
+                          onClick={() => handleCheckoutPlan("inhouse")}
+                          disabled={loadingId === "inhouse"}
+                          className="w-full"
+                        >
+                          {loadingId === "inhouse" ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            plan.cta
+                          )}
+                        </Button>
+                      )
                     ) : null}
                   </div>
                 </Card>
@@ -485,6 +681,27 @@ function PricingPage() {
             );
           })}
         </div>
+
+        <TierDetailsSection
+          currentTier={user ? tier : undefined}
+          className="mt-16 sm:mt-20"
+          showUpgradeRow
+          loadingTier={loadingId as PlanId | null}
+          onUpgrade={(targetTier) => {
+            if (targetTier === "free") return;
+            if (
+              user &&
+              isPro &&
+              isActive &&
+              tier !== "free" &&
+              isHigherPlan(tier, targetTier)
+            ) {
+              void handleUpgradePlan(targetTier);
+            } else {
+              void handleCheckoutPlan(targetTier);
+            }
+          }}
+        />
 
         {/* Top-up Credits */}
         <section className="mt-16 sm:mt-20">
@@ -563,6 +780,66 @@ function PricingPage() {
             Smart Brief {Math.round((USAGE_MIX_ASSUMPTION.ai_brief_extract ?? 0) * 100)}%
             (เฉลี่ย {weightedCreditsPerAction().toFixed(2)} เครดิต/ครั้ง)
           </p>
+        </section>
+
+        {/* Top-up Pixel (an1hem) */}
+        <section className="mt-16 sm:mt-20">
+          <div className="text-center max-w-2xl mx-auto mb-8">
+            <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 text-primary border border-primary/30 px-3 py-1 text-xs font-semibold mb-3">
+              <Sparkles className="h-3.5 w-3.5" /> an1hem Pixel
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">
+              เติม Pixel ส่งของขวัญ
+            </h2>
+            <p className="mt-2 text-sm text-muted-foreground">
+              1 px = 1 บาท · ใช้ส่งของขวัญบน an1hem · ยอดที่เติมมีช่วงพัก 24 ชม. ก่อนใช้ (AML)
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 lg:gap-5 max-w-4xl mx-auto">
+            {PX_TOPUPS.map((pack) => (
+              <Card
+                key={pack.id}
+                className={cn(
+                  "relative p-5 sm:p-6 flex flex-col bg-card border transition-all hover:shadow-md",
+                  pack.badge ? "border-primary/40 ring-1 ring-primary/20" : "border-border",
+                )}
+              >
+                {pack.badge && (
+                  <div className="absolute -top-2.5 right-4">
+                    <Badge className="bg-primary text-primary-foreground border-0 text-[10px] px-2 py-0.5">
+                      {pack.badge}
+                    </Badge>
+                  </div>
+                )}
+                <div className="flex items-center justify-between gap-2">
+                  <h3 className="font-bold text-base">{pack.name}</h3>
+                  <Sparkles className="h-4 w-4 text-primary" />
+                </div>
+                <div className="mt-3 flex items-baseline gap-1.5">
+                  <span className="text-3xl font-bold tracking-tight">
+                    {pack.amount.toLocaleString("th-TH")}
+                  </span>
+                  <span className="text-xs text-muted-foreground">THB</span>
+                </div>
+                <p className="mt-2 text-sm font-semibold text-foreground/90">
+                  +{pack.px.toLocaleString("th-TH")} px
+                </p>
+                <Button
+                  onClick={() => handlePxTopup(pack)}
+                  disabled={loadingId === pack.id}
+                  variant="outline"
+                  className="mt-4 w-full"
+                >
+                  {loadingId === pack.id ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    "เติม Pixel"
+                  )}
+                </Button>
+              </Card>
+            ))}
+          </div>
         </section>
 
         {/* Credit weights */}

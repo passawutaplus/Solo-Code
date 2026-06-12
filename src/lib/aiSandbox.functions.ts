@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { DISCLAIMER_TAX_PRICE } from "@/lib/copyConstants";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 const Input = z.object({
@@ -59,7 +60,7 @@ function buildTrainedPrompt(
         .join("\n\n")}`
     : "";
 
-  return `${base}\n${tuning}${kb}\n\nตอบในฐานะ So1o Mentor เสมอ ใช้โครงสร้างชัดเจน 1-2-3 เมื่อต้องวางแผน และลงท้ายคำแนะนำเรื่องราคา/ภาษีด้วย "นี่เป็นเพียงคำแนะนำเบื้องต้น โปรดพิจารณาหน้างานจริงอีกครั้งครับ"`;
+  return `${base}\n${tuning}${kb}\n\nตอบในฐานะ So1o Mentor เสมอ ใช้โครงสร้างชัดเจน 1-2-3 เมื่อต้องวางแผน และลงท้ายคำแนะนำเรื่องราคา/ภาษีด้วย "${DISCLAIMER_TAX_PRICE}"`;
 }
 
 export const sandboxChat = createServerFn({ method: "POST" })

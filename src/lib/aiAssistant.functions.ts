@@ -2,7 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { geminiChat, defaultFastModel } from "@/lib/geminiServer";
-import { debitAiCredits, getAiUsageSummary } from "@/lib/aiCreditsServer";
+import { debitAiCredits, getAiUsageSummary, refundAiCredits } from "@/lib/aiCreditsServer";
 import {
   ASSISTANT_MAX_OUTPUT_TOKENS,
   persistAssistantMessages,
@@ -52,6 +52,11 @@ export const aiAssistant = createServerFn({ method: "POST" })
 
     const safeReply = (answer || "").trim();
     if (!safeReply) {
+      await refundAiCredits({
+        userId,
+        originalIdempotencyKey: idempotencyKey,
+        refundIdempotencyKey: `${idempotencyKey}:refund`,
+      }).catch(() => undefined);
       throw new Error("empty_response");
     }
 

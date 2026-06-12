@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useNavigate } from "@tanstack/react-router";
 import {
   CommandDialog,
   CommandEmpty,
@@ -23,12 +24,17 @@ const NAV_ITEMS: { label: string; section: DashSection; sub?: string; keywords?:
   { label: "ตั้งค่า", section: "settings" },
 ];
 
+const EXTERNAL_ITEMS: { label: string; to: string; keywords?: string }[] = [
+  { label: "In-House Co-working", to: "/inhouse", keywords: "ทีม workspace kanban chat" },
+];
+
 export function DashboardCommandMenu({
   onNavigate,
 }: {
   onNavigate: (section: DashSection, sub?: string) => void;
 }) {
   const [open, setOpen] = React.useState(false);
+  const navigate = useNavigate();
 
   React.useEffect(() => {
     const down = (e: KeyboardEvent) => {
@@ -53,6 +59,21 @@ export function DashboardCommandMenu({
               value={`${item.label} ${item.keywords ?? ""}`}
               onSelect={() => {
                 onNavigate(item.section, item.sub);
+                setOpen(false);
+              }}
+            >
+              {item.label}
+            </CommandItem>
+          ))}
+        </CommandGroup>
+        <CommandSeparator />
+        <CommandGroup heading="Ecosystem">
+          {EXTERNAL_ITEMS.map((item) => (
+            <CommandItem
+              key={item.to}
+              value={`${item.label} ${item.keywords ?? ""}`}
+              onSelect={() => {
+                navigate({ to: item.to });
                 setOpen(false);
               }}
             >

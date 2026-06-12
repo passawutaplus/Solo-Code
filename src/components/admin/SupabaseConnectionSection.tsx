@@ -169,9 +169,9 @@ export function SupabaseConnectionSection() {
       status: "checking",
     },
     {
-      id: "admin_business_rls",
-      label: "Admin business KPI RLS (quotations + finance)",
-      migrationFile: "20260609120000_admin_business_rls.sql",
+      id: "inhouse_workspace",
+      label: "In-House Co-working (org + kanban + chat)",
+      migrationFile: "20260612120000_inhouse_workspace.sql",
       status: "checking",
     },
   ]);
@@ -191,13 +191,14 @@ export function SupabaseConnectionSection() {
       setLatencyMs(Math.round(performance.now() - t0));
     }
 
-    const [contract, tickets, shared, feedbackFields, activityFeed, adminBusinessRls] = await Promise.all([
+    const [contract, tickets, shared, feedbackFields, activityFeed, adminBusinessRls, inhouse] = await Promise.all([
       probeQuotationContractColumns(),
       probeTable("support_tickets"),
       probeTable("shared_projects"),
       probeFeedbackTicketFields(),
       probeActivityFeedRpc(),
       probeAdminBusinessRls(),
+      probeTable("inhouse_orgs"),
     ]);
 
     const contractOk = contract.status === "ok";
@@ -219,6 +220,7 @@ export function SupabaseConnectionSection() {
       { id: "feedback_notify", label: "แจ้งลูกค้าเมื่อแก้ฟีดแบ็ก", migrationFile: "20260607120100_ticket_feedback_notify.sql", ...feedbackNotify },
       { id: "admin_activity_feed", label: "Mission Control Activity Feed RPC", migrationFile: "20260607130000_admin_activity_feed.sql", ...activityFeed },
       { id: "admin_business_rls", label: "Admin business KPI RLS (quotations + finance)", migrationFile: "20260609120000_admin_business_rls.sql", ...adminBusinessRls },
+      { id: "inhouse_workspace", label: "In-House Co-working (org + kanban + chat)", migrationFile: "20260612120000_inhouse_workspace.sql", ...inhouse },
     ]);
 
     setLoading(false);

@@ -16,6 +16,28 @@ export function getConnectionApiKey(env: StripeEnv): string {
     : getEnv("STRIPE_LIVE_API_KEY");
 }
 
+/** User-facing hint when Stripe keys or catalog are not ready. */
+export function getStripeSetupError(env: StripeEnv): string | null {
+  try {
+    const key = getConnectionApiKey(env);
+    if (key.startsWith("rkcs_")) {
+      return (
+        "Stripe sandbox ใช้คีย์ชั่วคราว (rkcs_) ยังสร้าง checkout ไม่ได้ — " +
+        "เปิด Dashboard → Developers → API keys (Test mode) คัดลอก sk_test_ " +
+        "ใส่ STRIPE_SANDBOX_API_KEY แล้วรัน npm run stripe:sync"
+      );
+    }
+    if (!key.startsWith("sk_") && !key.startsWith("rk_")) {
+      return "STRIPE API key ไม่ถูกต้อง — ต้องขึ้นต้นด้วย sk_test_ / sk_live_";
+    }
+    return null;
+  } catch {
+    return env === "sandbox"
+      ? "ตั้ง STRIPE_SANDBOX_API_KEY=sk_test_... ใน Solo-Code/.env"
+      : "ตั้ง STRIPE_LIVE_API_KEY=sk_live_... ใน Solo-Code/.env";
+  }
+}
+
 function useDirectStripe(): boolean {
   const flag = process.env.STRIPE_USE_DIRECT;
   if (flag === "true" || flag === "1") return true;
@@ -25,7 +47,7 @@ function useDirectStripe(): boolean {
 
 export function createStripeClient(env: StripeEnv): Stripe {
   const secretKey = getConnectionApiKey(env);
-  const apiVersion = "2026-03-25.dahlia" as Stripe.LatestApiVersion;
+  const apiVersion = "2026-03-25.dahlia";
 
   if (useDirectStripe()) {
     return new Stripe(secretKey, { apiVersion });

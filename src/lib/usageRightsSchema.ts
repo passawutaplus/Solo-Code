@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { DISCLAIMER_LEGAL_FULL } from "@/lib/copyConstants";
 
 export const WORK_TYPES = ["logo", "photo", "video", "social", "web", "source", "other"] as const;
 export const LICENSE_TYPES = ["exclusive", "non_exclusive"] as const;
@@ -88,8 +89,7 @@ export interface UsageRights extends UsageRightsInput {
   updatedAt: string;
 }
 
-export const LEGAL_DISCLAIMER =
-  "คำแนะนำเบื้องต้น ไม่ใช่คำปรึกษาทางกฎหมาย — กรณีสำคัญแนะนำปรึกษาทนายความที่ขึ้นทะเบียน";
+export const LEGAL_DISCLAIMER = DISCLAIMER_LEGAL_FULL;
 
 export function buildUsageRightsLabel(input: UsageRightsInput): string {
   const work = WORK_TYPE_OPTIONS.find((w) => w.value === input.workType)?.label ?? input.workType;

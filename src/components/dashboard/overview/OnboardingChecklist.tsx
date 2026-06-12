@@ -1,5 +1,6 @@
 import * as React from "react";
-import { Check, Circle, ArrowRight } from "lucide-react";
+import { Link } from "@tanstack/react-router";
+import { Check, Circle, ArrowRight, BookOpen } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/auth/AuthProvider";
@@ -111,14 +112,22 @@ export function OnboardingChecklist({
             </button>
           );
         })}
-        <Button
-          size="sm"
-          variant="outline"
-          className="w-full mt-2 text-xs"
-          onClick={() => onGo("finance", "pipeline")}
-        >
-          เปิด Pipeline
-        </Button>
+        <div className="flex gap-2 mt-2">
+          <Button
+            size="sm"
+            variant="outline"
+            className="flex-1 text-xs"
+            onClick={() => onGo("finance", "pipeline")}
+          >
+            เปิด Pipeline
+          </Button>
+          <Button size="sm" variant="ghost" className="text-xs gap-1" asChild>
+            <Link to="/help/getting-started">
+              <BookOpen className="h-3.5 w-3.5" />
+              คู่มือ
+            </Link>
+          </Button>
+        </div>
       </CardContent>
     </Card>
   );

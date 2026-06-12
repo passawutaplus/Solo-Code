@@ -12,6 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { SiteFooter } from "@/components/layout/SiteFooter";
+import { DISCLAIMER_TAX_ACCOUNTING } from "@/lib/copyConstants";
 
 export const Route = createFileRoute("/help/tax")({
   head: () => ({
@@ -68,8 +69,8 @@ function TaxHelpPage() {
       <header className="border-b border-border/60 bg-card/80 backdrop-blur sticky top-0 z-10">
         <div className="max-w-3xl mx-auto px-4 py-3 flex items-center gap-3">
           <Button variant="ghost" size="sm" asChild className="gap-1.5 shrink-0">
-            <Link to="/">
-              <ArrowLeft className="h-4 w-4" /> หน้าแรก
+            <Link to="/help">
+              <ArrowLeft className="h-4 w-4" /> ศูนย์ช่วยเหลือ
             </Link>
           </Button>
           <div className="min-w-0">
@@ -82,16 +83,13 @@ function TaxHelpPage() {
       <main className="flex-1 max-w-3xl mx-auto w-full px-4 py-8 space-y-6">
         <div className="rounded-2xl border border-primary/20 bg-primary/5 p-5">
           <p className="text-sm leading-relaxed">
-            คู่มือนี้ออกแบบสำหรับ<strong> ฟรีแลนซ์คนเดียว</strong> ที่รับงานจากลูกค้าและต้องจัดการภาษีเอง
-            ทำตามลำดับด้านล่าง แล้วใช้ So1o My Desk ช่วยเก็บข้อมูล — ส่งให้นักบัญชียื่นจริงได้สะดวกขึ้น
+            คู่มือสำหรับ<strong> ฟรีแลนซ์คนเดียว</strong> — ทำตามลำดับด้านล่าง แล้วใช้ My Desk เก็บข้อมูลส่งนักบัญชี
           </p>
         </div>
 
         <div className="flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50/80 p-4 text-xs text-amber-900">
           <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
-          <p>
-            ข้อมูลนี้เป็นความรู้ทั่วไป ไม่ใช่คำแนะนำทางกฎหมายหรือการบัญชี — ควรปรึกษานักบัญชี/ผู้เชี่ยวชาญก่อนยื่นภาษีจริง
-          </p>
+          <p>{DISCLAIMER_TAX_ACCOUNTING}</p>
         </div>
 
         <div className="space-y-4">

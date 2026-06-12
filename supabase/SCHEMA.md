@@ -32,6 +32,21 @@
 | `project_members` | สมาชิก + % หารรายได้ |
 | `project_tasks` | Team kanban |
 
+## In-House Co-working (MVP)
+
+| ตาราง | บทบาท |
+|--------|--------|
+| `inhouse_orgs` | Org + seat_limit |
+| `inhouse_org_members` | สมาชิก + role |
+| `inhouse_workspaces` | ห้อง co-working |
+| `inhouse_tasks` | Kanban / To-do |
+| `inhouse_channels` / `inhouse_messages` | Chat |
+| `inhouse_activity_events` | Monitor |
+| `inhouse_invites` | ลิงก์เชิญ |
+| `inhouse_canvases` | Whiteboard (Excalidraw) |
+
+Migration: `20260612120000_inhouse_workspace.sql` · `20260613100000_inhouse_invite_pending.sql` · scripts: `scripts/ecosystem/inhouse-workspace.sql`
+
 ## Support
 
 | ตาราง | บทบาท |

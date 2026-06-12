@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Sparkles, ArrowRight, ArrowLeft, Loader2, CheckCircle2, TrendingUp, ThumbsUp, ThumbsDown } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { DISCLAIMER_TAX_PRICE } from "@/lib/copyConstants";
 import { toast } from "sonner";
 import {
   JOB_TYPE_OPTIONS,
@@ -75,7 +76,7 @@ export function PriceGuideModal({ open, onOpenChange, onApplyPrice, initialQuant
       setResult({
         suggestion,
         reasoning:
-          "ราคานี้คำนวณจากเวลาทำงาน + ความยาก + ค่าเฉลี่ยตลาดครับ\nนี่เป็นเพียงคำแนะนำเบื้องต้น โปรดพิจารณาหน้างานจริงอีกครั้งนะครับ",
+          `ราคานี้คำนวณจากเวลาทำงาน + ความยาก + ค่าเฉลี่ยตลาดครับ\n${DISCLAIMER_TAX_PRICE}`,
         eventId: null,
       });
       setStep(4);

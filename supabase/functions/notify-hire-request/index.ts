@@ -18,6 +18,15 @@ const json = (body: unknown, status = 200) =>
     headers: { ...corsHeaders, "Content-Type": "application/json" },
   });
 
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   if (req.method !== "POST") return json({ error: "method_not_allowed" }, 405);
@@ -69,8 +78,9 @@ Deno.serve(async (req) => {
     return json({ skipped: true, reason: "notifications_disabled" });
   }
 
-  const recipientName = profile?.display_name || "คุณ";
-  const projectName = hire.project_title || "งานจ้างใหม่";
+  const recipientName = escapeHtml(profile?.display_name || "คุณ");
+  const projectName = escapeHtml(hire.project_title || "งานจ้างใหม่");
+  const clientName = escapeHtml(hire.client_name ?? "ลูกค้า");
   const messageId = crypto.randomUUID();
   const idempotencyKey = `hire-request-${hire.id}`;
 
@@ -85,11 +95,13 @@ Deno.serve(async (req) => {
     ? `งบประมาณ: ฿${Number(hire.budget_amount).toLocaleString("th-TH")}`
     : "";
   const deadlineLine = hire.deadline ? `กำหนดส่ง: ${hire.deadline}` : "";
-  const detail = [hire.message, budgetLine, deadlineLine].filter(Boolean).join("\n");
+  const detailRaw = [hire.message, budgetLine, deadlineLine].filter(Boolean).join("\n");
+  const detailText = detailRaw;
+  const detailHtml = escapeHtml(detailRaw);
 
-  const subject = `[Anthem] มีคำขอจ้างงานใหม่ — ${projectName}`;
-  const text = `สวัสดี ${recipientName}\n\nมีลูกค้า ${hire.client_name} ส่งคำขอจ้างงาน "${projectName}" ผ่าน Anthem\n\n${detail}\n\nเปิดดู: https://solofreelancer.com/dashboard`;
-  const html = `<p>สวัสดี ${recipientName}</p><p>มีลูกค้า <strong>${hire.client_name}</strong> ส่งคำขอจ้างงาน <strong>${projectName}</strong> ผ่าน Anthem</p><pre style="white-space:pre-wrap;font-family:inherit">${detail}</pre><p><a href="https://solofreelancer.com/dashboard">เปิด So1o My Desk</a></p>`;
+  const subject = `[Anthem] มีคำขอจ้างงานใหม่ — ${hire.project_title || "งานจ้างใหม่"}`;
+  const text = `สวัสดี ${profile?.display_name || "คุณ"}\n\nมีลูกค้า ${hire.client_name} ส่งคำขอจ้างงาน "${hire.project_title || "งานจ้างใหม่"}" ผ่าน Anthem\n\n${detailText}\n\nเปิดดู: https://solofreelancer.com/dashboard`;
+  const html = `<p>สวัสดี ${recipientName}</p><p>มีลูกค้า <strong>${clientName}</strong> ส่งคำขอจ้างงาน <strong>${projectName}</strong> ผ่าน Anthem</p><pre style="white-space:pre-wrap;font-family:inherit">${detailHtml}</pre><p><a href="https://solofreelancer.com/dashboard">เปิด So1o My Desk</a></p>`;
 
   await admin.from("email_send_log").insert({
     message_id: messageId,
@@ -123,7 +135,7 @@ Deno.serve(async (req) => {
   const lineResult = await enqueueLineNotification({
     userId: hire.freelancer_id,
     kind: "anthem_hire",
-    body: `${hire.client_name} ส่งคำขอจ้าง — ${projectName}\n${detail.slice(0, 200)}`,
+    body: `${hire.client_name} ส่งคำขอจ้าง — ${hire.project_title || "งานจ้างใหม่"}\n${detailText.slice(0, 200)}`,
     idempotencyKey: `line-hire-${hire.id}`,
   });
 

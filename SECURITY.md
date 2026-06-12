@@ -43,7 +43,6 @@
 
 ## Out of scope
 
-- Stripe integration (paused)
 - Supabase managed infrastructure
 - Cloudflare / Lovable platform
 - Physical / social engineering ของทีม

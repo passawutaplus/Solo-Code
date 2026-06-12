@@ -1,25 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { runDailyTrendsGeneration, todayISO } from "@/lib/dailyTrends.server";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { authorizeCronBearer } from "@/lib/cronAuth.server";
 
 export const Route = createFileRoute("/api/public/cron/fetch-daily-trends")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-        if (!supabaseServiceKey) {
-          return Response.json({ error: "Server configuration error" }, { status: 500 });
-        }
-
-        const authHeader = request.headers.get("Authorization");
-        if (!authHeader?.startsWith("Bearer ")) {
-          return Response.json({ error: "Unauthorized" }, { status: 401 });
-        }
-
-        const token = authHeader.slice("Bearer ".length).trim();
-        if (token !== supabaseServiceKey) {
-          return Response.json({ error: "Forbidden" }, { status: 403 });
-        }
+        const authError = authorizeCronBearer(request);
+        if (authError) return authError;
 
         const date = todayISO();
         const force = new URL(request.url).searchParams.get("force") === "1";

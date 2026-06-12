@@ -62,19 +62,17 @@ export function HttpErrorPage({
             {displayCode || "!"}
           </p>
 
-          <p className="mt-2 text-xs text-muted-foreground">
-            {copy.taglineTh}
-            <span className="mx-1.5 text-border">·</span>
-            <span className="opacity-80">{copy.taglineEn}</span>
-          </p>
+          <h1 className="mt-6 text-xl sm:text-2xl font-semibold text-foreground" lang="th">
+            {copy.titleTh}
+          </h1>
+          <p className="sr-only" lang="en">{copy.titleEn}</p>
 
-          <h1 className="mt-6 text-xl sm:text-2xl font-semibold text-foreground">{copy.titleTh}</h1>
-          <p className="mt-1 text-sm text-muted-foreground/90">{copy.titleEn}</p>
-
-          <p className="mt-4 text-sm text-muted-foreground leading-relaxed max-w-md mx-auto">
+          <p className="mt-4 text-sm text-muted-foreground leading-relaxed max-w-md mx-auto" lang="th">
             {copy.descTh}
           </p>
-          <p className="mt-1.5 text-xs text-muted-foreground/75 max-w-md mx-auto">{copy.descEn}</p>
+          <p className="mt-1 text-xs text-muted-foreground/60 max-w-md mx-auto" lang="en" aria-hidden>
+            {copy.descEn}
+          </p>
 
           {errorMessage &&
             resolvedKind !== "404" &&
@@ -142,15 +140,9 @@ export function HttpErrorPage({
             )}
           </div>
 
-          {copy.hintTh && (
-            <p className="mt-8 text-xs text-muted-foreground max-w-sm mx-auto leading-relaxed">
+          {showSupport && copy.hintTh && (
+            <p className="mt-8 text-xs text-muted-foreground max-w-sm mx-auto leading-relaxed" lang="th">
               {copy.hintTh}
-              {copy.hintEn && (
-                <>
-                  <br />
-                  <span className="opacity-75">{copy.hintEn}</span>
-                </>
-              )}
             </p>
           )}
         </div>

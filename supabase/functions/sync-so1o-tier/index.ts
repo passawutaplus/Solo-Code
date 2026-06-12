@@ -20,6 +20,13 @@ const json = (body: unknown, status = 200) =>
     headers: { ...corsHeaders, "Content-Type": "application/json" },
   });
 
+function timingSafeEqual(a: string, b: string): boolean {
+  if (a.length !== b.length) return false;
+  let mismatch = 0;
+  for (let i = 0; i < a.length; i++) mismatch |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  return mismatch === 0;
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   if (req.method !== "POST") return json({ ok: false, reason: "method_not_allowed" }, 405);
@@ -30,8 +37,8 @@ Deno.serve(async (req) => {
     return json({ ok: false, reason: "server_misconfigured" }, 503);
   }
 
-  const secret = req.headers.get("x-ecosystem-secret");
-  if (!secret || secret !== expected) {
+  const secret = req.headers.get("x-ecosystem-secret")?.trim() ?? "";
+  if (!secret || !timingSafeEqual(secret, expected)) {
     return json({ ok: false, reason: "unauthorized" }, 401);
   }
 
@@ -63,7 +70,7 @@ Deno.serve(async (req) => {
   }
 
   if (!profile) {
-    return json({ ok: false, reason: "no_anthem_profile" }, 404);
+    return json({ ok: false, reason: "sync_failed" }, 404);
   }
 
   return json({ ok: true, profile_id: profile.id });

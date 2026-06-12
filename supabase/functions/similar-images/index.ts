@@ -43,6 +43,7 @@ Deno.serve(async (req) => {
     authHeader.slice("Bearer ".length),
   );
   if (authErr || !claims?.claims?.sub) return json({ error: "unauthorized" }, 401);
+  const callerId = claims.claims.sub as string;
 
   let raw: unknown;
   try { raw = await req.json(); } catch { return json({ error: "invalid json" }, 400); }
@@ -60,6 +61,9 @@ Deno.serve(async (req) => {
       .eq("id", project_id)
       .maybeSingle();
     if (error || !project) return json({ error: "project not found", images: [] }, 404);
+    if (project.status !== "Published" && project.owner_id !== callerId) {
+      return json({ error: "forbidden", images: [] }, 403);
+    }
 
     const images: SimilarItem[] = [];
 
@@ -98,7 +102,9 @@ Deno.serve(async (req) => {
           (project.tags ?? []).join(", "), (project.tools ?? []).join(", "),
         ].filter(Boolean).join("\n");
         queryVec = await embed(text);
-        await admin.from("projects").update({ embedding: queryVec as unknown as string }).eq("id", project_id);
+        if (project.owner_id === callerId) {
+          await admin.from("projects").update({ embedding: queryVec as unknown as string }).eq("id", project_id);
+        }
       }
 
       const { data: matches, error: mErr } = await admin.rpc("match_similar_projects", {

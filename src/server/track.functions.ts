@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { notifyFreelancer, getFreelancerDisplayName } from "@/server/emailNotify.server";
+import { enqueueLineNotificationForUser } from "@/server/lineNotify.server";
 import { canonicalUrl } from "@/lib/siteUrl";
 
 const TokenSchema = z.object({ token: z.string().uuid() });
@@ -185,19 +186,31 @@ export const submitTrackingSlip = createServerFn({ method: "POST" })
             : undefined;
 
       const recipientName = await getFreelancerDisplayName(job.user_id);
+      const clientName = job.client_name ?? "ลูกค้า";
+      const projectName = job.title ?? "โปรเจกต์";
+      const slipKey = `slip-${job.id}-${Date.now().toString(36)}`;
+
       void notifyFreelancer({
         userId: job.user_id,
         templateName: "deposit-received",
         templateData: {
           recipientName,
-          clientName: job.client_name ?? "ลูกค้า",
-          projectName: job.title ?? "โปรเจกต์",
+          clientName,
+          projectName,
           paymentType,
           amount: amountLabel,
           note: data.note?.trim() || undefined,
           actionUrl: canonicalUrl("/dashboard?tab=projects"),
         },
-        idempotencyKey: `slip-${job.id}-${Date.now().toString(36)}`,
+        idempotencyKey: slipKey,
+      });
+
+      void enqueueLineNotificationForUser({
+        userId: job.user_id,
+        kind: "portal_slip",
+        body: `${clientName} อัปโหลดสลิป${paymentType === "deposit" ? "มัดจำ" : paymentType === "final" ? "งวดสุดท้าย" : ""} — ${projectName}`,
+        idempotencyKey: `line-${slipKey}`,
+        link: canonicalUrl("/dashboard?tab=finance&sub=jobs"),
       });
     }
 

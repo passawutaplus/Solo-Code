@@ -2,8 +2,8 @@ import * as React from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import {
   ArrowLeft,
-  Bell,
   CheckCircle2,
+  Crown,
   ExternalLink,
   Loader2,
   LogOut,
@@ -27,6 +27,9 @@ import {
 import { initLiff, isLineInAppBrowser, liffConfigured } from "@/lib/lineLiff";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { useSubscription } from "@/hooks/useSubscription";
+import { useMyInhouseOrgs } from "@/hooks/inhouse/useInhouseOrg";
+import { LineNotificationPrefsPanel } from "@/components/line/LineNotificationPrefsPanel";
 
 type Phase =
   | "boot"
@@ -76,6 +79,9 @@ async function callLineConnect(payload: Record<string, string>) {
 export function LineLinkScreen() {
   const navigate = useNavigate();
   const { user, loading: authLoading, profile, refreshProfile } = useAuth();
+  const { isPro, tier } = useSubscription();
+  const { data: inhouseOrgs = [] } = useMyInhouseOrgs();
+  const showInhouseGroup = tier === "inhouse" || inhouseOrgs.length > 0;
   const [phase, setPhase] = React.useState<Phase>("boot");
   const [message, setMessage] = React.useState("");
   const [lineMeta, setLineMeta] = React.useState<LineMeta>({});
@@ -355,36 +361,54 @@ export function LineLinkScreen() {
           )}
 
           {phase === "success" && (
-            <div className="text-center space-y-4 py-2">
-              <OfficialPartnershipBadge />
-              {lineMeta.pictureUrl ? (
-                <img
-                  src={lineMeta.pictureUrl}
-                  alt=""
-                  className="h-16 w-16 rounded-full mx-auto ring-2 ring-[#06C755]/50 object-cover"
-                />
-              ) : (
-                <div className="h-16 w-16 rounded-full mx-auto bg-[#06C755]/20 flex items-center justify-center">
-                  <CheckCircle2 className="h-8 w-8 text-[#06C755]" />
-                </div>
-              )}
-              <div>
-                <p className="text-lg font-semibold text-[#06C755]">เชื่อมสำเร็จ</p>
-                {lineMeta.displayName && (
-                  <p className="text-sm text-white/70 mt-1">{lineMeta.displayName}</p>
+            <div className="space-y-4 py-2">
+              <div className="text-center space-y-3">
+                <OfficialPartnershipBadge />
+                {lineMeta.pictureUrl ? (
+                  <img
+                    src={lineMeta.pictureUrl}
+                    alt=""
+                    className="h-16 w-16 rounded-full mx-auto ring-2 ring-[#06C755]/50 object-cover"
+                  />
+                ) : (
+                  <div className="h-16 w-16 rounded-full mx-auto bg-[#06C755]/20 flex items-center justify-center">
+                    <CheckCircle2 className="h-8 w-8 text-[#06C755]" />
+                  </div>
                 )}
-                <p className="text-xs text-white/50 mt-2">
-                  ใช้ได้ทั้ง So1o และ Anthem · ตั้งค่าประเภทแจ้งเตือนได้ใน Settings
-                </p>
+                <div>
+                  <p className="text-lg font-semibold text-[#06C755]">เชื่อมสำเร็จ</p>
+                  {lineMeta.displayName && (
+                    <p className="text-sm text-white/70 mt-1">{lineMeta.displayName}</p>
+                  )}
+                  <p className="text-xs text-white/50 mt-2">
+                    ใช้ได้ทั้ง So1o และ Anthem · เลือกประเภทแจ้งเตือนด้านล่าง
+                  </p>
+                </div>
               </div>
 
-              <div className="flex flex-col gap-2 pt-2">
-                <Button asChild className="w-full bg-white text-[#0b1410] hover:bg-white/90 h-11 gap-2">
-                  <Link to="/dashboard" search={{ tab: "settings" }}>
-                    <Bell className="h-4 w-4" />
-                    ตั้งค่าแจ้งเตือน
-                  </Link>
-                </Button>
+              {isPro ? (
+                <LineNotificationPrefsPanel
+                  variant="onboarding"
+                  defaultOpen
+                  embedded
+                  showLinkStatus={false}
+                  showInhouseGroup={showInhouseGroup}
+                />
+              ) : (
+                <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-center space-y-3">
+                  <p className="text-sm text-amber-100/90">
+                    เชื่อมบัญชีแล้ว — อัปเกรด Pro เพื่อรับ Push แจ้งเตือน
+                  </p>
+                  <Button asChild className="w-full bg-[#06C755] hover:bg-[#05b34c] text-white h-10 gap-2">
+                    <Link to="/pricing">
+                      <Crown className="h-4 w-4" />
+                      อัปเกรดเป็น Pro
+                    </Link>
+                  </Button>
+                </div>
+              )}
+
+              <div className="flex flex-col gap-2 pt-1">
                 <Button asChild variant="outline" className="w-full border-white/15 text-white hover:bg-white/5 h-10 gap-2">
                   <a href={LINE_URL} target="_blank" rel="noopener noreferrer">
                     <Sparkles className="h-4 w-4 text-[#06C755]" />

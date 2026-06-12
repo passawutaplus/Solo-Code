@@ -27,6 +27,7 @@ export function ShareTrackerDialog({
 }: Props) {
   const sendEmail = useServerFn(sendPortalLinkToClient);
   const [sending, setSending] = React.useState(false);
+  const [emailPrompted, setEmailPrompted] = React.useState(false);
 
   const url = React.useMemo(() => {
     const origin = typeof window !== "undefined" ? window.location.origin : "";
@@ -49,12 +50,24 @@ export function ShareTrackerDialog({
     try {
       const res = await sendEmail({ data: { shareToken } });
       toast.success(`ส่งอีเมลให้ ${res.sentTo} แล้ว`);
+      setEmailPrompted(true);
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "ส่งอีเมลไม่สำเร็จ");
     } finally {
       setSending(false);
     }
   }
+
+  React.useEffect(() => {
+    if (!open || !isNew || !hasQuotation || emailPrompted) return;
+    const t = window.setTimeout(() => {
+      toast("ส่งใบเสนอราคาให้ลูกค้าทางอีเมลได้เลย", {
+        description: "กดปุ่มด้านล่าง — ต้องมีอีเมลลูกค้าในใบเสนอราคาก่อน",
+        duration: 6000,
+      });
+    }, 400);
+    return () => window.clearTimeout(t);
+  }, [open, isNew, hasQuotation, emailPrompted]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

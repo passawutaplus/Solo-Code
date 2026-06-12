@@ -19,10 +19,12 @@ export interface SharedProjectStub {
   status: "draft" | "active" | "closed";
 }
 
-/** Feature flag — flip when Phase 2 UI ships. */
+/** Feature flag — use In-House workspace (replaces Shared Squad stub). */
 export function isSharedSquadEnabled(): boolean {
   return false;
 }
+
+export { isInhouseWorkspaceEnabled } from "@/lib/inhouseAccess";
 
 export function canAddCollaborator(
   model: SquadPricingModel,

@@ -1,5 +1,6 @@
 import * as React from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useNavigate } from "@tanstack/react-router";
 import { useAuth } from "@/auth/AuthProvider";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -10,6 +11,7 @@ import {
 import { FREELANCER_QS, CLIENT_QS, type Persona } from "./surveyShared";
 
 export function OnboardingFlow() {
+  const navigate = useNavigate();
   const { user, profile, refreshProfile, loading } = useAuth();
   const [step, setStep] = React.useState(0); // 0 = persona, 1..N = questions
   const [persona, setPersona] = React.useState<Persona | null>(null);
@@ -59,8 +61,9 @@ export function OnboardingFlow() {
       toast.error("บันทึกไม่สำเร็จ ลองใหม่อีกครั้ง");
       return;
     }
-    toast.success("ยินดีต้อนรับเข้าสู่ So1o Freelancer!");
+    toast.success("ยินดีต้อนรับ! ขั้นถัดไป: ตั้งค่าโปรไฟล์ร้านของคุณ");
     await refreshProfile();
+    navigate({ to: "/dashboard", search: { tab: "settings" }, replace: true });
   };
 
   const pickOption = (val: string) => {

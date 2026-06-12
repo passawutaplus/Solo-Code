@@ -112,3 +112,11 @@
 - [ ] วันที่/เวลาแสดงผล locale `th-TH`
 - [ ] เงินบาทมี `฿` หรือ `บาท`
 - [ ] ไม่มี English placeholder หลงเข้ามา
+
+## Microcopy (ดู [microcopy-style-guide.md](../../docs/microcopy-style-guide.md))
+
+- [ ] ไม่มี disclaimer ซ้ำในหน้าเดียว (เช่น tax alert + guide tip)
+- [ ] Demo banner ไม่ซ้ำกับ /research warning
+- [ ] Error page อ่านเข้าใจใน 3 วินาที (title + desc ไม่ทับกัน)
+- [ ] AI disclaimer ตรงกับ `src/lib/copyConstants.ts`
+- [ ] อีเมล auth ใช้ footer มาตรฐานจาก `copyConstants`

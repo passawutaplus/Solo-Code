@@ -6,7 +6,7 @@ import {
   fetchUrlAsInlinePart,
   geminiChatWithParts,
 } from "@/lib/geminiServer";
-import { assertAiCreditsAvailable, debitAiCredits } from "@/lib/aiCreditsServer";
+import { assertAiCreditsAvailable, debitAiCredits, refundAiCredits } from "@/lib/aiCreditsServer";
 
 const FEATURE = "ai_brief_extract";
 
@@ -62,39 +62,41 @@ export const aiBriefExtract = createServerFn({ method: "POST" })
 
     await assertAiCreditsAvailable(userId, FEATURE);
 
-    const intro = data.noteText.trim()
-      ? `ข้อความ Live Chat Note จากฟรีแลนซ์:\n"""\n${data.noteText.trim()}\n"""\n\n`
-      : "";
-    const userParts = [
-      {
-        text: `${intro}กรุณาวิเคราะห์${data.imageUrls.length > 0 ? "รูปแนบและ" : ""}สรุปเป็น JSON ตาม schema ที่กำหนด`,
-      },
-      ...(await Promise.all(data.imageUrls.map((url) => fetchUrlAsInlinePart(url)))),
-    ];
-
-    const content = await geminiChatWithParts({
-      model: defaultVisionModel(),
-      systemInstruction: SYSTEM_PROMPT,
-      userParts,
-      json: true,
-    });
-
-    let parsed: Record<string, unknown> = {};
-    try {
-      parsed = JSON.parse(content);
-    } catch {
-      throw new Error("AI ตอบกลับในรูปแบบไม่ถูกต้อง");
-    }
-
+    const idempotencyKey = `brief-extract:${userId}:${crypto.randomUUID()}`;
     const quota = await debitAiCredits({
       userId,
       feature: FEATURE,
-      idempotencyKey: crypto.randomUUID(),
+      idempotencyKey,
     });
     if (!quota.allowed) throw new Error("limit_reached");
 
-    const str = (v: unknown) => (typeof v === "string" ? v : "");
-    const obj = (v: unknown): Record<string, unknown> =>
+    try {
+      const intro = data.noteText.trim()
+        ? `ข้อความ Live Chat Note จากฟรีแลนซ์:\n"""\n${data.noteText.trim()}\n"""\n\n`
+        : "";
+      const userParts = [
+        {
+          text: `${intro}กรุณาวิเคราะห์${data.imageUrls.length > 0 ? "รูปแนบและ" : ""}สรุปเป็น JSON ตาม schema ที่กำหนด`,
+        },
+        ...(await Promise.all(data.imageUrls.map((url) => fetchUrlAsInlinePart(url, userId)))),
+      ];
+
+      const content = await geminiChatWithParts({
+        model: defaultVisionModel(),
+        systemInstruction: SYSTEM_PROMPT,
+        userParts,
+        json: true,
+      });
+
+      let parsed: Record<string, unknown> = {};
+      try {
+        parsed = JSON.parse(content);
+      } catch {
+        throw new Error("AI ตอบกลับในรูปแบบไม่ถูกต้อง");
+      }
+
+      const str = (v: unknown) => (typeof v === "string" ? v : "");
+      const obj = (v: unknown): Record<string, unknown> =>
       v && typeof v === "object" && !Array.isArray(v) ? (v as Record<string, unknown>) : {};
     const client = obj(parsed.client);
     const timeline = obj(parsed.timeline);
@@ -134,6 +136,14 @@ export const aiBriefExtract = createServerFn({ method: "POST" })
       budget: str(parsed.budget),
       note: str(parsed.note),
     };
+    } catch (e) {
+      await refundAiCredits({
+        userId,
+        originalIdempotencyKey: idempotencyKey,
+        refundIdempotencyKey: `${idempotencyKey}:refund`,
+      }).catch(() => undefined);
+      throw e;
+    }
   });
 
 export type AiBriefExtractResult = Awaited<ReturnType<typeof aiBriefExtract>>;

@@ -9,6 +9,10 @@ import {
   getGeminiApiKey,
   GeminiError,
 } from "../_shared/gemini.ts";
+import {
+  AI_DISCLAIMER_TAX_PRICE_PROMPT,
+  RULE_BREVITY_TH,
+} from "../_shared/copy-prompts.ts";
 
 const ALLOWED_ORIGINS = [
   "https://solofreelancer.com",
@@ -31,11 +35,11 @@ const GUEST_DAILY_LIMIT = 5;
 const MAX_CHARS = 500;
 
 const SYSTEM_PROMPT = `คุณคือ "So1o Mentor" พี่เลี้ยงฟรีแลนซ์ไทย เชี่ยวชาญดีไซน์ ราคาตลาด การคุยลูกค้า และภาษีฟรีแลนซ์
-- ตอบเป็นภาษาไทย กระชับ เป็นกันเอง ไม่เกิน 3-4 ย่อหน้าสั้น
+- ${RULE_BREVITY_TH}
 - ถ้าผู้ใช้ส่ง "[Price Guide ล่าสุด]" มาในข้อความ ให้นำตัวเลขนั้นมาอ้างอิงในคำแนะนำเสมอ และอธิบายว่ามาจากการประเมินใน Price Guide
 - ถ้าคำถามเรื่องราคา ให้แนะนำให้กดปุ่ม "ใช้คำตอบนี้กับราคาประเมิน" ใต้ข้อความเพื่อเปิดเครื่องคำนวณ
 - ห้ามบอกว่าตัวเองเป็น Gemini หรือ Google
-- คำแนะนำเรื่องราคา/ภาษี ต้องลงท้ายว่า "นี่เป็นคำแนะนำเบื้องต้น โปรดพิจารณาหน้างานจริงอีกครั้งนะครับ"`;
+- คำแนะนำเรื่องราคา/ภาษี ต้องลงท้ายว่า "${AI_DISCLAIMER_TAX_PRICE_PROMPT}"`;
 
 function jsonResp(req: Request, body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {

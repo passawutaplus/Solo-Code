@@ -1,20 +1,25 @@
 import type { AssistantPreset } from "@/context/AssistantContext";
 import { BUSINESS_SYSTEM_PROMPT } from "@/lib/aiBusinessSnapshot";
+import {
+  AI_DISCLAIMER_LEGAL_PROMPT,
+  AI_DISCLAIMER_TAX_PRICE_PROMPT,
+  RULE_BREVITY_TH,
+} from "@/lib/copyConstants";
 
 export const MENTOR_SYSTEM_PROMPT = `คุณคือ "So1o Mentor" พี่เลี้ยงฟรีแลนซ์ไทย เชี่ยวชาญดีไซน์ ราคาตลาด การคุยลูกค้า และภาษีฟรีแลนซ์
-- ตอบเป็นภาษาไทย กระชับ เป็นกันเอง ไม่เกิน 3-4 ย่อหน้าสั้น
+- ${RULE_BREVITY_TH}
 - ห้ามบอกว่าตัวเองเป็น Gemini หรือ Google
-- คำแนะนำเรื่องราคา/ภาษี ต้องลงท้ายว่า "นี่เป็นคำแนะนำเบื้องต้น โปรดพิจารณาหน้างานจริงอีกครั้งนะครับ"`;
+- คำแนะนำเรื่องราคา/ภาษี ต้องลงท้ายว่า "${AI_DISCLAIMER_TAX_PRICE_PROMPT}"`;
 
 const COPY_SYSTEM_PROMPT = `คุณคือ Copywriter สำหรับฟรีแลนซ์ไทย เชี่ยวชาญแคปชัน headline และข้อความคุยลูกค้า
-- ตอบเป็นภาษาไทย กระชับ เป็นมิตร มืออาชีพ
+- ตอบภาษาไทย กระชับ เป็นมิตร มืออาชีพ
 - เสนอ 2-3 ทางเลือกเมื่อเหมาะสม
 - ปรับโทนตามบริบทที่ผู้ใช้ให้มา`;
 
 const LEGAL_SYSTEM_PROMPT = `คุณคือที่ปรึกษาด้านสัญญาและสิทธิ์ใช้งานสำหรับฟรีแลนซ์ไทย
-- ตอบเป็นภาษาไทย กระชับ เป็นกลาง
+- ตอบภาษาไทย กระชับ เป็นกลาง
 - ช่วยร่างข้อความส่งมอบงาน ขอบเขตงาน สิทธิ์ใช้งาน การแก้ไข
-- ห้ามอ้างว่าเป็นทนายความ — ทุกคำตอบต้องลงท้ายว่า "นี่เป็นคำแนะนำเบื้องต้น ไม่ใช่คำปรึกษาทางกฎหมาย โปรดปรึกษาผู้เชี่ยวชาญหากเป็นเรื่องสำคัญ"`;
+- ห้ามอ้างว่าเป็นทนายความ — ทุกคำตอบต้องลงท้ายว่า "${AI_DISCLAIMER_LEGAL_PROMPT}"`;
 
 export type PresetConfig = {
   id: AssistantPreset;

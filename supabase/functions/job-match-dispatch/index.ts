@@ -6,6 +6,25 @@ import { z } from "npm:zod@3";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SERVICE_ROLE = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+const DISPATCH_SECRET =
+  Deno.env.get("JOB_MATCH_DISPATCH_SECRET") ?? Deno.env.get("ECOSYSTEM_SYNC_SECRET") ?? "";
+
+function timingSafeEqual(a: string, b: string): boolean {
+  if (a.length !== b.length) return false;
+  let mismatch = 0;
+  for (let i = 0; i < a.length; i++) mismatch |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  return mismatch === 0;
+}
+
+function authorizeInternal(req: Request): boolean {
+  if (!DISPATCH_SECRET) {
+    console.error("[job-match-dispatch] JOB_MATCH_DISPATCH_SECRET not configured");
+    return false;
+  }
+  const header = req.headers.get("x-internal-secret")?.trim();
+  if (!header) return false;
+  return timingSafeEqual(header, DISPATCH_SECRET);
+}
 
 const BodySchema = z.object({ job_id: z.string().uuid() });
 
@@ -73,6 +92,7 @@ const json = (b: unknown, status = 200) =>
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   if (req.method !== "POST") return json({ error: "method not allowed" }, 405);
+  if (!authorizeInternal(req)) return json({ error: "unauthorized" }, 401);
 
   let raw: unknown;
   try { raw = await req.json(); } catch { return json({ error: "invalid json" }, 400); }

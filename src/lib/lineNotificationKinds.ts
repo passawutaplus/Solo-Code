@@ -9,6 +9,10 @@ export type LineNotifyKind =
   | "anthem_hire"
   | "anthem_chat"
   | "anthem_job_match"
+  | "inhouse_invite"
+  | "inhouse_member_join"
+  | "inhouse_chat"
+  | "inhouse_task"
   | "support_ticket"
   | "billing";
 
@@ -23,6 +27,10 @@ export const DEFAULT_LINE_NOTIFY_PREFS: Record<LineNotifyKind, boolean> = {
   anthem_hire: true,
   anthem_chat: true,
   anthem_job_match: true,
+  inhouse_invite: true,
+  inhouse_member_join: true,
+  inhouse_chat: true,
+  inhouse_task: true,
   support_ticket: false,
   billing: false,
 };
@@ -52,32 +60,32 @@ export const LINE_NOTIFY_GROUPS: LineNotifyGroup[] = [
         key: "portal_slip",
         label: { th: "อัปโหลดสลิปชำระเงิน", en: "Payment slip uploaded" },
         hint: {
-          th: "ติดตามงาน — ลูกค้าส่งสลิปในลิงก์ติดตามงาน",
-          en: "Job Tracker — client uploads a slip on the tracking page",
+          th: "ลูกค้าส่งสลิปในลิงก์ติดตามงาน",
+          en: "Client uploads a slip on the tracking page",
         },
       },
       {
         key: "portal_tracker_comment",
         label: { th: "คอมเมนต์ในงาน", en: "Job step comment" },
         hint: {
-          th: "ติดตามงาน — ลูกค้าแสดงความคิดเห็นในขั้นตอนงาน",
-          en: "Job Tracker — client comments on a workflow step",
+          th: "ลูกค้าคอมเมนต์ในขั้นตอนงาน",
+          en: "Client comments on a workflow step",
         },
       },
       {
         key: "portal_brief",
         label: { th: "ยืนยันบรีฟงาน", en: "Brief confirmed" },
         hint: {
-          th: "บรีฟงาน — ลูกค้ากดยืนยันบรีฟครบถ้วน",
-          en: "Design Brief — client confirms the creative brief",
+          th: "ลูกค้ายืนยันบรีฟครบถ้วน",
+          en: "Client confirms the creative brief",
         },
       },
       {
         key: "portal_planner",
         label: { th: "อนุมัติ / ขอแก้คอนเทนต์", en: "Content approval" },
         hint: {
-          th: "วางแผนคอนเทนต์ — ลูกค้าอนุมัติหรือขอแก้โพสต์",
-          en: "Content Planner — client approves or requests changes",
+          th: "ลูกค้าอนุมัติหรือขอแก้โพสต์",
+          en: "Client approves or requests changes",
         },
       },
       {
@@ -101,7 +109,7 @@ export const LINE_NOTIFY_GROUPS: LineNotifyGroup[] = [
       {
         key: "anthem_hire",
         label: { th: "คำขอจ้างงานใหม่", en: "New hire request" },
-        hint: { th: "มีลูกค้าส่งคำขอจ้างจากผลงาน", en: "Someone requested to hire you" },
+        hint: { th: "จากผลงานในหน้าร้าน", en: "From your showcase project" },
       },
       {
         key: "anthem_chat",
@@ -112,6 +120,48 @@ export const LINE_NOTIFY_GROUPS: LineNotifyGroup[] = [
         key: "anthem_job_match",
         label: { th: "งานตรงสกิล", en: "Job match" },
         hint: { th: "ประกาศงานที่ตรงกับสกิลของคุณ", en: "Job board match for your skills" },
+      },
+    ],
+  },
+  {
+    id: "inhouse",
+    label: { th: "In-House Workspace", en: "In-House workspace" },
+    description: {
+      th: "คำเชิญทีม แชท และงานที่มอบหมายใน workspace",
+      en: "Team invites, workspace chat, and task assignments",
+    },
+    kinds: [
+      {
+        key: "inhouse_invite",
+        label: { th: "คำเชิญเข้าร่วมทีม", en: "Team invite" },
+        hint: {
+          th: "เมื่อ admin เชิญคุณเข้า org",
+          en: "When an admin invites you to an org",
+        },
+      },
+      {
+        key: "inhouse_member_join",
+        label: { th: "สมาชิกใหม่เข้าร่วม", en: "New member joined" },
+        hint: {
+          th: "เมื่อมีคนยอมรับคำเชิญของทีมคุณ",
+          en: "When someone accepts your team invite",
+        },
+      },
+      {
+        key: "inhouse_chat",
+        label: { th: "ข้อความใน workspace", en: "Workspace message" },
+        hint: {
+          th: "แชทในช่องของ workspace",
+          en: "Messages in workspace channels",
+        },
+      },
+      {
+        key: "inhouse_task",
+        label: { th: "มอบหมายงาน / due date", en: "Task assignment / due date" },
+        hint: {
+          th: "ถูก assign to-do หรือใกล้ครบกำหนด",
+          en: "Assigned a task or due today",
+        },
       },
     ],
   },

@@ -113,7 +113,8 @@ export const sendPaymentFollowUpEmail = createServerFn({ method: "POST" })
     await supabaseAdmin
       .from("quotations")
       .update({ last_followup_at: new Date().toISOString() })
-      .eq("id", q.id);
+      .eq("id", q.id)
+      .eq("user_id", userId);
 
     return { ok: true as const, sentTo: clientEmail };
   });

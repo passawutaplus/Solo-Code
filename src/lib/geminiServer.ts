@@ -83,6 +83,49 @@ export function mapGeminiError(err: unknown): Error {
   return new Error(`Gemini ไม่ตอบสนอง: ${msg.slice(0, 160)}`);
 }
 
+/** Block SSRF — only Supabase storage paths owned by the user. */
+export function assertSafeUserImageUrl(url: string, userId: string): void {
+  let parsed: URL;
+  try {
+    parsed = new URL(url);
+  } catch {
+    throw new Error("URL รูปไม่ถูกต้อง");
+  }
+  if (parsed.protocol !== "https:") {
+    throw new Error("รองรับเฉพาะ HTTPS");
+  }
+
+  const blockedHost =
+    /^(localhost|127\.0\.0\.1|0\.0\.0\.0|metadata\.google\.internal)$/i.test(parsed.hostname) ||
+    /\.(local|internal)$/i.test(parsed.hostname) ||
+    /^(10\.|192\.168\.|169\.254\.|172\.(1[6-9]|2\d|3[01])\.)/.test(parsed.hostname);
+
+  if (blockedHost) {
+    throw new Error("URL รูปไม่ได้รับอนุญาต");
+  }
+
+  const supabaseUrl = process.env.SUPABASE_URL;
+  if (!supabaseUrl) {
+    throw new Error("Server configuration error");
+  }
+
+  const base = new URL(supabaseUrl);
+  if (parsed.origin !== base.origin || !parsed.pathname.includes("/storage/v1/object/")) {
+    throw new Error("รองรับเฉพาะรูปจาก Supabase Storage ของบัญชีคุณ");
+  }
+
+  const objectPath = parsed.pathname.split("/object/")[1] ?? "";
+  const normalized = decodeURIComponent(objectPath).replace(/^\/+/, "");
+  const segments = normalized.split("/");
+  const pathInBucket =
+    segments[0] === "public" || segments[0] === "authenticated" || segments[0] === "sign"
+      ? segments.slice(2).join("/")
+      : segments.slice(1).join("/");
+  if (!pathInBucket.startsWith(`${userId}/`)) {
+    throw new Error("ไม่มีสิทธิ์เข้าถึงรูปนี้");
+  }
+}
+
 function buildGenerativeModel(
   apiKey: string,
   modelId: string,
@@ -155,7 +198,8 @@ export async function* geminiChatStream(options: {
   }
 }
 
-export async function fetchUrlAsInlinePart(url: string): Promise<Part> {
+export async function fetchUrlAsInlinePart(url: string, userId?: string): Promise<Part> {
+  if (userId) assertSafeUserImageUrl(url, userId);
   const res = await fetch(url);
   if (!res.ok) throw new Error(`โหลดรูปไม่สำเร็จ: ${url}`);
   const buf = Buffer.from(await res.arrayBuffer());

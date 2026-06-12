@@ -1,6 +1,7 @@
 // AI Price Suggest — Gemini reasoning + market band (with admin override + feedback weighting)
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 import { checkAiQuota, isProUser } from "../_shared/ai-quota.ts";
+import { AI_DISCLAIMER_TAX_PRICE_PROMPT } from "../_shared/copy-prompts.ts";
 import { defaultFastModel, geminiGenerateText, getGeminiApiKey } from "../_shared/gemini.ts";
 
 const ALLOWED_ORIGINS = [
@@ -23,7 +24,7 @@ const SYSTEM_PROMPT = `คุณคือ "So1o Mentor" พี่เลี้ย
 - ตอบสั้น กระชับ มั่นใจ สไตล์พี่สอนน้อง 2-3 บรรทัดเท่านั้น (ไม่เกิน 120 คำ)
 - อยู่ข้างฟรีแลนซ์เสมอ ช่วยให้กล้าตั้งราคาที่สมเหตุสมผล
 - อธิบายเหตุผลของราคาแนะนำ (เวลา + ความยาก + ตลาด)
-- ปิดท้ายด้วย "นี่เป็นเพียงคำแนะนำเบื้องต้น โปรดพิจารณาหน้างานจริงอีกครั้งนะครับ"
+- ปิดท้ายด้วย "${AI_DISCLAIMER_TAX_PRICE_PROMPT}"
 - ห้ามบอกชื่อโมเดล AI`;
 
 Deno.serve(async (req) => {
@@ -128,7 +129,7 @@ Deno.serve(async (req) => {
     }
 
     let reasoning =
-      "ราคานี้คำนวณจากเวลาทำงาน + ความยาก + ค่าเฉลี่ยตลาด เผื่อต่อนิดหน่อยให้ลูกค้าเลือกได้ครับ\nนี่เป็นเพียงคำแนะนำเบื้องต้น โปรดพิจารณาหน้างานจริงอีกครั้งนะครับ";
+      `ราคานี้คำนวณจากเวลาทำงาน + ความยาก + ค่าเฉลี่ยตลาด เผื่อต่อนิดหน่อยให้ลูกค้าเลือกได้ครับ\n${AI_DISCLAIMER_TAX_PRICE_PROMPT}`;
 
     if (geminiKey) {
       try {

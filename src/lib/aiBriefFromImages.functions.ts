@@ -6,7 +6,7 @@ import {
   fetchUrlAsInlinePart,
   geminiChatWithParts,
 } from "@/lib/geminiServer";
-import { assertAiCreditsAvailable, debitAiCredits } from "@/lib/aiCreditsServer";
+import { assertAiCreditsAvailable, debitAiCredits, refundAiCredits } from "@/lib/aiCreditsServer";
 
 const FEATURE = "ai_brief_from_images";
 
@@ -35,42 +35,52 @@ export const aiBriefFromImages = createServerFn({ method: "POST" })
     const { userId } = context;
     await assertAiCreditsAvailable(userId, FEATURE);
 
-    const userParts = [
-      {
-        text: `วิเคราะห์รูปอ้างอิงต่อไปนี้และสรุปเป็น JSON ตาม schema${data.hint ? `\nบริบทเพิ่มเติม: ${data.hint}` : ""}`,
-      },
-      ...(await Promise.all(data.imageUrls.map((url) => fetchUrlAsInlinePart(url)))),
-    ];
-
-    const content = await geminiChatWithParts({
-      model: defaultVisionModel(),
-      systemInstruction: SYSTEM_PROMPT,
-      userParts,
-      json: true,
-    });
-
-    let parsed: Record<string, unknown> = {};
-    try {
-      parsed = JSON.parse(content);
-    } catch {
-      throw new Error("AI ตอบกลับในรูปแบบไม่ถูกต้อง");
-    }
-
+    const idempotencyKey = `brief-images:${userId}:${crypto.randomUUID()}`;
     const quota = await debitAiCredits({
       userId,
       feature: FEATURE,
-      idempotencyKey: crypto.randomUUID(),
+      idempotencyKey,
     });
     if (!quota.allowed) throw new Error("limit_reached");
 
-    return {
-      project_type: typeof parsed.project_type === "string" ? parsed.project_type : "",
-      moods: Array.isArray(parsed.moods) ? parsed.moods.filter((x): x is string => typeof x === "string").slice(0, 6) : [],
-      liked_color_chips: Array.isArray(parsed.liked_color_chips)
-        ? parsed.liked_color_chips.filter((x): x is string => typeof x === "string" && /^#[0-9a-fA-F]{6}$/.test(x)).slice(0, 8)
-        : [],
-      liked_colors: typeof parsed.liked_colors === "string" ? parsed.liked_colors : "",
-      inspiration: typeof parsed.inspiration === "string" ? parsed.inspiration : "",
-      key_takeaways: typeof parsed.key_takeaways === "string" ? parsed.key_takeaways : "",
-    };
+    try {
+      const userParts = [
+        {
+          text: `วิเคราะห์รูปอ้างอิงต่อไปนี้และสรุปเป็น JSON ตาม schema${data.hint ? `\nบริบทเพิ่มเติม: ${data.hint}` : ""}`,
+        },
+        ...(await Promise.all(data.imageUrls.map((url) => fetchUrlAsInlinePart(url, userId)))),
+      ];
+
+      const content = await geminiChatWithParts({
+        model: defaultVisionModel(),
+        systemInstruction: SYSTEM_PROMPT,
+        userParts,
+        json: true,
+      });
+
+      let parsed: Record<string, unknown> = {};
+      try {
+        parsed = JSON.parse(content);
+      } catch {
+        throw new Error("AI ตอบกลับในรูปแบบไม่ถูกต้อง");
+      }
+
+      return {
+        project_type: typeof parsed.project_type === "string" ? parsed.project_type : "",
+        moods: Array.isArray(parsed.moods) ? parsed.moods.filter((x): x is string => typeof x === "string").slice(0, 6) : [],
+        liked_color_chips: Array.isArray(parsed.liked_color_chips)
+          ? parsed.liked_color_chips.filter((x): x is string => typeof x === "string" && /^#[0-9a-fA-F]{6}$/.test(x)).slice(0, 8)
+          : [],
+        liked_colors: typeof parsed.liked_colors === "string" ? parsed.liked_colors : "",
+        inspiration: typeof parsed.inspiration === "string" ? parsed.inspiration : "",
+        key_takeaways: typeof parsed.key_takeaways === "string" ? parsed.key_takeaways : "",
+      };
+    } catch (e) {
+      await refundAiCredits({
+        userId,
+        originalIdempotencyKey: idempotencyKey,
+        refundIdempotencyKey: `${idempotencyKey}:refund`,
+      }).catch(() => undefined);
+      throw e;
+    }
   });

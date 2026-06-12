@@ -12,6 +12,21 @@ async function assertAdmin(supabase: any, userId: string) {
   if (!data) throw new Error("Forbidden: admin only");
 }
 
+async function assertConversationOwner(
+  supabase: { from: (table: string) => any },
+  userId: string,
+  conversationId: string,
+) {
+  const { data, error } = await supabase
+    .from("hq_conversations")
+    .select("id")
+    .eq("id", conversationId)
+    .eq("user_id", userId)
+    .maybeSingle();
+  if (error) throw new Error(error.message);
+  if (!data) throw new Error("ไม่พบบทสนทนานี้");
+}
+
 // -------- list agents --------
 export const listAgents = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
@@ -85,6 +100,7 @@ export const listMessages = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context as { supabase: any; userId: string };
     await assertAdmin(supabase, userId);
+    await assertConversationOwner(supabase, userId, data.conversationId);
     const { data: rows, error } = await supabase
       .from("hq_messages")
       .select("id,role,content,agent_slug,tokens_used,created_at")
@@ -136,10 +152,12 @@ export const chatWithAgent = createServerFn({ method: "POST" })
       if (convErr) throw new Error(convErr.message);
       conversationId = conv.id;
     } else {
+      await assertConversationOwner(supabase, userId, conversationId);
       await supabase
         .from("hq_conversations")
         .update({ updated_at: new Date().toISOString() })
-        .eq("id", conversationId);
+        .eq("id", conversationId)
+        .eq("user_id", userId);
     }
 
     // Load recent history

@@ -18,6 +18,8 @@ import { StorageUsageSection } from "@/components/dashboard/settings/StorageUsag
 import { LineNotificationSection } from "@/components/dashboard/settings/LineNotificationSection";
 import { SettingsQuickLinksSection } from "@/components/dashboard/settings/SettingsQuickLinksSection";
 import { DisplayThemeSection } from "@/components/dashboard/settings/DisplayThemeSection";
+import { BillingSettingsSection } from "@/components/dashboard/settings/BillingSettingsSection";
+import { TierMembershipCard } from "@/components/tier/TierMembershipCard";
 
 const CURRENCIES = [
   { value: "THB", label: "฿ (THB)" },
@@ -199,6 +201,8 @@ export function SettingsTab() {
 
   return (
     <div className="space-y-4 pb-24 lg:pb-4">
+      <TierMembershipCard />
+      <BillingSettingsSection />
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
         <AiUsageSettingsSection />
         <StorageUsageSection />

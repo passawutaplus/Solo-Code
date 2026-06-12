@@ -10,6 +10,10 @@ type LineNotifyKind =
   | "anthem_hire"
   | "anthem_chat"
   | "anthem_job_match"
+  | "inhouse_invite"
+  | "inhouse_member_join"
+  | "inhouse_chat"
+  | "inhouse_task"
   | "support_ticket"
   | "billing";
 

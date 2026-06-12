@@ -12,11 +12,11 @@ export const exportUserData = createServerFn({ method: "GET" })
 
     const [profile, clients, quotations, jobs, expenses, incomes] = await Promise.all([
       supabase.from("profiles").select("*").eq("user_id", userId).maybeSingle(),
-      supabase.from("clients").select("*"),
-      supabase.from("quotations").select("*"),
-      supabase.from("job_trackers").select("*"),
-      supabase.from("finance_expenses").select("*"),
-      supabase.from("finance_incomes").select("*"),
+      supabase.from("saved_clients").select("*").eq("user_id", userId),
+      supabase.from("quotations").select("*").eq("user_id", userId),
+      supabase.from("job_trackers").select("*").eq("user_id", userId),
+      supabase.from("finance_expenses").select("*").eq("user_id", userId),
+      supabase.from("finance_incomes").select("*").eq("user_id", userId),
     ]);
 
     return {
@@ -28,7 +28,7 @@ export const exportUserData = createServerFn({ method: "GET" })
       job_trackers: jobs.data ?? [],
       finance_expenses: expenses.data ?? [],
       finance_incomes: incomes.data ?? [],
-      errors: [clients.error, quotations.error, jobs.error, expenses.error, incomes.error]
+      errors: [profile.error, clients.error, quotations.error, jobs.error, expenses.error, incomes.error]
         .filter(Boolean)
         .map((e) => e!.message),
     };

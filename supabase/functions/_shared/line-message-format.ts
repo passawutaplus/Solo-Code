@@ -7,6 +7,10 @@ type LineNotifyKind =
   | "anthem_hire"
   | "anthem_chat"
   | "anthem_job_match"
+  | "inhouse_invite"
+  | "inhouse_member_join"
+  | "inhouse_chat"
+  | "inhouse_task"
   | "support_ticket"
   | "billing";
 
@@ -70,6 +74,30 @@ const LINE_KIND_COPY: Record<LineNotifyKind, KindCopy> = {
     cta: "ไปดูงานแล้วลุยต่อเลยย",
     path: "/jobs",
     app: "anthem",
+  },
+  inhouse_invite: {
+    hook: "มีคำเชิญเข้าร่วมทีม!!",
+    cta: "ไปดูคำเชิญกันเล้ยย",
+    path: "/inhouse",
+    app: "solo",
+  },
+  inhouse_member_join: {
+    hook: "มีสมาชิกใหม่เข้าร่วมทีม!!",
+    cta: "ไปดูทีมกันต่อเล้ยย",
+    path: "/inhouse",
+    app: "solo",
+  },
+  inhouse_chat: {
+    hook: "มีข้อความใหม่ใน workspace!!",
+    cta: "ไปตอบแชทกันต่อเล้ยย",
+    path: "/inhouse",
+    app: "solo",
+  },
+  inhouse_task: {
+    hook: "มีงานมอบหมายให้คุณ!!",
+    cta: "ไปดูงานกันต่อเล้ยย",
+    path: "/inhouse",
+    app: "solo",
   },
   support_ticket: {
     hook: "อัปเดตตั๋วช่วยเหลือแล้ว",

@@ -1,23 +1,38 @@
+import * as React from "react";
 import { ExternalLink, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { ANTHEM_SHOWCASE_URL } from "@/lib/productLinks";
+import { anthemPortfolioNewUrl, trackCrossLink } from "@/lib/crossLink";
 
 type Props = {
+  jobId?: string;
   jobTitle: string;
   clientName?: string | null;
 };
 
-/** Phase 4 stub — deep-link to Anthem project editor with prefill (title only for now). */
-export function PostToAnthemBanner({ jobTitle, clientName }: Props) {
-  const anthemBase = ANTHEM_SHOWCASE_URL.replace(/\/$/, "");
-  const params = new URLSearchParams({
-    from: "so1o",
-    title: jobTitle.slice(0, 120),
-  });
-  if (clientName?.trim()) {
-    params.set("client", clientName.trim().slice(0, 80));
-  }
-  const href = `${anthemBase}/portfolio/new?${params.toString()}`;
+/** Deep-link to Anthem project editor with prefill + ecosystem_links tracking. */
+export function PostToAnthemBanner({ jobId, jobTitle, clientName }: Props) {
+  const [href, setHref] = React.useState(() =>
+    anthemPortfolioNewUrl({ jobTitle, clientName, jobId }),
+  );
+
+  React.useEffect(() => {
+    let cancelled = false;
+    void trackCrossLink({
+      source: "job_tracker_post_anthem",
+      refId: jobId,
+      meta: { job_title: jobTitle.slice(0, 80) },
+    }).then((linkId) => {
+      if (cancelled) return;
+      setHref(anthemPortfolioNewUrl({ jobTitle, clientName, jobId, linkId }));
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [jobId, jobTitle, clientName]);
+
+  const openAnthem = () => {
+    window.open(href, "_blank", "noopener,noreferrer");
+  };
 
   return (
     <div className="rounded-xl border border-primary/25 bg-primary/5 px-4 py-3 flex flex-col sm:flex-row sm:items-center gap-3">
@@ -30,11 +45,15 @@ export function PostToAnthemBanner({ jobTitle, clientName }: Props) {
           </p>
         </div>
       </div>
-      <Button asChild size="sm" variant="outline" className="shrink-0 gap-1.5 border-primary/30">
-        <a href={href} target="_blank" rel="noopener noreferrer">
-          โพสต์ผลงาน
-          <ExternalLink className="h-3.5 w-3.5" />
-        </a>
+      <Button
+        type="button"
+        size="sm"
+        variant="outline"
+        className="shrink-0 gap-1.5 border-primary/30"
+        onClick={openAnthem}
+      >
+        โพสต์ผลงาน
+        <ExternalLink className="h-3.5 w-3.5" />
       </Button>
     </div>
   );

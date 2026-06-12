@@ -8,6 +8,8 @@ import { useAuth } from "@/auth/AuthProvider";
 import { supabase } from "@/integrations/supabase/client";
 import { pickLocale, type UserLocale } from "@/lib/lineNotificationKinds";
 import { toast } from "sonner";
+import { SubscriptionUpgradeBlock } from "@/components/dashboard/settings/SubscriptionUpgradeBlock";
+import { SubscriptionDowngradeBlock } from "@/components/dashboard/settings/SubscriptionDowngradeBlock";
 
 export function DisplayThemeSection() {
   const { theme, setTheme } = useTheme();
@@ -99,6 +101,9 @@ export function DisplayThemeSection() {
 
           {savingLocale && <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" />}
         </div>
+
+        <SubscriptionUpgradeBlock />
+        <SubscriptionDowngradeBlock />
       </CardContent>
     </Card>
   );

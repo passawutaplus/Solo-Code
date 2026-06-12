@@ -1,17 +1,11 @@
 import * as React from "react";
+import { useRouterState } from "@tanstack/react-router";
 import { FloatingChat } from "@/components/FloatingChat";
 import { useAssistant } from "@/context/AssistantContext";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { DASH_MOBILE_NAV_SPACER_PX } from "@/lib/layoutConstants";
-import { cn } from "@/lib/utils";
 
-type DockPos = { x: number; y: number };
-
-const STORAGE_KEY = "so1o:fab-dock-pos:v1";
-const DOCK_WIDTH = 48;
-const DOCK_HEIGHT = 48;
 const MARGIN = 12;
-const DRAG_THRESHOLD = 5;
 
 function useModalOpen() {
   const [open, setOpen] = React.useState(false);
@@ -27,164 +21,33 @@ function useModalOpen() {
   return open;
 }
 
-function loadPos(): DockPos | null {
-  if (typeof window === "undefined") return null;
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return null;
-    const p = JSON.parse(raw);
-    if (typeof p?.x === "number" && typeof p?.y === "number") return p;
-  } catch {
-    /* noop */
-  }
-  return null;
-}
-
-function defaultPos(rightInset: number): DockPos {
-  if (typeof window === "undefined") return { x: 0, y: 0 };
-  const w = window.innerWidth;
-  const h = window.innerHeight;
-  const bottomOffset =
-    typeof window !== "undefined" && window.innerWidth < 768
-      ? DASH_MOBILE_NAV_SPACER_PX + 48
-      : 24;
-  return {
-    x: w - DOCK_WIDTH - rightInset,
-    y: h - DOCK_HEIGHT - bottomOffset,
-  };
-}
-
-function clampPos(p: DockPos, rightInset: number): DockPos {
-  if (typeof window === "undefined") return p;
-  const w = window.innerWidth;
-  const h = window.innerHeight;
-  return {
-    x: Math.max(MARGIN, Math.min(p.x, w - DOCK_WIDTH - rightInset)),
-    y: Math.max(MARGIN, Math.min(p.y, h - DOCK_HEIGHT - MARGIN)),
-  };
-}
-
-function snapToEdge(p: DockPos, rightInset: number): DockPos {
-  if (typeof window === "undefined") return p;
-  const w = window.innerWidth;
-  const maxX = w - DOCK_WIDTH - rightInset;
-  const distLeft = p.x - MARGIN;
-  const distRight = maxX - p.x;
-  const snappedX = distLeft < distRight ? MARGIN : maxX;
-  return clampPos({ x: snappedX, y: p.y }, rightInset);
-}
-
+/** AI chat FAB — pinned to bottom-right (above mobile dashboard nav when applicable). */
 export function DraggableFabDock() {
   const modalOpen = useModalOpen();
   const { view, sidebarWidth } = useAssistant();
   const isMobile = useIsMobile();
-  const rightInset = view === "sidebar" && !isMobile ? sidebarWidth + MARGIN : MARGIN;
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const isDashboard = pathname.startsWith("/dashboard");
 
-  const [pos, setPos] = React.useState<DockPos>(() =>
-    clampPos(loadPos() ?? defaultPos(MARGIN), MARGIN),
-  );
-  const [dragging, setDragging] = React.useState(false);
-  const skipClickRef = React.useRef(false);
-  const dragState = React.useRef<{
-    startX: number;
-    startY: number;
-    origX: number;
-    origY: number;
-    moved: boolean;
-    pointerId: number;
-  } | null>(null);
-
-  React.useEffect(() => {
-    setPos((p) => clampPos(p, rightInset));
-  }, [rightInset]);
-
-  React.useEffect(() => {
-    const onResize = () => setPos((p) => clampPos(p, rightInset));
-    window.addEventListener("resize", onResize);
-    window.addEventListener("orientationchange", onResize);
-    return () => {
-      window.removeEventListener("resize", onResize);
-      window.removeEventListener("orientationchange", onResize);
-    };
-  }, [rightInset]);
-
-  const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (e.button !== 0 && e.pointerType === "mouse") return;
-    skipClickRef.current = false;
-    dragState.current = {
-      startX: e.clientX,
-      startY: e.clientY,
-      origX: pos.x,
-      origY: pos.y,
-      moved: false,
-      pointerId: e.pointerId,
-    };
-  };
-
-  const onPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
-    const s = dragState.current;
-    if (!s || s.pointerId !== e.pointerId) return;
-    const dx = e.clientX - s.startX;
-    const dy = e.clientY - s.startY;
-    if (!s.moved && Math.hypot(dx, dy) < DRAG_THRESHOLD) return;
-    if (!s.moved) {
-      s.moved = true;
-      setDragging(true);
-      (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
-    }
-    setPos(clampPos({ x: s.origX + dx, y: s.origY + dy }, rightInset));
-  };
-
-  const onPointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
-    const s = dragState.current;
-    if (!s || s.pointerId !== e.pointerId) return;
-    try {
-      (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
-    } catch {
-      /* noop */
-    }
-    if (s.moved) {
-      skipClickRef.current = true;
-      const snapped = snapToEdge(pos, rightInset);
-      setPos(snapped);
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(snapped));
-      } catch {
-        /* noop */
-      }
-    }
-    dragState.current = null;
-    setTimeout(() => setDragging(false), 0);
-  };
+  const rightOffset =
+    view === "sidebar" && !isMobile ? sidebarWidth + MARGIN : MARGIN;
+  const bottomOffset =
+    isMobile && isDashboard ? DASH_MOBILE_NAV_SPACER_PX + MARGIN : 24;
 
   return (
     <div
       aria-hidden={modalOpen ? true : undefined}
       className="fixed z-[60] touch-none select-none"
       style={{
-        left: 0,
-        top: 0,
-        transform: `translate3d(${pos.x}px, ${pos.y}px, 0) scale(${modalOpen ? 0.85 : 1})`,
-        transition: dragging ? "none" : "transform 0.25s cubic-bezier(0.2, 0.9, 0.3, 1), opacity 0.2s ease",
-        willChange: "transform",
+        right: rightOffset,
+        bottom: `calc(${bottomOffset}px + env(safe-area-inset-bottom, 0px))`,
+        transition: "right 0.25s cubic-bezier(0.2, 0.9, 0.3, 1), opacity 0.2s ease, transform 0.25s ease",
         opacity: modalOpen ? 0 : 1,
+        transform: modalOpen ? "scale(0.85)" : "scale(1)",
         pointerEvents: modalOpen ? "none" : "auto",
       }}
     >
-      <div
-        onPointerDown={onPointerDown}
-        onPointerMove={onPointerMove}
-        onPointerUp={onPointerUp}
-        onPointerCancel={onPointerUp}
-        className={cn(
-          "cursor-grab active:cursor-grabbing",
-          dragging && "cursor-grabbing",
-        )}
-        aria-label="ลากเพื่อย้าย AI Chat"
-        title="ลากเพื่อย้าย · คลิกเพื่อเปิดแชท"
-      >
-        <FloatingChat inline skipClickRef={skipClickRef} />
-      </div>
+      <FloatingChat inline />
     </div>
   );
 }

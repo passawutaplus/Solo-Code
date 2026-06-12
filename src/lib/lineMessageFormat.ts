@@ -64,6 +64,30 @@ const LINE_KIND_COPY: Record<LineNotifyKind, KindCopy> = {
     path: "/jobs",
     app: "anthem",
   },
+  inhouse_invite: {
+    hook: "มีคำเชิญเข้าร่วมทีม!!",
+    cta: "ไปดูคำเชิญกันเล้ยย",
+    path: "/inhouse",
+    app: "solo",
+  },
+  inhouse_member_join: {
+    hook: "มีสมาชิกใหม่เข้าร่วมทีม!!",
+    cta: "ไปดูทีมกันต่อเล้ยย",
+    path: "/inhouse",
+    app: "solo",
+  },
+  inhouse_chat: {
+    hook: "มีข้อความใหม่ใน workspace!!",
+    cta: "ไปตอบแชทกันต่อเล้ยย",
+    path: "/inhouse",
+    app: "solo",
+  },
+  inhouse_task: {
+    hook: "มีงานมอบหมายให้คุณ!!",
+    cta: "ไปดูงานกันต่อเล้ยย",
+    path: "/inhouse",
+    app: "solo",
+  },
   support_ticket: {
     hook: "อัปเดตตั๋วช่วยเหลือแล้ว",
     cta: "ไปเช็กสถานะกันต่อเล้ยย",

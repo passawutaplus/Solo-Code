@@ -8,10 +8,9 @@ import {
   getGeminiApiKey,
   normalizeGeminiModel,
 } from "../_shared/gemini.ts";
-import { debitAiQuota, getAiUsageSummary } from "../_shared/ai-quota.ts";
+import { debitAiQuota } from "../_shared/ai-quota.ts";
 
 const CONTRACT_FEATURE = "generate_contract";
-const CONTRACT_COST = 8;
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -96,9 +95,10 @@ Deno.serve(async (req) => {
   if (!parsed.success) return json({ error: parsed.error.flatten().fieldErrors }, 400);
 
   const userId = claims.claims.sub as string;
-  const summary = await getAiUsageSummary(userId);
-  if ((summary.total_remaining ?? 0) < CONTRACT_COST) {
-    return json({ error: "limit_reached", ...summary }, 429);
+  const idempotencyKey = crypto.randomUUID();
+  const quota = await debitAiQuota(userId, CONTRACT_FEATURE, idempotencyKey);
+  if (!quota.allowed) {
+    return json({ error: "limit_reached", ...quota }, 429);
   }
 
   try {
@@ -110,11 +110,6 @@ Deno.serve(async (req) => {
       ],
       temperature: 0.3,
     });
-
-    const quota = await debitAiQuota(userId, CONTRACT_FEATURE, crypto.randomUUID());
-    if (!quota.allowed) {
-      return json({ error: "limit_reached", ...quota }, 429);
-    }
 
     return json({ draft });
   } catch (e) {

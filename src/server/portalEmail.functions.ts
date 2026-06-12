@@ -111,12 +111,16 @@ export const acceptQuotationByToken = createServerFn({ method: "POST" })
       throw new Error("ใบเสนอราคานี้ไม่สามารถยอมรับได้ในสถานะปัจจุบัน");
     }
 
-    const { error: updErr } = await supabaseAdmin
+    const { data: updated, error: updErr } = await supabaseAdmin
       .from("quotations")
       .update({ status: "pending_payment" })
-      .eq("id", q.id);
+      .eq("id", q.id)
+      .in("status", allowed)
+      .select("id")
+      .maybeSingle();
 
     if (updErr) throw new Error(updErr.message);
+    if (!updated) throw new Error("ใบเสนอราคานี้ไม่สามารถยอมรับได้ในสถานะปัจจุบัน");
 
     const clientLabel = data.clientName.trim() || job.client_name || "ลูกค้า";
     await supabaseAdmin.from("notifications").insert({

@@ -76,6 +76,9 @@ function FullFooter({ className }: { className?: string }) {
           <div>
             <h3 className="text-xs font-semibold mb-3 uppercase tracking-wider">แหล่งความรู้</h3>
             <ul className="space-y-2 text-xs text-muted-foreground">
+              <li><Link to="/help" className="hover:text-primary transition-colors">ศูนย์ช่วยเหลือ</Link></li>
+              <li><Link to="/help/getting-started" className="hover:text-primary transition-colors">เริ่มต้นใช้งาน</Link></li>
+              <li><Link to="/help/tax" className="hover:text-primary transition-colors">คู่มือภาษี</Link></li>
               <li><Link to="/blog" className="hover:text-primary transition-colors">Blog</Link></li>
               <li><Link to="/creative-partner" className="hover:text-primary transition-colors">Creative Partner</Link></li>
               <li><Link to="/apply" className="hover:text-primary transition-colors">สมัครเข้าใช้</Link></li>
