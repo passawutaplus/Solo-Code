@@ -39,7 +39,7 @@ RUN apt-get update \
   && apt-get install -y --no-install-recommends ca-certificates \
   && rm -rf /var/lib/apt/lists/*
 
-COPY package.json package-lock.json ./
+COPY package.json package-lock.json .npmrc ./
 # srvx is used by scripts/docker-serve.mjs (transitive in dev; install explicitly for prod)
 RUN npm ci --omit=dev && npm install srvx@0.11.13 --omit=dev --no-save
 
