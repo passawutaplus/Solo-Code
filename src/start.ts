@@ -36,6 +36,7 @@ const CSP_DIRECTIVES = [
   `form-action 'self'`,
   `frame-ancestors 'self' ${EXTRA_FRAME_ANCESTORS}`.replace(/\s+/g, " ").trim(),
   `frame-src 'self' https://www.youtube.com https://player.vimeo.com https://accounts.google.com`,
+  `report-uri /api/public/csp-report`,
   `upgrade-insecure-requests`,
 ].join("; ");
 

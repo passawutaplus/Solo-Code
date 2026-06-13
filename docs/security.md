@@ -18,7 +18,7 @@ So1o is a freelancer management SaaS for Thai designers. Users sign up to manage
 
 1. **Browser → PostgREST (Supabase Data API)** — guarded by RLS. Publishable key only.
 2. **Browser → TanStack Server Function** — bearer token attached automatically; server fn validates with `requireSupabaseAuth`.
-3. **External service → `/api/public/*` server route** — guarded by signature verification (webhooks) or rate limiting (cron).
+3. **External service → `/api/public/*` server route** — guarded by signature verification (webhooks) or Bearer `CRON_SECRET` (cron).
 4. **TanStack Server → `supabaseAdmin`** — service role; bypasses RLS. Only after a trust check.
 
 ## Sensitive data inventory
@@ -64,12 +64,17 @@ So1o is a freelancer management SaaS for Thai designers. Users sign up to manage
 | DB | RLS on every user-data table; `has_role` SECURITY DEFINER for admin checks |
 | Code | ESLint `no-restricted-imports` guard prevents components bypassing feature hooks |
 | Build | `service_role` grep guard before publish |
-| Runtime | CSP Report-Only listener → identify violations before tightening |
+| Runtime | CSP Report-Only listener → identify violations before tightening; `/api/public/csp-report` stores violations |
 
 ## Known accepted risks
 
 - **Local-first sketches:** Some UI scratchpads (`dashboard_notes` local cache, palette drafts) persist in `localStorage`. Data is per-device; loss on browser clear is acceptable.
 - **Realtime fanout cost:** Channels are per-user-uuid; subscription cost grows linearly with active users. Acceptable at current scale.
+- **Cron migration:** `authorizeCronBearer` accepts `CRON_SECRET` or legacy service role key until schedulers are updated.
+
+## Production checklist
+
+See [`production-security-checklist.md`](./production-security-checklist.md)
 
 ## Out of scope for pentest
 

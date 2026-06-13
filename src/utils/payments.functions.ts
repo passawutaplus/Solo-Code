@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { getStripeErrorMessage } from "@/lib/stripe.server";
+import { assertAllowedPaymentRedirectUrl } from "@/lib/paymentsApiValidation";
 import {
   createCheckoutSessionForUser,
   createConnectOnboardingLinkForUser,
@@ -80,9 +81,10 @@ export const createPortalSession = createServerFn({ method: "POST" })
       }
 
       const stripe = createStripeClient(data.environment);
+      const returnUrl = assertAllowedPaymentRedirectUrl(data.returnUrl);
       const portal = await stripe.billingPortal.sessions.create({
         customer: sub.stripe_customer_id,
-        return_url: data.returnUrl,
+        return_url: returnUrl,
       });
       return { url: portal.url };
     } catch (error) {

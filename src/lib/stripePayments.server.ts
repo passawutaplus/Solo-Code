@@ -23,6 +23,7 @@ import {
   type SubscriptionDowngradeState,
   type UpgradeTargetTier,
 } from "@/lib/subscriptionTiers";
+import { assertAllowedPaymentRedirectUrl, paymentApiCorsHeaders } from "@/lib/paymentsApiValidation";
 import type Stripe from "stripe";
 
 function getServiceSupabase() {
@@ -140,6 +141,8 @@ export async function createCheckoutSessionForUser(opts: {
     const oneTime = isOneTimePrice(opts.priceId);
     const kind = checkoutKind(opts.priceId);
     const quantity = clampCheckoutQuantity(opts.quantity);
+    const successUrl = assertAllowedPaymentRedirectUrl(opts.successUrl);
+    const cancelUrl = assertAllowedPaymentRedirectUrl(opts.cancelUrl);
 
     const session = await stripe.checkout.sessions.create({
       mode: oneTime ? "payment" : "subscription",
@@ -148,8 +151,8 @@ export async function createCheckoutSessionForUser(opts: {
       allow_promotion_codes: true,
       ...(opts.environment === "live" ? { automatic_tax: { enabled: true } } : {}),
       customer_update: { address: "auto", name: "auto" },
-      success_url: opts.successUrl,
-      cancel_url: opts.cancelUrl,
+      success_url: successUrl,
+      cancel_url: cancelUrl,
       client_reference_id: opts.userId,
       metadata: {
         userId: opts.userId,
@@ -328,6 +331,9 @@ export async function createConnectOnboardingLinkForUser(opts: {
     const stripe = createStripeClient(opts.environment);
     const sb = getServiceSupabase();
 
+    const returnUrl = assertAllowedPaymentRedirectUrl(opts.returnUrl);
+    const refreshUrl = assertAllowedPaymentRedirectUrl(opts.refreshUrl);
+
     let accountId = await getConnectAccountIdForEnv(sb, opts.userId, opts.environment);
 
     if (!accountId) {
@@ -352,8 +358,8 @@ export async function createConnectOnboardingLinkForUser(opts: {
 
     const link = await stripe.accountLinks.create({
       account: accountId,
-      refresh_url: opts.refreshUrl,
-      return_url: opts.returnUrl,
+      refresh_url: refreshUrl,
+      return_url: returnUrl,
       type: "account_onboarding",
     });
 
@@ -474,14 +480,13 @@ export async function authenticateBearerToken(
   return { userId: data.user.id, email: data.user.email ?? undefined };
 }
 
-export const PAYMENTS_CORS_HEADERS: Record<string, string> = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, content-type",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-};
+export function paymentsJsonResponse(request: Request, data: unknown, status = 200): Response {
+  return Response.json(data, { status, headers: paymentApiCorsHeaders(request) });
+}
 
-export function paymentsJsonResponse(data: unknown, status = 200): Response {
-  return Response.json(data, { status, headers: PAYMENTS_CORS_HEADERS });
+/** @deprecated Use paymentApiCorsHeaders(request) — kept for OPTIONS handlers */
+export function paymentsCorsPreflightHeaders(request: Request): Record<string, string> {
+  return paymentApiCorsHeaders(request);
 }
 
 export type { PendingTierChange, SubscriptionDowngradeState } from "@/lib/subscriptionTiers";

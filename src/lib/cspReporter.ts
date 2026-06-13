@@ -17,18 +17,27 @@ export function installCspReporter() {
   installed = true;
 
   window.addEventListener("securitypolicyviolation", (e) => {
-    // SecurityPolicyViolationEvent — see https://w3c.github.io/webappsec-csp/
-    // Avoid logging too much (PII) — just enough to act on
-    // eslint-disable-next-line no-console
-    console.warn("[CSP]", {
+    const payload = {
       blockedURI: e.blockedURI,
       violatedDirective: e.violatedDirective,
       effectiveDirective: e.effectiveDirective,
       sourceFile: e.sourceFile,
       lineNumber: e.lineNumber,
       columnNumber: e.columnNumber,
-      disposition: e.disposition, // "enforce" | "report"
-      sample: e.sample, // first 40 chars of blocked content (if any)
-    });
+      disposition: e.disposition,
+    };
+    // eslint-disable-next-line no-console
+    console.warn("[CSP]", payload);
+
+    try {
+      void fetch("/api/public/csp-report", {
+        method: "POST",
+        headers: { "Content-Type": "application/csp-report" },
+        body: JSON.stringify(payload),
+        keepalive: true,
+      });
+    } catch {
+      /* ignore network errors */
+    }
   });
 }

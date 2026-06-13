@@ -1,6 +1,7 @@
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { notifyFreelancer, getFreelancerDisplayName } from "@/server/emailNotify.server";
 import { canonicalUrl } from "@/lib/siteUrl";
+import { throwClientError } from "@/lib/security";
 
 function dateKey(d: Date): string {
   return d.toISOString().slice(0, 10);
@@ -48,7 +49,7 @@ export async function runDeadlineReminders(): Promise<{ sent: number; skipped: n
     .lte("deadline", to)
     .neq("status", "completed");
 
-  if (error) throw new Error(error.message);
+  if (error) throwClientError("deadlineReminders.load", error);
 
   let sent = 0;
   let skipped = 0;

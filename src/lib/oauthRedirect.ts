@@ -1,3 +1,7 @@
+import { safeRelativePath } from "./safeUrl";
+
+export { safeRelativePath };
+
 /** Post-OAuth destination stored before IdP redirect (survives cross-site return). */
 const STORAGE_KEY = "ecosystem_oauth_redirect";
 
@@ -6,11 +10,6 @@ export function getAppOrigin(): string {
   const configured = import.meta.env.VITE_SITE_URL as string | undefined;
   if (configured?.trim()) return configured.trim().replace(/\/$/, "");
   return window.location.origin;
-}
-
-export function safeRelativePath(raw?: string | null, fallback = "/"): string {
-  if (!raw) return fallback;
-  return /^\/(?![/\\])/.test(raw) ? raw : fallback;
 }
 
 export function storeOAuthRedirect(path: string): void {

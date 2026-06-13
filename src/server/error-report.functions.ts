@@ -3,6 +3,7 @@ import { getRequest } from "@tanstack/react-start/server";
 import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { isErrorReportRateLimited } from "@/lib/rateLimit.server";
 
 const ReportSchema = z.object({
   errorCode: z.number().int().min(0).max(599),
@@ -79,6 +80,13 @@ export const reportPageError = createServerFn({ method: "POST" })
 
     if (!userId && !data.contactEmail) {
       return { ok: false as const, error: "กรุณาระบุอีเมลเพื่อให้ทีมงานติดต่อกลับ" };
+    }
+
+    if (await isErrorReportRateLimited({ userId, contactEmail: data.contactEmail })) {
+      return {
+        ok: false as const,
+        error: "ส่งรายงานบ่อยเกินไป กรุณารอสักครู่แล้วลองใหม่",
+      };
     }
 
     const title = buildTitle(data.errorCode);

@@ -23,7 +23,7 @@ export async function signIn(page: Page, role: Role) {
 }
 
 export async function signOut(page: Page) {
-  await page.goto("/dashboard");
+  await page.goto("/dashboard?tab=settings");
   // Click any visible "ออกจากระบบ" / "Sign out" trigger
   const trigger = page.getByRole("button", { name: /ออกจากระบบ|sign out|log out/i }).first();
   if (await trigger.isVisible().catch(() => false)) {

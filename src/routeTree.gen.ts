@@ -50,6 +50,7 @@ import { Route as LovableEmailSuppressionRouteImport } from './routes/lovable/em
 import { Route as InhouseInviteTokenRouteImport } from './routes/inhouse.invite.$token'
 import { Route as InhouseOrgSlugSettingsRouteImport } from './routes/inhouse.$orgSlug.settings'
 import { Route as InhouseOrgSlugWorkspaceSlugRouteImport } from './routes/inhouse.$orgSlug.$workspaceSlug'
+import { Route as ApiPublicCspReportRouteImport } from './routes/api/public/csp-report'
 import { Route as ApiPaymentsCheckoutRouteImport } from './routes/api/payments/checkout'
 import { Route as ApiAssistantStreamRouteImport } from './routes/api/assistant/stream'
 import { Route as LovableEmailTransactionalSendRouteImport } from './routes/lovable/email/transactional/send'
@@ -275,6 +276,11 @@ const InhouseOrgSlugWorkspaceSlugRoute =
     path: '/$workspaceSlug',
     getParentRoute: () => InhouseOrgSlugRoute,
   } as any)
+const ApiPublicCspReportRoute = ApiPublicCspReportRouteImport.update({
+  id: '/api/public/csp-report',
+  path: '/api/public/csp-report',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPaymentsCheckoutRoute = ApiPaymentsCheckoutRouteImport.update({
   id: '/api/payments/checkout',
   path: '/api/payments/checkout',
@@ -420,6 +426,7 @@ export interface FileRoutesByFullPath {
   '/blog/': typeof BlogIndexRoute
   '/api/assistant/stream': typeof ApiAssistantStreamRoute
   '/api/payments/checkout': typeof ApiPaymentsCheckoutRoute
+  '/api/public/csp-report': typeof ApiPublicCspReportRoute
   '/inhouse/$orgSlug/$workspaceSlug': typeof InhouseOrgSlugWorkspaceSlugRouteWithChildren
   '/inhouse/$orgSlug/settings': typeof InhouseOrgSlugSettingsRoute
   '/inhouse/invite/$token': typeof InhouseInviteTokenRoute
@@ -481,6 +488,7 @@ export interface FileRoutesByTo {
   '/blog': typeof BlogIndexRoute
   '/api/assistant/stream': typeof ApiAssistantStreamRoute
   '/api/payments/checkout': typeof ApiPaymentsCheckoutRoute
+  '/api/public/csp-report': typeof ApiPublicCspReportRoute
   '/inhouse/$orgSlug/$workspaceSlug': typeof InhouseOrgSlugWorkspaceSlugRouteWithChildren
   '/inhouse/$orgSlug/settings': typeof InhouseOrgSlugSettingsRoute
   '/inhouse/invite/$token': typeof InhouseInviteTokenRoute
@@ -543,6 +551,7 @@ export interface FileRoutesById {
   '/blog/': typeof BlogIndexRoute
   '/api/assistant/stream': typeof ApiAssistantStreamRoute
   '/api/payments/checkout': typeof ApiPaymentsCheckoutRoute
+  '/api/public/csp-report': typeof ApiPublicCspReportRoute
   '/inhouse/$orgSlug/$workspaceSlug': typeof InhouseOrgSlugWorkspaceSlugRouteWithChildren
   '/inhouse/$orgSlug/settings': typeof InhouseOrgSlugSettingsRoute
   '/inhouse/invite/$token': typeof InhouseInviteTokenRoute
@@ -606,6 +615,7 @@ export interface FileRouteTypes {
     | '/blog/'
     | '/api/assistant/stream'
     | '/api/payments/checkout'
+    | '/api/public/csp-report'
     | '/inhouse/$orgSlug/$workspaceSlug'
     | '/inhouse/$orgSlug/settings'
     | '/inhouse/invite/$token'
@@ -667,6 +677,7 @@ export interface FileRouteTypes {
     | '/blog'
     | '/api/assistant/stream'
     | '/api/payments/checkout'
+    | '/api/public/csp-report'
     | '/inhouse/$orgSlug/$workspaceSlug'
     | '/inhouse/$orgSlug/settings'
     | '/inhouse/invite/$token'
@@ -728,6 +739,7 @@ export interface FileRouteTypes {
     | '/blog/'
     | '/api/assistant/stream'
     | '/api/payments/checkout'
+    | '/api/public/csp-report'
     | '/inhouse/$orgSlug/$workspaceSlug'
     | '/inhouse/$orgSlug/settings'
     | '/inhouse/invite/$token'
@@ -784,6 +796,7 @@ export interface RootRouteChildren {
   BlogIndexRoute: typeof BlogIndexRoute
   ApiAssistantStreamRoute: typeof ApiAssistantStreamRoute
   ApiPaymentsCheckoutRoute: typeof ApiPaymentsCheckoutRoute
+  ApiPublicCspReportRoute: typeof ApiPublicCspReportRoute
   LovableEmailSuppressionRoute: typeof LovableEmailSuppressionRoute
   ApiPaymentsCashoutProcessRoute: typeof ApiPaymentsCashoutProcessRoute
   ApiPaymentsConnectOnboardRoute: typeof ApiPaymentsConnectOnboardRoute
@@ -1087,6 +1100,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof InhouseOrgSlugWorkspaceSlugRouteImport
       parentRoute: typeof InhouseOrgSlugRoute
     }
+    '/api/public/csp-report': {
+      id: '/api/public/csp-report'
+      path: '/api/public/csp-report'
+      fullPath: '/api/public/csp-report'
+      preLoaderRoute: typeof ApiPublicCspReportRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/payments/checkout': {
       id: '/api/payments/checkout'
       path: '/api/payments/checkout'
@@ -1330,6 +1350,7 @@ const rootRouteChildren: RootRouteChildren = {
   BlogIndexRoute: BlogIndexRoute,
   ApiAssistantStreamRoute: ApiAssistantStreamRoute,
   ApiPaymentsCheckoutRoute: ApiPaymentsCheckoutRoute,
+  ApiPublicCspReportRoute: ApiPublicCspReportRoute,
   LovableEmailSuppressionRoute: LovableEmailSuppressionRoute,
   ApiPaymentsCashoutProcessRoute: ApiPaymentsCashoutProcessRoute,
   ApiPaymentsConnectOnboardRoute: ApiPaymentsConnectOnboardRoute,

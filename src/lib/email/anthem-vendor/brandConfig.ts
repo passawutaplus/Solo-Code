@@ -9,6 +9,9 @@ export const BRAND_NAME = "1PX";
 /** โดเมนหลักที่แนะนำ (1px.app ว่าง — จดก่อน production) */
 export const BRAND_DOMAIN = "1px.app";
 
+/** URL เดโม่บน Vercel — ใช้จนกว่าจะซื้อโดเมนและ deploy production */
+export const ANTHEM_DEMO_URL = "https://1px-demo.vercel.app";
+
 export const BRAND_TAGLINE = "ชุมชนครีเอทีฟ — ทุกคนคือ 1 PX";
 
 export const BRAND_DESCRIPTION =
@@ -41,5 +44,5 @@ export function defaultSiteUrl(): string {
       ? (import.meta.env?.VITE_SITE_URL as string | undefined)
       : undefined;
   if (fromEnv) return fromEnv.replace(/\/$/, "");
-  return `https://${BRAND_DOMAIN}`;
+  return ANTHEM_DEMO_URL;
 }

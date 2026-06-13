@@ -3,6 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { AlertTriangle, X } from "lucide-react";
 import { useSubscription } from "@/hooks/useSubscription";
 import { createPortalSession } from "@/utils/payments.functions";
+import { currentOriginReturnUrl } from "@/lib/paymentRedirect.client";
 import { getStripeEnvironment } from "@/lib/stripe";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -33,7 +34,7 @@ export function SubscriptionStatusBanner() {
       const res = await portal({
         data: {
           environment: getStripeEnvironment(),
-          returnUrl: window.location.href,
+          returnUrl: currentOriginReturnUrl(),
         },
       });
       if ("error" in res) throw new Error(res.error);

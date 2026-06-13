@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { isEarlyAccessModeServer } from "@/lib/publicAccess.server";
 
 const PURGE_DAYS = 30;
 
@@ -30,8 +31,42 @@ export const exportUserData = createServerFn({ method: "GET" })
       finance_incomes: incomes.data ?? [],
       errors: [profile.error, clients.error, quotations.error, jobs.error, expenses.error, incomes.error]
         .filter(Boolean)
-        .map((e) => e!.message),
+        .map(() => "export_partial_failure"),
     };
+  });
+
+/** Public launch: approve tester flag server-side when early-access gate is off. */
+export const ensurePublicAccessApproved = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    if (isEarlyAccessModeServer()) {
+      return { approved: false as const };
+    }
+
+    const { userId } = context;
+    const { data: existing } = await supabaseAdmin
+      .from("profiles")
+      .select("tester_approved")
+      .eq("user_id", userId)
+      .maybeSingle();
+
+    if (existing?.tester_approved) {
+      return { approved: true as const };
+    }
+
+    const { data: updated, error } = await supabaseAdmin
+      .from("profiles")
+      .update({ tester_approved: true, updated_at: new Date().toISOString() })
+      .eq("user_id", userId)
+      .select("*")
+      .maybeSingle();
+
+    if (error) {
+      console.error("[ensurePublicAccessApproved]", error.message);
+      return { approved: false as const };
+    }
+
+    return { approved: true as const, profile: updated ?? null };
   });
 
 export const deleteOwnAccount = createServerFn({ method: "POST" })

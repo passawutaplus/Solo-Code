@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { trackDeviceOnce } from "@/lib/deviceTracking";
 import { CONSENT_CHANGE_EVENT, hasAnalyticsConsent } from "@/lib/cookieConsent";
 import { isEarlyAccessMode } from "@/lib/publicAccess";
+import { ensurePublicAccessApproved } from "@/server/account.functions";
 
 export type AppRole = "admin" | "user";
 
@@ -71,15 +72,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     let profileRow = (prof as Profile) ?? null;
 
-    // Public launch: auto-approve testers so dashboard is accessible
     if (!isEarlyAccessMode() && profileRow && !profileRow.tester_approved) {
-      const { data: updated } = await supabase
-        .from("profiles")
-        .update({ tester_approved: true, updated_at: new Date().toISOString() })
-        .eq("user_id", uid)
-        .select("*")
-        .maybeSingle();
-      if (updated) profileRow = updated as Profile;
+      try {
+        const result = await ensurePublicAccessApproved();
+        if (result.approved && result.profile) {
+          profileRow = result.profile as Profile;
+        } else if (result.approved) {
+          profileRow = { ...profileRow, tester_approved: true };
+        }
+      } catch (e) {
+        console.warn("[auth] ensurePublicAccessApproved failed", e);
+      }
     }
 
     setProfile(profileRow);

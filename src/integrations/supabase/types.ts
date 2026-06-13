@@ -1,4 +1,3 @@
-
 export type Json =
   | string
   | number
@@ -629,6 +628,7 @@ export type Database = {
           budget_max: number | null
           budget_min: number | null
           budget_type: Database["public"]["Enums"]["job_budget_type"]
+          cover_image_url: string | null
           created_at: string
           deadline: string | null
           description: string
@@ -654,6 +654,7 @@ export type Database = {
           budget_max?: number | null
           budget_min?: number | null
           budget_type?: Database["public"]["Enums"]["job_budget_type"]
+          cover_image_url?: string | null
           created_at?: string
           deadline?: string | null
           description?: string
@@ -679,6 +680,7 @@ export type Database = {
           budget_max?: number | null
           budget_min?: number | null
           budget_type?: Database["public"]["Enums"]["job_budget_type"]
+          cover_image_url?: string | null
           created_at?: string
           deadline?: string | null
           description?: string
@@ -1244,6 +1246,7 @@ export type Database = {
           budget_max: number | null
           budget_min: number | null
           budget_type: Database["public"]["Enums"]["job_budget_type"]
+          cover_image_url: string | null
           created_at: string
           deadline: string | null
           description: string
@@ -7433,39 +7436,103 @@ export type Database = {
         }
         Relationships: []
       }
+      conversation_members: {
+        Row: {
+          conversation_id: string
+          joined_at: string
+          role: string
+          user_id: string
+        }
+        Insert: {
+          conversation_id: string
+          joined_at?: string
+          role?: string
+          user_id: string
+        }
+        Update: {
+          conversation_id?: string
+          joined_at?: string
+          role?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversation_members_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      conversation_pins: {
+        Row: {
+          conversation_id: string
+          pinned_at: string
+          user_id: string
+        }
+        Insert: {
+          conversation_id: string
+          pinned_at?: string
+          user_id: string
+        }
+        Update: {
+          conversation_id?: string
+          pinned_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversation_pins_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       conversations: {
         Row: {
           client_id: string
+          conversation_type: string
           created_at: string
+          created_by: string | null
           freelancer_id: string
           id: string
           kind: string
           last_message_at: string
           project_id: string | null
           project_title: string
-          request_id: string
+          request_id: string | null
+          title: string | null
         }
         Insert: {
           client_id: string
+          conversation_type?: string
           created_at?: string
+          created_by?: string | null
           freelancer_id: string
           id?: string
           kind: string
           last_message_at?: string
           project_id?: string | null
           project_title?: string
-          request_id: string
+          request_id?: string | null
+          title?: string | null
         }
         Update: {
           client_id?: string
+          conversation_type?: string
           created_at?: string
+          created_by?: string | null
           freelancer_id?: string
           id?: string
           kind?: string
           last_message_at?: string
           project_id?: string | null
           project_title?: string
-          request_id?: string
+          request_id?: string | null
+          title?: string | null
         }
         Relationships: []
       }
@@ -7585,8 +7652,12 @@ export type Database = {
           content: string
           conversation_id: string
           created_at: string
+          deleted_at: string | null
           id: string
+          message_type: string
+          project_id: string | null
           read_at: string | null
+          reply_to_id: string | null
           sender_id: string
         }
         Insert: {
@@ -7594,8 +7665,12 @@ export type Database = {
           content?: string
           conversation_id: string
           created_at?: string
+          deleted_at?: string | null
           id?: string
+          message_type?: string
+          project_id?: string | null
           read_at?: string | null
+          reply_to_id?: string | null
           sender_id: string
         }
         Update: {
@@ -7603,8 +7678,12 @@ export type Database = {
           content?: string
           conversation_id?: string
           created_at?: string
+          deleted_at?: string | null
           id?: string
+          message_type?: string
+          project_id?: string | null
           read_at?: string | null
+          reply_to_id?: string | null
           sender_id?: string
         }
         Relationships: [
@@ -7613,6 +7692,13 @@ export type Database = {
             columns: ["conversation_id"]
             isOneToOne: false
             referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_reply_to_id_fkey"
+            columns: ["reply_to_id"]
+            isOneToOne: false
+            referencedRelation: "messages"
             referencedColumns: ["id"]
           },
         ]
@@ -7747,6 +7833,10 @@ export type Database = {
           _user_id: string
         }
         Returns: string
+      }
+      user_in_conversation: {
+        Args: { conv_id: string; uid: string }
+        Returns: boolean
       }
     }
     Enums: {

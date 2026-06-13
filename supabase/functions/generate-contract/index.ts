@@ -9,14 +9,9 @@ import {
   normalizeGeminiModel,
 } from "../_shared/gemini.ts";
 import { debitAiQuota } from "../_shared/ai-quota.ts";
+import { corsHeadersForRequest } from "../_shared/cors.ts";
 
 const CONTRACT_FEATURE = "generate_contract";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-};
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY")!;
@@ -64,41 +59,41 @@ function buildPrompt(p: Payload): string {
   ].join("\n");
 }
 
-const json = (body: unknown, status = 200) =>
+const json = (req: Request, body: unknown, status = 200) =>
   new Response(JSON.stringify(body), {
     status,
-    headers: { ...corsHeaders, "Content-Type": "application/json" },
+    headers: { ...corsHeadersForRequest(req), "Content-Type": "application/json" },
   });
 
 Deno.serve(async (req) => {
-  if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
-  if (req.method !== "POST") return json({ error: "method not allowed" }, 405);
+  if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeadersForRequest(req) });
+  if (req.method !== "POST") return json(req, { error: "method not allowed" }, 405);
 
   // --- Auth ---
   const authHeader = req.headers.get("Authorization");
-  if (!authHeader?.startsWith("Bearer ")) return json({ error: "unauthorized" }, 401);
+  if (!authHeader?.startsWith("Bearer ")) return json(req, { error: "unauthorized" }, 401);
   const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
     global: { headers: { Authorization: authHeader } },
   });
   const token = authHeader.slice("Bearer ".length);
   const { data: claims, error: authErr } = await supabase.auth.getClaims(token);
-  if (authErr || !claims?.claims?.sub) return json({ error: "unauthorized" }, 401);
+  if (authErr || !claims?.claims?.sub) return json(req, { error: "unauthorized" }, 401);
 
   // --- Validate input ---
   let raw: unknown;
   try {
     raw = await req.json();
   } catch {
-    return json({ error: "invalid json body" }, 400);
+    return json(req, { error: "invalid json body" }, 400);
   }
   const parsed = PayloadSchema.safeParse(raw);
-  if (!parsed.success) return json({ error: parsed.error.flatten().fieldErrors }, 400);
+  if (!parsed.success) return json(req, { error: parsed.error.flatten().fieldErrors }, 400);
 
   const userId = claims.claims.sub as string;
   const idempotencyKey = crypto.randomUUID();
   const quota = await debitAiQuota(userId, CONTRACT_FEATURE, idempotencyKey);
   if (!quota.allowed) {
-    return json({ error: "limit_reached", ...quota }, 429);
+    return json(req, { error: "limit_reached", ...quota }, 429);
   }
 
   try {
@@ -111,11 +106,11 @@ Deno.serve(async (req) => {
       temperature: 0.3,
     });
 
-    return json({ draft });
+    return json(req, { draft });
   } catch (e) {
     if (e instanceof GeminiError && e.status === 429) {
-      return json({ error: "ใช้งานเยอะเกินไป ลองใหม่อีกครั้ง" }, 429);
+      return json(req, { error: "ใช้งานเยอะเกินไป ลองใหม่อีกครั้ง" }, 429);
     }
-    return json({ error: "internal error" }, 500);
+    return json(req, { error: "internal error" }, 500);
   }
 });

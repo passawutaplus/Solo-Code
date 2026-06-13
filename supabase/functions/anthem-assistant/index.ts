@@ -7,12 +7,7 @@ import {
   getGeminiApiKey,
   GeminiError,
 } from "../_shared/gemini.ts";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-};
+import { corsHeadersForRequest } from "../_shared/cors.ts";
 
 const BodySchema = z.object({
   message: z.string().min(1).max(2000),
@@ -36,18 +31,18 @@ const PROMPTS: Record<keyof typeof FEATURE_BY_MODE, string> = {
 - เสนอ 2-3 ทางเลือกถ้าเหมาะ`,
 };
 
-const json = (body: unknown, status = 200) =>
+const json = (req: Request, body: unknown, status = 200) =>
   new Response(JSON.stringify(body), {
     status,
-    headers: { ...corsHeaders, "Content-Type": "application/json" },
+    headers: { ...corsHeadersForRequest(req), "Content-Type": "application/json" },
   });
 
 Deno.serve(async (req) => {
-  if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
-  if (req.method !== "POST") return json({ error: "method_not_allowed" }, 405);
+  if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeadersForRequest(req) });
+  if (req.method !== "POST") return json(req, { error: "method_not_allowed" }, 405);
 
   const authHeader = req.headers.get("Authorization");
-  if (!authHeader?.startsWith("Bearer ")) return json({ error: "unauthorized" }, 401);
+  if (!authHeader?.startsWith("Bearer ")) return json(req, { error: "unauthorized" }, 401);
 
   const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
   const anonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
@@ -56,20 +51,20 @@ Deno.serve(async (req) => {
   });
   const token = authHeader.slice("Bearer ".length);
   const { data: claims, error: authErr } = await userClient.auth.getClaims(token);
-  if (authErr || !claims?.claims?.sub) return json({ error: "unauthorized" }, 401);
+  if (authErr || !claims?.claims?.sub) return json(req, { error: "unauthorized" }, 401);
   const userId = claims.claims.sub as string;
 
   let body: z.infer<typeof BodySchema>;
   try {
     body = BodySchema.parse(await req.json());
   } catch {
-    return json({ error: "invalid_body" }, 400);
+    return json(req, { error: "invalid_body" }, 400);
   }
 
   const feature = FEATURE_BY_MODE[body.mode];
   const quota = await debitAiQuota(userId, feature, `anthem-${feature}-${crypto.randomUUID()}`);
   if (!quota.allowed) {
-    return json({ error: "limit_reached", quota }, 402);
+    return json(req, { error: "limit_reached", quota }, 402);
   }
 
   const system = PROMPTS[body.mode];
@@ -85,12 +80,12 @@ Deno.serve(async (req) => {
       ],
       temperature: 0.7,
     });
-    return json({ reply, quota });
+    return json(req, { reply, quota });
   } catch (e) {
     if (e instanceof GeminiError && e.status === 429) {
-      return json({ error: "rate_limited" }, 429);
+      return json(req, { error: "rate_limited" }, 429);
     }
     console.error("[anthem-assistant]", e);
-    return json({ error: "internal" }, 500);
+    return json(req, { error: "internal" }, 500);
   }
 });

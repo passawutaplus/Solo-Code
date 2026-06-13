@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { runDeadlineReminders } from "@/lib/email/deadlineReminders.server";
 import { authorizeCronBearer } from "@/lib/cronAuth.server";
+import { toClientError } from "@/lib/security";
 
 export const Route = createFileRoute("/api/public/cron/deadline-reminders")({
   server: {
@@ -14,7 +15,7 @@ export const Route = createFileRoute("/api/public/cron/deadline-reminders")({
           return Response.json({ ok: true, ...result });
         } catch (e) {
           console.error("[cron/deadline-reminders]", e);
-          return Response.json({ error: (e as Error).message }, { status: 500 });
+          return Response.json({ error: toClientError(e) }, { status: 500 });
         }
       },
     },

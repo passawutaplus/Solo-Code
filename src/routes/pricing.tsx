@@ -32,6 +32,7 @@ import { cn } from "@/lib/utils";
 import { useAuth } from "@/auth/AuthProvider";
 import { useSubscription } from "@/hooks/useSubscription";
 import { createCheckoutSession, createPortalSession, upgradeSubscriptionTier } from "@/utils/payments.functions";
+import { buildCheckoutRedirectUrls, currentOriginReturnUrl } from "@/lib/paymentRedirect.client";
 import { getStripeEnvironment, PRICE_IDS, CREDITS_PER_PRICE, PX_PER_PRICE } from "@/lib/stripe";
 import { isPaymentFnError, tierLabel, type UpgradeTargetTier } from "@/lib/subscriptionTiers";
 import type { Tier } from "@/hooks/useSubscription";
@@ -236,11 +237,14 @@ function PricingPage() {
     try {
       const origin = window.location.origin;
       const params = new URLSearchParams(window.location.search);
-      const returnTo = params.get("return");
-      const successUrl = returnTo
-        ? `${returnTo}${returnTo.includes("?") ? "&" : "?"}topup=success`
-        : `${origin}/dashboard?topup=success`;
-      const cancelUrl = returnTo ?? `${origin}/pricing?canceled=1`;
+      const { successUrl, cancelUrl } = buildCheckoutRedirectUrls({
+        origin,
+        returnParam: params.get("return"),
+        defaultSuccessPath: "/dashboard",
+        defaultCancelPath: "/pricing",
+        successQuery: "topup=success",
+        cancelQuery: "canceled=1",
+      });
       const result = await checkout({
         data: {
           priceId: pack.id,
@@ -266,11 +270,14 @@ function PricingPage() {
     try {
       const origin = window.location.origin;
       const params = new URLSearchParams(window.location.search);
-      const returnTo = params.get("return");
-      const successUrl = returnTo
-        ? `${returnTo}${returnTo.includes("?") ? "&" : "?"}topup=success`
-        : `${origin}/pricing?px=success`;
-      const cancelUrl = returnTo ?? `${origin}/pricing?px=canceled`;
+      const { successUrl, cancelUrl } = buildCheckoutRedirectUrls({
+        origin,
+        returnParam: params.get("return"),
+        defaultSuccessPath: "/pricing",
+        defaultCancelPath: "/pricing",
+        successQuery: "px=success",
+        cancelQuery: "px=canceled",
+      });
       const result = await checkout({
         data: {
           priceId: pack.id,

@@ -1,13 +1,15 @@
 # Playwright E2E
 
+> **ทางเลือก (WSL / OS ที่ Playwright ไม่รองรับ):** ใช้ Puppeteer — ดู [`e2e-puppeteer.md`](./e2e-puppeteer.md)
+
 ## Install
 
 ```bash
-bun add -d @playwright/test
-bunx playwright install --with-deps
+npm install -D @playwright/test
+npx playwright install --with-deps
 ```
 
-(เรา **ไม่ pre-install** Playwright ใน lockfile — เป็น opt-in เพราะ download browser ~300MB)
+(Playwright เป็น opt-in เพราะ download browser ~300MB)
 
 ## Run
 

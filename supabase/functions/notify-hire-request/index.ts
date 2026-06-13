@@ -1,21 +1,16 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { z } from "npm:zod@3";
 import { enqueueLineNotification } from "../_shared/line-enqueue.ts";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-};
+import { corsHeadersForRequest } from "../_shared/cors.ts";
 
 const BodySchema = z.object({
   request_id: z.string().uuid(),
 });
 
-const json = (body: unknown, status = 200) =>
+const json = (req: Request, body: unknown, status = 200) =>
   new Response(JSON.stringify(body), {
     status,
-    headers: { ...corsHeaders, "Content-Type": "application/json" },
+    headers: { ...corsHeadersForRequest(req), "Content-Type": "application/json" },
   });
 
 function escapeHtml(value: string): string {
@@ -28,29 +23,29 @@ function escapeHtml(value: string): string {
 }
 
 Deno.serve(async (req) => {
-  if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
-  if (req.method !== "POST") return json({ error: "method_not_allowed" }, 405);
+  if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeadersForRequest(req) });
+  if (req.method !== "POST") return json(req, { error: "method_not_allowed" }, 405);
 
   const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
   const anonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
   const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
   const authHeader = req.headers.get("Authorization");
-  if (!authHeader?.startsWith("Bearer ")) return json({ error: "unauthorized" }, 401);
+  if (!authHeader?.startsWith("Bearer ")) return json(req, { error: "unauthorized" }, 401);
 
   const userClient = createClient(supabaseUrl, anonKey, {
     global: { headers: { Authorization: authHeader } },
   });
   const token = authHeader.slice("Bearer ".length);
   const { data: claims, error: authErr } = await userClient.auth.getClaims(token);
-  if (authErr || !claims?.claims?.sub) return json({ error: "unauthorized" }, 401);
+  if (authErr || !claims?.claims?.sub) return json(req, { error: "unauthorized" }, 401);
   const callerId = claims.claims.sub as string;
 
   let body: z.infer<typeof BodySchema>;
   try {
     body = BodySchema.parse(await req.json());
   } catch {
-    return json({ error: "invalid_body" }, 400);
+    return json(req, { error: "invalid_body" }, 400);
   }
 
   const admin = createClient(supabaseUrl, serviceKey);
@@ -61,12 +56,12 @@ Deno.serve(async (req) => {
     .eq("id", body.request_id)
     .maybeSingle();
 
-  if (hireErr || !hire) return json({ error: "not_found" }, 404);
-  if (hire.client_id !== callerId) return json({ error: "forbidden" }, 403);
+  if (hireErr || !hire) return json(req, { error: "not_found" }, 404);
+  if (hire.client_id !== callerId) return json(req, { error: "forbidden" }, 403);
 
   const { data: freelancerAuth } = await admin.auth.admin.getUserById(hire.freelancer_id);
   const freelancerEmail = freelancerAuth?.user?.email;
-  if (!freelancerEmail) return json({ skipped: true, reason: "no_freelancer_email" });
+  if (!freelancerEmail) return json(req, { skipped: true, reason: "no_freelancer_email" });
 
   const { data: profile } = await admin
     .from("profiles")
@@ -75,7 +70,7 @@ Deno.serve(async (req) => {
     .maybeSingle();
 
   if (profile?.notify_email === false || profile?.notify_hire === false) {
-    return json({ skipped: true, reason: "notifications_disabled" });
+    return json(req, { skipped: true, reason: "notifications_disabled" });
   }
 
   const recipientName = escapeHtml(profile?.display_name || "คุณ");
@@ -89,7 +84,7 @@ Deno.serve(async (req) => {
     .select("id")
     .eq("message_id", idempotencyKey)
     .maybeSingle();
-  if (existing) return json({ ok: true, duplicate: true });
+  if (existing) return json(req, { ok: true, duplicate: true });
 
   const budgetLine = hire.budget_amount
     ? `งบประมาณ: ฿${Number(hire.budget_amount).toLocaleString("th-TH")}`
@@ -129,7 +124,7 @@ Deno.serve(async (req) => {
 
   if (queueErr) {
     console.error("[notify-hire-request] enqueue failed", queueErr.message);
-    return json({ error: "enqueue_failed" }, 500);
+    return json(req, { error: "enqueue_failed" }, 500);
   }
 
   const lineResult = await enqueueLineNotification({
@@ -139,5 +134,5 @@ Deno.serve(async (req) => {
     idempotencyKey: `line-hire-${hire.id}`,
   });
 
-  return json({ ok: true, line: lineResult });
+  return json(req, { ok: true, line: lineResult });
 });

@@ -1,12 +1,7 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { z } from "npm:zod@3";
 import { geminiEmbedText, getGeminiApiKey } from "../_shared/gemini.ts";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-};
+import { corsHeadersForRequest } from "../_shared/cors.ts";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY")!;
@@ -17,10 +12,10 @@ const BodySchema = z.object({
   mode: z.enum(["ai", "image"]).optional(),
 });
 
-const json = (body: unknown, status = 200) =>
+const json = (req: Request, body: unknown, status = 200) =>
   new Response(JSON.stringify(body), {
     status,
-    headers: { ...corsHeaders, "Content-Type": "application/json" },
+    headers: { ...corsHeadersForRequest(req), "Content-Type": "application/json" },
   });
 
 async function embed(text: string): Promise<number[]> {
@@ -30,25 +25,25 @@ async function embed(text: string): Promise<number[]> {
 type SimilarItem = { project_id: string; title: string; category: string; owner_id: string; image_url: string; similarity: number };
 
 Deno.serve(async (req) => {
-  if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
-  if (req.method !== "POST") return json({ error: "method not allowed" }, 405);
+  if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeadersForRequest(req) });
+  if (req.method !== "POST") return json(req, { error: "method not allowed" }, 405);
 
   // Auth required (any signed-in user) — prevents anonymous scraping & AI cost abuse.
   const authHeader = req.headers.get("Authorization");
-  if (!authHeader?.startsWith("Bearer ")) return json({ error: "unauthorized" }, 401);
+  if (!authHeader?.startsWith("Bearer ")) return json(req, { error: "unauthorized" }, 401);
   const userClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
     global: { headers: { Authorization: authHeader } },
   });
   const { data: claims, error: authErr } = await userClient.auth.getClaims(
     authHeader.slice("Bearer ".length),
   );
-  if (authErr || !claims?.claims?.sub) return json({ error: "unauthorized" }, 401);
+  if (authErr || !claims?.claims?.sub) return json(req, { error: "unauthorized" }, 401);
   const callerId = claims.claims.sub as string;
 
   let raw: unknown;
-  try { raw = await req.json(); } catch { return json({ error: "invalid json" }, 400); }
+  try { raw = await req.json(req, ); } catch { return json(req, { error: "invalid json" }, 400); }
   const parsed = BodySchema.safeParse(raw);
-  if (!parsed.success) return json({ error: parsed.error.flatten().fieldErrors }, 400);
+  if (!parsed.success) return json(req, { error: parsed.error.flatten().fieldErrors }, 400);
   const { project_id } = parsed.data;
   const mode = parsed.data.mode ?? "ai";
 
@@ -60,9 +55,9 @@ Deno.serve(async (req) => {
       .select("id, title, subtitle, description, category, tags, tools, embedding, gallery_urls, cover_url, owner_id, status")
       .eq("id", project_id)
       .maybeSingle();
-    if (error || !project) return json({ error: "project not found", images: [] }, 404);
+    if (error || !project) return json(req, { error: "project not found", images: [] }, 404);
     if (project.status !== "Published" && project.owner_id !== callerId) {
-      return json({ error: "forbidden", images: [] }, 403);
+      return json(req, { error: "forbidden", images: [] }, 403);
     }
 
     const images: SimilarItem[] = [];
@@ -144,8 +139,8 @@ Deno.serve(async (req) => {
       }
     }
 
-    return json({ images });
+    return json(req, { images });
   } catch {
-    return json({ error: "internal error", images: [] }, 500);
+    return json(req, { error: "internal error", images: [] }, 500);
   }
 });

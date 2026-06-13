@@ -17,20 +17,26 @@
 | [`security.md`](./security.md) | Security / Dev | Threat model + trust boundaries |
 | [`pentest-scope.md`](./pentest-scope.md) | Pentester | URL / scope / severity / format |
 | [`csp-report.md`](./csp-report.md) | Security | CSP rollout plan |
+| [`full-test-plan.md`](./full-test-plan.md) | QA | แผนเทสจัดเต็ม (phase + คำสั่ง + รายวัน) |
+| [`../../docs/MANUAL-TESTING.md`](../../docs/MANUAL-TESTING.md) | QA | รายการเทสที่ต้องลงมือเอง (64 ข้อ) |
 | [`qa-checklist.md`](./qa-checklist.md) | QA | Checklist ก่อน release |
 | [`qa-onboarding.md`](./qa-onboarding.md) | QA นอก | Clone → run → bug report |
 | [`test-accounts.md`](./test-accounts.md) | QA / Pentester | Role matrix + credentials placeholder |
 | [`e2e-playwright.md`](./e2e-playwright.md) | QA | วิธีรัน Playwright |
+| [`e2e-puppeteer.md`](./e2e-puppeteer.md) | QA / WSL | ทางเลือก Puppeteer เมื่อ Playwright ติดตั้ง browser ไม่ได้ |
 | [`docker.md`](./docker.md) | Dev / Ops | รันใน Docker (production SSR) |
 | [`ai-gemini.md`](./ai-gemini.md) | Dev / Ops | ตั้งค่า Gemini + deploy Edge Functions |
 
 ## ⚡ Quick start (dev)
 
 ```bash
-bun install
-bun run dev        # → http://localhost:5173
-bun run build      # production build
-bun run test       # vitest (unit)
+npm install
+npm run dev        # → http://localhost:5173
+npm run build:lovable
+npm run test       # vitest (unit)
+npm run smoke:public
+npm run e2e:puppeteer:smoke   # ต้อง Chrome + libs (ดู e2e-puppeteer.md)
+npm run e2e:smoke             # Playwright (ถ้ารองรับ OS)
 ```
 
 ## 🏗 Tech Stack

@@ -5,6 +5,7 @@ import { z } from "zod";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { notifyFreelancer, getFreelancerDisplayName } from "@/server/emailNotify.server";
 import { canonicalUrl } from "@/lib/siteUrl";
+import { throwClientError } from "@/lib/security";
 
 const ListSchema = z.object({ token: z.string().uuid() });
 
@@ -22,7 +23,7 @@ export const listStepComments = createServerFn({ method: "GET" })
       .select("id, step_index, author_role, body, created_at")
       .eq("job_id", job.id)
       .order("created_at", { ascending: true });
-    if (error) throw new Error(error.message);
+    if (error) throwClientError("stepComments.list", error);
     return { comments: rows ?? [] };
   });
 
@@ -81,7 +82,7 @@ export const addStepComment = createServerFn({ method: "POST" })
         author_role: authorRole,
         body,
       });
-    if (error) throw new Error(error.message);
+    if (error) throwClientError("stepComments.add", error, "ไม่สามารถบันทึกความคิดเห็นได้");
 
     if (authorRole === "client" && job.user_id) {
       const recipientName = await getFreelancerDisplayName(job.user_id);

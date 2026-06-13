@@ -9,6 +9,7 @@ import {
   type FollowUpTone,
 } from "@/lib/email/followUpMessage";
 import type { Quotation } from "@/store/quotations";
+import { throwClientError } from "@/lib/security";
 
 function dateKey(d: Date): string {
   return d.toISOString().slice(0, 10);
@@ -98,7 +99,7 @@ export async function runPaymentReminders(): Promise<{ sent: number; skipped: nu
     .gte("due_date", dateKey(pastHorizon))
     .lte("due_date", dateKey(horizon));
 
-  if (error) throw new Error(error.message);
+  if (error) throwClientError("paymentReminders.load", error);
 
   let sent = 0;
   let skipped = 0;

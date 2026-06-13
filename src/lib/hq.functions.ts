@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { throwClientError } from "@/lib/security";
 
 // -------- helpers --------
 async function assertAdmin(supabase: any, userId: string) {
@@ -8,7 +9,7 @@ async function assertAdmin(supabase: any, userId: string) {
     _user_id: userId,
     _role: "admin",
   });
-  if (error) throw new Error(error.message);
+  if (error) throwClientError("hq.assertAdmin", error, "Forbidden: admin only");
   if (!data) throw new Error("Forbidden: admin only");
 }
 
@@ -23,7 +24,7 @@ async function assertConversationOwner(
     .eq("id", conversationId)
     .eq("user_id", userId)
     .maybeSingle();
-  if (error) throw new Error(error.message);
+  if (error) throwClientError("hq.assertConversationOwner", error, "ไม่พบบทสนทนานี้");
   if (!data) throw new Error("ไม่พบบทสนทนานี้");
 }
 
@@ -37,7 +38,7 @@ export const listAgents = createServerFn({ method: "GET" })
       .from("hq_agents")
       .select("*")
       .order("sort_order", { ascending: true });
-    if (error) throw new Error(error.message);
+    if (error) throwClientError("hq.listAgents", error);
     return data ?? [];
   });
 
@@ -66,7 +67,7 @@ export const updateAgent = createServerFn({ method: "POST" })
       .eq("slug", slug)
       .select()
       .single();
-    if (error) throw new Error(error.message);
+    if (error) throwClientError("hq.updateAgent", error);
     return updated;
   });
 
@@ -87,7 +88,7 @@ export const listConversations = createServerFn({ method: "POST" })
       .eq("archived", false)
       .order("updated_at", { ascending: false })
       .limit(30);
-    if (error) throw new Error(error.message);
+    if (error) throwClientError("hq.listConversations", error);
     return rows ?? [];
   });
 
@@ -107,7 +108,7 @@ export const listMessages = createServerFn({ method: "POST" })
       .eq("conversation_id", data.conversationId)
       .order("created_at", { ascending: true })
       .limit(200);
-    if (error) throw new Error(error.message);
+    if (error) throwClientError("hq.listMessages", error);
     return rows ?? [];
   });
 
@@ -126,8 +127,6 @@ export const chatWithAgent = createServerFn({ method: "POST" })
     const { supabase, userId } = context as { supabase: any; userId: string };
     await assertAdmin(supabase, userId);
 
-
-    // Load agent
     const { data: agent, error: agentErr } = await supabase
       .from("hq_agents")
       .select("*")
@@ -136,7 +135,6 @@ export const chatWithAgent = createServerFn({ method: "POST" })
       .single();
     if (agentErr || !agent) throw new Error("ไม่พบพนักงาน AI หรือถูกปิดใช้งาน");
 
-    // Get or create conversation
     let conversationId = data.conversationId;
     if (!conversationId) {
       const { data: conv, error: convErr } = await supabase
@@ -149,7 +147,7 @@ export const chatWithAgent = createServerFn({ method: "POST" })
         })
         .select("id")
         .single();
-      if (convErr) throw new Error(convErr.message);
+      if (convErr) throwClientError("hq.chatWithAgent.createConversation", convErr);
       conversationId = conv.id;
     } else {
       await assertConversationOwner(supabase, userId, conversationId);
@@ -160,7 +158,6 @@ export const chatWithAgent = createServerFn({ method: "POST" })
         .eq("user_id", userId);
     }
 
-    // Load recent history
     const { data: history } = await supabase
       .from("hq_messages")
       .select("role,content")
@@ -168,7 +165,6 @@ export const chatWithAgent = createServerFn({ method: "POST" })
       .order("created_at", { ascending: true })
       .limit(30);
 
-    // Insert user message
     await supabase.from("hq_messages").insert({
       conversation_id: conversationId,
       agent_slug: data.agentSlug,
@@ -194,7 +190,6 @@ export const chatWithAgent = createServerFn({ method: "POST" })
     });
     const tokensUsed = 0;
 
-    // Insert assistant message
     const { data: assistantMsg, error: msgErr } = await supabase
       .from("hq_messages")
       .insert({
@@ -207,7 +202,7 @@ export const chatWithAgent = createServerFn({ method: "POST" })
       })
       .select("id,role,content,tokens_used,created_at")
       .single();
-    if (msgErr) throw new Error(msgErr.message);
+    if (msgErr) throwClientError("hq.chatWithAgent.insertMessage", msgErr);
 
     return {
       conversationId,
@@ -229,6 +224,6 @@ export const deleteConversation = createServerFn({ method: "POST" })
       .delete()
       .eq("id", data.conversationId)
       .eq("user_id", userId);
-    if (error) throw new Error(error.message);
+    if (error) throwClientError("hq.deleteConversation", error);
     return { ok: true };
   });

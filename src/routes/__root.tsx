@@ -1,4 +1,5 @@
 import { Outlet, createRootRouteWithContext, HeadContent, Scripts } from "@tanstack/react-router";
+import * as React from "react";
 import { HttpErrorPage } from "@/components/HttpErrorPage";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { AuthProvider } from "@/auth/AuthProvider";
@@ -12,6 +13,7 @@ import type { RouterAppContext } from "@/router";
 // to TanStack server-function requests so `requireSupabaseAuth` middleware works.
 import "@/integrations/supabase/server-fn-fetch";
 import { DemoModeBanner } from "@/components/DemoModeBanner";
+import { installCspReporter } from "@/lib/cspReporter";
 import { SITE_NAME, SITE_URL, DEFAULT_OG_IMAGE } from "@/lib/siteUrl";
 
 import appCss from "../styles.css?url";
@@ -128,6 +130,9 @@ function RootShell({ children }: { children: React.ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  React.useEffect(() => {
+    installCspReporter();
+  }, []);
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>

@@ -4,6 +4,7 @@ import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { notifyFreelancer, getFreelancerDisplayName } from "@/server/emailNotify.server";
 import { enqueueLineNotificationForUser } from "@/server/lineNotify.server";
 import { canonicalUrl } from "@/lib/siteUrl";
+import { throwClientError } from "@/lib/security";
 
 const TokenSchema = z.object({ token: z.string().uuid() });
 
@@ -50,7 +51,7 @@ export const getPublicTrackingJob = createServerFn({ method: "GET" })
       .select(PUBLIC_JOB_COLUMNS)
       .eq("share_token", data.token)
       .maybeSingle();
-    if (error) throw new Error(error.message);
+    if (error) throwClientError("track.getPublicTrackingJob", error);
     if (!job) return { job: null, events: [], slips: [], quotation: null, brief: null };
 
     const jobRow = job as unknown as { id: string; quotation_id: string | null; brief_id: string | null };
@@ -165,13 +166,13 @@ export const submitTrackingSlip = createServerFn({ method: "POST" })
       .select("id, user_id, title, client_name, deposit_paid, final_paid, total_amount, deposit_percent, share_token")
       .eq("share_token", data.token)
       .maybeSingle();
-    if (jErr) throw new Error(jErr.message);
+    if (jErr) throwClientError("track.submitTrackingSlip.lookup", jErr, "Invalid tracking token");
     if (!job) throw new Error("Invalid tracking token");
 
     const { error } = await supabaseAdmin
       .from("job_slips")
       .insert({ job_id: job.id, slip_url: data.slip_url, note: data.note ?? "" });
-    if (error) throw new Error(error.message);
+    if (error) throwClientError("track.submitTrackingSlip.insert", error, "ไม่สามารถอัปโหลดสลิปได้");
 
     if (job.user_id) {
       const paymentType = !job.deposit_paid ? "deposit" : !job.final_paid ? "final" : "partial";
@@ -230,7 +231,7 @@ export const deleteTrackingSlip = createServerFn({ method: "POST" })
       .select("id")
       .eq("share_token", data.token)
       .maybeSingle();
-    if (jErr) throw new Error(jErr.message);
+    if (jErr) throwClientError("track.deleteTrackingSlip.lookup", jErr, "Invalid tracking token");
     if (!job) throw new Error("Invalid tracking token");
 
     // Only allow deletion when slip is still pending (not verified, not rejected)
@@ -241,7 +242,7 @@ export const deleteTrackingSlip = createServerFn({ method: "POST" })
       .eq("job_id", job.id)
       .eq("verified", false)
       .eq("rejected", false);
-    if (error) throw new Error(error.message);
+    if (error) throwClientError("track.deleteTrackingSlip", error, "ไม่สามารถลบสลิปได้");
     return { ok: true };
   });
 
@@ -259,7 +260,7 @@ export const replaceTrackingSlip = createServerFn({ method: "POST" })
       .select("id")
       .eq("share_token", data.token)
       .maybeSingle();
-    if (jErr) throw new Error(jErr.message);
+    if (jErr) throwClientError("track.replaceTrackingSlip.lookup", jErr, "Invalid tracking token");
     if (!job) throw new Error("Invalid tracking token");
 
     const { error } = await supabaseAdmin
@@ -269,7 +270,7 @@ export const replaceTrackingSlip = createServerFn({ method: "POST" })
       .eq("job_id", job.id)
       .eq("verified", false)
       .eq("rejected", false);
-    if (error) throw new Error(error.message);
+    if (error) throwClientError("track.replaceTrackingSlip", error, "ไม่สามารถอัปเดตสลิปได้");
     return { ok: true };
   });
 

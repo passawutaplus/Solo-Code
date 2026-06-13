@@ -11,6 +11,7 @@ import {
   type FollowUpTone,
 } from "@/lib/email/followUpMessage";
 import type { Quotation } from "@/store/quotations";
+import { throwClientError } from "@/lib/security";
 
 const InputSchema = z.object({
   quotationId: z.string().uuid(),
@@ -59,7 +60,7 @@ export const sendPaymentFollowUpEmail = createServerFn({ method: "POST" })
       .eq("user_id", userId)
       .maybeSingle();
 
-    if (error) throw new Error(error.message);
+    if (error) throwClientError("followUpEmail.loadQuotation", error, "ไม่พบใบเสนอราคา");
     if (!row) throw new Error("ไม่พบใบเสนอราคา");
 
     const clientEmail = (row.client_email as string | null)?.trim();

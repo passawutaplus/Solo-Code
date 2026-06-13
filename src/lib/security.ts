@@ -60,6 +60,24 @@ export function safeHref(raw: string | null | undefined): string | null {
   return safeUrl(s);
 }
 
+/** Generic message returned to clients — never expose raw DB / stack details. */
+export const GENERIC_CLIENT_ERROR = "เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง";
+
+/** Map internal errors to a safe client-facing string (always returns fallback). */
+export function toClientError(_err: unknown, fallback = GENERIC_CLIENT_ERROR): string {
+  return fallback;
+}
+
+/** Log internally, throw a sanitized Error for server fn / API responses. */
+export function throwClientError(
+  context: string,
+  err: unknown,
+  fallback = GENERIC_CLIENT_ERROR,
+): never {
+  console.error(`[${context}]`, err);
+  throw new Error(toClientError(err, fallback));
+}
+
 /** Coerce to a finite, non-negative number within bounds. */
 export function safeNumber(raw: string | number, opts: { min?: number; max?: number } = {}): number | null {
   const n = typeof raw === "number" ? raw : Number(String(raw).replace(/[, ]/g, ""));

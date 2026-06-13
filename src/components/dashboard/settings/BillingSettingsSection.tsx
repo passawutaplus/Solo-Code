@@ -8,6 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useSubscription } from "@/hooks/useSubscription";
 import { ANTHEM_SHOWCASE_URL } from "@/lib/productLinks";
 import { createPortalSession } from "@/utils/payments.functions";
+import { currentOriginReturnUrl } from "@/lib/paymentRedirect.client";
 import { getStripeEnvironment } from "@/lib/stripe";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -23,7 +24,7 @@ export function BillingSettingsSection() {
     setBusy(true);
     try {
       const res = await portal({
-        data: { environment: getStripeEnvironment(), returnUrl: window.location.href },
+        data: { environment: getStripeEnvironment(), returnUrl: currentOriginReturnUrl() },
       });
       if ("error" in res) throw new Error(res.error);
       window.open(res.url, "_blank");

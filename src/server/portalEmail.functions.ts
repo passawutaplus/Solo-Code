@@ -5,6 +5,7 @@ import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { enqueueTemplateEmail } from "@/server/portalEmail.server";
 import { notifyFreelancer, getFreelancerDisplayName } from "@/server/emailNotify.server";
 import { canonicalUrl } from "@/lib/siteUrl";
+import { throwClientError } from "@/lib/security";
 
 const ShareTokenSchema = z.object({ shareToken: z.string().uuid() });
 
@@ -21,7 +22,7 @@ export const sendPortalLinkToClient = createServerFn({ method: "POST" })
       .eq("user_id", userId)
       .maybeSingle();
 
-    if (jobErr) throw new Error(jobErr.message);
+    if (jobErr) throwClientError("portalEmail.sendPortalLink.lookup", jobErr, "ไม่พบงานนี้");
     if (!job) throw new Error("ไม่พบงานนี้");
 
     let clientEmail: string | null = null;
@@ -94,7 +95,7 @@ export const acceptQuotationByToken = createServerFn({ method: "POST" })
       .eq("share_token", data.token)
       .maybeSingle();
 
-    if (jobErr) throw new Error(jobErr.message);
+    if (jobErr) throwClientError("portalEmail.acceptQuotation.lookup", jobErr, "ไม่พบใบเสนอราคาสำหรับงานนี้");
     if (!job?.quotation_id) throw new Error("ไม่พบใบเสนอราคาสำหรับงานนี้");
 
     const { data: q, error: qErr } = await supabaseAdmin
@@ -103,7 +104,7 @@ export const acceptQuotationByToken = createServerFn({ method: "POST" })
       .eq("id", job.quotation_id)
       .maybeSingle();
 
-    if (qErr) throw new Error(qErr.message);
+    if (qErr) throwClientError("portalEmail.acceptQuotation.load", qErr, "ไม่พบใบเสนอราคา");
     if (!q) throw new Error("ไม่พบใบเสนอราคา");
 
     const allowed = ["draft", "pending_approval", "sent"];
@@ -119,7 +120,7 @@ export const acceptQuotationByToken = createServerFn({ method: "POST" })
       .select("id")
       .maybeSingle();
 
-    if (updErr) throw new Error(updErr.message);
+    if (updErr) throwClientError("portalEmail.acceptQuotation.update", updErr, "ใบเสนอราคานี้ไม่สามารถยอมรับได้ในสถานะปัจจุบัน");
     if (!updated) throw new Error("ใบเสนอราคานี้ไม่สามารถยอมรับได้ในสถานะปัจจุบัน");
 
     const clientLabel = data.clientName.trim() || job.client_name || "ลูกค้า";

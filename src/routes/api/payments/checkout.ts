@@ -3,7 +3,7 @@ import {
   authenticateBearerToken,
   createCheckoutSessionForUser,
   paymentsJsonResponse,
-  PAYMENTS_CORS_HEADERS,
+  paymentsCorsPreflightHeaders,
 } from "@/lib/stripePayments.server";
 import { parseCheckoutApiBody } from "@/lib/paymentsApiValidation";
 import { ZodError } from "zod";
@@ -11,18 +11,19 @@ import { ZodError } from "zod";
 export const Route = createFileRoute("/api/payments/checkout")({
   server: {
     handlers: {
-      OPTIONS: async () => new Response(null, { status: 204, headers: PAYMENTS_CORS_HEADERS }),
+      OPTIONS: async ({ request }) =>
+        new Response(null, { status: 204, headers: paymentsCorsPreflightHeaders(request) }),
       POST: async ({ request }) => {
         const auth = await authenticateBearerToken(request);
         if ("error" in auth) {
-          return paymentsJsonResponse({ error: auth.error }, auth.status);
+          return paymentsJsonResponse(request, { error: auth.error }, auth.status);
         }
 
         let body: unknown;
         try {
           body = await request.json();
         } catch {
-          return paymentsJsonResponse({ error: "Invalid JSON" }, 400);
+          return paymentsJsonResponse(request, { error: "Invalid JSON" }, 400);
         }
 
         let parsed;
@@ -30,7 +31,7 @@ export const Route = createFileRoute("/api/payments/checkout")({
           parsed = parseCheckoutApiBody(body);
         } catch (e) {
           const message = e instanceof ZodError ? e.issues[0]?.message : "Invalid input";
-          return paymentsJsonResponse({ error: message ?? "Invalid input" }, 400);
+          return paymentsJsonResponse(request, { error: message ?? "Invalid input" }, 400);
         }
 
         const result = await createCheckoutSessionForUser({
@@ -44,9 +45,9 @@ export const Route = createFileRoute("/api/payments/checkout")({
         });
 
         if ("error" in result) {
-          return paymentsJsonResponse(result, 400);
+          return paymentsJsonResponse(request, result, 400);
         }
-        return paymentsJsonResponse(result);
+        return paymentsJsonResponse(request, result);
       },
     },
   },
