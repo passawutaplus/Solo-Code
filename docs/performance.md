@@ -2,6 +2,8 @@
 
 เป้าหมาย: Desktop PageSpeed > 90, Mobile > 70
 
+ดูรายงานล่าสุด: [performance-report.md](../../docs/performance-report.md)
+
 ## React Query defaults
 
 ตั้งใน `src/router.tsx`:

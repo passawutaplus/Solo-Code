@@ -13,7 +13,7 @@
 
 | ชั้น | คำสั่ง | ผล (รันใน repo) |
 |------|--------|----------------|
-| Unit (Vitest) | `npm run test` | ✅ 8 files, 49 tests passed |
+| Unit (Vitest) | `npm run test` | ✅ 10 files, 60 tests |
 | Public smoke (curl) | `BASE_URL=https://solofreelancer.com npm run smoke:public` | ✅ |
 | Puppeteer smoke | `npm run e2e:puppeteer:smoke` | ต้อง `install-chrome-deps.sh` ก่อน (WSL) |
 | Playwright smoke | `npm run e2e:smoke` | ต้อง OS ที่ Playwright รองรับ |
@@ -186,7 +186,7 @@ Login ทุก role แล้วเช็คทีละ route:
 
 ---
 
-## Phase 6 — Inhouse (ถ้าใช้ feature)
+## Phase 6 — In-House workspace (shipped MVP)
 
 - [ ] `/inhouse` — org list
 - [ ] `/inhouse/invite/:token` — accept invite

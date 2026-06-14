@@ -87,13 +87,13 @@ test("user can create a project", async ({ page }) => {
 });
 ```
 
-## CI integration (future)
+## CI integration
 
 ```yaml
-# .github/workflows/e2e.yml (template)
-- run: bun install
-- run: bunx playwright install --with-deps
-- run: bunx playwright test --project=smoke
+# .github/workflows/e2e.yml
+- run: npm ci
+- run: npx playwright install --with-deps
+- run: npm run e2e:smoke
   env:
     E2E_USER_EMAIL: ${{ secrets.E2E_USER_EMAIL }}
     E2E_USER_PASSWORD: ${{ secrets.E2E_USER_PASSWORD }}

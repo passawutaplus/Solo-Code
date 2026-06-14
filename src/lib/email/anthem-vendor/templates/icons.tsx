@@ -6,6 +6,8 @@ import { brand, h1, link } from './_brand'
 export const ICON_NAMES = [
   'payment', 'celebration', 'warning', 'receipt', 'credits', 'bell',
   'document', 'mail', 'check', 'globe', 'line', 'cancel',
+  'hire', 'chat', 'job', 'collab',
+  'gift', 'follow', 'application', 'topup', 'cashout',
 ] as const
 
 export type IconName = (typeof ICON_NAMES)[number]

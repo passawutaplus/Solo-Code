@@ -1,6 +1,6 @@
 # So1o Supabase Schema — Domain Map
 
-โปรเจกต์: **`rvnzjiskqliexysicfmh`** · migrations: **111 ไฟล์** ใน `migrations/`
+โปรเจกต์: **`rvnzjiskqliexysicfmh`** · migrations: **136 ไฟล์** ใน `migrations/`
 
 ## งานลูกค้า (Pipeline)
 

@@ -23,11 +23,25 @@ export SUPABASE_ACCESS_TOKEN=sbp_...
 ```
 
 หรือเพิ่มเอง:
-- `https://solofreelancer.com/auth/callback`
-- `https://www.solofreelancer.com/auth/callback`
-- `https://an1hem.app/auth/callback`
-- `http://localhost:3000/auth/callback` (So1o dev)
-- `http://localhost:8081/auth/callback` (an1hem dev)
+
+**Production:**
+- `https://solofreelancer.com/**`
+- `https://www.solofreelancer.com/**`
+- `https://an1hem.app/**`
+- `https://www.an1hem.app/**`
+- `https://hq.solofreelancer.com/**`
+
+**Demo (Vercel):**
+- `https://1px-demo.vercel.app/**`
+- `https://solo-demo-liart.vercel.app/**`
+
+**Local dev:**
+- `http://localhost:5173/**` (So1o `npm run dev`)
+- `http://localhost:8080/**` (an1hem `npm run dev`)
+- `http://localhost:3000/**` (So1o Docker SSR)
+- `http://localhost:3090/**` (Ops Hub)
+
+Legacy callback paths (`/auth/callback`) ยังรองรับผ่าน wildcard `/**`
 
 ## 3. App flow
 
@@ -40,8 +54,12 @@ export SUPABASE_ACCESS_TOKEN=sbp_...
 
 ```bash
 # Solo-Code .env
-VITE_SITE_URL=https://www.solofreelancer.com
+VITE_SITE_URL=https://solofreelancer.com
 
 # Anthem-Code .env
 VITE_SITE_URL=https://an1hem.app
 ```
+
+## 5. LINE OAuth (แยกจาก Google)
+
+LINE Login ใช้ช่องแยก + callback ที่ `/line-link` — ดู [setup-line.md](../../docs/setup-line.md)

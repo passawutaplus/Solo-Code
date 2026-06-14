@@ -26,10 +26,9 @@ supabase secrets set GEMINI_MODEL_FAST=gemini-2.5-flash-lite
 Deploy functions:
 
 ```bash
-supabase functions deploy ai-design-chat
-supabase functions deploy ai-price-suggest
-supabase functions deploy color-mentor
-supabase functions deploy planner-ai-assist
+supabase functions deploy ai-design-chat ai-price-suggest color-mentor planner-ai-assist \
+  anthem-assistant ecosystem-ai-usage \
+  --project-ref rvnzjiskqliexysicfmh
 ```
 
 ## ฟีเจอร์ที่เรียก Gemini
@@ -40,6 +39,8 @@ supabase functions deploy planner-ai-assist
 | Price Guide reasoning | `ai-price-suggest` |
 | Color Lab | `color-mentor` |
 | Content Planner captions/hashtags | `planner-ai-assist` |
+| an1hem AI assistant FAB | `anthem-assistant` |
+| Shared ecosystem AI credits | `ecosystem-ai-usage` |
 | Brief extract / mood board | `aiBriefExtract`, `aiBriefFromImages` (server) |
 | WHT 50ทวิ scan | `whtGeminiScan` (server) |
 | Admin HQ agents / AI sandbox | `hq.functions`, `aiSandbox.functions` |
@@ -51,6 +52,9 @@ supabase functions deploy planner-ai-assist
 
 ## สิ่งที่ยังใช้ Lovable (ไม่ใช่ AI)
 
-- Email (`/lovable/email/*`) — `LOVABLE_API_KEY`
-- Stripe connector — `LOVABLE_API_KEY`
+- Email (`/lovable/email/*`) — `LOVABLE_API_KEY` — ดู [ecosystem-notifications.md](../../docs/ecosystem-notifications.md)
 - Google Sheets connector — `LOVABLE_API_KEY`
+
+## Stripe (ไม่ใช่ Gemini)
+
+ใช้ Stripe API ตรงเมื่อ `STRIPE_USE_DIRECT=true` — ดู [stripe.md](./stripe.md)

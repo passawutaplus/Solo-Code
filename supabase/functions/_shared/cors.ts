@@ -7,6 +7,7 @@ const STATIC_ORIGINS = [
   "https://www.solofreelancer.com",
   "https://so1o-freelancer-managment.lovable.app",
   "https://1px-demo.vercel.app",
+  "https://an1hem.app",
   "http://localhost:5173",
   "http://localhost:8080",
   "http://127.0.0.1:5173",

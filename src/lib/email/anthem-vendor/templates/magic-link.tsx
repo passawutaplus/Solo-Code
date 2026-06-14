@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { EMAIL_FOOTER_NOT_REQUESTED } from '@/lib/copyConstants'
+import { EMAIL_FOOTER_NOT_REQUESTED } from '../copyConstants'
 import { EmailLayout, EmailButton, EmailText } from './layout'
 
 interface MagicLinkEmailProps { siteName: string; confirmationUrl: string }

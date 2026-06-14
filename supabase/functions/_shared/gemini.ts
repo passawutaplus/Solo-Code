@@ -292,3 +292,104 @@ export async function geminiEmbedText(
   if (!values?.length) throw new GeminiError("empty embedding", 500);
   return values;
 }
+
+export function defaultVisionModel(): string {
+  return Deno.env.get("GEMINI_MODEL_VISION") ?? Deno.env.get("GEMINI_MODEL") ?? "gemini-2.5-flash";
+}
+
+/** Block SSRF — only Anthem project-media paths owned by the user. */
+export function assertSafeAnthemImageUrl(url: string, userId: string): void {
+  let parsed: URL;
+  try {
+    parsed = new URL(url);
+  } catch {
+    throw new GeminiError("invalid image url", 400);
+  }
+  if (parsed.protocol !== "https:") {
+    throw new GeminiError("https required", 400);
+  }
+
+  const blockedHost =
+    /^(localhost|127\.0\.0\.1|0\.0\.0\.0|metadata\.google\.internal)$/i.test(parsed.hostname) ||
+    /\.(local|internal)$/i.test(parsed.hostname) ||
+    /^(10\.|192\.168\.|169\.254\.|172\.(1[6-9]|2\d|3[01])\.)/.test(parsed.hostname);
+  if (blockedHost) {
+    throw new GeminiError("image url not allowed", 400);
+  }
+
+  const supabaseUrl = Deno.env.get("SUPABASE_URL");
+  if (!supabaseUrl) throw new GeminiError("server misconfiguration", 500);
+
+  const base = new URL(supabaseUrl);
+  if (parsed.origin !== base.origin || !parsed.pathname.includes("/storage/v1/object/")) {
+    throw new GeminiError("storage url required", 400);
+  }
+
+  const objectPath = parsed.pathname.split("/object/")[1] ?? "";
+  const normalized = decodeURIComponent(objectPath).replace(/^\/+/, "");
+  const segments = normalized.split("/");
+  const pathInBucket =
+    segments[0] === "public" || segments[0] === "authenticated" || segments[0] === "sign"
+      ? segments.slice(2).join("/")
+      : segments.slice(1).join("/");
+
+  const allowed =
+    pathInBucket.startsWith(`anthem/${userId}/`) ||
+    pathInBucket.startsWith(`${userId}/`);
+  if (!allowed) {
+    throw new GeminiError("image access denied", 403);
+  }
+}
+
+function bytesToBase64(bytes: Uint8Array): string {
+  let binary = "";
+  for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]!);
+  return btoa(binary);
+}
+
+export async function fetchUrlAsInlinePart(
+  url: string,
+  userId: string,
+): Promise<{ inlineData: { mimeType: string; data: string } }> {
+  assertSafeAnthemImageUrl(url, userId);
+  const res = await fetch(url);
+  if (!res.ok) throw new GeminiError(`image fetch failed: ${res.status}`, 502);
+  const buf = new Uint8Array(await res.arrayBuffer());
+  const mimeType = (res.headers.get("content-type") ?? "image/webp").split(";")[0]!.trim();
+  return { inlineData: { mimeType, data: bytesToBase64(buf) } };
+}
+
+export async function geminiGenerateWithParts(
+  apiKey: string,
+  model: string,
+  options: {
+    systemInstruction: string;
+    userParts: Array<{ text?: string; inlineData?: { mimeType: string; data: string } }>;
+    temperature?: number;
+    maxOutputTokens?: number;
+    json?: boolean;
+  },
+): Promise<string> {
+  const url = `${GEMINI_BASE}/models/${model}:generateContent?key=${encodeURIComponent(apiKey)}`;
+  const gen: Record<string, unknown> = {};
+  if (options.temperature != null) gen.temperature = options.temperature;
+  if (options.maxOutputTokens != null) gen.maxOutputTokens = options.maxOutputTokens;
+  if (options.json) gen.responseMimeType = "application/json";
+
+  const body: Record<string, unknown> = {
+    contents: [{ role: "user", parts: options.userParts }],
+    systemInstruction: { parts: [{ text: options.systemInstruction }] },
+  };
+  if (Object.keys(gen).length > 0) body.generationConfig = gen;
+
+  const res = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) throw await parseGeminiError(res);
+
+  const json = (await res.json()) as Record<string, unknown>;
+  return extractTextFromResponse(json).trim();
+}
+

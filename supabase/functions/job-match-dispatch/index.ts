@@ -3,6 +3,12 @@
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { z } from "npm:zod@3";
+import { anthemSiteUrl } from "../_shared/anthem-email-html.ts";
+import {
+  enqueueAnthemNotificationEmail,
+  shouldSendAnthemEmail,
+} from "../_shared/enqueue-anthem-email.ts";
+import { enqueueLineNotification } from "../_shared/line-enqueue.ts";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SERVICE_ROLE = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -89,6 +95,43 @@ function scoreHiring(job: Job, c: Candidate) {
 const json = (b: unknown, status = 200) =>
   new Response(JSON.stringify(b), { status, headers: { ...corsHeaders, "Content-Type": "application/json" } });
 
+type MatchRow = { user_id: string; job_id: string; match_score: number; match_reasons: string[] };
+
+async function notifyJobMatches(sb: ReturnType<typeof createClient>, job: Job, rows: MatchRow[]) {
+  const siteUrl = anthemSiteUrl();
+  let emails = 0;
+  for (const row of rows) {
+    const notify = await shouldSendAnthemEmail(sb, row.user_id, { kind: "job_match" });
+    if (!notify.send || !notify.email) continue;
+
+    const result = await enqueueAnthemNotificationEmail(sb, {
+      template: "job-match",
+      templateName: "anthem-job-match",
+      recipientEmail: notify.email,
+      idempotencyKey: `job-match-${row.user_id}-${row.job_id}`,
+      label: "anthem-job-match",
+      templateData: {
+        recipientName: notify.displayName ?? "คุณ",
+        jobTitle: job.title,
+        roleCategory: job.role_category,
+        matchScore: row.match_score,
+        matchReasons: row.match_reasons,
+        actionUrl: `${siteUrl}/jobs/${job.id}`,
+      },
+    });
+    if (result.ok && !result.duplicate) emails += 1;
+
+    await enqueueLineNotification({
+      userId: row.user_id,
+      kind: "anthem_job_match",
+      body: `พบงาน ${job.title} ตรงสกิล (${row.match_score}%)`,
+      idempotencyKey: `line-job-match-${row.user_id}-${row.job_id}`,
+      link: `/jobs/${job.id}`,
+    });
+  }
+  return emails;
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   if (req.method !== "POST") return json({ error: "method not allowed" }, 405);
@@ -151,8 +194,10 @@ Deno.serve(async (req) => {
 
       if (rows.length) {
         await sb.from("job_match_notifications").upsert(rows, { onConflict: "user_id,job_id", ignoreDuplicates: true });
+        const emails = await notifyJobMatches(sb, j, rows);
+        return json({ inserted: rows.length, emails });
       }
-      return json({ inserted: rows.length });
+      return json({ inserted: 0 });
     }
 
     const { data: studios } = await sb.from("studios").select("id, expertise, available_for_work");
@@ -198,8 +243,10 @@ Deno.serve(async (req) => {
 
     if (rows.length) {
       await sb.from("job_match_notifications").upsert(rows, { onConflict: "user_id,job_id", ignoreDuplicates: true });
+      const emails = await notifyJobMatches(sb, j, rows);
+      return json({ inserted: rows.length, emails });
     }
-    return json({ inserted: rows.length });
+    return json({ inserted: 0 });
   } catch {
     return json({ error: "internal error" }, 500);
   }

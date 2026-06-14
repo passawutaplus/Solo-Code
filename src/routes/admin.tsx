@@ -79,10 +79,13 @@ const ActivityFeedSection = React.lazy(() =>
   import("@/components/admin/ActivityFeedSection").then((m) => ({ default: m.ActivityFeedSection })),
 );
 const AiUsageSection = React.lazy(() =>
-  import("@/components/admin/AiUsageSection").then((m) => ({ default: m.AiUsageSection })),
+  import("@/components/admin/AiMonitorSection").then((m) => ({ default: m.AiMonitorSection })),
 );
 const PaymentsSection = React.lazy(() =>
   import("@/components/admin/PaymentsSection").then((m) => ({ default: m.PaymentsSection })),
+);
+const DevTasksSection = React.lazy(() =>
+  import("@/components/admin/DevTasksSection").then((m) => ({ default: m.DevTasksSection })),
 );
 
 function SectionFallback() {
@@ -211,6 +214,7 @@ function AdminPage() {
             <div className="max-w-7xl mx-auto animate-fade-in">
               <React.Suspense fallback={<SectionFallback />}>
                 {active === "overview" && <OverviewSection m={m} />}
+                {active === "dev_tasks" && <DevTasksSection />}
                 {active === "activity_feed" && <ActivityFeedSection />}
                 {active === "early_access" && <EarlyAccessSection />}
                 {active === "users" && <UsersSection m={m} />}

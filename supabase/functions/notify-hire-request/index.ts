@@ -2,6 +2,11 @@ import { createClient } from "npm:@supabase/supabase-js@2";
 import { z } from "npm:zod@3";
 import { enqueueLineNotification } from "../_shared/line-enqueue.ts";
 import { corsHeadersForRequest } from "../_shared/cors.ts";
+import { anthemSiteUrl } from "../_shared/anthem-email-html.ts";
+import {
+  enqueueAnthemNotificationEmail,
+  shouldSendAnthemEmail,
+} from "../_shared/enqueue-anthem-email.ts";
 
 const BodySchema = z.object({
   request_id: z.string().uuid(),
@@ -13,13 +18,9 @@ const json = (req: Request, body: unknown, status = 200) =>
     headers: { ...corsHeadersForRequest(req), "Content-Type": "application/json" },
   });
 
-function escapeHtml(value: string): string {
-  return value
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;");
+function formatBudget(amount: number | null | undefined): string {
+  if (amount == null) return "";
+  return `฿${Number(amount).toLocaleString("th-TH")}`;
 }
 
 Deno.serve(async (req) => {
@@ -59,80 +60,42 @@ Deno.serve(async (req) => {
   if (hireErr || !hire) return json(req, { error: "not_found" }, 404);
   if (hire.client_id !== callerId) return json(req, { error: "forbidden" }, 403);
 
-  const { data: freelancerAuth } = await admin.auth.admin.getUserById(hire.freelancer_id);
-  const freelancerEmail = freelancerAuth?.user?.email;
-  if (!freelancerEmail) return json(req, { skipped: true, reason: "no_freelancer_email" });
-
-  const { data: profile } = await admin
-    .from("profiles")
-    .select("display_name, notify_hire, notify_email")
-    .eq("user_id", hire.freelancer_id)
-    .maybeSingle();
-
-  if (profile?.notify_email === false || profile?.notify_hire === false) {
+  const notify = await shouldSendAnthemEmail(admin, hire.freelancer_id, { kind: "hire" });
+  if (!notify.send || !notify.email) {
     return json(req, { skipped: true, reason: "notifications_disabled" });
   }
 
-  const recipientName = escapeHtml(profile?.display_name || "คุณ");
-  const projectName = escapeHtml(hire.project_title || "งานจ้างใหม่");
-  const clientName = escapeHtml(hire.client_name ?? "ลูกค้า");
-  const messageId = crypto.randomUUID();
   const idempotencyKey = `hire-request-${hire.id}`;
-
-  const { data: existing } = await admin
-    .from("email_send_log")
-    .select("id")
-    .eq("message_id", idempotencyKey)
-    .maybeSingle();
-  if (existing) return json(req, { ok: true, duplicate: true });
-
-  const budgetLine = hire.budget_amount
-    ? `งบประมาณ: ฿${Number(hire.budget_amount).toLocaleString("th-TH")}`
-    : "";
-  const deadlineLine = hire.deadline ? `กำหนดส่ง: ${hire.deadline}` : "";
-  const detailRaw = [hire.message, budgetLine, deadlineLine].filter(Boolean).join("\n");
-  const detailText = detailRaw;
-  const detailHtml = escapeHtml(detailRaw);
-
-  const subject = `[Anthem] มีคำขอจ้างงานใหม่ — ${hire.project_title || "งานจ้างใหม่"}`;
-  const text = `สวัสดี ${profile?.display_name || "คุณ"}\n\nมีลูกค้า ${hire.client_name} ส่งคำขอจ้างงาน "${hire.project_title || "งานจ้างใหม่"}" ผ่าน Anthem\n\n${detailText}\n\nเปิดดู: https://solofreelancer.com/dashboard`;
-  const html = `<p>สวัสดี ${recipientName}</p><p>มีลูกค้า <strong>${clientName}</strong> ส่งคำขอจ้างงาน <strong>${projectName}</strong> ผ่าน Anthem</p><pre style="white-space:pre-wrap;font-family:inherit">${detailHtml}</pre><p><a href="https://solofreelancer.com/dashboard">เปิด So1o My Desk</a></p>`;
-
-  await admin.from("email_send_log").insert({
-    message_id: messageId,
-    template_name: "anthem-hire-request",
-    recipient_email: freelancerEmail.toLowerCase(),
-    status: "pending",
-  });
-
-  const { error: queueErr } = await admin.rpc("enqueue_email", {
-    queue_name: "transactional_emails",
-    payload: {
-      message_id: messageId,
-      to: freelancerEmail,
-      from: "So1o Freelancer <noreply@solofreelancer.com>",
-      sender_domain: "notify.solofreelancer.com",
-      subject,
-      html,
-      text,
-      purpose: "transactional",
-      label: "anthem-hire-request",
-      idempotency_key: idempotencyKey,
-      queued_at: new Date().toISOString(),
+  const siteUrl = anthemSiteUrl();
+  const emailResult = await enqueueAnthemNotificationEmail(admin, {
+    template: "hire-request",
+    templateName: "anthem-hire-request",
+    recipientEmail: notify.email,
+    idempotencyKey,
+    label: "anthem-hire-request",
+    templateData: {
+      recipientName: notify.displayName ?? "คุณ",
+      clientName: hire.client_name ?? "ลูกค้า",
+      projectTitle: hire.project_title ?? "งานจ้างใหม่",
+      message: hire.message ?? "",
+      budgetAmount: formatBudget(hire.budget_amount),
+      deadline: hire.deadline ?? "",
+      actionUrl: `${siteUrl}/chat`,
     },
   });
 
-  if (queueErr) {
-    console.error("[notify-hire-request] enqueue failed", queueErr.message);
-    return json(req, { error: "enqueue_failed" }, 500);
-  }
+  const detailRaw = [
+    hire.message,
+    hire.budget_amount ? `งบประมาณ: ${formatBudget(hire.budget_amount)}` : "",
+    hire.deadline ? `กำหนดส่ง: ${hire.deadline}` : "",
+  ].filter(Boolean).join("\n");
 
   const lineResult = await enqueueLineNotification({
     userId: hire.freelancer_id,
     kind: "anthem_hire",
-    body: `${hire.client_name} ส่งคำขอจ้าง — ${hire.project_title || "งานจ้างใหม่"}\n${detailText.slice(0, 200)}`,
+    body: `${hire.client_name} ส่งคำขอจ้าง — ${hire.project_title || "งานจ้างใหม่"}\n${detailRaw.slice(0, 200)}`,
     idempotencyKey: `line-hire-${hire.id}`,
   });
 
-  return json(req, { ok: true, line: lineResult });
+  return json(req, { ok: true, email: emailResult, line: lineResult });
 });

@@ -18,7 +18,7 @@
 
 | Table | Purpose | Notes |
 |---|---|---|
-| `subscriptions` | User subscriptions (plan, status) | Stripe-backed (paused — TBD) |
+| `subscriptions` | User subscriptions (plan, status) | Stripe-backed (Pro, Pro+, In-House) |
 | `finance_*` | Expenses, incomes, payment methods, settings | self-scoped |
 | `client_invoices` | Invoices issued to user's clients | self-scoped |
 

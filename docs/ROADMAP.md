@@ -7,7 +7,7 @@
 | Product | URL | บทบาท |
 |---------|-----|--------|
 | **So1o Freelancer (My Desk)** | solofreelancer.com | หลังบ้าน: ลูกค้า, ใบเสนอราคา, งาน, การเงิน, ภาษี, Brief, Labs |
-| **an1hem Showcase** | [anthem-freelancehub.lovable.app](https://anthem-freelancehub.lovable.app/) | หน้าร้าน: ฟีดผลงานชุมชนสไตล์ Pinterest |
+| **an1hem Showcase** | [an1hem.app](https://an1hem.app) (demo: [1px-demo.vercel.app](https://1px-demo.vercel.app)) | หน้าร้าน: ฟีดผลงานชุมชนสไตล์ Pinterest |
 | **Free Quotation (legacy)** | freelance-invoice-taupe.vercel.app | เครื่องมือใบเสนอราคาออนไลน์แยก (จะรวมเข้า My Desk ในอนาคต) |
 
 ---
@@ -69,7 +69,7 @@
 | อีเมลแจ้งลูกค้าเมื่อส่งใบเสนอราคา / ใกล้ครบกำหนดชำระ | Product |
 | E2E ทดสอบ flow: quotation → income → tax | Engineering |
 | Sentry / error monitoring | Engineering |
-| เปิด Stripe Pro checkout (เลิก Coming Soon เมื่อพร้อม) | Monetization |
+| เปิด Stripe Pro checkout (sandbox live — ดู `docs/stripe.md`) | Monetization |
 
 ### Q4 2026 — Client experience
 

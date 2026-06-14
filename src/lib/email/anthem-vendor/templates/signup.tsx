@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { Link } from '@react-email/components'
-import { EMAIL_FOOTER_NOT_SIGNED_UP } from '@/lib/copyConstants'
+import { EMAIL_FOOTER_NOT_SIGNED_UP } from '../copyConstants'
 import { EmailLayout, EmailButton, EmailText, link } from './layout'
 
 interface SignupEmailProps {

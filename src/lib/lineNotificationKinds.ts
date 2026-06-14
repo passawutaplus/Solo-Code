@@ -9,6 +9,12 @@ export type LineNotifyKind =
   | "anthem_hire"
   | "anthem_chat"
   | "anthem_job_match"
+  | "anthem_collab"
+  | "anthem_gift"
+  | "anthem_follow"
+  | "anthem_job_application"
+  | "anthem_topup"
+  | "anthem_cashout"
   | "inhouse_invite"
   | "inhouse_member_join"
   | "inhouse_chat"
@@ -27,6 +33,12 @@ export const DEFAULT_LINE_NOTIFY_PREFS: Record<LineNotifyKind, boolean> = {
   anthem_hire: true,
   anthem_chat: true,
   anthem_job_match: true,
+  anthem_collab: true,
+  anthem_gift: true,
+  anthem_follow: true,
+  anthem_job_application: true,
+  anthem_topup: true,
+  anthem_cashout: true,
   inhouse_invite: true,
   inhouse_member_join: true,
   inhouse_chat: true,
@@ -102,8 +114,8 @@ export const LINE_NOTIFY_GROUPS: LineNotifyGroup[] = [
     id: "anthem",
     label: { th: "จากหน้าร้านโชว์เคส", en: "Anthem showcase" },
     description: {
-      th: "คำขอจ้าง แชท และงานที่ตรงสกิลจากหน้าร้าน",
-      en: "Hire requests, chat, and job matches from Anthem",
+      th: "คำขอจ้าง แชท ของขวัญ และกิจกรรมจากหน้าร้าน 1PX",
+      en: "Hire, chat, gifts, and showcase activity on 1PX",
     },
     kinds: [
       {
@@ -117,9 +129,39 @@ export const LINE_NOTIFY_GROUPS: LineNotifyGroup[] = [
         hint: { th: "แชทจ้างงานหรือคอลแลป", en: "Hire or collab live chat" },
       },
       {
+        key: "anthem_collab",
+        label: { th: "คำขอคอลแลป", en: "Collab request" },
+        hint: { th: "มีคนอยากร่วมงานกับคุณ", en: "Someone wants to collaborate" },
+      },
+      {
+        key: "anthem_gift",
+        label: { th: "ได้รับของขวัญ PX", en: "Gift received" },
+        hint: { th: "เมื่อมีคนส่งของขวัญสนับสนุน", en: "When someone sends you a gift" },
+      },
+      {
+        key: "anthem_follow",
+        label: { th: "ผู้ติดตามใหม่", en: "New follower" },
+        hint: { th: "เมื่อมีคนกดติดตามโปรไฟล์", en: "When someone follows you" },
+      },
+      {
         key: "anthem_job_match",
         label: { th: "งานตรงสกิล", en: "Job match" },
         hint: { th: "ประกาศงานที่ตรงกับสกิลของคุณ", en: "Job board match for your skills" },
+      },
+      {
+        key: "anthem_job_application",
+        label: { th: "ผู้สมัครงานใหม่", en: "New job application" },
+        hint: { th: "เมื่อมีคนสมัครงานที่คุณประกาศ", en: "When someone applies to your job post" },
+      },
+      {
+        key: "anthem_topup",
+        label: { th: "เติม Pixel สำเร็จ", en: "Pixel top-up" },
+        hint: { th: "ยืนยันการเติม px เข้ากระเป๋า", en: "Confirm px added to your wallet" },
+      },
+      {
+        key: "anthem_cashout",
+        label: { th: "ถอนเงิน / สถานะคำขอ", en: "Cashout updates" },
+        hint: { th: "อัปเดตคำขอถอนและโอนเงิน", en: "Cashout request status updates" },
       },
     ],
   },

@@ -199,6 +199,35 @@ export function EmailCard({ children }: { children: React.ReactNode }) {
   )
 }
 
+export function EmailCardLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <Text style={{
+      color: brand.mute,
+      fontSize: '11px',
+      textTransform: 'uppercase' as const,
+      letterSpacing: '0.08em',
+      margin: '0 0 4px',
+      fontWeight: 600,
+    }}>
+      {children}
+    </Text>
+  )
+}
+
+export function EmailCardRow({ children, highlight }: { children: React.ReactNode; highlight?: boolean }) {
+  return (
+    <Text style={{
+      fontSize: '14px',
+      color: highlight ? brand.orange : brand.body,
+      fontWeight: highlight ? 600 : 400,
+      margin: '0 0 10px',
+      lineHeight: '1.5',
+    }}>
+      {children}
+    </Text>
+  )
+}
+
 export function EmailButton({ href, children }: { href: string; children: React.ReactNode }) {
   return <Button style={button} href={href}>{children}</Button>
 }

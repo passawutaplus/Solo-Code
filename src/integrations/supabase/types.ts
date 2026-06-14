@@ -802,6 +802,7 @@ export type Database = {
           likes: number
           owner_id: string
           price_thb: number | null
+          rights_attestation_version: string | null
           rights_attested_at: string | null
           sort_order: number
           status: string
@@ -833,6 +834,7 @@ export type Database = {
           likes?: number
           owner_id: string
           price_thb?: number | null
+          rights_attestation_version?: string | null
           rights_attested_at?: string | null
           sort_order?: number
           status?: string
@@ -864,6 +866,7 @@ export type Database = {
           likes?: number
           owner_id?: string
           price_thb?: number | null
+          rights_attestation_version?: string | null
           rights_attested_at?: string | null
           sort_order?: number
           status?: string
@@ -1293,6 +1296,7 @@ export type Database = {
           likes: number
           owner_id: string
           price_thb: number | null
+          rights_attestation_version: string | null
           rights_attested_at: string | null
           sort_order: number
           status: string
@@ -1778,6 +1782,36 @@ export type Database = {
           },
         ]
       }
+      playbook_runs: {
+        Row: {
+          assignee_id: string | null
+          completed_at: string | null
+          created_at: string
+          id: string
+          notes: string | null
+          playbook_id: string
+          status: string
+        }
+        Insert: {
+          assignee_id?: string | null
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          playbook_id: string
+          status?: string
+        }
+        Update: {
+          assignee_id?: string | null
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          playbook_id?: string
+          status?: string
+        }
+        Relationships: []
+      }
       projects: {
         Row: {
           app_scope: string
@@ -1804,6 +1838,62 @@ export type Database = {
           slug?: string
         }
         Relationships: []
+      }
+      radar_items: {
+        Row: {
+          category: string
+          created_at: string
+          created_by: string | null
+          effort: string
+          id: string
+          impact: string
+          issue_id: string | null
+          source: string
+          status: string
+          summary: string | null
+          title: string
+          updated_at: string
+          url: string | null
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          effort?: string
+          id?: string
+          impact?: string
+          issue_id?: string | null
+          source?: string
+          status?: string
+          summary?: string | null
+          title: string
+          updated_at?: string
+          url?: string | null
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          effort?: string
+          id?: string
+          impact?: string
+          issue_id?: string | null
+          source?: string
+          status?: string
+          summary?: string | null
+          title?: string
+          updated_at?: string
+          url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "radar_items_issue_id_fkey"
+            columns: ["issue_id"]
+            isOneToOne: false
+            referencedRelation: "issues"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       roadmap_items: {
         Row: {
@@ -1852,6 +1942,27 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      settings: {
+        Row: {
+          key: string
+          updated_at: string
+          updated_by: string | null
+          value: Json
+        }
+        Insert: {
+          key: string
+          updated_at?: string
+          updated_by?: string | null
+          value?: Json
+        }
+        Update: {
+          key?: string
+          updated_at?: string
+          updated_by?: string | null
+          value?: Json
+        }
+        Relationships: []
       }
     }
     Views: {
@@ -2739,6 +2850,39 @@ export type Database = {
           timeline_budget?: Json
           title?: string
           updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      ecosystem_links: {
+        Row: {
+          created_at: string
+          event_type: string
+          id: string
+          meta: Json
+          ref_id: string | null
+          source_app: string
+          source_page: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_type: string
+          id?: string
+          meta?: Json
+          ref_id?: string | null
+          source_app?: string
+          source_page?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          event_type?: string
+          id?: string
+          meta?: Json
+          ref_id?: string | null
+          source_app?: string
+          source_page?: string | null
           user_id?: string
         }
         Relationships: []
@@ -5753,6 +5897,7 @@ export type Database = {
           id: string
           price_id: string
           product_id: string
+          seat_quantity: number
           status: string
           stripe_customer_id: string
           stripe_subscription_id: string
@@ -5768,6 +5913,7 @@ export type Database = {
           id?: string
           price_id: string
           product_id: string
+          seat_quantity?: number
           status?: string
           stripe_customer_id: string
           stripe_subscription_id: string
@@ -5783,6 +5929,7 @@ export type Database = {
           id?: string
           price_id?: string
           product_id?: string
+          seat_quantity?: number
           status?: string
           stripe_customer_id?: string
           stripe_subscription_id?: string
@@ -6873,6 +7020,25 @@ export type Database = {
         }
         Returns: number
       }
+      admin_ecosystem_funnel: { Args: { _days?: number }; Returns: Json }
+      admin_list_platform_events: {
+        Args: { _limit?: number }
+        Returns: {
+          actor_id: string | null
+          created_at: string
+          event_type: string
+          id: string
+          metadata: Json
+          target_id: string | null
+          target_type: string | null
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "platform_events"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       admin_list_profiles_safe: {
         Args: never
         Returns: {
@@ -6904,6 +7070,18 @@ export type Database = {
           user_id: string
         }[]
       }
+      admin_search_users: {
+        Args: { _limit?: number; _query: string }
+        Returns: {
+          created_at: string
+          display_name: string
+          subscription_tier: string
+          user_id: string
+          username: string
+        }[]
+      }
+      admin_sso_metrics: { Args: never; Returns: Json }
+      admin_user_360: { Args: { _user_id: string }; Returns: Json }
       assert_org_seat_available: {
         Args: { _org_id: string }
         Returns: undefined
@@ -7157,6 +7335,16 @@ export type Database = {
         }
         Returns: string
       }
+      log_platform_event: {
+        Args: {
+          p_actor_id?: string
+          p_event_type: string
+          p_metadata?: Json
+          p_target_id?: string
+          p_target_type?: string
+        }
+        Returns: string
+      }
       log_user_activity: { Args: { _activity_type?: string }; Returns: boolean }
       mark_cashout_failed_stripe: {
         Args: { _cashout_id: string; _reason?: string }
@@ -7207,6 +7395,10 @@ export type Database = {
           isOneToOne: true
           isSetofReturn: false
         }
+      }
+      project_media_user_owns_path: {
+        Args: { object_name: string }
+        Returns: boolean
       }
       public_feed_stats: { Args: never; Returns: Json }
       purge_inactive_profile_data: {

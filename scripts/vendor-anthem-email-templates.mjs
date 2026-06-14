@@ -1,7 +1,7 @@
 /**
- * Copy Anthem auth email templates into Solo-Code for isolated builds (Vercel / Docker).
+ * Copy Anthem email templates into Solo-Code for isolated builds (Vercel / Docker).
  */
-import { cpSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -19,6 +19,17 @@ if (!existsSync(templatesSrc)) {
 mkdirSync(templatesDest, { recursive: true });
 cpSync(templatesSrc, templatesDest, { recursive: true });
 cpSync(join(anthemLib, "brandConfig.ts"), join(vendorRoot, "brandConfig.ts"));
+cpSync(join(anthemLib, "copyConstants.ts"), join(vendorRoot, "copyConstants.ts"));
+
+for (const file of readdirSync(templatesDest)) {
+  if (!file.endsWith(".tsx") && !file.endsWith(".ts")) continue;
+  const path = join(templatesDest, file);
+  let content = readFileSync(path, "utf8");
+  content = content
+    .replace(/from '@\/lib\/copyConstants'/g, "from '../copyConstants'")
+    .replace(/from '\.\.\/brandConfig'/g, "from '../brandConfig'");
+  writeFileSync(path, content);
+}
 
 const brandMetaPath = join(templatesDest, "brandMeta.ts");
 const brandMeta = readFileSync(brandMetaPath, "utf8");

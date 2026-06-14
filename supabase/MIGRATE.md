@@ -7,7 +7,7 @@
 - [x] `supabase/config.toml` → `rvnzjiskqliexysicfmh`
 - [x] `.env` → URL + anon key + service_role key ใหม่
 - [x] CLI link โปรเจกต์ใหม่แล้ว
-- [x] **Schema ทั้งหมด** — push ครบ 111 migrations แล้ว (ผ่าน `scripts/supabase-push-via-api.sh`)
+- [x] **Schema ทั้งหมด** — push ครบ 136 migrations แล้ว (ผ่าน `scripts/supabase-push-via-api.sh`)
 
 ## Push migrations ครั้งถัดไป
 

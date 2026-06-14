@@ -4,7 +4,7 @@
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
-│                     Browser (React 19 SPA)                    │
+│                     Browser (React 19 + TanStack Start SSR)   │
 │  ┌────────────┐  ┌────────────┐  ┌─────────────────────────┐ │
 │  │ Components │→ │ Feature    │→ │ React Query / Zustand   │ │
 │  │ (UI only)  │  │ Hooks      │  │ (cache + client state)  │ │
@@ -26,8 +26,8 @@
 └─────────────┼─────────────────────────────┼───────────────────┘
               ▼                             ▼
         ┌────────────────────────────────────────────┐
-        │           Lovable Cloud (Supabase)         │
-        │  Postgres + RLS + Auth + Storage + Realtime│
+        │           Supabase (rvnzjiskqliexysicfmh)          │
+        │  Postgres + RLS + Auth + Storage + Edge Functions  │
         └────────────────────────────────────────────┘
 ```
 
@@ -85,6 +85,18 @@ Component event → useServerFn(serverFnXyz)
 
 Channels use UUID-suffixed topics: `track-<uuid>`, `job-<uuid>`, `planner-<uuid>`, `planner-approvals-<uuid>`. RLS policies parse with `substring(topic FROM N)` because UUIDs contain hyphens (NOT `split_part`).
 
-## Edge functions (legacy)
+## Edge functions
 
-A handful of Supabase Edge Functions exist (`supabase/functions/*`) for AI/streaming workloads. **New work goes into `createServerFn`** — see [`adding-a-feature.md`](./adding-a-feature.md).
+Supabase Edge Functions ใน `supabase/functions/` (19 ตัว) — ใช้สำหรับ:
+
+- **AI/Gemini** — streaming workloads
+- **Ecosystem notify** — `notify-anthem*` → email + LINE (ดู [ecosystem-notifications.md](../../docs/ecosystem-notifications.md))
+- **LINE** — `line-connect`, `line-webhook`, `line-queue-process`
+
+**New privileged So1o work** ยังไปที่ `createServerFn` เป็นหลัก — ดู [`adding-a-feature.md`](./adding-a-feature.md).
+
+## Email / notifications
+
+- So1o transactional: `/lovable/email/*` server routes + PGMQ
+- Anthem events: client → edge `notify-anthem*` → email queue + LINE queue
+- ดู [ecosystem-notifications.md](../../docs/ecosystem-notifications.md) · [stripe.md](./stripe.md)

@@ -42,3 +42,6 @@ verify_jwt = false
 
 [functions.line-link-account]
 verify_jwt = false
+
+[functions.admin-ai-monitor]
+verify_jwt = true

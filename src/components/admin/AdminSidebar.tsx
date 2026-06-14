@@ -26,6 +26,7 @@ import {
   Cpu,
   HeartPulse,
   ExternalLink,
+  Map,
 } from "lucide-react";
 import { OPS_HUB_URL } from "@/lib/productLinks";
 import {
@@ -64,7 +65,8 @@ export type AdminSection =
   | "ai_center"
   | "health"
   | "usage"
-  | "supabase";
+  | "supabase"
+  | "dev_tasks";
 
 export const ADMIN_SECTION_IDS: AdminSection[] = [
   "overview",
@@ -87,6 +89,7 @@ export const ADMIN_SECTION_IDS: AdminSection[] = [
   "health",
   "usage",
   "supabase",
+  "dev_tasks",
 ];
 
 export function isAdminSection(value: string | undefined): value is AdminSection {
@@ -106,6 +109,7 @@ const GROUPS: { label: string; items: SectionItem[] }[] = [
     label: "ภาพรวม",
     items: [
       { id: "overview", label: "ภาพรวม", icon: LayoutDashboard, sub: "Overview" },
+      { id: "dev_tasks", label: "แผนพัฒนา", icon: Map, sub: "Ops tracking → tasks" },
       { id: "activity_feed", label: "ไทม์ไลน์", icon: History, sub: "Activity Feed" },
     ],
   },
@@ -124,7 +128,7 @@ const GROUPS: { label: string; items: SectionItem[] }[] = [
       { id: "feature_usage", label: "ฟีเจอร์ยอดนิยม", icon: BarChart3, sub: "Feature Usage" },
       { id: "activity", label: "รูปแบบการใช้", icon: LineChart, sub: "Activity Stats" },
       { id: "device", label: "อุปกรณ์", icon: Smartphone, sub: "Device Analytics" },
-      { id: "ai_usage", label: "AI Quota", icon: Bot, sub: "AI Usage" },
+      { id: "ai_usage", label: "AI Monitor", icon: Bot, sub: "Usage & Gemini cost" },
     ],
   },
   {

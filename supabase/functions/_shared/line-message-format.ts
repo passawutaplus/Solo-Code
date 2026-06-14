@@ -7,6 +7,12 @@ type LineNotifyKind =
   | "anthem_hire"
   | "anthem_chat"
   | "anthem_job_match"
+  | "anthem_collab"
+  | "anthem_gift"
+  | "anthem_follow"
+  | "anthem_job_application"
+  | "anthem_topup"
+  | "anthem_cashout"
   | "inhouse_invite"
   | "inhouse_member_join"
   | "inhouse_chat"
@@ -15,6 +21,23 @@ type LineNotifyKind =
   | "billing";
 
 export const LINE_NOTIFICATION_HEADER = "[So1o Freelancer Notification]";
+export const ANTHEM_LINE_HEADER = "[1PX Notification]";
+
+const ANTHEM_KINDS = new Set<string>([
+  "anthem_hire",
+  "anthem_chat",
+  "anthem_job_match",
+  "anthem_collab",
+  "anthem_gift",
+  "anthem_follow",
+  "anthem_job_application",
+  "anthem_topup",
+  "anthem_cashout",
+]);
+
+function lineHeader(kind: LineNotifyKind): string {
+  return ANTHEM_KINDS.has(kind) ? ANTHEM_LINE_HEADER : LINE_NOTIFICATION_HEADER;
+}
 
 const SOLO_BASE = (Deno.env.get("SOLO_SITE_URL") ?? "https://solofreelancer.com").replace(/\/$/, "");
 const ANTHEM_BASE = (Deno.env.get("ANTHEM_APP_URL") ?? "https://an1hem.app").replace(/\/$/, "");
@@ -73,6 +96,42 @@ const LINE_KIND_COPY: Record<LineNotifyKind, KindCopy> = {
     hook: "พบงานตรงสกิลของคุณ!!",
     cta: "ไปดูงานแล้วลุยต่อเลยย",
     path: "/jobs",
+    app: "anthem",
+  },
+  anthem_collab: {
+    hook: "มีคนอยากร่วมงานกับคุณ!!",
+    cta: "ไปดูคำขอคอลแลปเลย",
+    path: "/portfolio/manage?focus=collab",
+    app: "anthem",
+  },
+  anthem_gift: {
+    hook: "มีของขวัญ PX เข้ามา!!",
+    cta: "ไปดูของขวัญที่ได้รับ",
+    path: "/earnings",
+    app: "anthem",
+  },
+  anthem_follow: {
+    hook: "มีผู้ติดตามใหม่!!",
+    cta: "ไปดูโปรไฟล์ของคุณ",
+    path: "/portfolio/manage",
+    app: "anthem",
+  },
+  anthem_job_application: {
+    hook: "มีผู้สมัครงานใหม่!!",
+    cta: "ไปดูใบสมัครงาน",
+    path: "/jobs",
+    app: "anthem",
+  },
+  anthem_topup: {
+    hook: "เติม Pixel สำเร็จแล้ว!!",
+    cta: "ไปดูกระเป๋า px",
+    path: "/earnings",
+    app: "anthem",
+  },
+  anthem_cashout: {
+    hook: "อัปเดตคำขอถอนเงินแล้ว",
+    cta: "ไปดูรายละเอียดที่ Earnings",
+    path: "/earnings",
     app: "anthem",
   },
   inhouse_invite: {
@@ -150,7 +209,7 @@ export function formatLineNotification(
   const detail = body.trim();
   const personal = formatPersonalLine(opts);
 
-  const lines = [copy.hook, "", LINE_NOTIFICATION_HEADER, detail, ""];
+  const lines = [copy.hook, "", lineHeader(kind), detail, ""];
   if (personal) lines.push(personal);
   lines.push(copy.cta, url);
   return lines.join("\n");
