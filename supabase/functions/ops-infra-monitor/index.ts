@@ -11,6 +11,7 @@ const json = (req: Request, body: unknown, status = 200) =>
     headers: { ...corsHeadersForRequest(req), "Content-Type": "application/json" },
   });
 
+// Ops Hub CORS origins: hq.solofreelancer.com + so1o-ops-*.vercel.app
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeadersForRequest(req) });
   if (req.method !== "GET" && req.method !== "POST") {

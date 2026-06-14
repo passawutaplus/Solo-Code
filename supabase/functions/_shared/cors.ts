@@ -8,6 +8,10 @@ const STATIC_ORIGINS = [
   "https://so1o-freelancer-managment.lovable.app",
   "https://1px-demo.vercel.app",
   "https://an1hem.app",
+  "https://hq.solofreelancer.com",
+  "https://so1o-ops-hub.vercel.app",
+  "http://localhost:3090",
+  "http://127.0.0.1:3090",
   "http://localhost:5173",
   "http://localhost:8080",
   "http://127.0.0.1:5173",
@@ -16,6 +20,10 @@ const STATIC_ORIGINS = [
 
 const LOVABLE_PREVIEW_ORIGIN_RE =
   /^https:\/\/([a-z0-9-]+\.)*lovable\.app$/i;
+
+/** Vercel production + preview deploys for so1o-ops-hub */
+const VERCEL_OPS_HUB_ORIGIN_RE =
+  /^https:\/\/so1o-ops[-a-z0-9.]*\.vercel\.app$/i;
 
 function extraOriginsFromEnv(): string[] {
   const raw = Deno.env.get("CORS_ALLOWED_ORIGINS_EXTRA")?.trim();
@@ -26,6 +34,7 @@ function extraOriginsFromEnv(): string[] {
 export function isAllowedCorsOrigin(origin: string): boolean {
   if (STATIC_ORIGINS.includes(origin as (typeof STATIC_ORIGINS)[number])) return true;
   if (LOVABLE_PREVIEW_ORIGIN_RE.test(origin)) return true;
+  if (VERCEL_OPS_HUB_ORIGIN_RE.test(origin)) return true;
   return extraOriginsFromEnv().includes(origin);
 }
 

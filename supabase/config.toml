@@ -45,3 +45,9 @@ verify_jwt = false
 
 [functions.admin-ai-monitor]
 verify_jwt = true
+
+[functions.ops-infra-monitor]
+verify_jwt = true
+
+[functions.admin-supabase-usage]
+verify_jwt = true
