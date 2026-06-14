@@ -3,7 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { AlertTriangle, X } from "lucide-react";
 import { useSubscription } from "@/hooks/useSubscription";
 import { createPortalSession } from "@/utils/payments.functions";
-import { currentOriginReturnUrl } from "@/lib/paymentRedirect.client";
+import { currentOriginReturnUrl } from "@/lib/paymentRedirect";
 import { getStripeEnvironment } from "@/lib/stripe";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";

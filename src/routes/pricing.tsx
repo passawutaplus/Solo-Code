@@ -32,7 +32,7 @@ import { cn } from "@/lib/utils";
 import { useAuth } from "@/auth/AuthProvider";
 import { useSubscription } from "@/hooks/useSubscription";
 import { createCheckoutSession, createPortalSession, upgradeSubscriptionTier } from "@/utils/payments.functions";
-import { buildCheckoutRedirectUrls, currentOriginReturnUrl } from "@/lib/paymentRedirect.client";
+import { buildCheckoutRedirectUrls, currentOriginReturnUrl } from "@/lib/paymentRedirect";
 import { getStripeEnvironment, PRICE_IDS, CREDITS_PER_PRICE, PX_PER_PRICE } from "@/lib/stripe";
 import { isPaymentFnError, tierLabel, type UpgradeTargetTier } from "@/lib/subscriptionTiers";
 import type { Tier } from "@/hooks/useSubscription";
