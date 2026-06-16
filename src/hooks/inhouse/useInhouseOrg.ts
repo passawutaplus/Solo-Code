@@ -147,11 +147,32 @@ export function useUpdateInhouseOrg() {
   const qc = useQueryClient();
 
   return useMutation({
-    mutationFn: async (opts: { id: string; name?: string; avatar_url?: string | null; settings?: Record<string, unknown> }) => {
+    mutationFn: async (opts: {
+      id: string;
+      name?: string;
+      avatar_url?: string | null;
+      settings?: Record<string, unknown>;
+      document_theme?: Record<string, unknown> | null;
+      brand_name?: string | null;
+      brand_tagline?: string | null;
+      legal_name?: string | null;
+      tax_id?: string | null;
+      address?: string | null;
+      phone?: string | null;
+      email?: string | null;
+    }) => {
       const patch: Record<string, unknown> = { updated_at: new Date().toISOString() };
       if (opts.name !== undefined) patch.name = opts.name;
       if (opts.avatar_url !== undefined) patch.avatar_url = opts.avatar_url;
       if (opts.settings !== undefined) patch.settings = opts.settings;
+      if (opts.document_theme !== undefined) patch.document_theme = opts.document_theme;
+      if (opts.brand_name !== undefined) patch.brand_name = opts.brand_name;
+      if (opts.brand_tagline !== undefined) patch.brand_tagline = opts.brand_tagline;
+      if (opts.legal_name !== undefined) patch.legal_name = opts.legal_name;
+      if (opts.tax_id !== undefined) patch.tax_id = opts.tax_id;
+      if (opts.address !== undefined) patch.address = opts.address;
+      if (opts.phone !== undefined) patch.phone = opts.phone;
+      if (opts.email !== undefined) patch.email = opts.email;
       const { data, error } = await inhouseFrom("inhouse_orgs").update(patch).eq("id", opts.id).select("*").single();
       if (error) throw error;
       return data as InhouseOrg;

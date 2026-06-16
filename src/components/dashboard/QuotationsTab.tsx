@@ -41,11 +41,17 @@ import { celebrateFromEdges } from "@/lib/celebrate";
 import { PageFooterActions } from "./PageFooterActions";
 import {
   ANTHEM_HANDOFF_EVENT,
+  STUDIO_HANDOFF_EVENT,
   consumeAnthemQuotationHandoff,
+  consumeStudioQuotationHandoff,
 } from "@/lib/ecosystemHandoff";
+import type { IssuerSnapshot } from "@/lib/quotationKinds";
+import { useSubscription } from "@/hooks/useSubscription";
+import { canUseStudioQuote } from "@/lib/inhouseAccess";
 
 export function QuotationsTab() {
   const { list, create, remove, duplicate, advanceStatus, update } = useQuotations();
+  const { tier } = useSubscription();
   const [editingId, setEditingId] = React.useState<string | null>(null);
   const [query, setQuery] = React.useState("");
   const [filter, setFilter] = React.useState<"all" | QuotationStatus>("all");
@@ -59,7 +65,9 @@ export function QuotationsTab() {
   // Wait until `list` is loaded (so we can detect a pre-existing quotation tied to the brief).
   const handoffConsumedRef = React.useRef(false);
   const anthemHandoffConsumedRef = React.useRef(false);
+  const studioHandoffConsumedRef = React.useRef(false);
   const [anthemHandoffVersion, setAnthemHandoffVersion] = React.useState(0);
+  const [studioHandoffVersion, setStudioHandoffVersion] = React.useState(0);
   const openIdConsumedRef = React.useRef(false);
   const listLoaded = React.useRef(false);
 
@@ -88,8 +96,16 @@ export function QuotationsTab() {
       anthemHandoffConsumedRef.current = false;
       setAnthemHandoffVersion((v) => v + 1);
     };
+    const onStudio = () => {
+      studioHandoffConsumedRef.current = false;
+      setStudioHandoffVersion((v) => v + 1);
+    };
     window.addEventListener(ANTHEM_HANDOFF_EVENT, onHandoff);
-    return () => window.removeEventListener(ANTHEM_HANDOFF_EVENT, onHandoff);
+    window.addEventListener(STUDIO_HANDOFF_EVENT, onStudio);
+    return () => {
+      window.removeEventListener(ANTHEM_HANDOFF_EVENT, onHandoff);
+      window.removeEventListener(STUDIO_HANDOFF_EVENT, onStudio);
+    };
   }, []);
 
   React.useEffect(() => {
@@ -149,6 +165,91 @@ export function QuotationsTab() {
       })
       .catch((e) => toast.error(e instanceof Error ? e.message : "สร้างไม่สำเร็จ"));
   }, [create, update, list, anthemHandoffVersion]);
+
+  React.useEffect(() => {
+    if (studioHandoffConsumedRef.current) return;
+    if (!listLoaded.current && list.length === 0) {
+      const t = setTimeout(() => { listLoaded.current = true; }, 400);
+      return () => clearTimeout(t);
+    }
+    listLoaded.current = true;
+    const studioInit = consumeStudioQuotationHandoff();
+    if (!studioInit) return;
+    studioHandoffConsumedRef.current = true;
+
+    if (!canUseStudioQuote(tier)) {
+      toast.error("ใบเสนอราคารวม Studio ใช้ได้เฉพาะแพ็ก In-House");
+      return;
+    }
+
+    const requestId = studioInit.requestId;
+    const existing = requestId
+      ? list.find((q) => q.notes?.includes(`studio_request:${requestId}`))
+      : undefined;
+
+    const studioSnapshot: IssuerSnapshot = {
+      brandName: studioInit.studioName,
+      logoUrl: studioInit.studioLogoUrl ?? null,
+    };
+
+    const noteBlock = [
+      studioInit.notes,
+      studioInit.conversationId ? `แชท Studio: ${studioInit.conversationId}` : "",
+      requestId ? `studio_request:${requestId}` : "",
+    ]
+      .filter(Boolean)
+      .join("\n\n");
+
+    const afterCreate = async (q: Quotation) => {
+      if (studioInit.members?.length) {
+        const rows = studioInit.members.map((m, i) => ({
+          quotation_id: q.id,
+          user_id: m.userId ?? null,
+          display_name: m.displayName,
+          role: i === 0 ? "lead" : "member",
+          revenue_percent: m.revenuePercent ?? null,
+          sort_order: i,
+        }));
+        await supabase.from("quotation_collaborators" as never).insert(rows as never);
+      }
+      setEditingId(q.id);
+      toast.success("สร้างใบเสนอราคารวม Studio แล้ว");
+    };
+
+    if (existing) {
+      update(existing.id, {
+        projectName: studioInit.projectName || existing.projectName,
+        clientName: studioInit.clientName || existing.clientName,
+        clientEmail: studioInit.clientEmail || existing.clientEmail,
+        clientPhone: studioInit.clientPhone || existing.clientPhone,
+        endDate: studioInit.endDate || existing.endDate,
+        notes: noteBlock || existing.notes,
+        quotationKind: "studio",
+        studioId: studioInit.studioId,
+        studioSnapshot,
+      })
+        .then(() => {
+          setEditingId(existing.id);
+          toast.success(`เปิดใบเสนอราคา Studio ${existing.number}`);
+        })
+        .catch((e) => toast.error(e instanceof Error ? e.message : "อัปเดตไม่สำเร็จ"));
+      return;
+    }
+
+    create({
+      projectName: studioInit.projectName,
+      clientName: studioInit.clientName,
+      clientEmail: studioInit.clientEmail,
+      clientPhone: studioInit.clientPhone,
+      endDate: studioInit.endDate,
+      notes: noteBlock,
+      quotationKind: "studio",
+      studioId: studioInit.studioId,
+      studioSnapshot,
+    })
+      .then((q) => { if (q) void afterCreate(q); })
+      .catch((e) => toast.error(e instanceof Error ? e.message : "สร้างไม่สำเร็จ"));
+  }, [create, update, list, studioHandoffVersion, tier]);
 
   React.useEffect(() => {
     // Only run once the list query has resolved (even if empty)

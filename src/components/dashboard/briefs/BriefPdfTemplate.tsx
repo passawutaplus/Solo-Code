@@ -1,8 +1,12 @@
 import * as React from "react";
 import type { DesignBrief } from "@/lib/briefSchema";
+import { docAccentForKind, resolveDocumentTheme, type ResolvedDocumentTheme } from "@/lib/documentTheme";
+import type { Tier } from "@/hooks/useSubscription";
 
 interface Props {
   brief: DesignBrief;
+  theme?: ResolvedDocumentTheme;
+  tier?: Tier;
 }
 
 function fmtDate(s?: string | null) {
@@ -61,10 +65,12 @@ function SwatchList({ colors }: { colors: string[] }) {
 /* ---------- Template ---------- */
 
 export const BriefPdfTemplate = React.forwardRef<HTMLDivElement, Props>(function BriefPdfTemplate(
-  { brief },
+  { brief, theme: themeOverride, tier = "free" },
   ref,
 ) {
   const o = brief.owner ?? {};
+  const docTheme = themeOverride ?? resolveDocumentTheme(tier, null);
+  const briefAccent = docAccentForKind(docTheme.colors, "brief");
   const ci = brief.client_info;
   const po = brief.project_overview;
   const au = brief.audience;
@@ -77,7 +83,11 @@ export const BriefPdfTemplate = React.forwardRef<HTMLDivElement, Props>(function
   const hasBrandCi = !!(ci.logo_url || ci.ci_image_url || (ci.ci_palette && ci.ci_palette.length > 0));
 
   return (
-    <div ref={ref} className="brief-pdf-root">
+    <div
+      ref={ref}
+      className="brief-pdf-root"
+      style={{ "--doc-accent": briefAccent } as React.CSSProperties}
+    >
       {/* ============= COVER ============= */}
       <header className="brief-pdf-cover-v2">
         <div className="brief-pdf-cover-brand">
@@ -293,6 +303,10 @@ export const BriefPdfTemplate = React.forwardRef<HTMLDivElement, Props>(function
           {[o.email, o.phone, o.social_link].filter(Boolean).join(" · ") || "Project Brief"}
         </span>
       </footer>
+
+      {docTheme.showSo1oBadge && (
+        <p className="brief-pdf-powered">สร้างด้วย So1o Freelancer · solofreelancer.com</p>
+      )}
     </div>
   );
 });

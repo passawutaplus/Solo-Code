@@ -37,12 +37,15 @@ import {
 import type { InhouseOrg } from "@/lib/inhouse/types";
 import { toast } from "sonner";
 import { InhouseSharedAssetsCard } from "@/components/inhouse/InhousePhase2Extras";
+import { InhouseDocumentBrandingSection } from "@/components/inhouse/InhouseDocumentBrandingSection";
+import { useAuth } from "@/auth/AuthProvider";
 
 interface Props {
   org: InhouseOrg;
 }
 
 export function InhouseSettingsTab({ org }: Props) {
+  const { user } = useAuth();
   const { data: members = [] } = useInhouseOrgMembers(org.id);
   const { data: workspaces = [] } = useInhouseWorkspaces(org.id);
   const { data: invites = [] } = useInhouseInvites(org.id);
@@ -66,6 +69,8 @@ export function InhouseSettingsTab({ org }: Props) {
   }, [org.name]);
 
   const activeMembers = members.filter((m) => m.status === "active");
+  const myMember = members.find((m) => m.user_id === user?.id);
+  const canEditBranding = myMember?.role === "owner" || myMember?.role === "admin";
 
   const saveOrgName = async () => {
     try {
@@ -283,6 +288,8 @@ export function InhouseSettingsTab({ org }: Props) {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <InhouseDocumentBrandingSection org={org} canEdit={canEditBranding} />
 
       <InhouseSharedAssetsCard />
     </div>

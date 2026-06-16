@@ -9,6 +9,7 @@ import { SettingsPanel } from "./SettingsPanel";
 import { ServicesPanel } from "./ServicesPanel";
 import { TimelinePanel } from "./TimelinePanel";
 import { PreviewPanel } from "./PreviewPanel";
+import { QuotationCollaboratorsPanel } from "./QuotationCollaboratorsPanel";
 import { QuotationMockupDialog } from "./QuotationMockupDialog";
 import { QuotationExportOptionsDialog, type QuotationExportChoice } from "./QuotationExportOptionsDialog";
 import { ShareTrackerDialog } from "./ShareTrackerDialog";
@@ -267,12 +268,20 @@ export function QuotationEditor({ id, onBack }: Props) {
         }
         title={<span className="num">{q.number}</span>}
         badge={
-          <Badge
-            variant="outline"
-            className={`${statusInfo.tone} border-0 text-[11px] rounded-full px-2.5 py-1 shrink-0`}
-          >
-            {statusInfo.label}
-          </Badge>
+          <>
+            {q.quotationKind === "inhouse" && (
+              <Badge variant="secondary" className="text-[10px] shrink-0">ทีม In-House</Badge>
+            )}
+            {q.quotationKind === "studio" && (
+              <Badge variant="secondary" className="text-[10px] shrink-0">Studio Quote</Badge>
+            )}
+            <Badge
+              variant="outline"
+              className={`${statusInfo.tone} border-0 text-[11px] rounded-full px-2.5 py-1 shrink-0`}
+            >
+              {statusInfo.label}
+            </Badge>
+          </>
         }
         primaryActions={primaryActions}
         secondaryActions={secondaryActions}
@@ -299,7 +308,12 @@ export function QuotationEditor({ id, onBack }: Props) {
 
           {/* Active panel */}
           <div className="rounded-2xl glass border border-border p-5">
-            {desktopView === "settings" && <SettingsPanel q={q} patch={patch} />}
+            {desktopView === "settings" && (
+              <div className="space-y-4">
+                <SettingsPanel q={q} patch={patch} />
+                <QuotationCollaboratorsPanel quotationId={q.id} quotationKind={q.quotationKind} />
+              </div>
+            )}
             {desktopView === "services" && <ServicesPanel q={q} patch={patch} />}
             {desktopView === "timeline" && <TimelinePanel q={q} patch={patch} />}
           </div>
@@ -317,7 +331,12 @@ export function QuotationEditor({ id, onBack }: Props) {
       {/* Mobile: single panel */}
       <div className="lg:hidden">
         {mobileView === "settings" && (
-          <Column title="ตั้งค่าใบเสนอราคา"><SettingsPanel q={q} patch={patch} /></Column>
+          <Column title="ตั้งค่าใบเสนอราคา">
+            <div className="space-y-4">
+              <SettingsPanel q={q} patch={patch} />
+              <QuotationCollaboratorsPanel quotationId={q.id} quotationKind={q.quotationKind} />
+            </div>
+          </Column>
         )}
         {mobileView === "services" && (
           <Column title="จัดการบริการ"><ServicesPanel q={q} patch={patch} /></Column>

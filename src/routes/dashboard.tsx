@@ -46,7 +46,14 @@ const InspireTab = React.lazy(() =>
 );
 
 import { trackFeature } from "@/lib/featureUsage";
-import { parseAnthemDashboardParams, storeAnthemQuotationHandoff } from "@/lib/ecosystemHandoff";
+import {
+  buildStudioQuotationHandoffFromParams,
+  parseAnthemDashboardParams,
+  parseStudioDashboardParams,
+  STUDIO_DASHBOARD_PARAM_KEYS,
+  storeAnthemQuotationHandoff,
+  storeStudioQuotationHandoff,
+} from "@/lib/ecosystemHandoff";
 import { supabase } from "@/integrations/supabase/client";
 import { AnnouncementBanner } from "@/components/AnnouncementBanner";
 import { DashboardBannerSlider } from "@/components/DashboardBannerSlider";
@@ -154,7 +161,7 @@ function Dashboard() {
     }
   }, []);
 
-  
+  const studioUrlHandoffRef = React.useRef(false);
 
   useTrackActivity(user?.id);
   useLogActivity(user?.id, "dashboard_view");
@@ -163,9 +170,38 @@ function Dashboard() {
     trackFeature(`dashboard.${section}`);
   }, [section]);
 
-  // Anthem → So1o quotation deep-link handoff
+  // Anthem → So1o studio combined quote deep-link handoff
   React.useEffect(() => {
     if (typeof window === "undefined" || !user?.id) return;
+    if (studioUrlHandoffRef.current) return;
+    const studioParams = parseStudioDashboardParams(window.location.search);
+    if (!studioParams.fromStudio) return;
+    studioUrlHandoffRef.current = true;
+
+    void (async () => {
+      const payload = buildStudioQuotationHandoffFromParams(studioParams);
+      if (!payload) return;
+
+      storeStudioQuotationHandoff(payload);
+
+      if (studioParams.linkId) {
+        await supabase
+          .from("ecosystem_links")
+          .update({ meta: { converted_at: new Date().toISOString(), target: "studio_quotation_handoff" } })
+          .eq("id", studioParams.linkId);
+      }
+
+      updateSection("finance", "quotations");
+      const url = new URL(window.location.href);
+      ["from", ...STUDIO_DASHBOARD_PARAM_KEYS].forEach((k) => url.searchParams.delete(k));
+      window.history.replaceState({}, "", url.toString());
+    })();
+  }, [updateSection, user?.id]);
+
+  // Anthem → So1o solo quotation deep-link handoff
+  React.useEffect(() => {
+    if (typeof window === "undefined" || !user?.id) return;
+    if (new URLSearchParams(window.location.search).get("handoff") === "studio") return;
     const params = parseAnthemDashboardParams(window.location.search);
     if (!params.fromAnthem) return;
 

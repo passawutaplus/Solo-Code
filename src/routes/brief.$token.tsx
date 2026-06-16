@@ -1,5 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import * as React from "react";
+import { RouteError } from "@/components/RouteError";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,7 +20,8 @@ import { ReferenceUploader } from "@/components/dashboard/briefs/ReferenceUpload
 import { ConfirmBriefDialog } from "@/components/dashboard/briefs/ConfirmBriefDialog";
 import { BriefPdfTemplate } from "@/components/dashboard/briefs/BriefPdfTemplate";
 import { runPrintToPdf } from "@/lib/printPdf";
-import { RouteError } from "@/components/RouteError";
+import { getPublicBriefPortalBranding } from "@/server/briefPortal.functions";
+import type { PortalBranding } from "@/lib/documentTheme/types";
 
 export const Route = createFileRoute("/brief/$token")({
   head: ({ params }) => {
@@ -43,7 +46,9 @@ export const Route = createFileRoute("/brief/$token")({
 
 function PublicBriefPage() {
   const { token } = Route.useParams();
+  const getPortalBranding = useServerFn(getPublicBriefPortalBranding);
   const [brief, setBrief] = React.useState<DesignBrief | null>(null);
+  const [portal, setPortal] = React.useState<PortalBranding | null>(null);
   const [loading, setLoading] = React.useState(true);
   const [saving, setSaving] = React.useState(false);
   const [confirmOpen, setConfirmOpen] = React.useState(false);
@@ -52,7 +57,11 @@ function PublicBriefPage() {
 
   const load = React.useCallback(async () => {
     setLoading(true);
-    const { data, error } = await supabase.rpc("get_brief_by_token", { _token: token });
+    const [{ data, error }, portalRes] = await Promise.all([
+      supabase.rpc("get_brief_by_token", { _token: token }),
+      getPortalBranding({ data: { token } }).catch(() => ({ portal: null })),
+    ]);
+    setPortal((portalRes?.portal ?? null) as PortalBranding | null);
     if (error || !data) {
       toast.error("ไม่พบบรีฟ หรือลิงก์ไม่ถูกต้อง");
       setBrief(null);
@@ -60,7 +69,7 @@ function PublicBriefPage() {
       setBrief(data as unknown as DesignBrief);
     }
     setLoading(false);
-  }, [token]);
+  }, [token, getPortalBranding]);
 
   React.useEffect(() => { load(); }, [load]);
 
@@ -315,14 +324,19 @@ function PublicBriefPage() {
           </Button>
         )}
 
-        <p className="text-center text-[10px] text-muted-foreground pt-2">
-          Powered by <Link to="/" className="text-primary hover:underline">So1o Freelancer</Link>
-        </p>
+        {portal?.showPoweredBy !== false && (
+          <p className="text-center text-[10px] text-muted-foreground pt-2">
+            Powered by <Link to="/" className="text-primary hover:underline">So1o Freelancer</Link>
+          </p>
+        )}
       </main>
 
       {/* Print template */}
       <div className="brief-print-only">
-        <BriefPdfTemplate brief={brief} />
+        <BriefPdfTemplate
+          brief={brief}
+          theme={portal?.theme}
+        />
       </div>
 
       <ConfirmBriefDialog

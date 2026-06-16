@@ -6,6 +6,8 @@ import { enqueueLineNotificationForUser } from "@/server/lineNotify.server";
 import { canonicalUrl } from "@/lib/siteUrl";
 import { throwClientError } from "@/lib/security";
 
+import { resolveQuotationPortalBranding } from "@/lib/documentTheme/resolveOwnerBranding.server";
+
 const TokenSchema = z.object({ token: z.string().uuid() });
 
 // Whitelisted columns — never expose internal/admin-only fields publicly.
@@ -48,13 +50,21 @@ export const getPublicTrackingJob = createServerFn({ method: "GET" })
   .handler(async ({ data }) => {
     const { data: job, error } = await supabaseAdmin
       .from("job_trackers")
-      .select(PUBLIC_JOB_COLUMNS)
+      .select(`${PUBLIC_JOB_COLUMNS}, user_id`)
       .eq("share_token", data.token)
       .maybeSingle();
     if (error) throwClientError("track.getPublicTrackingJob", error);
-    if (!job) return { job: null, events: [], slips: [], quotation: null, brief: null };
+    if (!job) return { job: null, events: [], slips: [], quotation: null, brief: null, portal: null };
 
-    const jobRow = job as unknown as { id: string; quotation_id: string | null; brief_id: string | null };
+    const jobData = job as Record<string, unknown>;
+    const ownerUserId = typeof jobData.user_id === "string" ? jobData.user_id : undefined;
+    const { user_id: _omit, ...publicJob } = jobData;
+    void _omit;
+    const jobRow = publicJob as unknown as { id: string; quotation_id: string | null; brief_id: string | null };
+
+    const portal = ownerUserId
+      ? await resolveQuotationPortalBranding(jobRow.quotation_id, ownerUserId)
+      : null;
 
     const [{ data: events }, { data: slips }] = await Promise.all([
       supabaseAdmin
@@ -149,7 +159,7 @@ export const getPublicTrackingJob = createServerFn({ method: "GET" })
       }
     }
 
-    return { job, events: events ?? [], slips: slips ?? [], quotation, brief };
+    return { job: publicJob, events: events ?? [], slips: slips ?? [], quotation, brief, portal };
   });
 
 const SlipUploadSchema = z.object({

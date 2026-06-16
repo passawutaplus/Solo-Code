@@ -27,6 +27,7 @@ import { celebrateFromEdges as celebrate } from "@/lib/celebrate";
 import { JOB_STEPS } from "@/components/dashboard/jobtracker/steps";
 import { uploadJobTrackerImage } from "@/components/dashboard/jobtracker/uploadImage";
 import { StepComments } from "@/components/dashboard/jobtracker/StepComments";
+import type { PortalBranding } from "@/lib/documentTheme/types";
 
 
 export const Route = createFileRoute("/track/$token")({
@@ -128,6 +129,7 @@ function TrackPage() {
   const [slips, setSlips] = React.useState<Slip[]>([]);
   const [quotation, setQuotation] = React.useState<PublicQuotation | null>(null);
   const [brief, setBrief] = React.useState<PublicBrief | null>(null);
+  const [portal, setPortal] = React.useState<PortalBranding | null>(null);
   const [loading, setLoading] = React.useState(true);
   const [notFound, setNotFound] = React.useState(false);
   const prevUnlocked = React.useRef(false);
@@ -145,6 +147,7 @@ function TrackPage() {
       setSlips((res.slips ?? []) as Slip[]);
       setQuotation((res.quotation ?? null) as PublicQuotation | null);
       setBrief((res.brief ?? null) as PublicBrief | null);
+      setPortal((res.portal ?? null) as PortalBranding | null);
     } catch {
       setNotFound(true);
     } finally {
@@ -200,14 +203,41 @@ function TrackPage() {
     !job.final_file_url ? "🔒 รอฟรีแลนซ์อัปโหลดไฟล์งานจริง" :
     "🔒 รอปลดล็อกไฟล์";
 
+  const portalPrimary = portal?.theme.colors.portalPrimary ?? undefined;
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-orange-50/40 via-background to-background">
+    <div
+      className="min-h-screen bg-gradient-to-b from-orange-50/40 via-background to-background"
+      style={
+        portalPrimary
+          ? ({
+              background: `linear-gradient(to bottom, color-mix(in srgb, ${portalPrimary} 12%, transparent), var(--background))`,
+            } as React.CSSProperties)
+          : undefined
+      }
+    >
       <div className="absolute top-3 right-3 z-20"><LineHeaderButton /></div>
       <div className="mx-auto max-w-2xl px-4 py-6 sm:py-8 space-y-4">
         {/* Header */}
         <div className="text-center">
-          <p className="text-[10px] font-semibold text-primary tracking-[0.2em]">CLIENT PORTAL</p>
+          {!portal?.showPoweredBy && portal?.logoUrl && (
+            <img
+              src={portal.logoUrl}
+              alt=""
+              className="h-10 mx-auto mb-2 object-contain"
+              loading="lazy"
+              decoding="async"
+            />
+          )}
+          <p className="text-[10px] font-semibold text-primary tracking-[0.2em]">
+            {!portal?.showPoweredBy && portal?.brandName
+              ? portal.brandName.toUpperCase()
+              : "CLIENT PORTAL"}
+          </p>
           <h1 className="text-xl sm:text-2xl font-semibold mt-1 text-foreground">{job.title || "งานของคุณ"}</h1>
+          {portal?.welcomeMessage && !portal.showPoweredBy && (
+            <p className="text-xs text-muted-foreground mt-1 max-w-md mx-auto">{portal.welcomeMessage}</p>
+          )}
           <p className="text-xs text-muted-foreground mt-0.5">
             {job.client_name && <>สำหรับ {job.client_name} • </>}
             <span className="font-mono">#{job.tracking_code}</span>
@@ -523,9 +553,11 @@ function TrackPage() {
           </TabsContent>
         </Tabs>
 
-        <p className="text-center text-[10px] text-muted-foreground pt-4">
-          Powered by <a href="/" className="font-semibold text-primary">So1o Freelancer</a>
-        </p>
+        {portal?.showPoweredBy !== false && (
+          <p className="text-center text-[10px] text-muted-foreground pt-4">
+            Powered by <a href="/" className="font-semibold text-primary">So1o Freelancer</a>
+          </p>
+        )}
 
       </div>
     </div>

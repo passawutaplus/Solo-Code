@@ -8,26 +8,21 @@ import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { th } from "date-fns/locale";
 
+import { useSubscription } from "@/hooks/useSubscription";
+import {
+  docAccentForKind,
+  resolveDocumentTheme,
+  type DocumentThemeInput,
+  type ResolvedDocumentTheme,
+} from "@/lib/documentTheme";
+import { issuerFromQuotation } from "@/lib/quotationKinds";
+
 interface Props {
   q: Quotation;
   docKind?: DocKind; // "quotation" (default) | "invoice" | "receipt"
+  /** Override theme (e.g. public portal preview). */
+  themeOverride?: ResolvedDocumentTheme;
 }
-
-const DOC_META: Record<DocKind, { label: string; en: string }> = {
-  quotation: { label: "ใบเสนอราคา", en: "QUOTATION" },
-  invoice: { label: "ใบแจ้งหนี้", en: "INVOICE" },
-  receipt: { label: "ใบเสร็จรับเงิน", en: "RECEIPT" },
-};
-
-const ORANGE = "#F37021";
-const ORANGE_SOFT = "#FFF3EB";
-const ORANGE_BORDER = "#FFD9BF";
-
-const HEADER_THEME: Record<DocKind, string> = {
-  quotation: "#F37021",
-  invoice: "#0EA5E9",
-  receipt: "#10B981",
-};
 
 // Thai Buddhist year format: 27 เมษายน 2569
 const fmtThaiLong = (d?: string | Date) => {
@@ -50,9 +45,37 @@ const fmtThaiShort = (d?: string | Date) => {
   return `${day} ${month} ${year}`;
 };
 
-export function PreviewPanel({ q, docKind = "quotation" }: Props) {
+const DOC_META: Record<DocKind, { label: string; en: string }> = {
+  quotation: { label: "ใบเสนอราคา", en: "QUOTATION" },
+  invoice: { label: "ใบแจ้งหนี้", en: "INVOICE" },
+  receipt: { label: "ใบเสร็จรับเงิน", en: "RECEIPT" },
+};
+
+export function PreviewPanel({ q, docKind = "quotation", themeOverride }: Props) {
   const { data: usageRights } = useUsageRightsById(q.usageRightsId);
   const { profile } = useAuth();
+  const { tier } = useSubscription();
+  const issuer = issuerFromQuotation(q);
+  const docTheme = React.useMemo(() => {
+    if (themeOverride) return themeOverride;
+    const themeInput =
+      (issuer?.documentTheme as DocumentThemeInput | undefined) ??
+      ((profile?.document_theme ?? {}) as DocumentThemeInput);
+    const effectiveTier = issuer ? "inhouse" : tier;
+    return resolveDocumentTheme(effectiveTier, themeInput);
+  }, [themeOverride, issuer, tier, profile?.document_theme]);
+  const brandName = issuer?.brandName ?? profile?.brand_name ?? "So1o Freelancer";
+  const logoUrl = issuer?.logoUrl ?? profile?.logo_url;
+  const tagline = issuer?.tagline ?? profile?.tagline;
+  const issuerAddress = issuer?.address ?? profile?.address;
+  const issuerPhone = issuer?.phone ?? profile?.phone;
+  const issuerEmail = issuer?.email ?? profile?.email;
+  const issuerTaxId = issuer?.taxId ?? profile?.tax_id;
+  const { colors } = docTheme;
+  const headerColor = docAccentForKind(colors, docKind);
+  const accent = colors.primary;
+  const accentSoft = colors.primarySoft;
+  const accentBorder = colors.primaryBorder;
   const totals = React.useMemo(() => computeTotals(q), [q]);
   const today = new Date();
   const revisionDates = React.useMemo(
@@ -77,7 +100,6 @@ export function PreviewPanel({ q, docKind = "quotation" }: Props) {
     return () => { cancelled = true; };
   }, [q.briefId]);
   const meta = DOC_META[docKind];
-  const headerColor = HEADER_THEME[docKind];
   // Resolve the document number to display (เลขที่เอกสาร) per kind
   const docNumber =
     docKind === "invoice"
@@ -136,9 +158,9 @@ export function PreviewPanel({ q, docKind = "quotation" }: Props) {
         {/* ── HEADER ── */}
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0 flex-1">
-            {profile?.logo_url && (
+            {logoUrl && (
               <img
-                src={profile.logo_url}
+                src={logoUrl}
                 alt="Logo"
                 className="h-10 mb-2 object-contain"
                 loading="lazy"
@@ -147,20 +169,22 @@ export function PreviewPanel({ q, docKind = "quotation" }: Props) {
               />
             )}
             <h1 className="text-2xl font-bold tracking-tight text-neutral-900 leading-tight">
-              {profile?.brand_name || "So1o Freelancer"}
+              {brandName}
             </h1>
-            {profile?.tagline ? (
-              <p className="text-[11px] text-neutral-500 mt-0.5">{profile.tagline}</p>
+            {tagline ? (
+              <p className="text-[11px] text-neutral-500 mt-0.5">{tagline}</p>
             ) : (
-              <p className="text-[11px] text-neutral-500 mt-0.5">
-                โปรแกรมช่วยคำนวณราคาและทำใบเสนอราคาออนไลน์อย่างง่าย
-              </p>
+              !issuer && (
+                <p className="text-[11px] text-neutral-500 mt-0.5">
+                  โปรแกรมช่วยคำนวณราคาและทำใบเสนอราคาออนไลน์อย่างง่าย
+                </p>
+              )
             )}
           </div>
           <div className="text-right flex-shrink-0">
             <div
-              className="inline-block px-4 py-2 rounded-md text-white font-semibold text-sm tracking-wide"
-              style={{ backgroundColor: headerColor }}
+              className="inline-block px-4 py-2 rounded-md font-semibold text-sm tracking-wide"
+              style={{ backgroundColor: headerColor, color: colors.headerTextOnPrimary }}
             >
               {meta.label}
             </div>
@@ -192,17 +216,17 @@ export function PreviewPanel({ q, docKind = "quotation" }: Props) {
               จาก / FROM
             </p>
             <p className="text-sm font-semibold text-neutral-900">
-              {profile?.brand_name || "So1o Freelancer"}
+              {brandName}
             </p>
-            {profile?.address && (
+            {issuerAddress && (
               <p className="text-[10px] text-neutral-600 leading-snug mt-0.5 whitespace-pre-line">
-                {profile.address}
+                {issuerAddress}
               </p>
             )}
             <div className="text-[10px] text-neutral-600 mt-1 space-y-0.5">
-              {profile?.phone && <p>โทร {profile.phone}</p>}
-              {profile?.email && <p>{profile.email}</p>}
-              {profile?.tax_id && <p className="num">เลขผู้เสียภาษี {profile.tax_id}</p>}
+              {issuerPhone && <p>โทร {issuerPhone}</p>}
+              {issuerEmail && <p>{issuerEmail}</p>}
+              {issuerTaxId && <p className="num">เลขผู้เสียภาษี {issuerTaxId}</p>}
             </div>
           </div>
           <div>
@@ -313,12 +337,12 @@ export function PreviewPanel({ q, docKind = "quotation" }: Props) {
             {/* Grand total — orange highlighted bar */}
             <div
               className="flex items-center justify-between px-3 py-2 mt-1 rounded"
-              style={{ backgroundColor: ORANGE_SOFT, border: `1px solid ${ORANGE_BORDER}` }}
+              style={{ backgroundColor: accentSoft, border: `1px solid ${accentBorder}` }}
             >
-              <span className="text-[12px] font-semibold" style={{ color: ORANGE }}>
+              <span className="text-[12px] font-semibold" style={{ color: accent }}>
                 รวมทั้งสิ้น
               </span>
-              <span className="num font-bold text-[13px]" style={{ color: ORANGE }}>
+              <span className="num font-bold text-[13px]" style={{ color: accent }}>
                 ฿{formatBaht(totals.grandTotal)}
               </span>
             </div>
@@ -327,12 +351,12 @@ export function PreviewPanel({ q, docKind = "quotation" }: Props) {
             {q.depositPreset < 100 && (
               <div
                 className="flex items-center justify-between px-3 py-2 rounded"
-                style={{ backgroundColor: ORANGE_SOFT, border: `1px solid ${ORANGE_BORDER}` }}
+                style={{ backgroundColor: accentSoft, border: `1px solid ${accentBorder}` }}
               >
-                <span className="text-[12px] font-semibold" style={{ color: ORANGE }}>
+                <span className="text-[12px] font-semibold" style={{ color: accent }}>
                   มัดจำที่ต้องชำระ
                 </span>
-                <span className="num font-bold text-[13px]" style={{ color: ORANGE }}>
+                <span className="num font-bold text-[13px]" style={{ color: accent }}>
                   ฿{formatBaht(totals.depositAmount)}
                 </span>
               </div>
@@ -344,7 +368,7 @@ export function PreviewPanel({ q, docKind = "quotation" }: Props) {
         {q.paymentTerms && (
           <div
             className="rounded px-3 py-2"
-            style={{ backgroundColor: ORANGE_SOFT, border: `1px solid ${ORANGE_BORDER}` }}
+            style={{ backgroundColor: accentSoft, border: `1px solid ${accentBorder}` }}
           >
             <p className="text-[10px] text-neutral-600">เงื่อนไขการชำระ</p>
             <p className="text-[12px] font-semibold text-neutral-900 mt-0.5">
@@ -457,8 +481,8 @@ export function PreviewPanel({ q, docKind = "quotation" }: Props) {
                       <div
                         className="h-3 w-3 rounded-full border-2"
                         style={{
-                          borderColor: ORANGE,
-                          backgroundColor: filled ? ORANGE : "white",
+                          borderColor: accent,
+                          backgroundColor: filled ? accent : "white",
                         }}
                       />
                       {!isLast && (
@@ -466,7 +490,7 @@ export function PreviewPanel({ q, docKind = "quotation" }: Props) {
                           className="w-px flex-1 mt-1"
                           style={{
                             minHeight: 14,
-                            borderLeft: `1px dashed ${ORANGE_BORDER}`,
+                            borderLeft: `1px dashed ${accentBorder}`,
                           }}
                         />
                       )}
@@ -505,10 +529,12 @@ export function PreviewPanel({ q, docKind = "quotation" }: Props) {
         )}
 
         {/* ── FOOTER ── */}
-        <div className="text-center pt-3 mt-2 text-[9px] text-neutral-400 border-t border-neutral-200">
-          Free to Create, Easy to Manage by{" "}
-          <span className="font-semibold text-neutral-600">So1o Freelancer</span>
-        </div>
+        {docTheme.showSo1oBadge && (
+          <div className="text-center pt-3 mt-2 text-[9px] text-neutral-400 border-t border-neutral-200">
+            Free to Create, Easy to Manage by{" "}
+            <span className="font-semibold text-neutral-600">So1o Freelancer</span>
+          </div>
+        )}
       </div>
     </div>
   );

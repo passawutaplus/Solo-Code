@@ -18,6 +18,7 @@ import { StorageUsageSection } from "@/components/dashboard/settings/StorageUsag
 import { LineNotificationSection } from "@/components/dashboard/settings/LineNotificationSection";
 import { SettingsQuickLinksSection } from "@/components/dashboard/settings/SettingsQuickLinksSection";
 import { DisplayThemeSection } from "@/components/dashboard/settings/DisplayThemeSection";
+import { DocumentBrandingSection } from "@/components/dashboard/settings/DocumentBrandingSection";
 import { BillingSettingsSection } from "@/components/dashboard/settings/BillingSettingsSection";
 import { TierMembershipCard } from "@/components/tier/TierMembershipCard";
 
@@ -208,6 +209,7 @@ export function SettingsTab() {
         <StorageUsageSection />
       </div>
       <LineNotificationSection />
+      <DocumentBrandingSection />
 
       <Card className="glass border-border shadow-soft">
         <CardContent className="p-4 sm:p-5">

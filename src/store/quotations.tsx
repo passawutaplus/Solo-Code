@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { TablesUpdate } from "@/integrations/supabase/types";
 import { useAuth } from "@/auth/AuthProvider";
+import type { IssuerSnapshot, QuotationKind } from "@/lib/quotationKinds";
 
 export type QuotationStatus =
   | "draft"
@@ -94,6 +95,12 @@ export interface Quotation {
   usageRightsId?: string;
   licenseCertificatePath?: string;
   timelineEnabled: boolean;
+  quotationKind?: QuotationKind;
+  orgId?: string;
+  orgSnapshot?: IssuerSnapshot | null;
+  studioId?: string;
+  studioSnapshot?: IssuerSnapshot | null;
+  inhouseWorkspaceId?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -155,9 +162,15 @@ interface QuotationRow {
   license_certificate_path?: string | null;
   created_at: string;
   updated_at: string;
+  quotation_kind?: string;
+  org_id?: string | null;
+  org_snapshot?: unknown;
+  studio_id?: string | null;
+  studio_snapshot?: unknown;
+  inhouse_workspace_id?: string | null;
 }
 
-function rowToQuotation(r: QuotationRow): Quotation {
+export function rowToQuotation(r: QuotationRow): Quotation {
   return {
     id: r.id,
     number: r.number,
@@ -206,6 +219,12 @@ function rowToQuotation(r: QuotationRow): Quotation {
     usageRightsId: r.usage_rights_id ?? undefined,
     licenseCertificatePath: r.license_certificate_path ?? undefined,
     timelineEnabled: (r as unknown as { timeline_enabled?: boolean }).timeline_enabled ?? true,
+    quotationKind: (r.quotation_kind as QuotationKind) || "solo",
+    orgId: r.org_id ?? undefined,
+    orgSnapshot: (r.org_snapshot as IssuerSnapshot | null) ?? undefined,
+    studioId: r.studio_id ?? undefined,
+    studioSnapshot: (r.studio_snapshot as IssuerSnapshot | null) ?? undefined,
+    inhouseWorkspaceId: r.inhouse_workspace_id ?? undefined,
     createdAt: r.created_at,
     updatedAt: r.updated_at,
   };
@@ -254,6 +273,12 @@ function quotationToRow(q: Quotation, userId: string) {
     paid_partial: q.paidPartial ?? 0,
     brief_id: q.briefId ?? null,
     timeline_enabled: q.timelineEnabled,
+    quotation_kind: q.quotationKind ?? "solo",
+    org_id: q.orgId ?? null,
+    org_snapshot: q.orgSnapshot ?? null,
+    studio_id: q.studioId ?? null,
+    studio_snapshot: q.studioSnapshot ?? null,
+    inhouse_workspace_id: q.inhouseWorkspaceId ?? null,
   };
 }
 
@@ -305,6 +330,7 @@ export function makeBlankQuotation(num: string): Quotation {
     lateFeePercent: 0,
     paidPartial: 0,
     timelineEnabled: true,
+    quotationKind: "solo",
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   };

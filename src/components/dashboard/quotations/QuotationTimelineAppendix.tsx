@@ -3,6 +3,9 @@ import type { Quotation } from "@/store/quotations";
 import { computeRevisionDates, computeTotals, formatBaht } from "@/store/quotations";
 import { format } from "date-fns";
 import { th } from "date-fns/locale";
+import { useSubscription } from "@/hooks/useSubscription";
+import { useAuth } from "@/auth/AuthProvider";
+import { resolveDocumentTheme, type DocumentThemeInput } from "@/lib/documentTheme";
 
 interface Props {
   q: Quotation;
@@ -22,6 +25,14 @@ const fmt = (s?: string) => {
  */
 export function QuotationTimelineAppendix({ q }: Props) {
   if (q.timelineEnabled === false) return null;
+  const { tier } = useSubscription();
+  const { profile } = useAuth();
+  const { colors } = React.useMemo(
+    () => resolveDocumentTheme(tier, (profile?.document_theme ?? {}) as DocumentThemeInput),
+    [tier, profile?.document_theme],
+  );
+  const accent = colors.primary;
+  const accentSoft = colors.primarySoft;
   const totals = computeTotals(q);
   const revisionDates = computeRevisionDates(q.startDate, q.endDate, q.revisionsCount);
 
@@ -54,12 +65,12 @@ export function QuotationTimelineAppendix({ q }: Props) {
     >
       <header
         style={{
-          borderBottom: "2px solid #F37021",
+          borderBottom: `2px solid ${accent}`,
           paddingBottom: 10,
           marginBottom: 18,
         }}
       >
-        <p style={{ fontSize: 9, letterSpacing: "0.18em", color: "#F37021", margin: 0, fontWeight: 600 }}>
+        <p style={{ fontSize: 9, letterSpacing: "0.18em", color: accent, margin: 0, fontWeight: 600 }}>
           APPENDIX · TIMELINE
         </p>
         <h1 style={{ fontSize: 22, margin: "4px 0 2px", fontWeight: 600 }}>
@@ -84,10 +95,10 @@ export function QuotationTimelineAppendix({ q }: Props) {
       {/* Schedule */}
       {events.length > 0 && (
         <section style={{ marginBottom: 18 }}>
-          <SectionTitle>ตารางส่งงาน</SectionTitle>
+          <SectionTitle color={accent}>ตารางส่งงาน</SectionTitle>
           <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 11 }}>
             <thead>
-              <tr style={{ background: "#FFF3EB" }}>
+              <tr style={{ background: accentSoft }}>
                 <th style={th_}>วันที่</th>
                 <th style={th_}>กิจกรรม</th>
                 <th style={th_}>ประเภท</th>
@@ -114,10 +125,10 @@ export function QuotationTimelineAppendix({ q }: Props) {
       {/* Milestones */}
       {q.milestones && q.milestones.length > 0 && (
         <section style={{ marginBottom: 18 }}>
-          <SectionTitle>งวดการชำระเงิน</SectionTitle>
+          <SectionTitle color={accent}>งวดการชำระเงิน</SectionTitle>
           <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 11 }}>
             <thead>
-              <tr style={{ background: "#FFF3EB" }}>
+              <tr style={{ background: accentSoft }}>
                 <th style={th_}>งวด</th>
                 <th style={th_}>วันที่กำหนด</th>
                 <th style={{ ...th_, textAlign: "right" }}>สัดส่วน</th>
@@ -168,14 +179,14 @@ const td_: React.CSSProperties = {
   borderBottom: "1px solid #f0f0f0",
 };
 
-function SectionTitle({ children }: { children: React.ReactNode }) {
+function SectionTitle({ children, color = "#F37021" }: { children: React.ReactNode; color?: string }) {
   return (
     <h2
       style={{
         fontSize: 11,
         letterSpacing: "0.12em",
         textTransform: "uppercase",
-        color: "#F37021",
+        color,
         margin: "0 0 8px",
         fontWeight: 600,
       }}

@@ -509,6 +509,7 @@ body.dash-sidebar-gradient [data-sidebar="sidebar"] [data-sidebar="group-label"]
   font-size: 10.5px;
   line-height: 1.55;
   -webkit-font-smoothing: antialiased;
+  --doc-accent: #FF6B00;
 }
 
 /* ===== Cover ===== */
@@ -540,7 +541,7 @@ body.dash-sidebar-gradient [data-sidebar="sidebar"] [data-sidebar="group-label"]
 .brief-pdf-cover-rule {
   margin: 14px 0 18px;
   height: 10px;
-  background: #FF6B00;
+  background: var(--doc-accent);
   border-radius: 2px;
 }
 .brief-pdf-cover-intro {
@@ -577,7 +578,7 @@ body.dash-sidebar-gradient [data-sidebar="sidebar"] [data-sidebar="group-label"]
 .brief-pdf-aside-num {
   font-size: 10px;
   font-weight: 700;
-  color: #FF6B00;
+  color: var(--doc-accent);
   letter-spacing: 0.18em;
   margin-bottom: 4px;
 }
@@ -651,11 +652,11 @@ body.dash-sidebar-gradient [data-sidebar="sidebar"] [data-sidebar="group-label"]
 .brief-pdf-scope-list li:last-child { border-bottom: none; }
 .brief-pdf-scope-list li::before {
   content: "—";
-  color: #FF6B00;
+  color: var(--doc-accent);
   font-weight: 700;
 }
 .brief-pdf-scope-name { font-weight: 600; color: #111; }
-.brief-pdf-scope-qty { font-family: "JetBrains Mono", monospace; font-size: 10px; color: #FF6B00; font-weight: 700; }
+.brief-pdf-scope-qty { font-family: "JetBrains Mono", monospace; font-size: 10px; color: var(--doc-accent); font-weight: 700; }
 .brief-pdf-scope-note { color: #666; font-size: 10.5px; }
 
 /* ===== Brand CI ===== */
@@ -755,7 +756,13 @@ body.dash-sidebar-gradient [data-sidebar="sidebar"] [data-sidebar="group-label"]
   color: #888;
 }
 .brief-pdf-footer-rule { flex: 1; height: 1px; background: #ddd; }
-
+.brief-pdf-powered {
+  margin-top: 8px;
+  text-align: center;
+  font-size: 8.5px;
+  color: #aaa;
+  letter-spacing: 0.02em;
+}
 
 
 /* =====================================================================

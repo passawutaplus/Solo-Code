@@ -7,6 +7,10 @@ import { Label } from "@/components/ui/label";
 import { Copy, MessageCircle, Phone, Mail, Loader2, Send } from "lucide-react";
 import { toast } from "sonner";
 import { useServerFn } from "@tanstack/react-start";
+import { useAuth } from "@/auth/AuthProvider";
+import { useSubscription } from "@/hooks/useSubscription";
+import { issuerFromQuotation } from "@/lib/quotationKinds";
+import { resolveQuotationSenderName } from "@/lib/quotationSenderName";
 import { type Quotation, useQuotations } from "@/store/quotations";
 import {
   daysOverdue,
@@ -27,6 +31,8 @@ const TONE_OPTIONS: { id: FollowUpTone; label: string; tone: string }[] = [
 
 export function FollowUpDialog({ q, open, onClose }: { q: Quotation | null; open: boolean; onClose: () => void }) {
   const { update } = useQuotations();
+  const { profile } = useAuth();
+  const { isPro } = useSubscription();
   const sendBrandedEmail = useServerFn(sendPaymentFollowUpEmail);
   const [tplId, setTplId] = React.useState<FollowUpTone>("soft");
   const [partial, setPartial] = React.useState("");
@@ -42,6 +48,16 @@ export function FollowUpDialog({ q, open, onClose }: { q: Quotation | null; open
   if (!q) return null;
   const amount = outstandingAmount(q);
   const message = buildFollowUpMessage(q, amount, tplId);
+  const issuer = issuerFromQuotation(q);
+  const senderName = resolveQuotationSenderName({
+    quotationKind: q.quotationKind,
+    orgSnapshot: q.orgSnapshot,
+    studioSnapshot: q.studioSnapshot,
+    profileBrandName: profile?.brand_name,
+    profileDisplayName: profile?.display_name,
+  });
+  const emailButtonLabel =
+    issuer || isPro ? `ส่งอีเมลจาก ${senderName}` : "ส่งอีเมลแบรนด์ So1o ให้ลูกค้า";
 
   const recordFollowup = () => update(q.id, { lastFollowupAt: new Date().toISOString() });
 
@@ -83,7 +99,7 @@ export function FollowUpDialog({ q, open, onClose }: { q: Quotation | null; open
     setSending(true);
     try {
       const res = await sendBrandedEmail({ data: { quotationId: q.id, tone: tplId } });
-      toast.success(`ส่งอีเมลแบรนด์ So1o ให้ ${res.sentTo} แล้ว`);
+      toast.success(`ส่งอีเมลจาก ${senderName} ให้ ${res.sentTo} แล้ว`);
       recordFollowup();
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "ส่งอีเมลไม่สำเร็จ");
@@ -153,7 +169,7 @@ export function FollowUpDialog({ q, open, onClose }: { q: Quotation | null; open
             onClick={sendEmail}
           >
             {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-            ส่งอีเมลแบรนด์ So1o ให้ลูกค้า
+            {emailButtonLabel}
           </Button>
 
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">

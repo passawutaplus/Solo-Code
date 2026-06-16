@@ -6,6 +6,9 @@ import { ZoomIn, ZoomOut, Download } from "lucide-react";
 import { BriefPdfTemplate } from "./BriefPdfTemplate";
 import type { DesignBrief, BriefOwnerPublic } from "@/lib/briefSchema";
 import { runPrintToPdf } from "@/lib/printPdf";
+import { useSubscription } from "@/hooks/useSubscription";
+import { resolveDocumentTheme, type DocumentThemeInput } from "@/lib/documentTheme";
+import { useAuth } from "@/auth/AuthProvider";
 
 interface Props {
   brief: DesignBrief | null;
@@ -24,6 +27,12 @@ interface Props {
  * print this node.
  */
 export function BriefPdfPreviewDialog({ brief, open, onOpenChange, autoPrint, owner }: Props) {
+  const { tier } = useSubscription();
+  const { profile } = useAuth();
+  const briefTheme = React.useMemo(
+    () => resolveDocumentTheme(tier, (profile?.document_theme ?? {}) as DocumentThemeInput),
+    [tier, profile?.document_theme],
+  );
   const briefWithOwner = React.useMemo<DesignBrief | null>(() => {
     if (!brief) return null;
     return owner ? { ...brief, owner: { ...(brief.owner ?? {}), ...owner } } : brief;
@@ -96,7 +105,7 @@ export function BriefPdfPreviewDialog({ brief, open, onOpenChange, autoPrint, ow
                 padding: "52px 46px",
               }}
             >
-              <BriefPdfTemplate brief={briefWithOwner!} />
+              <BriefPdfTemplate brief={briefWithOwner!} theme={briefTheme} tier={tier} />
             </div>
           </div>
         </DialogContent>
@@ -107,7 +116,7 @@ export function BriefPdfPreviewDialog({ brief, open, onOpenChange, autoPrint, ow
       {open && typeof document !== "undefined" &&
         createPortal(
           <div className="brief-print-only">
-            <BriefPdfTemplate brief={briefWithOwner!} />
+            <BriefPdfTemplate brief={briefWithOwner!} theme={briefTheme} tier={tier} />
           </div>,
           document.body,
         )

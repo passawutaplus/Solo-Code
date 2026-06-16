@@ -12,6 +12,8 @@ import {
 } from "@/lib/email/followUpMessage";
 import type { Quotation } from "@/store/quotations";
 import { throwClientError } from "@/lib/security";
+import type { IssuerSnapshot } from "@/lib/quotationKinds";
+import { resolveQuotationSenderName } from "@/lib/quotationSenderName";
 
 const InputSchema = z.object({
   quotationId: z.string().uuid(),
@@ -54,7 +56,7 @@ export const sendPaymentFollowUpEmail = createServerFn({ method: "POST" })
     const { data: row, error } = await supabaseAdmin
       .from("quotations")
       .select(
-        "id, number, client_name, client_email, client_phone, project_name, status, due_date, invoice_number, paid_partial, late_fee_percent, items, addons, difficulties, hidden_cost, discount_value, discount_kind, vat_enabled, vat_rate, wht_enabled, wht_rate, deposit_preset, user_id",
+        "id, number, client_name, client_email, client_phone, project_name, status, due_date, invoice_number, paid_partial, late_fee_percent, items, addons, difficulties, hidden_cost, discount_value, discount_kind, vat_enabled, vat_rate, wht_enabled, wht_rate, deposit_preset, user_id, quotation_kind, org_snapshot, studio_snapshot",
       )
       .eq("id", data.quotationId)
       .eq("user_id", userId)
@@ -73,9 +75,19 @@ export const sendPaymentFollowUpEmail = createServerFn({ method: "POST" })
 
     const { data: profile } = await supabaseAdmin
       .from("profiles")
-      .select("brand_name, display_name")
+      .select("brand_name, display_name, subscription_tier")
       .eq("user_id", userId)
       .maybeSingle();
+
+    const rowExt = row as Record<string, unknown>;
+    const freelancerName = resolveQuotationSenderName({
+      quotationKind: rowExt.quotation_kind as Quotation["quotationKind"],
+      orgSnapshot: rowExt.org_snapshot as IssuerSnapshot | null,
+      studioSnapshot: rowExt.studio_snapshot as IssuerSnapshot | null,
+      profileBrandName: profile?.brand_name,
+      profileDisplayName: profile?.display_name,
+      fallback: "ฟรีแลนซ์",
+    });
 
     const { data: job } = await supabaseAdmin
       .from("job_trackers")
@@ -93,7 +105,7 @@ export const sendPaymentFollowUpEmail = createServerFn({ method: "POST" })
       recipientEmail: clientEmail,
       templateData: {
         clientName: q.clientName || "ลูกค้า",
-        freelancerName: profile?.brand_name || profile?.display_name || "ฟรีแลนซ์",
+        freelancerName,
         projectName: q.projectName || q.number,
         invoiceNumber: q.invoiceNumber ?? q.number,
         amount: `฿${amount.toLocaleString("th-TH")}`,

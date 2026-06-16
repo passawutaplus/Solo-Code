@@ -156,6 +156,69 @@ export const PLAN_COMPARISON_ROWS: PlanComparisonRow[] = [
     },
   },
   {
+    label: "เอกสาร QT/INV/RC + Brief PDF",
+    values: {
+      free: true,
+      pro: true,
+      pro_plus: true,
+      inhouse: true,
+    },
+  },
+  {
+    label: "เอา So1o badge (PDF + Portal)",
+    values: {
+      free: false,
+      pro: true,
+      pro_plus: true,
+      inhouse: true,
+    },
+  },
+  {
+    label: "ปรับสีเอกสาร (QT/INV/RC/Brief)",
+    values: {
+      free: false,
+      pro: true,
+      pro_plus: true,
+      inhouse: true,
+    },
+  },
+  {
+    label: "Portal ลูกค้า (โลโก้ + สีแบรนด์)",
+    values: {
+      free: false,
+      pro: true,
+      pro_plus: true,
+      inhouse: true,
+    },
+  },
+  {
+    label: "แบรนด์องค์กรบนเอกสาร",
+    values: {
+      free: false,
+      pro: false,
+      pro_plus: false,
+      inhouse: true,
+    },
+  },
+  {
+    label: "ใบเสนอราคาทีม (In-House)",
+    values: {
+      free: false,
+      pro: false,
+      pro_plus: false,
+      inhouse: true,
+    },
+  },
+  {
+    label: "ใบเสนอราคารวม Studio (an1hem nest)",
+    values: {
+      free: false,
+      pro: false,
+      pro_plus: false,
+      inhouse: true,
+    },
+  },
+  {
     label: "Workspace ทีม",
     values: {
       free: false,

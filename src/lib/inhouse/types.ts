@@ -18,6 +18,14 @@ export interface InhouseOrg {
   avatar_url: string | null;
   seat_limit: number;
   settings: Record<string, unknown>;
+  document_theme?: Record<string, unknown> | null;
+  brand_name?: string | null;
+  brand_tagline?: string | null;
+  legal_name?: string | null;
+  tax_id?: string | null;
+  address?: string | null;
+  phone?: string | null;
+  email?: string | null;
   created_at: string;
   updated_at: string;
 }

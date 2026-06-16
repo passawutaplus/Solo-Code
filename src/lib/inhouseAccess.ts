@@ -10,6 +10,11 @@ export function canCreateInhouseOrg(tier: Tier): boolean {
   return tier === "inhouse";
 }
 
+/** Studio combined quote (an1hem nest) — In-House tier only. */
+export function canUseStudioQuote(tier: Tier): boolean {
+  return tier === "inhouse";
+}
+
 export function canAccessInhouse(
   tier: Tier,
   memberships: InhouseOrgMember[],

@@ -40,6 +40,8 @@ export interface Profile {
   line_linked_at?: string | null;
   line_notify_enabled?: boolean;
   line_notify_prefs?: Record<string, boolean>;
+  document_theme?: Record<string, unknown> | null;
+  subscription_tier?: string | null;
 }
 
 interface AuthContextValue {
