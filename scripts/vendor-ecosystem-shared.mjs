@@ -23,11 +23,48 @@ const copies = [
     src: join(soloRoot, "src", "data", "plans.ts"),
     dest: join(anthemRoot, "src", "data", "plans.vendored.ts"),
   },
+  {
+    src: join(soloRoot, "src", "lib", "thesvgIcon.ts"),
+    dest: join(anthemRoot, "src", "lib", "thesvgIcon.vendored.ts"),
+  },
+  {
+    src: join(soloRoot, "src", "data", "creativeTools.ts"),
+    dest: join(anthemRoot, "src", "data", "creativeTools.vendored.ts"),
+  },
+  {
+    src: join(soloRoot, "src", "lib", "favicon.ts"),
+    dest: join(anthemRoot, "src", "lib", "favicon.vendored.ts"),
+  },
+  {
+    src: join(soloRoot, "src", "components", "brand", "ToolBrandIcon.tsx"),
+    dest: join(anthemRoot, "src", "components", "brand", "ToolBrandIcon.vendored.tsx"),
+  },
+  {
+    src: join(soloRoot, "src", "components", "ecosystem", "CreativeToolsSection.tsx"),
+    dest: join(anthemRoot, "src", "components", "ecosystem", "CreativeToolsSection.vendored.tsx"),
+  },
 ];
+
+/** Rewrite @/ imports to .vendored siblings for Anthem-Code. */
+function rewriteVendoredImports(content) {
+  return content
+    .replaceAll('@/lib/thesvgIcon"', '@/lib/thesvgIcon.vendored"')
+    .replaceAll("@/lib/thesvgIcon'", "@/lib/thesvgIcon.vendored'")
+    .replaceAll('@/lib/favicon"', '@/lib/favicon.vendored"')
+    .replaceAll("@/lib/favicon'", "@/lib/favicon.vendored'")
+    .replaceAll('@/data/creativeTools"', '@/data/creativeTools.vendored"')
+    .replaceAll("@/data/creativeTools'", "@/data/creativeTools.vendored'")
+    .replaceAll('@/components/brand/ToolBrandIcon"', '@/components/brand/ToolBrandIcon.vendored"')
+    .replaceAll("@/components/brand/ToolBrandIcon'", "@/components/brand/ToolBrandIcon.vendored'");
+}
 
 for (const { src, dest } of copies) {
   let content = readFileSync(src, "utf8");
-  content = `/** AUTO-GENERATED — do not edit. Source: Solo-Code/${src.split("/Solo-Code/")[1] ?? src} */\n${content}`;
+  const rel = src.replace(`${soloRoot}/`, "");
+  content = `/** AUTO-GENERATED — do not edit. Source: Solo-Code/${rel} */\n${content}`;
+  if (dest.includes(".vendored.")) {
+    content = rewriteVendoredImports(content);
+  }
   writeFileSync(dest, content);
 }
 
@@ -62,4 +99,6 @@ ${safeRelativeFn}
 `;
 writeFileSync(join(anthemRoot, "src", "lib", "safeUrl.ts"), anthemSafeUrl);
 
-console.log("[vendor-ecosystem] synced → Anthem-Code (lineNotificationKinds, plans.vendored, safeUrl)");
+console.log(
+  "[vendor-ecosystem] synced → Anthem-Code (lineNotificationKinds, plans, creativeTools, thesvgIcon, ToolBrandIcon, safeUrl)",
+);
