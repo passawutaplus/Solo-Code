@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { PageFooterActions } from "@/components/dashboard/PageFooterActions";
 import { TrendCoverImage } from "@/components/dashboard/TrendCoverImage";
 
-export function TrendsTab() {
+export function TrendsTab({ embedded = false }: { embedded?: boolean }) {
   const fetchTrends = useServerFn(getDailyTrends);
   const { data, isLoading, isFetching } = useQuery({
     queryKey: DAILY_TRENDS_QUERY_KEY,
@@ -51,7 +51,9 @@ export function TrendsTab() {
       });
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className={embedded ? "space-y-5" : "space-y-6 animate-fade-in"}>
+      {!embedded && (
+      <>
       {/* Masthead */}
       <header className="relative overflow-hidden rounded-2xl border border-border bg-gradient-to-br from-primary/10 via-card to-card p-5 sm:p-7 shadow-soft">
         <div className="absolute -top-16 -right-16 h-48 w-48 rounded-full bg-primary/20 blur-3xl pointer-events-none" />
@@ -72,6 +74,8 @@ export function TrendsTab() {
           </div>
         </div>
       </header>
+      </>
+      )}
 
       {/* Category filter */}
       {categories.length > 2 && (
@@ -240,7 +244,9 @@ export function TrendsTab() {
         </div>
       )}
 
-      <PageFooterActions feature="trends" label="ข่าวสาร & เทรนด์" />
+      {!embedded && (
+        <PageFooterActions feature="trends" label="ข่าวสาร & เทรนด์" />
+      )}
     </div>
   );
 }

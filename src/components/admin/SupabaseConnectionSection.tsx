@@ -125,6 +125,49 @@ async function probeQuotationContractColumns(): Promise<{ status: ProbeStatus; d
   return { status: "error", detail: msg };
 }
 
+async function probeProfilesDocumentTheme(): Promise<{ status: ProbeStatus; detail?: string }> {
+  const { error } = await supabase.from("profiles").select("document_theme").limit(1);
+  if (!error) return { status: "ok" };
+  const msg = error.message ?? "";
+  if (msg.includes("document_theme") || msg.includes("schema cache")) {
+    return { status: "missing", detail: "ยังไม่มี profiles.document_theme" };
+  }
+  if (error.code === "PGRST301" || msg.includes("permission")) {
+    return { status: "ok", detail: "คอลัมน์มีอยู่ (RLS จำกัดการอ่าน)" };
+  }
+  return { status: "error", detail: msg };
+}
+
+async function probeQuotationCollabColumns(): Promise<{ status: ProbeStatus; detail?: string }> {
+  const { error } = await supabase
+    .from("quotations")
+    .select("quotation_kind, org_snapshot, studio_snapshot, org_id, studio_id")
+    .limit(1);
+  if (!error) return { status: "ok" };
+  const msg = error.message ?? "";
+  if (
+    msg.includes("quotation_kind") ||
+    msg.includes("org_snapshot") ||
+    msg.includes("studio_snapshot") ||
+    msg.includes("schema cache")
+  ) {
+    return { status: "missing", detail: "ยังไม่มีคอลัมน์ inhouse/studio บน quotations" };
+  }
+  return { status: "error", detail: msg };
+}
+
+async function probeCoeditRlsHelpers(): Promise<{ status: ProbeStatus; detail?: string }> {
+  const { error } = await (supabase as {
+    rpc: (fn: string, args: object) => Promise<{ error: { message?: string; code?: string } | null }>;
+  }).rpc("is_quotation_collaborator", { p_quotation_id: "00000000-0000-0000-0000-000000000000" });
+  if (!error) return { status: "ok" };
+  const msg = error.message ?? "";
+  if (msg.includes("Could not find the function") || msg.includes("PGRST202")) {
+    return { status: "missing", detail: "ยังไม่มี RPC is_quotation_collaborator (co-edit RLS)" };
+  }
+  return { status: "ok", detail: "RPC พร้อม (ผลลัพธ์ false สำหรับ id ปลอม)" };
+}
+
 export function SupabaseConnectionSection() {
   const info = React.useMemo(() => getSupabaseProjectInfo(), []);
   const consistent = isProjectConfigConsistent(info);
@@ -174,6 +217,30 @@ export function SupabaseConnectionSection() {
       migrationFile: "20260612120000_inhouse_workspace.sql",
       status: "checking",
     },
+    {
+      id: "document_theme",
+      label: "Custom Docs — profiles.document_theme",
+      migrationFile: "20260616120000_profiles_document_theme.sql",
+      status: "checking",
+    },
+    {
+      id: "quotation_collab",
+      label: "In-House quotes — collaborators + kind/snapshots",
+      migrationFile: "20260616130000_quotation_collab_inhouse_branding.sql",
+      status: "checking",
+    },
+    {
+      id: "quotation_collaborators",
+      label: "ตาราง quotation_collaborators",
+      migrationFile: "20260616130000_quotation_collab_inhouse_branding.sql",
+      status: "checking",
+    },
+    {
+      id: "coedit_rls",
+      label: "Co-edit RLS (collaborator SELECT/UPDATE)",
+      migrationFile: "20260617120000_quotation_coedit_rls.sql",
+      status: "checking",
+    },
   ]);
 
   const runChecks = React.useCallback(async () => {
@@ -191,7 +258,19 @@ export function SupabaseConnectionSection() {
       setLatencyMs(Math.round(performance.now() - t0));
     }
 
-    const [contract, tickets, shared, feedbackFields, activityFeed, adminBusinessRls, inhouse] = await Promise.all([
+    const [
+      contract,
+      tickets,
+      shared,
+      feedbackFields,
+      activityFeed,
+      adminBusinessRls,
+      inhouse,
+      documentTheme,
+      quotationCollabCols,
+      quotationCollaborators,
+      coeditRls,
+    ] = await Promise.all([
       probeQuotationContractColumns(),
       probeTable("support_tickets"),
       probeTable("shared_projects"),
@@ -199,6 +278,10 @@ export function SupabaseConnectionSection() {
       probeActivityFeedRpc(),
       probeAdminBusinessRls(),
       probeTable("inhouse_orgs"),
+      probeProfilesDocumentTheme(),
+      probeQuotationCollabColumns(),
+      probeTable("quotation_collaborators"),
+      probeCoeditRlsHelpers(),
     ]);
 
     const contractOk = contract.status === "ok";
@@ -221,6 +304,30 @@ export function SupabaseConnectionSection() {
       { id: "admin_activity_feed", label: "Mission Control Activity Feed RPC", migrationFile: "20260607130000_admin_activity_feed.sql", ...activityFeed },
       { id: "admin_business_rls", label: "Admin business KPI RLS (quotations + finance)", migrationFile: "20260609120000_admin_business_rls.sql", ...adminBusinessRls },
       { id: "inhouse_workspace", label: "In-House Co-working (org + kanban + chat)", migrationFile: "20260612120000_inhouse_workspace.sql", ...inhouse },
+      {
+        id: "document_theme",
+        label: "Custom Docs — profiles.document_theme",
+        migrationFile: "20260616120000_profiles_document_theme.sql",
+        ...documentTheme,
+      },
+      {
+        id: "quotation_collab",
+        label: "In-House quotes — collaborators + kind/snapshots",
+        migrationFile: "20260616130000_quotation_collab_inhouse_branding.sql",
+        ...quotationCollabCols,
+      },
+      {
+        id: "quotation_collaborators",
+        label: "ตาราง quotation_collaborators",
+        migrationFile: "20260616130000_quotation_collab_inhouse_branding.sql",
+        ...quotationCollaborators,
+      },
+      {
+        id: "coedit_rls",
+        label: "Co-edit RLS (collaborator SELECT/UPDATE)",
+        migrationFile: "20260617120000_quotation_coedit_rls.sql",
+        ...coeditRls,
+      },
     ]);
 
     setLoading(false);

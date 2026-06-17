@@ -1,37 +1,46 @@
 import * as React from "react";
-import { useQuotations, computeTotals, statusLabel, type Quotation, type QuotationStatus, type DocKind } from "@/store/quotations";
+import { useQuotations, computeTotals, formatBaht, statusLabel, type Quotation, type QuotationStatus, type DocKind } from "@/store/quotations";
 import { useFinance } from "@/store/finance";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Download, Settings2, ListTree, CalendarRange, FileText, Save, ArrowRight, CheckCircle2, RefreshCw, Eye, Link2, ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowLeft, Download, Save, ArrowRight, CheckCircle2, RefreshCw, Eye, Link2, User, FileText, ListTree, CalendarRange, PanelRight, ImageIcon, StickyNote, Coins, Users } from "lucide-react";
 import { StickyToolbar, type ToolbarAction } from "../shared/StickyToolbar";
 import { SettingsPanel } from "./SettingsPanel";
 import { ServicesPanel } from "./ServicesPanel";
 import { TimelinePanel } from "./TimelinePanel";
 import { PreviewPanel } from "./PreviewPanel";
+import { QuotationFormCard, QuotationCollapsibleBlock } from "./QuotationFormCard";
+import { QuotationHeaderBannerField } from "./QuotationHeaderBannerField";
 import { QuotationCollaboratorsPanel } from "./QuotationCollaboratorsPanel";
+import { useQuotationCollaborators } from "@/hooks/useQuotationCollaborators";
 import { QuotationMockupDialog } from "./QuotationMockupDialog";
 import { QuotationExportOptionsDialog, type QuotationExportChoice } from "./QuotationExportOptionsDialog";
 import { ShareTrackerDialog } from "./ShareTrackerDialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/auth/AuthProvider";
 import { toast } from "sonner";
-import { cssAboveMobileBottomNav, DASH_MOBILE_STICKY_ACTION_PX } from "@/lib/layoutConstants";
-
+import { cssAboveMobileBottomNav } from "@/lib/layoutConstants";
 interface Props {
   id: string;
   onBack: () => void;
 }
 
-type View = "settings" | "services" | "timeline" | "preview";
 
 export function QuotationEditor({ id, onBack }: Props) {
-  const { get, update, markPdfExported, advanceStatus } = useQuotations();
+  const { get, update, markPdfExported, advanceStatus, isLoading } = useQuotations();
   const { upsertIncomeFromQuotation, removeIncomeBySource } = useFinance();
   const { user } = useAuth();
   const q = get(id);
-  const [mobileView, setMobileView] = React.useState<View>("settings");
-  const [desktopView, setDesktopView] = React.useState<Exclude<View, "preview">>("settings");
+  const { data: collabs = [] } = useQuotationCollaborators(
+    q?.quotationKind && q.quotationKind !== "solo" ? q.id : undefined,
+  );
+  const canEditCollaborators =
+    !!user &&
+    !!q &&
+    (q.ownerUserId === user.id ||
+      collabs.some((c) => c.userId === user.id && c.role === "lead"));
+  const [showMobilePreview, setShowMobilePreview] = React.useState(false);
+  const [advancedOpen, setAdvancedOpen] = React.useState(false);
   const [mockupOpen, setMockupOpen] = React.useState(false);
   const [autoPrint, setAutoPrint] = React.useState(false);
   const [exportOpen, setExportOpen] = React.useState(false);
@@ -52,6 +61,8 @@ export function QuotationEditor({ id, onBack }: Props) {
     if (q.status === "pending_payment") return "invoice";
     return "quotation";
   }, [q]);
+
+  const totals = React.useMemo(() => (q ? computeTotals(q) : null), [q]);
 
   // Auto-sync income to Tax module whenever a quotation reaches "completed"
   // Sync helper — สามารถเรียกซ้ำได้ทั้งใน effect และจากปุ่ม Resync
@@ -90,6 +101,13 @@ export function QuotationEditor({ id, onBack }: Props) {
   }
 
   if (!q) {
+    if (isLoading) {
+      return (
+        <div className="text-center py-16 text-sm text-muted-foreground">
+          กำลังโหลดใบเสนอราคา…
+        </div>
+      );
+    }
     return (
       <div className="text-center py-12">
         <p className="text-sm text-muted-foreground mb-3">ไม่พบใบเสนอราคา</p>
@@ -257,8 +275,110 @@ export function QuotationEditor({ id, onBack }: Props) {
     icon: <Download className="h-4 w-4" />,
   });
 
+  const formCards = (
+    <div className="space-y-5">
+      <QuotationFormCard
+        title="ลูกค้า"
+        description="เลือกหรือเพิ่มข้อมูลลูกค้าที่จะออกใบเสนอราคาให้"
+        icon={<User className="h-4 w-4" />}
+      >
+        <SettingsPanel q={q} patch={patch} sections={["client"]} />
+      </QuotationFormCard>
+
+      <QuotationFormCard
+        title="รายละเอียดเอกสาร"
+        description="ข้อมูลโครงการและเงื่อนไขชำระ"
+        icon={<FileText className="h-4 w-4" />}
+        headerExtra={
+          totals ? (
+          <div className="text-right shrink-0">
+            <p className="text-[10px] uppercase tracking-wide text-muted-foreground">ยอดรวม</p>
+            <p className="num text-lg font-bold text-primary leading-tight">฿{formatBaht(totals.grandTotal)}</p>
+          </div>
+          ) : null
+        }
+      >
+        <div className="rounded-xl bg-primary/5 border border-primary/15 px-4 py-3 flex items-center justify-between lg:hidden">
+          <span className="text-xs text-muted-foreground">จำนวนเงินรวมทั้งสิ้น</span>
+          <span className="num text-xl font-bold text-primary">
+            ฿{formatBaht(totals?.grandTotal ?? 0)}
+          </span>
+        </div>
+        <SettingsPanel q={q} patch={patch} sections={["project", "brief", "payment", "due"]} />
+      </QuotationFormCard>
+
+      <QuotationFormCard
+        title="ค่าบริการ"
+        description="รายการชิ้นงาน ส่วนลด ภาษี และยอดสุทธิ"
+        icon={<ListTree className="h-4 w-4" />}
+      >
+        <ServicesPanel q={q} patch={patch} sections={["add", "items", "summary"]} />
+      </QuotationFormCard>
+
+      <QuotationFormCard
+        title="ไทม์ไลน์และงวดงาน"
+        description="กำหนดวันที่และลำดับส่งงาน (แสดงในใบเสนอราคาได้)"
+        icon={<CalendarRange className="h-4 w-4" />}
+      >
+        <TimelinePanel q={q} patch={patch} sections={["dates", "milestones"]} />
+      </QuotationFormCard>
+
+      <QuotationFormCard
+        title="ตั้งค่าเพิ่มเติม"
+        description="ตัวเลือกราคา ผู้ร่วมงาน ตกแต่งเอกสาร และหมายเหตุภายใน"
+        icon={<FileText className="h-4 w-4" />}
+        defaultOpen={false}
+        open={advancedOpen}
+        onOpenChange={setAdvancedOpen}
+      >
+        <div className="space-y-4">
+          <QuotationCollapsibleBlock
+            title="ตัวเลือกราคาเพิ่มเติม"
+            description="ความยากของลูกค้า ส่วนเพิ่ม ต้นทุนแฝง และจำนวนแก้ไขฟรี"
+            icon={<Coins className="h-3.5 w-3.5" />}
+          >
+            <SettingsPanel q={q} patch={patch} sections={["modifiers"]} />
+          </QuotationCollapsibleBlock>
+
+          {(q.quotationKind === "inhouse" || q.quotationKind === "studio") && (
+            <QuotationCollapsibleBlock
+              title={q.quotationKind === "inhouse" ? "สมาชิกทีม (In-House)" : "สมาชิก Studio (an1hem nest)"}
+              icon={<Users className="h-3.5 w-3.5" />}
+            >
+              <QuotationCollaboratorsPanel
+                quotationId={q.id}
+                quotationKind={q.quotationKind}
+                canEdit={canEditCollaborators}
+                embedded
+              />
+            </QuotationCollapsibleBlock>
+          )}
+
+          <QuotationCollapsibleBlock
+            title="หมวดตกแต่ง"
+            description="ภาพหัวเอกสาร — แสดงใน preview และตอนส่งให้ลูกค้า"
+            icon={<ImageIcon className="h-3.5 w-3.5" />}
+          >
+            <QuotationHeaderBannerField
+              value={q.headerImageUrl}
+              onChange={(url) => patch({ headerImageUrl: url })}
+            />
+          </QuotationCollapsibleBlock>
+
+          <QuotationCollapsibleBlock
+            title="หมายเหตุภายใน"
+            description="โน้ตสำหรับตัวคุณเอง — ไม่แสดงในใบเสนอราคา"
+            icon={<StickyNote className="h-3.5 w-3.5" />}
+          >
+            <TimelinePanel q={q} patch={patch} sections={["notes"]} />
+          </QuotationCollapsibleBlock>
+        </div>
+      </QuotationFormCard>
+    </div>
+  );
+
   return (
-    <div className="space-y-3 quotation-editor-root lg:pb-3">
+    <div className="space-y-3 quotation-editor-root lg:pb-3 bg-muted/20 lg:bg-transparent rounded-xl lg:rounded-none">
       <StickyToolbar
         offsetTop={60}
         leading={
@@ -287,69 +407,42 @@ export function QuotationEditor({ id, onBack }: Props) {
         secondaryActions={secondaryActions}
       />
 
-      {/* Mobile / Tablet view switcher */}
-      <div className="no-print lg:hidden grid grid-cols-4 gap-1 rounded-xl glass p-1 sticky z-20" style={{ top: 124 }}>
-        <SwitchBtn active={mobileView === "settings"} onClick={() => setMobileView("settings")} icon={<Settings2 className="h-3.5 w-3.5" />} label="ตั้งค่า" />
-        <SwitchBtn active={mobileView === "services"} onClick={() => setMobileView("services")} icon={<ListTree className="h-3.5 w-3.5" />} label="ชิ้นงาน" />
-        <SwitchBtn active={mobileView === "timeline"} onClick={() => setMobileView("timeline")} icon={<CalendarRange className="h-3.5 w-3.5" />} label="ไทม์ไลน์" />
-        <SwitchBtn active={mobileView === "preview"} onClick={() => setMobileView("preview")} icon={<FileText className="h-3.5 w-3.5" />} label="ใบเสนอ" />
-      </div>
-
-      {/* ───── Desktop layout: 2 columns (editor + sticky preview) ───── */}
-      <div className="hidden lg:grid gap-5 grid-cols-12">
-        {/* Left: tabbed editor */}
-        <div className="col-span-7 xl:col-span-7 space-y-3 min-w-0">
-          {/* Tab switcher */}
-          <div className="rounded-2xl glass border border-border p-1.5 grid grid-cols-3 gap-1 sticky z-20" style={{ top: 124 }}>
-            <DesktopTab active={desktopView === "settings"} onClick={() => setDesktopView("settings")} icon={<Settings2 className="h-4 w-4" />} label="ตั้งค่าใบเสนอราคา" />
-            <DesktopTab active={desktopView === "services"} onClick={() => setDesktopView("services")} icon={<ListTree className="h-4 w-4" />} label="จัดการชิ้นงาน" />
-            <DesktopTab active={desktopView === "timeline"} onClick={() => setDesktopView("timeline")} icon={<CalendarRange className="h-4 w-4" />} label="ไทม์ไลน์" />
-          </div>
-
-          {/* Active panel */}
-          <div className="rounded-2xl glass border border-border p-5">
-            {desktopView === "settings" && (
-              <div className="space-y-4">
-                <SettingsPanel q={q} patch={patch} />
-                <QuotationCollaboratorsPanel quotationId={q.id} quotationKind={q.quotationKind} />
-              </div>
-            )}
-            {desktopView === "services" && <ServicesPanel q={q} patch={patch} />}
-            {desktopView === "timeline" && <TimelinePanel q={q} patch={patch} />}
-          </div>
-        </div>
-
-        {/* Right: sticky preview */}
-        <div className="col-span-5 xl:col-span-5 editor-inline-preview min-w-0">
-          <div className="sticky" style={{ top: 196 }}>
+      {/* Desktop: split form + sticky preview */}
+      <div className="hidden lg:grid gap-6 grid-cols-12 items-start">
+        <div className="col-span-7 min-w-0">{formCards}</div>
+        <div className="col-span-5 editor-inline-preview min-w-0">
+          <div className="sticky z-10" style={{ top: 132 }}>
+            <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium mb-2 px-1">
+              Preview
+            </p>
             <PreviewPanel q={q} docKind={docKind} />
           </div>
         </div>
       </div>
 
-
-      {/* Mobile: single panel */}
-      <div className="lg:hidden">
-        {mobileView === "settings" && (
-          <Column title="ตั้งค่าใบเสนอราคา">
-            <div className="space-y-4">
-              <SettingsPanel q={q} patch={patch} />
-              <QuotationCollaboratorsPanel quotationId={q.id} quotationKind={q.quotationKind} />
-            </div>
-          </Column>
+      {/* Mobile / tablet: optional preview + scroll form */}
+      <div className="lg:hidden space-y-4 px-0.5">
+        <div className="flex justify-end no-print">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="h-8 text-xs gap-1.5"
+            onClick={() => setShowMobilePreview((v) => !v)}
+          >
+            <PanelRight className="h-3.5 w-3.5" />
+            {showMobilePreview ? "ซ่อน Preview" : "แสดง Preview"}
+          </Button>
+        </div>
+        {showMobilePreview && (
+          <div className="editor-inline-preview">
+            <PreviewPanel q={q} docKind={docKind} />
+          </div>
         )}
-        {mobileView === "services" && (
-          <Column title="จัดการบริการ"><ServicesPanel q={q} patch={patch} /></Column>
-        )}
-        {mobileView === "timeline" && (
-          <Column title="ไทม์ไลน์"><TimelinePanel q={q} patch={patch} /></Column>
-        )}
-        {mobileView === "preview" && (
-          <div className="editor-inline-preview"><PreviewPanel q={q} docKind={docKind} /></div>
-        )}
+        {formCards}
       </div>
 
-      {/* Sticky bottom action bar — mobile only, ensures Download/Next-step always reachable */}
+      {/* Sticky bottom action bar — mobile only */}
       <div
         className="no-print lg:hidden fixed inset-x-0 z-[45] border-t border-border/60 bg-background/95 backdrop-blur px-3 py-2 flex items-center gap-2 shadow-[0_-4px_12px_-6px_rgba(0,0,0,0.15)]"
         style={{
@@ -378,7 +471,7 @@ export function QuotationEditor({ id, onBack }: Props) {
         open={exportOpen}
         onOpenChange={setExportOpen}
         hasBrief={!!q.briefId}
-        hasTimeline={q.timelineEnabled !== false && !!(q.startDate || q.endDate || (q.milestones && q.milestones.length > 0))}
+        hasTimeline={!!(q.startDate || q.endDate || (q.milestones && q.milestones.length > 0))}
         onConfirm={handleExportConfirm}
         mode="export"
       />
@@ -387,7 +480,7 @@ export function QuotationEditor({ id, onBack }: Props) {
         open={previewOptionsOpen}
         onOpenChange={setPreviewOptionsOpen}
         hasBrief={!!q.briefId}
-        hasTimeline={q.timelineEnabled !== false && !!(q.startDate || q.endDate || (q.milestones && q.milestones.length > 0))}
+        hasTimeline={!!(q.startDate || q.endDate || (q.milestones && q.milestones.length > 0))}
         onConfirm={handlePreviewConfirm}
         mode="preview"
       />
@@ -421,121 +514,6 @@ export function QuotationEditor({ id, onBack }: Props) {
         />
       )}
 
-      {/* Floating Prev/Next step nav (bottom-right) */}
-      <StepNav
-        mobileView={mobileView}
-        setMobileView={setMobileView}
-        desktopView={desktopView}
-        setDesktopView={setDesktopView}
-      />
     </div>
-  );
-}
-
-function Column({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <div className="rounded-2xl glass border border-border p-3 sm:p-4">
-      <h2 className="text-xs font-semibold tracking-wider uppercase text-muted-foreground mb-3 sticky top-0 bg-card/80 backdrop-blur py-1 -mx-3 sm:-mx-4 px-3 sm:px-4 z-10">
-        {title}
-      </h2>
-      {children}
-    </div>
-  );
-}
-
-function SwitchBtn({ active, onClick, icon, label }: { active: boolean; onClick: () => void; icon: React.ReactNode; label: string }) {
-  return (
-    <button
-      type="button"
-      data-compact-touch
-      onClick={onClick}
-      className={`flex flex-col items-center gap-0.5 rounded-lg py-1.5 text-[10px] font-medium transition-all ${
-        active ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
-      }`}
-    >
-      {icon}
-      <span>{label}</span>
-    </button>
-  );
-}
-
-function DesktopTab({ active, onClick, icon, label }: { active: boolean; onClick: () => void; icon: React.ReactNode; label: string }) {
-  return (
-    <button
-      onClick={onClick}
-      className={`flex items-center justify-center gap-2 rounded-xl py-2.5 px-3 text-xs font-medium transition-all ${
-        active
-          ? "bg-primary text-primary-foreground shadow-sm"
-          : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
-      }`}
-    >
-      {icon}
-      <span className="truncate">{label}</span>
-    </button>
-  );
-}
-
-const MOBILE_STEPS: View[] = ["settings", "services", "timeline", "preview"];
-const DESKTOP_STEPS: Exclude<View, "preview">[] = ["settings", "services", "timeline"];
-
-function StepNav({
-  mobileView,
-  setMobileView,
-  desktopView,
-  setDesktopView,
-}: {
-  mobileView: View;
-  setMobileView: (v: View) => void;
-  desktopView: Exclude<View, "preview">;
-  setDesktopView: (v: Exclude<View, "preview">) => void;
-}) {
-  const mIdx = MOBILE_STEPS.indexOf(mobileView);
-  const dIdx = DESKTOP_STEPS.indexOf(desktopView);
-
-  return (
-    <>
-      {/* Mobile */}
-      <div
-        className="no-print lg:hidden fixed right-3 z-[50] flex gap-2"
-        style={{ bottom: cssAboveMobileBottomNav(DASH_MOBILE_STICKY_ACTION_PX + 12) }}
-      >
-        <button
-          onClick={() => mIdx > 0 && setMobileView(MOBILE_STEPS[mIdx - 1])}
-          disabled={mIdx <= 0}
-          aria-label="ย้อนกลับ"
-          className="h-10 w-10 rounded-full glass border border-border/60 backdrop-blur flex items-center justify-center text-foreground disabled:opacity-40 shadow-md"
-        >
-          <ChevronLeft className="h-4 w-4" />
-        </button>
-        <button
-          onClick={() => mIdx < MOBILE_STEPS.length - 1 && setMobileView(MOBILE_STEPS[mIdx + 1])}
-          disabled={mIdx >= MOBILE_STEPS.length - 1}
-          aria-label="ถัดไป"
-          className="h-10 w-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center disabled:opacity-40 shadow-md"
-        >
-          <ChevronRight className="h-4 w-4" />
-        </button>
-      </div>
-
-      {/* Desktop */}
-      <div className="no-print hidden lg:flex fixed bottom-6 right-6 z-40 gap-2">
-        <button
-          onClick={() => dIdx > 0 && setDesktopView(DESKTOP_STEPS[dIdx - 1])}
-          disabled={dIdx <= 0}
-          aria-label="ย้อนกลับ"
-          className="h-11 px-4 rounded-full glass border border-border/60 backdrop-blur inline-flex items-center gap-1.5 text-xs text-foreground disabled:opacity-40 shadow-md"
-        >
-          <ChevronLeft className="h-4 w-4" /> ย้อนกลับ
-        </button>
-        <button
-          onClick={() => dIdx < DESKTOP_STEPS.length - 1 && setDesktopView(DESKTOP_STEPS[dIdx + 1])}
-          disabled={dIdx >= DESKTOP_STEPS.length - 1}
-          aria-label="ถัดไป"
-          className="h-11 px-4 rounded-full bg-primary text-primary-foreground inline-flex items-center gap-1.5 text-xs disabled:opacity-40 shadow-md"
-        >
-          ถัดไป <ChevronRight className="h-4 w-4" />
-        </button>
-      </div>
-    </>
   );
 }

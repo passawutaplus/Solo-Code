@@ -32,6 +32,7 @@ export async function resolveOwnerPortalBranding(userId: string): Promise<Portal
 
   return {
     showPoweredBy: theme.showPoweredBy,
+    showLogo: themeInput.portalShowLogo !== false,
     brandName: row.brand_name?.trim() || "So1o Freelancer",
     tagline: row.tagline?.trim() || null,
     logoUrl: row.logo_url?.trim() || null,

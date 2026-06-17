@@ -26,9 +26,10 @@ import { QuickNoteWidget } from "./overview/QuickNoteWidget";
 import { JobTrackerMiniWidget } from "./overview/JobTrackerMiniWidget";
 import { OnboardingChecklist } from "./overview/OnboardingChecklist";
 import { PipelineMiniWidget } from "./overview/PipelineMiniWidget";
+import { OverviewPerformanceCharts } from "./overview/OverviewPerformanceCharts";
+import { DashboardShortcuts } from "./overview/DashboardShortcuts";
 import { PipelineNewDealButton } from "./layout/PipelineNewDealButton";
 import { AnthemJobsPanel } from "./ecosystem/AnthemJobsPanel";
-import { Kanban, FileText, Calculator } from "lucide-react";
 
 interface OverviewTabProps {
   onGo: (tab: string, sub?: string) => void;
@@ -125,12 +126,7 @@ export function OverviewTab({ onGo }: OverviewTabProps) {
         <PipelineNewDealButton variant="header" onNavigate={onGo} />
       </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <ShortcutPill icon={Kanban} label="Pipeline" onClick={() => onGo("finance", "pipeline")} />
-        <ShortcutPill icon={FileText} label="ใบเสนอราคา" onClick={() => onGo("finance", "quotations")} />
-        <ShortcutPill icon={Calculator} label="ภาษี" onClick={() => onGo("finance", "tax")} />
-        <ShortcutPill icon={Users} label="ลูกค้า" onClick={() => onGo("mydata", "clients")} />
-      </div>
+      <DashboardShortcuts onGo={onGo} />
 
       {/* Monthly income goal — moved to top */}
       <MonthlyGoalCard
@@ -174,6 +170,8 @@ export function OverviewTab({ onGo }: OverviewTabProps) {
         />
       </div>
 
+      <OverviewPerformanceCharts />
+
       {/* Pipeline + Job tracker + Debt */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-5 items-stretch">
         <PipelineMiniWidget onGo={onGo} />
@@ -202,32 +200,6 @@ export function OverviewTab({ onGo }: OverviewTabProps) {
 
       <PageFooterActions feature="overview" label="ภาพรวมหน้า Dashboard" />
     </div>
-  );
-}
-
-function ShortcutPill({
-  icon: Icon, label, badge, onClick,
-}: { icon: React.ElementType; label: string; badge?: string; onClick: () => void }) {
-  return (
-    <button
-      onClick={onClick}
-      className="group rounded-xl border border-border/60 bg-card hover:bg-card hover:shadow-elevated hover:-translate-y-0.5 transition-all p-3 flex items-center gap-2 text-left"
-    >
-      <span className="rounded-lg bg-primary-soft text-primary p-2 shrink-0">
-        <Icon className="h-4 w-4" />
-      </span>
-      <div className="min-w-0 flex-1">
-        <div className="flex items-center gap-1.5">
-          <p className="text-xs font-semibold truncate">{label}</p>
-          {badge && (
-            <span className="text-[9px] font-semibold rounded-full bg-primary text-primary-foreground px-1.5 py-0.5">
-              {badge}
-            </span>
-          )}
-        </div>
-      </div>
-      <ArrowRight className="h-3.5 w-3.5 text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0" />
-    </button>
   );
 }
 

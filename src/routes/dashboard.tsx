@@ -23,11 +23,11 @@ import {
   SettingsSkeleton,
 } from "@/components/dashboard/skeletons/TabSkeletons";
 
+const HomeTab = React.lazy(() =>
+  import("@/components/dashboard/HomeTab").then((m) => ({ default: m.HomeTab })),
+);
 const OverviewTab = React.lazy(() =>
   import("@/components/dashboard/OverviewTab").then((m) => ({ default: m.OverviewTab })),
-);
-const TrendsTab = React.lazy(() =>
-  import("@/components/dashboard/TrendsTab").then((m) => ({ default: m.TrendsTab })),
 );
 const FinanceTab = React.lazy(() =>
   import("@/components/dashboard/FinanceTab").then((m) => ({ default: m.FinanceTab })),
@@ -40,9 +40,6 @@ const MyDataTab = React.lazy(() =>
 );
 const SettingsTab = React.lazy(() =>
   import("@/components/dashboard/SettingsTab").then((m) => ({ default: m.SettingsTab })),
-);
-const InspireTab = React.lazy(() =>
-  import("@/components/dashboard/InspireTab").then((m) => ({ default: m.InspireTab })),
 );
 
 import { trackFeature } from "@/lib/featureUsage";
@@ -84,10 +81,24 @@ export const Route = createFileRoute("/dashboard")({
   ),
 });
 
+const VALID_SECTIONS: DashSection[] = [
+  "home",
+  "overview",
+  "finance",
+  "planner",
+  "mydata",
+  "settings",
+];
+
+function parseDashSection(tab: string | null): DashSection {
+  if (tab === "trends" || tab === "inspire") return "home";
+  if (tab && VALID_SECTIONS.includes(tab as DashSection)) return tab as DashSection;
+  return "overview";
+}
+
 const SECTION_FALLBACK: Record<DashSection, string> = {
+  home: "Home",
   overview: "Dashboard",
-  trends: "ข่าวสาร & เทรนด์",
-  inspire: "Inspire",
   finance: "Quotation",
   planner: "Content",
   mydata: "ลูกค้า",
@@ -125,9 +136,8 @@ function getSectionTitle(section: DashSection, sub?: string): string {
 
 
 const DEFAULT_SUBS: Record<DashSection, string | undefined> = {
+  home: undefined,
   overview: undefined,
-  trends: undefined,
-  inspire: undefined,
   finance: "quotations",
   planner: "content",
   mydata: "clients",
@@ -138,10 +148,7 @@ function Dashboard() {
   const { profile, user } = useAuth();
   const [section, setSection] = React.useState<DashSection>(() => {
     if (typeof window === "undefined") return "overview";
-    const t = new URLSearchParams(window.location.search).get("tab");
-    return (["overview", "trends", "inspire", "finance", "planner", "mydata", "settings"].includes(t || "")
-      ? (t as DashSection)
-      : "overview");
+    return parseDashSection(new URLSearchParams(window.location.search).get("tab"));
   });
   const [sub, setSub] = React.useState<string | undefined>(() => {
     if (typeof window === "undefined") return undefined;
@@ -166,6 +173,21 @@ function Dashboard() {
   useTrackActivity(user?.id);
   useLogActivity(user?.id, "dashboard_view");
   useDailyTrendsPrefetch();
+
+  // Legacy deep links: ?tab=trends|inspire → home
+  React.useEffect(() => {
+    if (typeof window === "undefined") return;
+    const tab = new URLSearchParams(window.location.search).get("tab");
+    if (tab === "trends" || tab === "inspire") {
+      const url = new URL(window.location.href);
+      url.searchParams.set("tab", "home");
+      if (tab === "inspire") url.hash = "inspire";
+      else if (tab === "trends") url.hash = "news";
+      window.history.replaceState({}, "", url.toString());
+      setSection("home");
+    }
+  }, []);
+
   React.useEffect(() => {
     trackFeature(`dashboard.${section}`);
   }, [section]);
@@ -322,19 +344,14 @@ function Dashboard() {
                 <div className="relative z-10 mx-auto w-full max-w-6xl px-3 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
                   <DashboardBannerSlider />
                   <div className="animate-fade-in">
+                    {section === "home" && (
+                      <React.Suspense fallback={<OverviewSkeleton />}>
+                        <HomeTab />
+                      </React.Suspense>
+                    )}
                     {section === "overview" && (
                       <React.Suspense fallback={<OverviewSkeleton />}>
                         <OverviewTab onGo={(t, s) => updateSection(t as DashSection, s)} />
-                      </React.Suspense>
-                    )}
-                    {section === "inspire" && (
-                      <React.Suspense fallback={<OverviewSkeleton />}>
-                        <InspireTab />
-                      </React.Suspense>
-                    )}
-                    {section === "trends" && (
-                      <React.Suspense fallback={<OverviewSkeleton />}>
-                        <TrendsTab />
                       </React.Suspense>
                     )}
                     {section === "finance" && (

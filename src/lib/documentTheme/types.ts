@@ -28,6 +28,8 @@ export interface ResolvedDocumentTheme {
 
 export interface PortalBranding {
   showPoweredBy: boolean;
+  /** When false, hide logo on client portal even if logoUrl is set. */
+  showLogo: boolean;
   brandName: string;
   tagline: string | null;
   logoUrl: string | null;

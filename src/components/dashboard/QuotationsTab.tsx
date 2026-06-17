@@ -47,11 +47,14 @@ import {
 } from "@/lib/ecosystemHandoff";
 import type { IssuerSnapshot } from "@/lib/quotationKinds";
 import { useSubscription } from "@/hooks/useSubscription";
+import { useAuth } from "@/auth/AuthProvider";
+import type { DocumentThemeInput } from "@/lib/documentTheme";
 import { canUseStudioQuote } from "@/lib/inhouseAccess";
 
 export function QuotationsTab() {
   const { list, create, remove, duplicate, advanceStatus, update } = useQuotations();
   const { tier } = useSubscription();
+  const { profile } = useAuth();
   const [editingId, setEditingId] = React.useState<string | null>(null);
   const [query, setQuery] = React.useState("");
   const [filter, setFilter] = React.useState<"all" | QuotationStatus>("all");
@@ -60,6 +63,7 @@ export function QuotationsTab() {
   const [selectedIds, setSelectedIds] = React.useState<Set<string>>(new Set());
   const [confirmBulkDel, setConfirmBulkDel] = React.useState(false);
   const [mockupId, setMockupId] = React.useState<string | null>(null);
+  const [creating, setCreating] = React.useState(false);
 
   // Hand-off from Smart Brief → auto-create OR refresh existing linked quotation.
   // Wait until `list` is loaded (so we can detect a pre-existing quotation tied to the brief).
@@ -68,8 +72,30 @@ export function QuotationsTab() {
   const studioHandoffConsumedRef = React.useRef(false);
   const [anthemHandoffVersion, setAnthemHandoffVersion] = React.useState(0);
   const [studioHandoffVersion, setStudioHandoffVersion] = React.useState(0);
+  const [studioUpgradeOpen, setStudioUpgradeOpen] = React.useState(false);
   const openIdConsumedRef = React.useRef(false);
   const listLoaded = React.useRef(false);
+
+  React.useEffect(() => {
+    if (!editingId) return;
+    try {
+      sessionStorage.setItem("so1o.editingQuotationId", editingId);
+    } catch {
+      /* noop */
+    }
+  }, [editingId]);
+
+  React.useEffect(() => {
+    if (editingId) return;
+    try {
+      const saved = sessionStorage.getItem("so1o.editingQuotationId");
+      if (saved && list.some((q) => q.id === saved)) {
+        setEditingId(saved);
+      }
+    } catch {
+      /* noop */
+    }
+  }, [editingId, list]);
 
   React.useEffect(() => {
     if (openIdConsumedRef.current) return;
@@ -178,7 +204,7 @@ export function QuotationsTab() {
     studioHandoffConsumedRef.current = true;
 
     if (!canUseStudioQuote(tier)) {
-      toast.error("ใบเสนอราคารวม Studio ใช้ได้เฉพาะแพ็ก In-House");
+      setStudioUpgradeOpen(true);
       return;
     }
 
@@ -187,9 +213,11 @@ export function QuotationsTab() {
       ? list.find((q) => q.notes?.includes(`studio_request:${requestId}`))
       : undefined;
 
+    const ownerTheme = (profile?.document_theme ?? null) as DocumentThemeInput | null;
     const studioSnapshot: IssuerSnapshot = {
       brandName: studioInit.studioName,
       logoUrl: studioInit.studioLogoUrl ?? null,
+      documentTheme: ownerTheme,
     };
 
     const noteBlock = [
@@ -210,7 +238,7 @@ export function QuotationsTab() {
           revenue_percent: m.revenuePercent ?? null,
           sort_order: i,
         }));
-        await supabase.from("quotation_collaborators" as never).insert(rows as never);
+        await supabase.from("quotation_collaborators").insert(rows);
       }
       setEditingId(q.id);
       toast.success("สร้างใบเสนอราคารวม Studio แล้ว");
@@ -249,7 +277,7 @@ export function QuotationsTab() {
     })
       .then((q) => { if (q) void afterCreate(q); })
       .catch((e) => toast.error(e instanceof Error ? e.message : "สร้างไม่สำเร็จ"));
-  }, [create, update, list, studioHandoffVersion, tier]);
+  }, [create, update, list, studioHandoffVersion, tier, profile?.document_theme]);
 
   React.useEffect(() => {
     // Only run once the list query has resolved (even if empty)
@@ -349,12 +377,37 @@ export function QuotationsTab() {
   }, [docType, filter]);
 
   if (editingId) {
-    return <QuotationEditor id={editingId} onBack={() => setEditingId(null)} />;
+    return (
+      <QuotationEditor
+        id={editingId}
+        onBack={() => {
+          try {
+            sessionStorage.removeItem("so1o.editingQuotationId");
+          } catch {
+            /* noop */
+          }
+          setEditingId(null);
+        }}
+      />
+    );
   }
 
   async function handleCreate() {
-    const q = await create();
-    setEditingId(q.id);
+    if (creating) return;
+    setCreating(true);
+    try {
+      const q = await create();
+      if (!q?.id) {
+        toast.error("สร้างใบเสนอราคาไม่สำเร็จ — ลองใหม่อีกครั้ง");
+        return;
+      }
+      setEditingId(q.id);
+      toast.success(`สร้าง ${q.number} แล้ว`);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "สร้างใบเสนอราคาไม่สำเร็จ");
+    } finally {
+      setCreating(false);
+    }
   }
 
   function toggleSelect(id: string) {
@@ -424,8 +477,12 @@ export function QuotationsTab() {
                 </p>
               </div>
               {docType === "quotation" && (
-                <Button onClick={handleCreate} className="gap-1.5 bg-primary hover:bg-primary/90">
-                  <Plus className="h-4 w-4" /> ทำใบเสนอราคา
+                <Button
+                  onClick={() => void handleCreate()}
+                  disabled={creating}
+                  className="gap-1.5 bg-primary hover:bg-primary/90"
+                >
+                  <Plus className="h-4 w-4" /> {creating ? "กำลังสร้าง…" : "ทำใบเสนอราคา"}
                 </Button>
               )}
             </div>
@@ -575,6 +632,23 @@ export function QuotationsTab() {
         open={!!mockupQ}
         onOpenChange={(o) => !o && setMockupId(null)}
       />
+
+      <AlertDialog open={studioUpgradeOpen} onOpenChange={setStudioUpgradeOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>ใบเสนอราคารวม Studio</AlertDialogTitle>
+            <AlertDialogDescription>
+              ฟีเจอร์นี้ใช้ได้เฉพาะแพ็ก In-House — อัปเกรดเพื่อรับ handoff จาก an1hem และจัดการทีมใน So1o
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>ปิด</AlertDialogCancel>
+            <AlertDialogAction onClick={() => { window.location.href = "/dashboard?tab=settings&section=subscription"; }}>
+              ดูแพ็ก In-House
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

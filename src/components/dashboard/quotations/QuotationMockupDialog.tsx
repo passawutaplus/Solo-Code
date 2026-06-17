@@ -50,7 +50,7 @@ function MockupPrintPayload({
   return (
     <div className="mockup-print-root bg-white" style={{ width: "min(800px, 100%)" }}>
       <div className="p-2">
-        <PreviewPanel q={q} docKind={docKind} />
+        <PreviewPanel q={q} docKind={docKind} showTimelineSection={false} />
       </div>
       {includeTimeline && (
         <div className="quotation-print-appendix mt-6 border-t-4 border-dashed border-primary/30 pt-4">
@@ -235,7 +235,8 @@ export function QuotationMockupDialog({
             )}
             {(includeBrief || includeTimeline) && (
               <span className="text-[10px] font-normal text-muted-foreground truncate">
-                {includeBrief && "+ ใบบรีฟ"} {includeTimeline && "+ ไทม์ไลน์"}
+                {includeBrief && "+ ใบบรีฟ"}
+                {includeTimeline && "+ ภาคผนวกไทม์ไลน์"}
               </span>
             )}
           </div>

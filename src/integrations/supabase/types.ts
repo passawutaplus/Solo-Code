@@ -399,13 +399,15 @@ export type Database = {
           created_at: string
           deadline: string | null
           email: string
-          freelancer_id: string
+          freelancer_id: string | null
           id: string
           message: string | null
           phone: string | null
           project_id: string | null
           project_title: string
           status: Database["public"]["Enums"]["hire_status"]
+          studio_id: string | null
+          target_type: string
           updated_at: string
         }
         Insert: {
@@ -416,13 +418,15 @@ export type Database = {
           created_at?: string
           deadline?: string | null
           email: string
-          freelancer_id: string
+          freelancer_id?: string | null
           id?: string
           message?: string | null
           phone?: string | null
           project_id?: string | null
           project_title: string
           status?: Database["public"]["Enums"]["hire_status"]
+          studio_id?: string | null
+          target_type?: string
           updated_at?: string
         }
         Update: {
@@ -433,16 +437,26 @@ export type Database = {
           created_at?: string
           deadline?: string | null
           email?: string
-          freelancer_id?: string
+          freelancer_id?: string | null
           id?: string
           message?: string | null
           phone?: string | null
           project_id?: string | null
           project_title?: string
           status?: Database["public"]["Enums"]["hire_status"]
+          studio_id?: string | null
+          target_type?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "hiring_requests_studio_id_fkey"
+            columns: ["studio_id"]
+            isOneToOne: false
+            referencedRelation: "studios"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       image_likes: {
         Row: {
@@ -4037,36 +4051,60 @@ export type Database = {
       }
       inhouse_orgs: {
         Row: {
+          address: string | null
           avatar_url: string | null
+          brand_name: string | null
+          brand_tagline: string | null
           created_at: string
+          document_theme: Json | null
+          email: string | null
           id: string
+          legal_name: string | null
           name: string
           owner_id: string
+          phone: string | null
           seat_limit: number
           settings: Json
           slug: string
+          tax_id: string | null
           updated_at: string
         }
         Insert: {
+          address?: string | null
           avatar_url?: string | null
+          brand_name?: string | null
+          brand_tagline?: string | null
           created_at?: string
+          document_theme?: Json | null
+          email?: string | null
           id?: string
+          legal_name?: string | null
           name: string
           owner_id: string
+          phone?: string | null
           seat_limit?: number
           settings?: Json
           slug: string
+          tax_id?: string | null
           updated_at?: string
         }
         Update: {
+          address?: string | null
           avatar_url?: string | null
+          brand_name?: string | null
+          brand_tagline?: string | null
           created_at?: string
+          document_theme?: Json | null
+          email?: string | null
           id?: string
+          legal_name?: string | null
           name?: string
           owner_id?: string
+          phone?: string | null
           seat_limit?: number
           settings?: Json
           slug?: string
+          tax_id?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -5206,6 +5244,7 @@ export type Database = {
           deactivated_at: string | null
           deactivated_by: string | null
           display_name: string | null
+          document_theme: Json
           email: string | null
           experience: Json
           facebook: string
@@ -5277,6 +5316,7 @@ export type Database = {
           deactivated_at?: string | null
           deactivated_by?: string | null
           display_name?: string | null
+          document_theme?: Json
           email?: string | null
           experience?: Json
           facebook?: string
@@ -5348,6 +5388,7 @@ export type Database = {
           deactivated_at?: string | null
           deactivated_by?: string | null
           display_name?: string | null
+          document_theme?: Json
           email?: string | null
           experience?: Json
           facebook?: string
@@ -5493,6 +5534,47 @@ export type Database = {
           },
         ]
       }
+      quotation_collaborators: {
+        Row: {
+          created_at: string
+          display_name: string | null
+          id: string
+          quotation_id: string
+          revenue_percent: number | null
+          role: string
+          sort_order: number
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          quotation_id: string
+          revenue_percent?: number | null
+          role?: string
+          sort_order?: number
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          quotation_id?: string
+          revenue_percent?: number | null
+          role?: string
+          sort_order?: number
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quotation_collaborators_quotation_id_fkey"
+            columns: ["quotation_id"]
+            isOneToOne: false
+            referencedRelation: "quotations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       quotations: {
         Row: {
           addons: Json
@@ -5514,10 +5596,12 @@ export type Database = {
           discount_value: number
           due_date: string | null
           end_date: string | null
+          header_image_url: string | null
           hidden_cost: number
           hourly_days: number
           hourly_hours: number
           id: string
+          inhouse_workspace_id: string | null
           invoice_issued_at: string | null
           invoice_number: string | null
           items: Json
@@ -5527,16 +5611,21 @@ export type Database = {
           milestones: Json
           notes: string
           number: string
+          org_id: string | null
+          org_snapshot: Json | null
           paid_at: string | null
           paid_partial: number
           payment_terms: string
           pdf_exported_at: string | null
           project_name: string
+          quotation_kind: string
           receipt_issued_at: string | null
           receipt_number: string | null
           revisions_count: number
           start_date: string | null
           status: string
+          studio_id: string | null
+          studio_snapshot: Json | null
           timeline_enabled: boolean
           updated_at: string
           usage_rights_id: string | null
@@ -5566,10 +5655,12 @@ export type Database = {
           discount_value?: number
           due_date?: string | null
           end_date?: string | null
+          header_image_url?: string | null
           hidden_cost?: number
           hourly_days?: number
           hourly_hours?: number
           id?: string
+          inhouse_workspace_id?: string | null
           invoice_issued_at?: string | null
           invoice_number?: string | null
           items?: Json
@@ -5579,16 +5670,21 @@ export type Database = {
           milestones?: Json
           notes?: string
           number: string
+          org_id?: string | null
+          org_snapshot?: Json | null
           paid_at?: string | null
           paid_partial?: number
           payment_terms?: string
           pdf_exported_at?: string | null
           project_name?: string
+          quotation_kind?: string
           receipt_issued_at?: string | null
           receipt_number?: string | null
           revisions_count?: number
           start_date?: string | null
           status?: string
+          studio_id?: string | null
+          studio_snapshot?: Json | null
           timeline_enabled?: boolean
           updated_at?: string
           usage_rights_id?: string | null
@@ -5618,10 +5714,12 @@ export type Database = {
           discount_value?: number
           due_date?: string | null
           end_date?: string | null
+          header_image_url?: string | null
           hidden_cost?: number
           hourly_days?: number
           hourly_hours?: number
           id?: string
+          inhouse_workspace_id?: string | null
           invoice_issued_at?: string | null
           invoice_number?: string | null
           items?: Json
@@ -5631,16 +5729,21 @@ export type Database = {
           milestones?: Json
           notes?: string
           number?: string
+          org_id?: string | null
+          org_snapshot?: Json | null
           paid_at?: string | null
           paid_partial?: number
           payment_terms?: string
           pdf_exported_at?: string | null
           project_name?: string
+          quotation_kind?: string
           receipt_issued_at?: string | null
           receipt_number?: string | null
           revisions_count?: number
           start_date?: string | null
           status?: string
+          studio_id?: string | null
+          studio_snapshot?: Json | null
           timeline_enabled?: boolean
           updated_at?: string
           usage_rights_id?: string | null
@@ -5651,6 +5754,20 @@ export type Database = {
           wht_rate?: number
         }
         Relationships: [
+          {
+            foreignKeyName: "quotations_inhouse_workspace_id_fkey"
+            columns: ["inhouse_workspace_id"]
+            isOneToOne: false
+            referencedRelation: "inhouse_workspaces"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quotations_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "inhouse_orgs"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "quotations_usage_rights_id_fkey"
             columns: ["usage_rights_id"]
@@ -7010,6 +7127,10 @@ export type Database = {
       }
       _welcome_visit: { Args: { _key: string; _uid: string }; Returns: boolean }
       accept_inhouse_invite: { Args: { _token: string }; Returns: string }
+      accept_studio_hire_request: {
+        Args: { p_request_id: string }
+        Returns: string
+      }
       add_ai_credits_atomic: {
         Args: {
           _credits: number
@@ -7125,6 +7246,10 @@ export type Database = {
           _user_id: string
         }
         Returns: number
+      }
+      find_or_create_studio_chat: {
+        Args: { p_studio_id: string }
+        Returns: string
       }
       force_purge_user: {
         Args: { _admin_user_id?: string; _target_user_id: string }
@@ -7326,6 +7451,15 @@ export type Database = {
         Returns: boolean
       }
       is_pro_tier: { Args: { _user_id: string }; Returns: boolean }
+      is_quotation_collaborator: {
+        Args: { p_quotation_id: string }
+        Returns: boolean
+      }
+      is_quotation_lead_collaborator: {
+        Args: { p_quotation_id: string }
+        Returns: boolean
+      }
+      is_studio_admin: { Args: { p_studio_id: string }; Returns: boolean }
       log_inhouse_activity: {
         Args: {
           _event_type: string
@@ -7696,6 +7830,7 @@ export type Database = {
           project_id: string | null
           project_title: string
           request_id: string | null
+          studio_id: string | null
           title: string | null
         }
         Insert: {
@@ -7710,6 +7845,7 @@ export type Database = {
           project_id?: string | null
           project_title?: string
           request_id?: string | null
+          studio_id?: string | null
           title?: string | null
         }
         Update: {
@@ -7724,6 +7860,7 @@ export type Database = {
           project_id?: string | null
           project_title?: string
           request_id?: string | null
+          studio_id?: string | null
           title?: string | null
         }
         Relationships: []

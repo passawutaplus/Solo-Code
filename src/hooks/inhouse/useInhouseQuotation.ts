@@ -14,11 +14,11 @@ export function useOrgQuotations(orgId: string | undefined) {
       const { data, error } = await supabase
         .from("quotations")
         .select("*")
-        .eq("org_id" as never, orgId!)
-        .eq("quotation_kind" as never, "inhouse")
+        .eq("org_id", orgId!)
+        .eq("quotation_kind", "inhouse")
         .order("updated_at", { ascending: false });
       if (error) throw error;
-      return (data ?? []).map((r) => rowToQuotation(r as never));
+      return (data ?? []).map((r) => rowToQuotation(r));
     },
   });
 }
@@ -60,9 +60,7 @@ export function useCreateInhouseQuotation() {
       }));
 
       if (collabRows.length > 0) {
-        const { error: collabErr } = await supabase
-          .from("quotation_collaborators" as never)
-          .insert(collabRows as never);
+        const { error: collabErr } = await supabase.from("quotation_collaborators").insert(collabRows);
         if (collabErr) throw collabErr;
       }
 

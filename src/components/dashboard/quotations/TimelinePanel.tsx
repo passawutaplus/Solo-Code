@@ -9,7 +9,6 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
   Calendar as CalendarIcon,
-  Clock,
   Plus,
   Trash2,
   CircleDot,
@@ -18,7 +17,6 @@ import {
   Repeat,
   Flag,
   Wallet,
-  StickyNote,
 } from "lucide-react";
 import { format } from "date-fns";
 import { th } from "date-fns/locale";
@@ -27,36 +25,17 @@ import { cn } from "@/lib/utils";
 interface Props {
   q: Quotation;
   patch: (p: Partial<Quotation>) => void;
+  sections?: Array<"dates" | "milestones" | "notes">;
 }
 
-export function TimelinePanel({ q, patch }: Props) {
+export function TimelinePanel({ q, patch, sections }: Props) {
+  const show = (key: NonNullable<Props["sections"]>[number]) => !sections || sections.includes(key);
   const totals = React.useMemo(() => computeTotals(q), [q]);
 
   const revisionDates = React.useMemo(
     () => computeRevisionDates(q.startDate, q.endDate, q.revisionsCount),
     [q.startDate, q.endDate, q.revisionsCount],
   );
-
-  // Auto-calculate working days from date range (inclusive)
-  const autoDays = React.useMemo(() => {
-    if (!q.startDate || !q.endDate) return 0;
-    const s = new Date(q.startDate).getTime();
-    const e = new Date(q.endDate).getTime();
-    if (isNaN(s) || isNaN(e) || e < s) return 0;
-    const diff = Math.floor((e - s) / 86_400_000) + 1;
-    return Math.max(0, diff);
-  }, [q.startDate, q.endDate]);
-
-  // Sync into store so computeTotals.hourlyRate reflects auto value (and Preview stays consistent)
-  React.useEffect(() => {
-    const totalHours = autoDays * 8;
-    if (q.hourlyDays !== autoDays || q.hourlyHours !== totalHours) {
-      patch({ hourlyDays: autoDays, hourlyHours: totalHours });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [autoDays]);
-
-  const hourlyRate = autoDays > 0 ? totals.grandTotal / (autoDays * 8) : 0;
 
   function addMilestone() {
     patch({
@@ -94,37 +73,10 @@ export function TimelinePanel({ q, patch }: Props) {
     return events.sort((a, b) => (a.date ?? "").localeCompare(b.date ?? ""));
   }, [q.startDate, q.endDate, q.depositDueDate, revisionDates]);
 
-  const enabled = q.timelineEnabled !== false;
-
   return (
     <div className="space-y-4 text-sm">
-      {/* Opt-in toggle */}
-      <label className="flex items-start gap-2.5 rounded-xl border border-border/60 bg-card/40 px-3 py-2.5 cursor-pointer">
-        <input
-          type="checkbox"
-          checked={enabled}
-          onChange={(e) => patch({ timelineEnabled: e.target.checked })}
-          className="mt-0.5 h-4 w-4 accent-primary"
-        />
-        <div className="flex-1 min-w-0">
-          <p className="text-xs font-medium">ใช้ไทม์ไลน์ในใบเสนอราคานี้</p>
-          <p className="text-[11px] text-muted-foreground leading-snug">
-            ถ้าไม่ใช้ ใบเสนอราคาจะไม่แสดงส่วนวันที่/งวดงาน
-          </p>
-        </div>
-      </label>
-
-      {!enabled && (
-        <div className="rounded-xl border border-dashed border-border/60 p-4 text-center">
-          <p className="text-xs text-muted-foreground">
-            ปิดการใช้ไทม์ไลน์อยู่ — ติ๊กด้านบนเพื่อกรอกวันที่และงวดงาน
-          </p>
-        </div>
-      )}
-
-      {enabled && (
-       <>
       {/* Date range */}
+      {show("dates") && (
       <Section icon={<CalendarIcon className="h-3.5 w-3.5" />} title="วันที่โครงการ">
         <div className="grid grid-cols-2 gap-2">
           <DatePicker
@@ -180,8 +132,10 @@ export function TimelinePanel({ q, patch }: Props) {
           </div>
         )}
       </Section>
+      )}
 
       {/* Milestones (payment) — date only */}
+      {show("milestones") && (
       <Section icon={<Flag className="h-3.5 w-3.5" />} title="งวดการชำระเงิน">
         <div className="space-y-3">
           {q.milestones.map((m, i) => {
@@ -234,43 +188,10 @@ export function TimelinePanel({ q, patch }: Props) {
           </p>
         </div>
       </Section>
-
-      {/* Hourly rate — auto-calculated from date range */}
-      <Section icon={<Clock className="h-3.5 w-3.5" />} title="อัตรารายชั่วโมง">
-        {autoDays === 0 ? (
-          <p className="text-[11px] text-muted-foreground italic py-1">
-            กำหนด "วันที่เริ่ม" และ "วันที่จบงาน" ด้านบน เพื่อคำนวณอัตราอัตโนมัติ
-          </p>
-        ) : (
-          <>
-            <div className="grid grid-cols-2 gap-2">
-              <div className="space-y-1">
-                <Label className="text-[11px] text-muted-foreground">วันทำงาน</Label>
-                <div className="h-8 rounded-md border border-border/50 bg-muted/30 px-2.5 flex items-center text-xs num">
-                  {autoDays} วัน
-                </div>
-              </div>
-              <div className="space-y-1">
-                <Label className="text-[11px] text-muted-foreground">ชั่วโมงรวม (×8)</Label>
-                <div className="h-8 rounded-md border border-border/50 bg-muted/30 px-2.5 flex items-center text-xs num">
-                  {autoDays * 8} ชม.
-                </div>
-              </div>
-            </div>
-            <div className="flex items-center justify-between pt-2 border-t border-border/40">
-              <span className="text-xs text-muted-foreground">
-                ราคา/ชั่วโมง <span className="text-[10px]">(ยอดสุทธิ ÷ ชั่วโมงรวม)</span>
-              </span>
-              <span className="num font-semibold text-xs text-primary">
-                ฿{formatBaht(hourlyRate)}
-              </span>
-            </div>
-          </>
-        )}
-      </Section>
+      )}
 
       {/* Notes */}
-      <Section icon={<StickyNote className="h-3.5 w-3.5" />} title="หมายเหตุภายใน">
+      {show("notes") && (
         <Textarea
           rows={3}
           value={q.notes}
@@ -279,8 +200,6 @@ export function TimelinePanel({ q, patch }: Props) {
           placeholder="โน้ตสำหรับตัวคุณเอง — ไม่แสดงในใบเสนอราคา"
           className="text-xs"
         />
-      </Section>
-       </>
       )}
     </div>
   );

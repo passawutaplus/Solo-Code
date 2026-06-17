@@ -95,12 +95,14 @@ export interface Quotation {
   usageRightsId?: string;
   licenseCertificatePath?: string;
   timelineEnabled: boolean;
+  headerImageUrl?: string;
   quotationKind?: QuotationKind;
   orgId?: string;
   orgSnapshot?: IssuerSnapshot | null;
   studioId?: string;
   studioSnapshot?: IssuerSnapshot | null;
   inhouseWorkspaceId?: string;
+  ownerUserId?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -219,12 +221,14 @@ export function rowToQuotation(r: QuotationRow): Quotation {
     usageRightsId: r.usage_rights_id ?? undefined,
     licenseCertificatePath: r.license_certificate_path ?? undefined,
     timelineEnabled: (r as unknown as { timeline_enabled?: boolean }).timeline_enabled ?? true,
+    headerImageUrl: (r as unknown as { header_image_url?: string | null }).header_image_url ?? undefined,
     quotationKind: (r.quotation_kind as QuotationKind) || "solo",
     orgId: r.org_id ?? undefined,
     orgSnapshot: (r.org_snapshot as IssuerSnapshot | null) ?? undefined,
     studioId: r.studio_id ?? undefined,
     studioSnapshot: (r.studio_snapshot as IssuerSnapshot | null) ?? undefined,
     inhouseWorkspaceId: r.inhouse_workspace_id ?? undefined,
+    ownerUserId: r.user_id,
     createdAt: r.created_at,
     updatedAt: r.updated_at,
   };
@@ -393,7 +397,14 @@ export function useQuotations() {
       if (error) throw error;
       return rowToQuotation(data as QuotationRow);
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: quotationsKey(userId) }),
+    onSuccess: (newQ) => {
+      qc.setQueryData<Quotation[]>(quotationsKey(userId), (old) => {
+        const prev = old ?? [];
+        if (prev.some((q) => q.id === newQ.id)) return prev;
+        return [newQ, ...prev];
+      });
+      void qc.invalidateQueries({ queryKey: quotationsKey(userId) });
+    },
   });
 
   const updateMutation = useMutation({
@@ -406,8 +417,16 @@ export function useQuotations() {
         .update(quotationToRow(merged, userId) as never)
         .eq("id", id);
       if (error) throw error;
+      return merged;
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: quotationsKey(userId) }),
+    onSuccess: (merged, { id, patch }) => {
+      qc.setQueryData<Quotation[]>(quotationsKey(userId), (old) => {
+        const prev = old ?? [];
+        return prev.map((q) =>
+          q.id === id ? { ...q, ...patch, ...(merged ?? {}), updatedAt: new Date().toISOString() } : q,
+        );
+      });
+    },
   });
 
   const removeMutation = useMutation({

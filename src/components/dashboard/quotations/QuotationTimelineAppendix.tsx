@@ -6,6 +6,7 @@ import { th } from "date-fns/locale";
 import { useSubscription } from "@/hooks/useSubscription";
 import { useAuth } from "@/auth/AuthProvider";
 import { resolveDocumentTheme, type DocumentThemeInput } from "@/lib/documentTheme";
+import { issuerFromQuotation } from "@/lib/quotationKinds";
 
 interface Props {
   q: Quotation;
@@ -24,13 +25,16 @@ const fmt = (s?: string) => {
  * Minimal A4 layout matching the brief PDF aesthetic.
  */
 export function QuotationTimelineAppendix({ q }: Props) {
-  if (q.timelineEnabled === false) return null;
   const { tier } = useSubscription();
   const { profile } = useAuth();
-  const { colors } = React.useMemo(
-    () => resolveDocumentTheme(tier, (profile?.document_theme ?? {}) as DocumentThemeInput),
-    [tier, profile?.document_theme],
-  );
+  const issuer = issuerFromQuotation(q);
+  const { colors } = React.useMemo(() => {
+    const themeInput =
+      (issuer?.documentTheme as DocumentThemeInput | undefined) ??
+      ((profile?.document_theme ?? {}) as DocumentThemeInput);
+    const effectiveTier = issuer ? "inhouse" : tier;
+    return resolveDocumentTheme(effectiveTier, themeInput);
+  }, [issuer, tier, profile?.document_theme]);
   const accent = colors.primary;
   const accentSoft = colors.primarySoft;
   const totals = computeTotals(q);
@@ -89,7 +93,6 @@ export function QuotationTimelineAppendix({ q }: Props) {
         <SummaryRow label="วันที่เริ่มงาน" value={fmt(q.startDate)} />
         <SummaryRow label="วันที่จบงาน" value={fmt(q.endDate)} />
         <SummaryRow label="จำนวนแก้ไขฟรี" value={`${q.revisionsCount || 0} ครั้ง`} />
-        <SummaryRow label="จำนวนวันทำงาน" value={`${q.hourlyDays || 0} วัน (${q.hourlyHours || 0} ชั่วโมง)`} />
       </section>
 
       {/* Schedule */}

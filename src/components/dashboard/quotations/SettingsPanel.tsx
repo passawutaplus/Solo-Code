@@ -32,6 +32,7 @@ import { mergeFieldClass } from "@/lib/formFieldStyles";
 interface Props {
   q: Quotation;
   patch: (p: Partial<Quotation>) => void;
+  sections?: Array<"project" | "brief" | "client" | "modifiers" | "payment" | "due">;
 }
 
 const PAYMENT_TERMS = [
@@ -41,8 +42,15 @@ const PAYMENT_TERMS = [
   "ชำระเมื่อส่งมอบงาน",
 ];
 
-export function SettingsPanel({ q, patch }: Props) {
+export function SettingsPanel({ q, patch, sections }: Props) {
+  const show = (key: NonNullable<Props["sections"]>[number]) => !sections || sections.includes(key);
   const { list: clients, add: addClient } = useClients();
+  const hasLateFeeData = !!(q.dueDate || (q.lateFeePercent ?? 0) > 0);
+  const [lateFeeFieldsOpen, setLateFeeFieldsOpen] = React.useState(hasLateFeeData);
+
+  React.useEffect(() => {
+    setLateFeeFieldsOpen(!!(q.dueDate || (q.lateFeePercent ?? 0) > 0));
+  }, [q.id]);
   const [pickerOpen, setPickerOpen] = React.useState(false);
   const [draftClient, setDraftClient] = React.useState<Omit<SavedClient, "id" | "createdAt">>({
     name: "",
@@ -155,6 +163,7 @@ export function SettingsPanel({ q, patch }: Props) {
   return (
     <div className="space-y-3 text-sm">
       {/* Project */}
+      {show("project") && (
       <Section icon={<Briefcase className="h-3.5 w-3.5" />} title="โครงการ">
         <Field label="ชื่อโครงการ" required>
           <Input
@@ -168,8 +177,10 @@ export function SettingsPanel({ q, patch }: Props) {
           <Input value={q.number} readOnly className="bg-muted/50 cursor-not-allowed num" />
         </Field>
       </Section>
+      )}
 
       {/* Design Brief link */}
+      {show("brief") && (
       <Section icon={<FileSignature className="h-3.5 w-3.5" />} title="Design Brief">
         {q.briefId && attachedBrief ? (
           <div className="rounded-xl border border-primary/40 bg-primary/5 p-2.5 space-y-2">
@@ -232,8 +243,66 @@ export function SettingsPanel({ q, patch }: Props) {
           ผูกใบเสนอราคานี้กับบรีฟใน Smart Brief เพื่ออ้างอิงและซิงค์ข้อมูลลูกค้าอัตโนมัติ
         </p>
       </Section>
+      )}
 
       {/* Client picker */}
+      {show("client") && (
+      sections?.length === 1 && sections[0] === "client" ? (
+      <Section icon={<User className="h-3.5 w-3.5" />} title="ลูกค้า">
+        <div className="rounded-xl border border-border/60 p-2.5 space-y-1 bg-muted/20">
+          {q.clientName ? (
+            <>
+              <p className="text-sm font-medium leading-tight">{q.clientName}</p>
+              {q.clientAddress && (
+                <p className="text-[11px] text-muted-foreground leading-snug whitespace-pre-line">
+                  {q.clientAddress}
+                </p>
+              )}
+              <div className="text-[11px] text-muted-foreground space-y-0.5 pt-0.5">
+                {q.clientPhone && <p>📞 {q.clientPhone}</p>}
+                {q.clientLineId && <p>LINE: {q.clientLineId}</p>}
+                {q.clientEmail && <p className="truncate">✉ {q.clientEmail}</p>}
+                {q.clientTaxId && (
+                  <p className="num">เลขผู้เสียภาษี {q.clientTaxId}</p>
+                )}
+              </div>
+              {!q.clientAddress && !q.clientTaxId && (
+                <p className="text-[10px] text-warning-foreground/80 pt-1">
+                  ⚠ ยังไม่มีที่อยู่/เลขผู้เสียภาษี — เพิ่มเพื่อให้ใบเสนอราคาครบถ้วน
+                </p>
+              )}
+            </>
+          ) : (
+            <p className="text-xs text-muted-foreground italic">ยังไม่ได้เลือกลูกค้า</p>
+          )}
+        </div>
+        <div className="flex gap-1.5">
+          <Button
+            variant="outline"
+            size="sm"
+            className="flex-1 h-8 text-xs gap-1.5"
+            onClick={() => {
+              setMode(clients.length > 0 ? "select" : "new");
+              setPickerOpen(true);
+            }}
+          >
+            <UserPlus className="h-3.5 w-3.5" />
+            {q.clientName ? "เปลี่ยน / เพิ่มลูกค้า" : "เลือกหรือเพิ่มลูกค้า"}
+          </Button>
+          {q.clientName && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-8 px-2 text-xs text-muted-foreground hover:text-destructive"
+              onClick={clearClient}
+              title="ล้างการเลือกลูกค้า"
+            >
+              <XIcon className="h-3.5 w-3.5" />
+            </Button>
+          )}
+        </div>
+      </Section>
+      ) : (
       <CollapsibleSection icon={<User className="h-3.5 w-3.5" />} title="ลูกค้า" defaultOpen>
         <div className="rounded-xl border border-border/60 p-2.5 space-y-1 bg-muted/20">
           {q.clientName ? (
@@ -288,8 +357,11 @@ export function SettingsPanel({ q, patch }: Props) {
           )}
         </div>
       </CollapsibleSection>
+      )
+      )}
 
       {/* Difficulty (locked labels) */}
+      {show("modifiers") && (
       <CollapsibleSection icon={<AlertTriangle className="h-3.5 w-3.5" />} title="ความยากของลูกค้า">
         <p className="text-[10px] text-muted-foreground -mt-1">เลือกใช้และปรับ % ได้</p>
         {q.difficulties.map((d) => (
@@ -318,8 +390,10 @@ export function SettingsPanel({ q, patch }: Props) {
           </div>
         ))}
       </CollapsibleSection>
+      )}
 
       {/* Add-ons (locked labels) */}
+      {show("modifiers") && (
       <Section icon={<Plus className="h-3.5 w-3.5" />} title="เพิ่มเติม">
         <p className="text-[10px] text-muted-foreground -mt-1">เลือกใช้และปรับ % ได้</p>
         {q.addons.map((a) => (
@@ -346,8 +420,10 @@ export function SettingsPanel({ q, patch }: Props) {
           </div>
         ))}
       </Section>
+      )}
 
       {/* Hidden cost + Revisions */}
+      {show("modifiers") && (
       <Section icon={<Coins className="h-3.5 w-3.5" />} title="ต้นทุนแฝง & แก้ไขฟรี">
         <Field label="ค่าต้นทุนแฝงอื่น ๆ (฿)">
           <Input
@@ -372,8 +448,10 @@ export function SettingsPanel({ q, patch }: Props) {
           </p>
         </Field>
       </Section>
+      )}
 
       {/* Payment terms */}
+      {show("payment") && (
       <Section icon={<Wallet className="h-3.5 w-3.5" />} title="เงื่อนไขการชำระ">
         <div className="grid grid-cols-4 gap-1.5">
           {[30, 50, 70, 100].map((p) => (
@@ -440,9 +518,30 @@ export function SettingsPanel({ q, patch }: Props) {
           </Field>
         )}
       </Section>
+      )}
 
       {/* Due date & late fee */}
+      {show("due") && (
       <Section icon={<AlertTriangle className="h-3.5 w-3.5" />} title="กำหนดชำระ & ค่าปรับ">
+        <label className="flex items-start gap-2.5 rounded-lg border border-border/50 px-3 py-2.5 cursor-pointer">
+          <Checkbox
+            checked={lateFeeFieldsOpen}
+            onCheckedChange={(v) => {
+              const enabled = v === true;
+              setLateFeeFieldsOpen(enabled);
+              if (!enabled) patch({ dueDate: undefined, lateFeePercent: 0 });
+            }}
+            className="mt-0.5"
+          />
+          <div className="flex-1 min-w-0">
+            <p className="text-xs font-medium">ต้องการให้มีค่าปรับเมื่อเกินกำหนดชำระ</p>
+            <p className="text-[10px] text-muted-foreground leading-snug mt-0.5">
+              ตั้งวันครบกำหนดและ % ค่าปรับเมื่อเกินกำหนด
+            </p>
+          </div>
+        </label>
+        {lateFeeFieldsOpen && (
+          <>
         <Field label="วันครบกำหนดชำระ">
           <Input
             type="date"
@@ -467,7 +566,10 @@ export function SettingsPanel({ q, patch }: Props) {
             เช่น 1.5% ต่อเดือน — ระบบจะรวมค่าปรับเข้าในยอดทวงอัตโนมัติ
           </p>
         </Field>
+          </>
+        )}
       </Section>
+      )}
 
       {/* Brief picker dialog */}
       <AttachBriefDialog

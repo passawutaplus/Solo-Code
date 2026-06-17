@@ -28,6 +28,10 @@ import { JOB_STEPS } from "@/components/dashboard/jobtracker/steps";
 import { uploadJobTrackerImage } from "@/components/dashboard/jobtracker/uploadImage";
 import { StepComments } from "@/components/dashboard/jobtracker/StepComments";
 import type { PortalBranding } from "@/lib/documentTheme/types";
+import {
+  ThemedQuotationMiniPreview,
+  ThemedQuotationPrintBody,
+} from "@/components/dashboard/quotations/QuotationPrintDocument";
 
 
 export const Route = createFileRoute("/track/$token")({
@@ -220,7 +224,7 @@ function TrackPage() {
       <div className="mx-auto max-w-2xl px-4 py-6 sm:py-8 space-y-4">
         {/* Header */}
         <div className="text-center">
-          {!portal?.showPoweredBy && portal?.logoUrl && (
+          {!portal?.showPoweredBy && portal?.showLogo !== false && portal?.logoUrl && (
             <img
               src={portal.logoUrl}
               alt=""
@@ -444,7 +448,7 @@ function TrackPage() {
             )}
 
             {quotation && (
-              <QuotationCard q={quotation} job={job} token={token} onAccepted={load} />
+              <QuotationCard q={quotation} job={job} token={token} portal={portal} onAccepted={load} />
             )}
           </TabsContent>
 
@@ -804,11 +808,13 @@ function QuotationCard({
   q,
   job,
   token,
+  portal,
   onAccepted,
 }: {
   q: PublicQuotation;
   job: Job;
   token: string;
+  portal: PortalBranding | null;
   onAccepted: () => void;
 }) {
   const acceptFn = useServerFn(acceptQuotationByToken);
@@ -820,6 +826,9 @@ function QuotationCard({
   );
   const canAccept = !accepted && ["draft", "pending_approval", "sent"].includes(q.status);
   const itemsSubtotal = q.totals.itemsSubtotal ?? q.items.reduce((s, it) => s + it.quantity * it.unitPrice, 0);
+  const accent = portal?.theme.colors.primary ?? "#F37021";
+  const accentBorder = portal?.theme.colors.primaryBorder ?? "#FDBA74";
+  const accentSoft = portal?.theme.colors.primarySoft ?? "#FFF4EC";
 
   async function handleAccept() {
     if (!clientName.trim()) {
@@ -841,71 +850,31 @@ function QuotationCard({
   }
 
   return (
-    <Card className="border-orange-200 bg-gradient-to-br from-orange-50/60 to-white">
+    <Card
+      className="bg-gradient-to-br to-white"
+      style={{
+        borderColor: accentBorder,
+        background: `linear-gradient(to bottom right, color-mix(in srgb, ${accentSoft} 60%, white), white)`,
+      }}
+    >
       <CardContent className="p-4 space-y-3">
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0">
-            <p className="text-[10px] font-semibold text-orange-600 tracking-[0.15em] uppercase">ใบเสนอราคา</p>
+            <p className="text-[10px] font-semibold tracking-[0.15em] uppercase" style={{ color: accent }}>
+              ใบเสนอราคา
+            </p>
             <h3 className="text-sm font-semibold mt-0.5 truncate">{q.project_name || "โครงการ"}</h3>
             <p className="text-[11px] text-muted-foreground font-mono">{q.number}</p>
           </div>
-          <FileText className="h-5 w-5 text-orange-500 shrink-0" />
+          <FileText className="h-5 w-5 shrink-0" style={{ color: accent }} />
         </div>
 
-        {/* Mini doc preview — mirrors the freelancer-side quotation layout */}
-        <div className="rounded-xl border border-orange-200 bg-white p-3 sm:p-4 space-y-3 text-xs">
-          <div className="flex items-start justify-between gap-2 border-b border-orange-100 pb-2">
-            <div>
-              <p className="text-[9px] uppercase tracking-widest text-orange-600 font-semibold">Quotation</p>
-              <p className="font-mono text-[11px] mt-0.5">{q.number}</p>
-            </div>
-            <div className="text-right text-[10px] text-muted-foreground">
-              {q.start_date && <p>{new Date(q.start_date).toLocaleDateString("th-TH")}</p>}
-              {q.end_date && <p>ถึง {new Date(q.end_date).toLocaleDateString("th-TH")}</p>}
-            </div>
-          </div>
-
-          <table className="w-full text-[11px]">
-            <thead>
-              <tr className="text-muted-foreground border-b border-dashed border-muted">
-                <th className="text-left font-medium py-1">รายการ</th>
-                <th className="text-right font-medium py-1 w-12">จน.</th>
-                <th className="text-right font-medium py-1 w-20">ราคา</th>
-              </tr>
-            </thead>
-            <tbody>
-              {q.items.length > 0 ? q.items.map((it, i) => (
-                <tr key={i} className="border-b border-muted/40 last:border-0">
-                  <td className="py-1.5">{it.name || `รายการ ${i + 1}`}</td>
-                  <td className="text-right font-mono py-1.5">{it.quantity}</td>
-                  <td className="text-right font-mono py-1.5">฿{(it.quantity * it.unitPrice).toLocaleString("th-TH")}</td>
-                </tr>
-              )) : (
-                <tr><td colSpan={3} className="py-2 text-center text-muted-foreground">—</td></tr>
-              )}
-            </tbody>
-          </table>
-
-          <div className="space-y-0.5 pt-1 border-t border-orange-100">
-            <div className="flex justify-between"><span className="text-muted-foreground">รวมรายการ</span><span className="font-mono">฿{itemsSubtotal.toLocaleString("th-TH")}</span></div>
-            {q.vat_enabled && q.totals.vatAmount > 0 && (
-              <div className="flex justify-between"><span className="text-muted-foreground">VAT {q.vat_rate}%</span><span className="font-mono">฿{q.totals.vatAmount.toLocaleString("th-TH")}</span></div>
-            )}
-            {q.wht_enabled && q.totals.whtAmount > 0 && (
-              <div className="flex justify-between text-rose-600"><span>หัก ณ ที่จ่าย {q.wht_rate}%</span><span className="font-mono">−฿{q.totals.whtAmount.toLocaleString("th-TH")}</span></div>
-            )}
-            <div className="flex justify-between text-orange-700 font-bold text-sm pt-1 border-t border-orange-100">
-              <span>ยอดสุทธิ</span><span className="font-mono">฿{q.totals.grandTotal.toLocaleString("th-TH")}</span>
-            </div>
-            <div className="flex justify-between text-[10px] text-muted-foreground">
-              <span>มัดจำ ({q.deposit_percent}%)</span><span className="font-mono">฿{q.totals.depositAmount.toLocaleString("th-TH")}</span>
-            </div>
-          </div>
-        </div>
+        <ThemedQuotationMiniPreview q={q} itemsSubtotal={itemsSubtotal} branding={portal} />
 
         <Button
           variant="outline"
-          className="w-full gap-1.5 border-orange-300 text-orange-700 hover:bg-orange-50"
+          className="w-full gap-1.5"
+          style={{ borderColor: accentBorder, color: accent }}
           onClick={() => setFullOpen(true)}
         >
           <FileText className="h-3.5 w-3.5" /> ดู PDF ใบเสนอราคาฉบับเต็ม
@@ -945,130 +914,22 @@ function QuotationCard({
         )}
       </CardContent>
 
-      <QuotationFullDialog q={q} job={job} open={fullOpen} onOpenChange={setFullOpen} />
+      <QuotationFullDialog q={q} job={job} portal={portal} open={fullOpen} onOpenChange={setFullOpen} />
     </Card>
   );
 }
 
-function TrackQuotationPrintBody({
-  q,
-  job,
-  itemsSubtotal,
+function QuotationFullDialog({
+  q, job, portal, open, onOpenChange,
 }: {
   q: PublicQuotation;
   job: Job;
-  itemsSubtotal: number;
+  portal: PortalBranding | null;
+  open: boolean;
+  onOpenChange: (o: boolean) => void;
 }) {
-  return (
-    <div id="quotation-print-area" className="px-6 pb-6 sm:px-10 sm:pb-10">
-      <div className="border-b-2 border-orange-500 pb-4 mb-4 flex items-start justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-orange-600">ใบเสนอราคา</h2>
-          <p className="text-xs text-muted-foreground mt-1">QUOTATION</p>
-        </div>
-        <div className="text-right text-xs">
-          <p className="font-mono font-semibold">{q.number}</p>
-          {q.start_date && (
-            <p className="text-muted-foreground mt-1">
-              วันที่: {new Date(q.start_date).toLocaleDateString("th-TH")}
-            </p>
-          )}
-        </div>
-      </div>
-
-      <div className="grid grid-cols-2 gap-4 mb-5 text-xs">
-        <div>
-          <p className="font-semibold text-muted-foreground uppercase text-[10px] tracking-wider mb-1">
-            โครงการ
-          </p>
-          <p className="text-sm font-medium">{q.project_name || "—"}</p>
-        </div>
-        <div>
-          <p className="font-semibold text-muted-foreground uppercase text-[10px] tracking-wider mb-1">
-            ลูกค้า
-          </p>
-          <p className="text-sm font-medium">{job.client_name || "—"}</p>
-        </div>
-      </div>
-
-      <table className="w-full text-sm border-collapse mb-5">
-        <thead>
-          <tr className="bg-orange-50 text-orange-700 text-xs">
-            <th className="text-left font-semibold py-2 px-3 border border-orange-200">รายการ</th>
-            <th className="text-center font-semibold py-2 px-3 border border-orange-200 w-16">จำนวน</th>
-            <th className="text-right font-semibold py-2 px-3 border border-orange-200 w-28">ราคา/หน่วย</th>
-            <th className="text-right font-semibold py-2 px-3 border border-orange-200 w-28">รวม</th>
-          </tr>
-        </thead>
-        <tbody>
-          {q.items.map((it, i) => (
-            <tr key={i}>
-              <td className="py-2 px-3 border border-orange-100">{it.name || `รายการ ${i + 1}`}</td>
-              <td className="py-2 px-3 border border-orange-100 text-center font-mono">
-                {it.quantity} {it.unit || ""}
-              </td>
-              <td className="py-2 px-3 border border-orange-100 text-right font-mono">
-                ฿{it.unitPrice.toLocaleString("th-TH")}
-              </td>
-              <td className="py-2 px-3 border border-orange-100 text-right font-mono">
-                ฿{(it.quantity * it.unitPrice).toLocaleString("th-TH")}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-
-      <div className="ml-auto max-w-xs text-sm space-y-1">
-        <div className="flex justify-between">
-          <span className="text-muted-foreground">รวมรายการ</span>
-          <span className="font-mono">฿{itemsSubtotal.toLocaleString("th-TH")}</span>
-        </div>
-        {q.vat_enabled && q.totals.vatAmount > 0 && (
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">VAT {q.vat_rate}%</span>
-            <span className="font-mono">฿{q.totals.vatAmount.toLocaleString("th-TH")}</span>
-          </div>
-        )}
-        {q.wht_enabled && q.totals.whtAmount > 0 && (
-          <div className="flex justify-between text-rose-600">
-            <span>หัก ณ ที่จ่าย {q.wht_rate}%</span>
-            <span className="font-mono">−฿{q.totals.whtAmount.toLocaleString("th-TH")}</span>
-          </div>
-        )}
-        <div className="flex justify-between text-orange-700 font-bold text-lg pt-2 border-t-2 border-orange-300">
-          <span>ยอดสุทธิ</span>
-          <span className="font-mono">฿{q.totals.grandTotal.toLocaleString("th-TH")}</span>
-        </div>
-        <div className="flex justify-between text-xs text-muted-foreground">
-          <span>มัดจำ ({q.deposit_percent}%)</span>
-          <span className="font-mono">฿{q.totals.depositAmount.toLocaleString("th-TH")}</span>
-        </div>
-      </div>
-
-      {(q.payment_terms || q.notes) && (
-        <div className="mt-6 pt-4 border-t border-orange-100 text-xs space-y-2">
-          {q.payment_terms && (
-            <div>
-              <p className="font-semibold text-orange-700 mb-1">เงื่อนไขการชำระ</p>
-              <p className="text-muted-foreground whitespace-pre-wrap">{q.payment_terms}</p>
-            </div>
-          )}
-          {q.notes && (
-            <div>
-              <p className="font-semibold text-orange-700 mb-1">หมายเหตุ</p>
-              <p className="text-muted-foreground whitespace-pre-wrap">{q.notes}</p>
-            </div>
-          )}
-        </div>
-      )}
-    </div>
-  );
-}
-
-function QuotationFullDialog({
-  q, job, open, onOpenChange,
-}: { q: PublicQuotation; job: Job; open: boolean; onOpenChange: (o: boolean) => void }) {
   const itemsSubtotal = q.totals.itemsSubtotal ?? q.items.reduce((s, it) => s + it.quantity * it.unitPrice, 0);
+  const accent = portal?.theme.colors.primary ?? "#F37021";
   const handlePrint = () => {
     runPrintToPdf({ bodyClass: "printing-track", successMessage: "ส่งออก PDF สำเร็จ" });
   };
@@ -1078,21 +939,36 @@ function QuotationFullDialog({
         <DialogHeader className="px-5 pt-5 pb-2 print:hidden flex flex-row items-center justify-between space-y-0 gap-3">
           <DialogTitle className="text-sm min-w-0 flex-1 pr-2">ใบเสนอราคาฉบับเต็ม · {q.number}</DialogTitle>
           <div className="flex items-center gap-2 shrink-0">
-            <Button size="sm" className="gap-1.5 bg-orange-600 hover:bg-orange-700" onClick={handlePrint}>
+            <Button
+              size="sm"
+              className="gap-1.5 text-white"
+              style={{ backgroundColor: accent }}
+              onClick={handlePrint}
+            >
               <Printer className="h-3.5 w-3.5" /> พิมพ์ / บันทึก PDF
             </Button>
             <DialogCloseButton />
           </div>
         </DialogHeader>
 
-        <TrackQuotationPrintBody q={q} job={job} itemsSubtotal={itemsSubtotal} />
+        <ThemedQuotationPrintBody
+          q={q}
+          clientName={job.client_name}
+          itemsSubtotal={itemsSubtotal}
+          branding={portal}
+        />
       </DialogContent>
 
       {open &&
         typeof document !== "undefined" &&
         createPortal(
           <div className="track-print-only">
-            <TrackQuotationPrintBody q={q} job={job} itemsSubtotal={itemsSubtotal} />
+            <ThemedQuotationPrintBody
+              q={q}
+              clientName={job.client_name}
+              itemsSubtotal={itemsSubtotal}
+              branding={portal}
+            />
           </div>,
           document.body,
         )}

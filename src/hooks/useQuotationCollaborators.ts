@@ -30,9 +30,9 @@ export function useQuotationCollaborators(quotationId: string | undefined) {
     enabled: !!quotationId,
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("quotation_collaborators" as never)
+        .from("quotation_collaborators")
         .select("*")
-        .eq("quotation_id" as never, quotationId!)
+        .eq("quotation_id", quotationId!)
         .order("sort_order", { ascending: true });
       if (error) throw error;
       return ((data ?? []) as CollaboratorRow[]).map(rowToCollaborator);
@@ -50,9 +50,9 @@ export function useSyncQuotationCollaborators() {
     }) => {
       const { quotationId, collaborators } = opts;
       const { error: delErr } = await supabase
-        .from("quotation_collaborators" as never)
+        .from("quotation_collaborators")
         .delete()
-        .eq("quotation_id" as never, quotationId);
+        .eq("quotation_id", quotationId);
       if (delErr) throw delErr;
 
       if (collaborators.length === 0) return;
@@ -66,9 +66,7 @@ export function useSyncQuotationCollaborators() {
         sort_order: c.sortOrder ?? i,
       }));
 
-      const { error } = await supabase
-        .from("quotation_collaborators" as never)
-        .insert(rows as never);
+      const { error } = await supabase.from("quotation_collaborators").insert(rows);
       if (error) throw error;
     },
     onSuccess: (_, vars) => {

@@ -37,9 +37,13 @@ describe("parseStudioDashboardParams", () => {
       requestId: "req-1",
       projectTitle: "Website",
       clientName: "Client",
+      clientEmail: "client@example.com",
+      clientPhone: "0812345678",
     });
     expect(payload?.studioId).toBe("s1");
     expect(payload?.notes).toContain("studio_request:req-1");
+    expect(payload?.clientEmail).toBe("client@example.com");
+    expect(payload?.clientPhone).toBe("0812345678");
   });
 });
 

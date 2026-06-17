@@ -1,8 +1,7 @@
 import * as React from "react";
 import {
   LayoutDashboard,
-  Newspaper,
-  Compass,
+  Home,
   Lightbulb,
   FileText,
   Workflow,
@@ -48,7 +47,7 @@ import { SupportFab } from "@/components/support/SupportFab";
 import { SidebarUpgradeBadge } from "./SidebarUpgradeBadge";
 import { InhouseSidebarNav } from "@/components/inhouse/InhouseSidebarNav";
 
-export type DashSection = "overview" | "trends" | "inspire" | "finance" | "planner" | "mydata" | "settings";
+export type DashSection = "home" | "overview" | "finance" | "planner" | "mydata" | "settings";
 
 interface DashboardSidebarProps {
   active: DashSection;
@@ -106,14 +105,6 @@ const GROUPS: NavGroup[] = [
       { label: "Suppliers", icon: Truck, section: "mydata", sub: "suppliers" },
       { label: "Assets", icon: FolderOpen, section: "mydata", sub: "assets" },
       { label: "Legal Desk", icon: Scale, section: "mydata", sub: "legal" },
-    ],
-  },
-  {
-    label: "More",
-    icon: Compass,
-    items: [
-      { label: "News & Trends", icon: Newspaper, section: "trends" },
-      { label: "Inspire", icon: Compass, section: "inspire" },
     ],
   },
 ];
@@ -268,6 +259,17 @@ export function DashboardSidebar({ active, activeSub, setActive }: DashboardSide
             <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton
+                  isActive={active === "home"}
+                  onClick={() => setActive("home")}
+                  tooltip="Home"
+                  className={cn(MENU_BTN, "font-semibold")}
+                >
+                  <Home className="h-4 w-4 shrink-0" />
+                  {!collapsed && <span className="text-xs">Home</span>}
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton
                   isActive={active === "overview"}
                   onClick={() => setActive("overview")}
                   tooltip="Dashboard"
@@ -302,16 +304,21 @@ export function DashboardSidebar({ active, activeSub, setActive }: DashboardSide
           onNavigate={(tab, sub) => setActive(tab as DashSection, sub)}
         />
 
-        <SidebarMenu className="min-w-0">
-          <SidebarMenuItem>
+        <SidebarMenu
+          className={cn(
+            "min-w-0 grid gap-1.5",
+            collapsed ? "grid-cols-1" : "grid-cols-2",
+          )}
+        >
+          <SidebarMenuItem className="min-w-0">
             <SupportSidebarButton collapsed={collapsed} onOpen={() => setSupportOpen(true)} />
           </SidebarMenuItem>
-          <SidebarMenuItem>
+          <SidebarMenuItem className="min-w-0">
             <SidebarMenuButton
               isActive={active === "settings"}
               onClick={() => setActive("settings")}
               tooltip="Settings"
-              className={MENU_BTN}
+              className={cn(MENU_BTN, "w-full")}
             >
               <Settings className="h-4 w-4 shrink-0" />
               {!collapsed && <span className="text-xs font-medium truncate">Settings</span>}

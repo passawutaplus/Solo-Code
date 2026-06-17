@@ -22,6 +22,8 @@ interface Props {
   docKind?: DocKind; // "quotation" (default) | "invoice" | "receipt"
   /** Override theme (e.g. public portal preview). */
   themeOverride?: ResolvedDocumentTheme;
+  /** แสดงส่วนไทม์ไลน์ในเอกสาร — undefined = แสดงเมื่อมีข้อมูลไทม์ไลน์ */
+  showTimelineSection?: boolean;
 }
 
 // Thai Buddhist year format: 27 เมษายน 2569
@@ -51,7 +53,7 @@ const DOC_META: Record<DocKind, { label: string; en: string }> = {
   receipt: { label: "ใบเสร็จรับเงิน", en: "RECEIPT" },
 };
 
-export function PreviewPanel({ q, docKind = "quotation", themeOverride }: Props) {
+export function PreviewPanel({ q, docKind = "quotation", themeOverride, showTimelineSection }: Props) {
   const { data: usageRights } = useUsageRightsById(q.usageRightsId);
   const { profile } = useAuth();
   const { tier } = useSubscription();
@@ -72,7 +74,7 @@ export function PreviewPanel({ q, docKind = "quotation", themeOverride }: Props)
   const issuerEmail = issuer?.email ?? profile?.email;
   const issuerTaxId = issuer?.taxId ?? profile?.tax_id;
   const { colors } = docTheme;
-  const headerColor = docAccentForKind(colors, docKind);
+  void docAccentForKind(colors, docKind);
   const accent = colors.primary;
   const accentSoft = colors.primarySoft;
   const accentBorder = colors.primaryBorder;
@@ -100,6 +102,10 @@ export function PreviewPanel({ q, docKind = "quotation", themeOverride }: Props)
     return () => { cancelled = true; };
   }, [q.briefId]);
   const meta = DOC_META[docKind];
+  const hasTimelineContent =
+    !!(q.startDate || q.endDate || q.milestones.length > 0 || revisionDates.length > 0);
+  const showTimeline =
+    showTimelineSection !== undefined ? showTimelineSection : hasTimelineContent;
   // Resolve the document number to display (เลขที่เอกสาร) per kind
   const docNumber =
     docKind === "invoice"
@@ -154,7 +160,19 @@ export function PreviewPanel({ q, docKind = "quotation", themeOverride }: Props)
         overflowWrap: "break-word",
       }}
     >
-      <div className="p-6 space-y-4">
+      {q.headerImageUrl && (
+        <div className="w-full h-28 sm:h-36 overflow-hidden bg-neutral-100">
+          <img
+            src={q.headerImageUrl}
+            alt=""
+            className="w-full h-full object-cover"
+            loading="lazy"
+            decoding="async"
+            crossOrigin="anonymous"
+          />
+        </div>
+      )}
+      <div className="p-6 space-y-5">
         {/* ── HEADER ── */}
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0 flex-1">
@@ -162,52 +180,49 @@ export function PreviewPanel({ q, docKind = "quotation", themeOverride }: Props)
               <img
                 src={logoUrl}
                 alt="Logo"
-                className="h-10 mb-2 object-contain"
+                className="h-9 mb-2 object-contain"
                 loading="lazy"
                 decoding="async"
                 crossOrigin="anonymous"
               />
             )}
-            <h1 className="text-2xl font-bold tracking-tight text-neutral-900 leading-tight">
-              {brandName}
+            <p className="text-[10px] uppercase tracking-[0.2em] text-neutral-400 font-medium">
+              {meta.en}
+            </p>
+            <h1 className="text-xl font-bold tracking-tight text-neutral-900 leading-tight mt-0.5">
+              {meta.label}
             </h1>
             {tagline ? (
-              <p className="text-[11px] text-neutral-500 mt-0.5">{tagline}</p>
+              <p className="text-[11px] text-neutral-500 mt-1">{tagline}</p>
             ) : (
               !issuer && (
-                <p className="text-[11px] text-neutral-500 mt-0.5">
-                  โปรแกรมช่วยคำนวณราคาและทำใบเสนอราคาออนไลน์อย่างง่าย
+                <p className="text-[11px] text-neutral-500 mt-1">
+                  {brandName}
                 </p>
               )
             )}
           </div>
-          <div className="text-right flex-shrink-0">
-            <div
-              className="inline-block px-4 py-2 rounded-md font-semibold text-sm tracking-wide"
-              style={{ backgroundColor: headerColor, color: colors.headerTextOnPrimary }}
-            >
-              {meta.label}
-            </div>
-            <p className="text-[11px] text-neutral-500 mt-2 num">
-              วันที่: <span className="font-medium text-neutral-700">{fmtThaiLong(docDate || today)}</span>
+          <div className="text-right flex-shrink-0 space-y-1">
+            <p className="text-[10px] uppercase tracking-wider text-neutral-400">เลขที่</p>
+            <p className="text-sm font-semibold num text-neutral-900">{docNumber}</p>
+            <p className="text-[11px] text-neutral-500 num pt-1">
+              {fmtThaiLong(docDate || today)}
             </p>
-            <p className="text-[10px] text-neutral-400 mt-0.5 num">เลขที่ {docNumber}</p>
             {docKind !== "quotation" && (
-              <p className="text-[10px] text-neutral-400 mt-0.5 num">อ้างอิง {q.number}</p>
+              <p className="text-[10px] text-neutral-400 num">อ้างอิง {q.number}</p>
             )}
             {docKind === "receipt" && q.paidAt && (
-              <p className="text-[10px] text-emerald-600 mt-0.5 font-semibold">✓ ชำระเงินแล้ว</p>
+              <p className="text-[10px] text-emerald-600 font-semibold">✓ ชำระเงินแล้ว</p>
             )}
             {briefRef && (
-              <p className="text-[10px] text-neutral-500 mt-0.5">
+              <p className="text-[10px] text-neutral-500">
                 อ้างอิงบรีฟ: <span className="font-medium text-neutral-700">{briefRef.title}</span>
               </p>
             )}
           </div>
         </div>
 
-        {/* Orange divider */}
-        <div className="h-[2px] w-full" style={{ backgroundColor: headerColor }} />
+        <div className="h-px w-full bg-neutral-200" />
 
         {/* ── FROM / TO ── */}
         <div className="grid grid-cols-2 gap-6 pb-2">
@@ -255,7 +270,7 @@ export function PreviewPanel({ q, docKind = "quotation", themeOverride }: Props)
             <p className="text-[10px] uppercase tracking-wider text-neutral-400 mb-0.5">โครงการ</p>
             <p className="text-sm font-medium text-neutral-900">{q.projectName || "—"}</p>
           </div>
-          {q.timelineEnabled !== false && (
+          {showTimeline && (
             <div className="text-right">
               <p className="text-[10px] uppercase tracking-wider text-neutral-400 mb-0.5">ระยะเวลา</p>
               <p className="text-sm font-medium text-neutral-900 num">
@@ -269,12 +284,12 @@ export function PreviewPanel({ q, docKind = "quotation", themeOverride }: Props)
 
         {/* ── ITEMS TABLE ── */}
         <div>
-          <div className="grid grid-cols-12 gap-2 pb-2 border-b border-neutral-300">
-            <p className="col-span-8 text-[10px] uppercase tracking-wider text-neutral-500 font-semibold">
+          <div className="grid grid-cols-12 gap-2 pb-2 border-b border-neutral-200">
+            <p className="col-span-8 text-[10px] uppercase tracking-wider text-neutral-400 font-medium">
               รายการ
             </p>
-            <p className="col-span-4 text-right text-[10px] uppercase tracking-wider text-neutral-500 font-semibold">
-              ราคา (฿)
+            <p className="col-span-4 text-right text-[10px] uppercase tracking-wider text-neutral-400 font-medium">
+              จำนวนเงิน
             </p>
           </div>
           {lineItems.length === 0 ? (
@@ -466,7 +481,7 @@ export function PreviewPanel({ q, docKind = "quotation", themeOverride }: Props)
         )}
 
         {/* ── TIMELINE / MILESTONES ── */}
-        {q.timelineEnabled !== false && (q.milestones.length > 0 || revisionDates.length > 0) && (
+        {showTimeline && (q.milestones.length > 0 || revisionDates.length > 0) && (
           <div className="pt-1">
             <p className="text-[11px] font-semibold text-neutral-700 mb-2">
               ลำดับงานและกำหนดส่ง

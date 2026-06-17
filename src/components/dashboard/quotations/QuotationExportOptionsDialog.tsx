@@ -13,6 +13,7 @@ import { FileText, Paperclip, CalendarRange, Download, Info, Eye } from "lucide-
 
 export interface QuotationExportChoice {
   includeBrief: boolean;
+  /** แทรกภาคผนวกไทม์ไลน์แยกท้าย PDF */
   includeTimeline: boolean;
 }
 
@@ -124,7 +125,7 @@ export function QuotationExportOptionsDialog({
             </div>
           </label>
 
-          {/* Insert timeline */}
+          {/* Timeline appendix (separate pages) */}
           <label
             className={`flex items-start gap-3 rounded-xl border p-3 cursor-pointer transition ${
               !hasTimeline
@@ -142,12 +143,12 @@ export function QuotationExportOptionsDialog({
             />
             <CalendarRange className="h-4 w-4 mt-0.5 text-muted-foreground" />
             <div className="flex-1">
-              <p className="text-sm font-medium">{isPreview ? "รวมไทม์ไลน์โครงการ" : "แทรกไทม์ไลน์โครงการ"}</p>
+              <p className="text-sm font-medium">{isPreview ? "รวมภาคผนวกไทม์ไลน์" : "แทรกภาคผนวกไทม์ไลน์"}</p>
               <p className="text-[11px] text-muted-foreground">
                 {hasTimeline
                   ? (isPreview
-                      ? "พรีวิวตารางวันเริ่ม-จบงาน รอบแก้ และงวดชำระเงิน"
-                      : "ต่อท้ายด้วยตารางวันเริ่ม-จบงาน รอบแก้ และงวดชำระเงิน")
+                      ? "ตารางรายละเอียดแยกหน้า — วันเริ่ม-จบ รอบแก้ และงวดชำระเงิน"
+                      : "ต่อท้าย PDF ด้วยตารางไทม์ไลน์แบบละเอียด (หน้าแยก)")
                   : "ยังไม่มีข้อมูลไทม์ไลน์ที่จะแทรกได้"}
               </p>
             </div>

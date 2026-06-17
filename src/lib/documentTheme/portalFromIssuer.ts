@@ -12,6 +12,7 @@ export function portalBrandingFromIssuer(
   const theme = resolveDocumentTheme(tier, themeInput);
   return {
     showPoweredBy: theme.showPoweredBy,
+    showLogo: themeInput.portalShowLogo !== false,
     brandName: issuer.brandName?.trim() || "So1o Freelancer",
     tagline: issuer.tagline?.trim() || null,
     logoUrl: issuer.logoUrl?.trim() || null,

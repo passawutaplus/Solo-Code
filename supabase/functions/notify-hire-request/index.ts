@@ -49,53 +49,87 @@ Deno.serve(async (req) => {
     return json(req, { error: "invalid_body" }, 400);
   }
 
-  const admin = createClient(supabaseUrl, serviceKey);
+  const admin = createClient(supabaseUrl, serviceKey, { db: { schema: "anthem" } });
+  const adminPublic = createClient(supabaseUrl, serviceKey);
 
   const { data: hire, error: hireErr } = await admin
     .from("hiring_requests")
-    .select("id, freelancer_id, client_id, project_title, client_name, message, deadline, budget_amount")
+    .select(
+      "id, freelancer_id, client_id, studio_id, target_type, project_title, client_name, message, deadline, budget_amount",
+    )
     .eq("id", body.request_id)
     .maybeSingle();
 
   if (hireErr || !hire) return json(req, { error: "not_found" }, 404);
   if (hire.client_id !== callerId) return json(req, { error: "forbidden" }, 403);
 
-  const notify = await shouldSendAnthemEmail(admin, hire.freelancer_id, { kind: "hire" });
-  if (!notify.send || !notify.email) {
-    return json(req, { skipped: true, reason: "notifications_disabled" });
-  }
-
-  const idempotencyKey = `hire-request-${hire.id}`;
   const siteUrl = anthemSiteUrl();
-  const emailResult = await enqueueAnthemNotificationEmail(admin, {
-    template: "hire-request",
-    templateName: "anthem-hire-request",
-    recipientEmail: notify.email,
-    idempotencyKey,
-    label: "anthem-hire-request",
-    templateData: {
-      recipientName: notify.displayName ?? "คุณ",
-      clientName: hire.client_name ?? "ลูกค้า",
-      projectTitle: hire.project_title ?? "งานจ้างใหม่",
-      message: hire.message ?? "",
-      budgetAmount: formatBudget(hire.budget_amount),
-      deadline: hire.deadline ?? "",
-      actionUrl: `${siteUrl}/chat`,
-    },
-  });
-
   const detailRaw = [
     hire.message,
     hire.budget_amount ? `งบประมาณ: ${formatBudget(hire.budget_amount)}` : "",
     hire.deadline ? `กำหนดส่ง: ${hire.deadline}` : "",
   ].filter(Boolean).join("\n");
 
-  const lineResult = await enqueueLineNotification({
-    userId: hire.freelancer_id,
-    kind: "anthem_hire",
-    body: `${hire.client_name} ส่งคำขอจ้าง — ${hire.project_title || "งานจ้างใหม่"}\n${detailRaw.slice(0, 200)}`,
-    idempotencyKey: `line-hire-${hire.id}`,
-  });
+  const notifyUserIds: string[] = [];
 
-  return json(req, { ok: true, email: emailResult, line: lineResult });
+  if (hire.target_type === "studio" && hire.studio_id) {
+    const { data: admins } = await admin
+      .from("studio_members")
+      .select("user_id")
+      .eq("studio_id", hire.studio_id)
+      .in("role", ["owner", "admin"]);
+    notifyUserIds.push(...(admins ?? []).map((a: { user_id: string }) => a.user_id));
+  } else if (hire.freelancer_id) {
+    notifyUserIds.push(hire.freelancer_id);
+  }
+
+  const uniqueIds = [...new Set(notifyUserIds.filter(Boolean))];
+  if (uniqueIds.length === 0) {
+    return json(req, { skipped: true, reason: "no_recipients" });
+  }
+
+  const results: unknown[] = [];
+
+  for (const userId of uniqueIds) {
+    const notify = await shouldSendAnthemEmail(adminPublic, userId, { kind: "hire" });
+    if (!notify.send || !notify.email) continue;
+
+    const idempotencyKey = `hire-request-${hire.id}-${userId}`;
+    const actionUrl =
+      hire.target_type === "studio" && hire.studio_id
+        ? `${siteUrl}/studio/manage?tab=hires`
+        : `${siteUrl}/chat`;
+
+    const emailResult = await enqueueAnthemNotificationEmail(adminPublic, {
+      template: "hire-request",
+      templateName: "anthem-hire-request",
+      recipientEmail: notify.email,
+      idempotencyKey,
+      label: "anthem-hire-request",
+      templateData: {
+        recipientName: notify.displayName ?? "คุณ",
+        clientName: hire.client_name ?? "ลูกค้า",
+        projectTitle: hire.project_title ?? "งานจ้างใหม่",
+        message: hire.message ?? "",
+        budgetAmount: formatBudget(hire.budget_amount),
+        deadline: hire.deadline ?? "",
+        actionUrl,
+      },
+    });
+
+    const lineResult = await enqueueLineNotification({
+      userId,
+      kind: "anthem_hire",
+      body: `${hire.client_name} ส่งคำขอจ้าง — ${hire.project_title || "งานจ้างใหม่"}\n${detailRaw.slice(0, 200)}`,
+      idempotencyKey: `line-hire-${hire.id}-${userId}`,
+    });
+
+    results.push({ userId, email: emailResult, line: lineResult });
+  }
+
+  if (results.length === 0) {
+    return json(req, { skipped: true, reason: "notifications_disabled" });
+  }
+
+  return json(req, { ok: true, notified: results.length, results });
 });
