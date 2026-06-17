@@ -29,10 +29,7 @@ export function TierDetailsSection({
       aria-labelledby="tier-details-heading"
     >
       <div className="mb-8 text-center max-w-2xl mx-auto">
-        <h2
-          id="tier-details-heading"
-          className="text-xl sm:text-2xl font-bold tracking-tight"
-        >
+        <h2 id="tier-details-heading" className="text-xl sm:text-2xl font-bold tracking-tight">
           สิทธิ์แพ็กเกจ {tierLabel(currentTier)}
         </h2>
         <p className="mt-2 text-sm text-muted-foreground">

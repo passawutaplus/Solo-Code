@@ -15,7 +15,14 @@ type Props = {
   children: React.ReactNode;
 };
 
-export function LegalPageLayout({ title, subtitle, icon: Icon, iconLabel, sections, children }: Props) {
+export function LegalPageLayout({
+  title,
+  subtitle,
+  icon: Icon,
+  iconLabel,
+  sections,
+  children,
+}: Props) {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <header className="sticky top-0 z-30 glass border-b border-border">

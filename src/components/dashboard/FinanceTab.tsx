@@ -25,10 +25,7 @@ export function FinanceTab({ sub = "quotations", onMoneySubChange, onSubChange, 
     [onMoneySubChange],
   );
 
-  const navigateSub = React.useCallback(
-    (next: FinanceSub) => onSubChange?.(next),
-    [onSubChange],
-  );
+  const navigateSub = React.useCallback((next: FinanceSub) => onSubChange?.(next), [onSubChange]);
 
   const openQuotation = React.useCallback(
     (id: string) => {

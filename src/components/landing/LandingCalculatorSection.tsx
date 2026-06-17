@@ -33,7 +33,9 @@ export function LandingCalculatorSection({ remaining }: { remaining: number }) {
           </div>
         </div>
         <React.Suspense
-          fallback={<div className="rounded-3xl border border-border bg-card/60 h-96 animate-pulse" />}
+          fallback={
+            <div className="rounded-3xl border border-border bg-card/60 h-96 animate-pulse" />
+          }
         >
           <PriceCalculator remaining={remaining} />
         </React.Suspense>

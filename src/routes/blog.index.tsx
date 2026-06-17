@@ -17,9 +17,16 @@ export const Route = createFileRoute("/blog/")({
   head: ({ loaderData }) => ({
     meta: [
       { title: "บทความฟรีแลนซ์ — Insights & Resources | So1o Freelancer" },
-      { name: "description", content: "รวมบทความสำหรับฟรีแลนซ์ไทย: ใบเสนอราคา ภาษี การจัดการลูกค้า พอร์ตโฟลิโอ และเทคนิคการทำงานคนเดียวให้เป็นระบบ" },
+      {
+        name: "description",
+        content:
+          "รวมบทความสำหรับฟรีแลนซ์ไทย: ใบเสนอราคา ภาษี การจัดการลูกค้า พอร์ตโฟลิโอ และเทคนิคการทำงานคนเดียวให้เป็นระบบ",
+      },
       { property: "og:title", content: "บทความฟรีแลนซ์ — Insights & Resources" },
-      { property: "og:description", content: "ความรู้และเทคนิคสำหรับฟรีแลนซ์ไทย จาก So1o Freelancer" },
+      {
+        property: "og:description",
+        content: "ความรู้และเทคนิคสำหรับฟรีแลนซ์ไทย จาก So1o Freelancer",
+      },
       { property: "og:url", content: `${SITE_URL}/blog` },
       { property: "og:type", content: "website" },
       { property: "og:image", content: logoUrl },
@@ -38,12 +45,14 @@ export const Route = createFileRoute("/blog/")({
           isPartOf: { "@type": "WebSite", name: "So1o Freelancer", url: `${SITE_URL}/` },
           mainEntity: {
             "@type": "ItemList",
-            itemListElement: (loaderData?.articles ?? []).slice(0, 20).map((a: ArticleCardData, i: number) => ({
-              "@type": "ListItem",
-              position: i + 1,
-              url: `${SITE_URL}/blog/${a.slug}`,
-              name: a.title,
-            })),
+            itemListElement: (loaderData?.articles ?? [])
+              .slice(0, 20)
+              .map((a: ArticleCardData, i: number) => ({
+                "@type": "ListItem",
+                position: i + 1,
+                url: `${SITE_URL}/blog/${a.slug}`,
+                name: a.title,
+              })),
           },
         }),
       },
@@ -116,7 +125,9 @@ function BlogHubPage() {
           <button
             onClick={() => setCategory("all")}
             className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
-              category === "all" ? "bg-primary text-primary-foreground" : "bg-muted hover:bg-muted/70 text-foreground"
+              category === "all"
+                ? "bg-primary text-primary-foreground"
+                : "bg-muted hover:bg-muted/70 text-foreground"
             }`}
           >
             ทั้งหมด
@@ -126,7 +137,9 @@ function BlogHubPage() {
               key={c}
               onClick={() => setCategory(c)}
               className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
-                category === c ? "bg-primary text-primary-foreground" : "bg-muted hover:bg-muted/70 text-foreground"
+                category === c
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-muted hover:bg-muted/70 text-foreground"
               }`}
             >
               {CATEGORY_LABEL_TH[c]}

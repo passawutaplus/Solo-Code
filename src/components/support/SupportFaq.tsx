@@ -1,6 +1,11 @@
 import * as React from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { Loader2, BookOpen, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 
@@ -40,7 +45,9 @@ export function SupportFaq() {
   const filtered = React.useMemo(() => {
     const term = q.trim().toLowerCase();
     if (!term) return faqs;
-    return faqs.filter((f) => f.question.toLowerCase().includes(term) || f.answer.toLowerCase().includes(term));
+    return faqs.filter(
+      (f) => f.question.toLowerCase().includes(term) || f.answer.toLowerCase().includes(term),
+    );
   }, [faqs, q]);
 
   const grouped = React.useMemo(() => {

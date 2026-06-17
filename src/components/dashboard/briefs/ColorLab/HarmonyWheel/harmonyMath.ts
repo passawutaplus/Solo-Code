@@ -24,7 +24,7 @@ export function computeHarmony(baseHex: string, mode: HarmonyMode): string[] {
   const c = colord(baseHex);
   const baseHsv = c.toHsv();
   return def.offsets.map((deg) => {
-    const h = ((baseHsv.h + deg) % 360 + 360) % 360;
+    const h = (((baseHsv.h + deg) % 360) + 360) % 360;
     return colord({ h, s: baseHsv.s, v: baseHsv.v }).toHex().toUpperCase();
   });
 }

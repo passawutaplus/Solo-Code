@@ -91,7 +91,9 @@ export function ContentCalendar({
                   isToday ? "border-primary bg-primary-soft/40" : "border-border/60 bg-background"
                 }`}
               >
-                <div className={`text-[10px] font-medium leading-none px-0.5 ${isToday ? "text-primary" : "text-muted-foreground"}`}>
+                <div
+                  className={`text-[10px] font-medium leading-none px-0.5 ${isToday ? "text-primary" : "text-muted-foreground"}`}
+                >
                   {day}
                 </div>
                 <div className="flex-1 min-h-0 overflow-hidden flex flex-col gap-0.5">
@@ -105,7 +107,9 @@ export function ContentCalendar({
                       />
                     ))}
                     {dayPosts.length > 4 && (
-                      <span className="text-[8px] text-primary font-medium leading-none">+{dayPosts.length - 4}</span>
+                      <span className="text-[8px] text-primary font-medium leading-none">
+                        +{dayPosts.length - 4}
+                      </span>
                     )}
                   </div>
                   <div className="hidden sm:flex flex-col gap-0.5">
@@ -119,14 +123,18 @@ export function ContentCalendar({
                           title={`${clientName(p.clientId)} • ${p.title}`}
                           className="flex items-center gap-1 rounded-md bg-card border border-border/60 px-1 py-0.5 text-[9px] truncate text-left hover:border-primary/60 hover:bg-primary/5 transition-colors"
                         >
-                          <span className={`h-1.5 w-1.5 rounded-full shrink-0 ${colorForClient(p.clientId)}`} />
+                          <span
+                            className={`h-1.5 w-1.5 rounded-full shrink-0 ${colorForClient(p.clientId)}`}
+                          />
                           <FirstIcon className="h-2.5 w-2.5 shrink-0 text-muted-foreground" />
                           <span className="truncate">{p.title}</span>
                         </button>
                       );
                     })}
                     {dayPosts.length > 2 && (
-                      <div className="text-[9px] text-primary font-medium px-1">+{dayPosts.length - 2} more</div>
+                      <div className="text-[9px] text-primary font-medium px-1">
+                        +{dayPosts.length - 2} more
+                      </div>
                     )}
                   </div>
                 </div>

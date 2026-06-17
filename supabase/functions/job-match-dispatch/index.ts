@@ -34,7 +34,11 @@ function authorizeInternal(req: Request): boolean {
 
 const BodySchema = z.object({ job_id: z.string().uuid() });
 
-const norm = (s: string) => s.toLowerCase().trim().replace(/[^a-z0-9ก-๙]/gi, "");
+const norm = (s: string) =>
+  s
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9ก-๙]/gi, "");
 const overlap = (a: string[], b: string[]) => {
   const A = new Set(a.map(norm).filter(Boolean));
   return b.map(norm).filter((x) => x && A.has(x));
@@ -93,7 +97,10 @@ function scoreHiring(job: Job, c: Candidate) {
 }
 
 const json = (b: unknown, status = 200) =>
-  new Response(JSON.stringify(b), { status, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+  new Response(JSON.stringify(b), {
+    status,
+    headers: { ...corsHeaders, "Content-Type": "application/json" },
+  });
 
 type MatchRow = { user_id: string; job_id: string; match_score: number; match_reasons: string[] };
 
@@ -138,7 +145,11 @@ Deno.serve(async (req) => {
   if (!authorizeInternal(req)) return json({ error: "unauthorized" }, 401);
 
   let raw: unknown;
-  try { raw = await req.json(); } catch { return json({ error: "invalid json" }, 400); }
+  try {
+    raw = await req.json();
+  } catch {
+    return json({ error: "invalid json" }, 400);
+  }
   const parsed = BodySchema.safeParse(raw);
   if (!parsed.success) return json({ error: parsed.error.flatten().fieldErrors }, 400);
   const { job_id } = parsed.data;
@@ -153,7 +164,9 @@ Deno.serve(async (req) => {
     if (j.post_type === "hiring") {
       const { data: profs } = await sb
         .from("profiles")
-        .select("id, skills, role, location, preferred_categories, preferred_employment_types, notify_job_match")
+        .select(
+          "id, skills, role, location, preferred_categories, preferred_employment_types, notify_job_match",
+        )
         .eq("notify_job_match", true)
         .neq("id", j.posted_by)
         .limit(2000);
@@ -189,11 +202,14 @@ Deno.serve(async (req) => {
           project_tools: pm.tools,
         };
         const { score, reasons } = scoreHiring(j, cand);
-        if (score >= 40) rows.push({ user_id: p.id, job_id: j.id, match_score: score, match_reasons: reasons });
+        if (score >= 40)
+          rows.push({ user_id: p.id, job_id: j.id, match_score: score, match_reasons: reasons });
       }
 
       if (rows.length) {
-        await sb.from("job_match_notifications").upsert(rows, { onConflict: "user_id,job_id", ignoreDuplicates: true });
+        await sb
+          .from("job_match_notifications")
+          .upsert(rows, { onConflict: "user_id,job_id", ignoreDuplicates: true });
         const emails = await notifyJobMatches(sb, j, rows);
         return json({ inserted: rows.length, emails });
       }
@@ -238,11 +254,14 @@ Deno.serve(async (req) => {
         score += Math.min(skillHits.length * 10, 40);
         reasons.push(`สกิลตรง ${skillHits.length} อย่าง`);
       }
-      if (score >= 40) rows.push({ user_id: m.user_id, job_id: j.id, match_score: score, match_reasons: reasons });
+      if (score >= 40)
+        rows.push({ user_id: m.user_id, job_id: j.id, match_score: score, match_reasons: reasons });
     }
 
     if (rows.length) {
-      await sb.from("job_match_notifications").upsert(rows, { onConflict: "user_id,job_id", ignoreDuplicates: true });
+      await sb
+        .from("job_match_notifications")
+        .upsert(rows, { onConflict: "user_id,job_id", ignoreDuplicates: true });
       const emails = await notifyJobMatches(sb, j, rows);
       return json({ inserted: rows.length, emails });
     }

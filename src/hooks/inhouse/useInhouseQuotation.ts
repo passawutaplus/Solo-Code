@@ -60,7 +60,9 @@ export function useCreateInhouseQuotation() {
       }));
 
       if (collabRows.length > 0) {
-        const { error: collabErr } = await supabase.from("quotation_collaborators").insert(collabRows);
+        const { error: collabErr } = await supabase
+          .from("quotation_collaborators")
+          .insert(collabRows);
         if (collabErr) throw collabErr;
       }
 

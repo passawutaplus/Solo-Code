@@ -18,19 +18,25 @@ export function useFinanceDeductions(userId: string | undefined) {
 
   const deductions = React.useMemo<Record<string, boolean>>(() => {
     const out: Record<string, boolean> = {};
-    deductionsRows.forEach((d) => { out[d.deduction_key] = d.enabled; });
+    deductionsRows.forEach((d) => {
+      out[d.deduction_key] = d.enabled;
+    });
     return out;
   }, [deductionsRows]);
 
   const deductionAmounts = React.useMemo<Record<string, number>>(() => {
     const out: Record<string, number> = {};
-    deductionsRows.forEach((d) => { out[d.deduction_key] = Number(d.amount ?? 0); });
+    deductionsRows.forEach((d) => {
+      out[d.deduction_key] = Number(d.amount ?? 0);
+    });
     return out;
   }, [deductionsRows]);
 
   const deductionNotes = React.useMemo<Record<string, string>>(() => {
     const out: Record<string, string> = {};
-    deductionsRows.forEach((d) => { if (d.note) out[d.deduction_key] = d.note; });
+    deductionsRows.forEach((d) => {
+      if (d.note) out[d.deduction_key] = d.note;
+    });
     return out;
   }, [deductionsRows]);
 
@@ -46,7 +52,10 @@ export function useFinanceDeductions(userId: string | undefined) {
         note: rec.note ?? existing?.note ?? null,
       };
       if (existing) {
-        const { error } = await supabase.from("finance_deductions").update(payload).eq("id", existing.id);
+        const { error } = await supabase
+          .from("finance_deductions")
+          .update(payload)
+          .eq("id", existing.id);
         if (error) throw error;
       } else {
         const { error } = await supabase.from("finance_deductions").insert(payload);
@@ -57,17 +66,30 @@ export function useFinanceDeductions(userId: string | undefined) {
   });
 
   const toggleDeduction = React.useCallback(
-    (key: string) => { upsertDeduction.mutate({ key, enabled: !deductions[key] }); },
+    (key: string) => {
+      upsertDeduction.mutate({ key, enabled: !deductions[key] });
+    },
     [deductions, upsertDeduction],
   );
   const setDeductionAmount = React.useCallback(
-    (key: string, amount: number) => { upsertDeduction.mutate({ key, amount: Math.max(0, amount) }); },
+    (key: string, amount: number) => {
+      upsertDeduction.mutate({ key, amount: Math.max(0, amount) });
+    },
     [upsertDeduction],
   );
   const setDeductionNote = React.useCallback(
-    (key: string, note: string) => { upsertDeduction.mutate({ key, note }); },
+    (key: string, note: string) => {
+      upsertDeduction.mutate({ key, note });
+    },
     [upsertDeduction],
   );
 
-  return { deductions, deductionAmounts, deductionNotes, toggleDeduction, setDeductionAmount, setDeductionNote };
+  return {
+    deductions,
+    deductionAmounts,
+    deductionNotes,
+    toggleDeduction,
+    setDeductionAmount,
+    setDeductionNote,
+  };
 }

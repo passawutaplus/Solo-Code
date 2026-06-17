@@ -9,7 +9,9 @@ export function LandingPricingTeaser() {
   return (
     <section id="pricing" className="mx-auto max-w-6xl px-4 py-14 sm:py-16">
       <FadeUp className="text-center max-w-2xl mx-auto mb-8">
-        <h3 className="text-2xl sm:text-3xl font-bold tracking-tight">เริ่มฟรี อัพเกรดเมื่อพร้อม</h3>
+        <h3 className="text-2xl sm:text-3xl font-bold tracking-tight">
+          เริ่มฟรี อัพเกรดเมื่อพร้อม
+        </h3>
         <p className="mt-3 text-sm sm:text-base text-muted-foreground">
           100 คนแรกได้สิทธิพิเศษ — ดูรายละเอียดแพ็กทั้งหมด
         </p>
@@ -29,7 +31,9 @@ export function LandingPricingTeaser() {
               <h4 className="text-lg font-bold">{plan.name}</h4>
               <span className="text-2xl font-bold tabular-nums">
                 {plan.monthly === 0 ? "฿0" : `฿${plan.monthly}`}
-                {plan.monthly > 0 && <span className="text-xs font-normal text-muted-foreground">/เดือน</span>}
+                {plan.monthly > 0 && (
+                  <span className="text-xs font-normal text-muted-foreground">/เดือน</span>
+                )}
               </span>
             </div>
             <p className="mt-1 text-xs text-muted-foreground">{plan.tagline}</p>

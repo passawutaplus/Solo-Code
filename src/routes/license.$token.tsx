@@ -9,10 +9,7 @@ import type { Quotation } from "@/store/quotations";
 
 export const Route = createFileRoute("/license/$token")({
   head: () => ({
-    meta: [
-      { title: "ใบรับรองสิทธิ — So1o" },
-      { name: "robots", content: "noindex,nofollow" },
-    ],
+    meta: [{ title: "ใบรับรองสิทธิ — So1o" }, { name: "robots", content: "noindex,nofollow" }],
   }),
   errorComponent: ({ error }) => <RouteError error={error} />,
   component: LicenseVerifyPage,

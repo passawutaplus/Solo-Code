@@ -28,8 +28,16 @@ export const WORK_TYPE_OPTIONS: { value: WorkType; label: string; hint: string; 
 ];
 
 export const LICENSE_TYPE_OPTIONS: { value: LicenseType; label: string; hint: string }[] = [
-  { value: "exclusive", label: "ใช้คนเดียว", hint: "ลูกค้าคนนี้ใช้คนเดียว — คุณไม่ขายซ้ำให้คู่แข่ง" },
-  { value: "non_exclusive", label: "ใช้ได้ แต่ขายซ้ำได้", hint: "ลูกค้าใช้ได้ แต่คุณขาย template/สไตล์ซ้ำให้คนอื่นได้" },
+  {
+    value: "exclusive",
+    label: "ใช้คนเดียว",
+    hint: "ลูกค้าคนนี้ใช้คนเดียว — คุณไม่ขายซ้ำให้คู่แข่ง",
+  },
+  {
+    value: "non_exclusive",
+    label: "ใช้ได้ แต่ขายซ้ำได้",
+    hint: "ลูกค้าใช้ได้ แต่คุณขาย template/สไตล์ซ้ำให้คนอื่นได้",
+  },
 ];
 
 export const CHANNEL_OPTIONS: { value: UsageChannel; label: string }[] = [

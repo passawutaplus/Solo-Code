@@ -34,7 +34,11 @@ const json = (req: Request, body: unknown, status = 200) =>
     headers: { ...corsHeadersForRequest(req), "Content-Type": "application/json" },
   });
 
-async function callerIdFrom(req: Request, supabaseUrl: string, anonKey: string): Promise<string | null> {
+async function callerIdFrom(
+  req: Request,
+  supabaseUrl: string,
+  anonKey: string,
+): Promise<string | null> {
   const authHeader = req.headers.get("Authorization");
   if (!authHeader?.startsWith("Bearer ")) return null;
   const userClient = createClient(supabaseUrl, anonKey, {
@@ -215,17 +219,17 @@ Deno.serve(async (req) => {
     case "topup": {
       const { data: topup } = body.topup_id
         ? await admin
-          .from("wallet_topups")
-          .select("id, user_id, amount_px, created_at")
-          .eq("id", body.topup_id)
-          .maybeSingle()
+            .from("wallet_topups")
+            .select("id, user_id, amount_px, created_at")
+            .eq("id", body.topup_id)
+            .maybeSingle()
         : await admin
-          .from("wallet_topups")
-          .select("id, user_id, amount_px, created_at")
-          .eq("user_id", callerId)
-          .order("created_at", { ascending: false })
-          .limit(1)
-          .maybeSingle();
+            .from("wallet_topups")
+            .select("id, user_id, amount_px, created_at")
+            .eq("user_id", callerId)
+            .order("created_at", { ascending: false })
+            .limit(1)
+            .maybeSingle();
 
       if (!topup || topup.user_id !== callerId) return json(req, { error: "not_found" }, 404);
 
@@ -264,11 +268,12 @@ Deno.serve(async (req) => {
         return json(req, { error: "forbidden" }, 403);
       }
 
-      const lineBody = body.status === "submitted"
-        ? `ส่งคำขอถอน ${cashout.gross_px.toLocaleString("th-TH")} px แล้ว`
-        : body.status === "paid"
-        ? `ถอนเงินสำเร็จ ฿${(cashout.net_px ?? 0).toLocaleString("th-TH")}`
-        : `คำขอถอน ${cashout.gross_px.toLocaleString("th-TH")} px ถูกปฏิเสธ`;
+      const lineBody =
+        body.status === "submitted"
+          ? `ส่งคำขอถอน ${cashout.gross_px.toLocaleString("th-TH")} px แล้ว`
+          : body.status === "paid"
+            ? `ถอนเงินสำเร็จ ฿${(cashout.net_px ?? 0).toLocaleString("th-TH")}`
+            : `คำขอถอน ${cashout.gross_px.toLocaleString("th-TH")} px ถูกปฏิเสธ`;
 
       const result = await dispatchAnthemNotification(admin, {
         recipientId: cashout.user_id,

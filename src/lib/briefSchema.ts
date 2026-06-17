@@ -42,7 +42,6 @@ export interface BriefProjectOverview {
   scope_items?: BriefScopeItem[]; // รายการเนื้องาน เช่น โลโก้ x1, นามบัตร x2
 }
 
-
 export interface BriefAudience {
   gender?: string;
   age_range?: string;
@@ -192,10 +191,17 @@ export function briefShareUrl(token: string, opts?: { review?: boolean }): strin
 }
 
 /** Rough completeness 0-100 for progress bar */
-export function briefCompleteness(b: Pick<
-  DesignBrief,
-  "client_info" | "project_overview" | "audience" | "design_direction" | "tech_specs" | "timeline_budget"
->): number {
+export function briefCompleteness(
+  b: Pick<
+    DesignBrief,
+    | "client_info"
+    | "project_overview"
+    | "audience"
+    | "design_direction"
+    | "tech_specs"
+    | "timeline_budget"
+  >,
+): number {
   const checks: boolean[] = [
     !!b.client_info?.client_name,
     !!b.client_info?.brand_name,
@@ -219,7 +225,9 @@ export function briefCompleteness(b: Pick<
  * drop invalid entries, dedupe. Idempotent. Always call on inbound DB rows
  * and before persisting.
  */
-export function sanitizeBriefDesignDirection(dd: BriefDesignDirection | undefined | null): BriefDesignDirection {
+export function sanitizeBriefDesignDirection(
+  dd: BriefDesignDirection | undefined | null,
+): BriefDesignDirection {
   const src = dd ?? {};
   return {
     ...src,

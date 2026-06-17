@@ -4,7 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/auth/AuthProvider";
 import type { InhouseChannel, InhouseMessage } from "@/lib/inhouse/types";
 
-const inhouseFrom = (table: string) => (supabase as unknown as { from: (t: string) => ReturnType<typeof supabase.from> }).from(table);
+const inhouseFrom = (table: string) =>
+  (supabase as unknown as { from: (t: string) => ReturnType<typeof supabase.from> }).from(table);
 
 async function enrichMessages(messages: InhouseMessage[]): Promise<InhouseMessage[]> {
   const senderIds = [...new Set(messages.map((m) => m.sender_id))];
@@ -17,7 +18,10 @@ async function enrichMessages(messages: InhouseMessage[]): Promise<InhouseMessag
   return messages.map((m) => ({
     ...m,
     sender: map.get(m.sender_id)
-      ? { display_name: map.get(m.sender_id)!.display_name, avatar_url: map.get(m.sender_id)!.avatar_url }
+      ? {
+          display_name: map.get(m.sender_id)!.display_name,
+          avatar_url: map.get(m.sender_id)!.avatar_url,
+        }
       : undefined,
   }));
 }
@@ -60,7 +64,12 @@ export function useInhouseMessages(channelId: string | undefined) {
       .channel(`inhouse-msg-${channelId}`)
       .on(
         "postgres_changes",
-        { event: "INSERT", schema: "public", table: "inhouse_messages", filter: `channel_id=eq.${channelId}` },
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "inhouse_messages",
+          filter: `channel_id=eq.${channelId}`,
+        },
         () => queryClient.invalidateQueries({ queryKey: ["inhouse-messages", channelId] }),
       )
       .subscribe();

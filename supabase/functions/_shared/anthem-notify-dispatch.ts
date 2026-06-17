@@ -45,9 +45,8 @@ export async function dispatchAnthemNotification(
 
   const templateData = {
     ...opts.templateData,
-    recipientName: (opts.templateData.recipientName as string | undefined) ??
-      notify.displayName ??
-      "คุณ",
+    recipientName:
+      (opts.templateData.recipientName as string | undefined) ?? notify.displayName ?? "คุณ",
   };
 
   const emailResult = await enqueueAnthemNotificationEmail(admin, {

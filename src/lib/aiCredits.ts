@@ -9,11 +9,7 @@ export const AI_TIER_MONTHLY: Record<"free" | "pro" | "pro_plus" | "inhouse", nu
   inhouse: 2000,
 };
 
-export type AiPeriodType =
-  | "free_starter"
-  | "free_starter_ended"
-  | "monthly"
-  | "subscription";
+export type AiPeriodType = "free_starter" | "free_starter_ended" | "monthly" | "subscription";
 
 export type AiUsageSummary = {
   tier: string;
@@ -28,10 +24,9 @@ export type AiUsageSummary = {
 };
 
 /** Human-readable credit plan label for UI. */
-export function describeAiCreditsPlan(summary: Pick<
-  AiUsageSummary,
-  "tier" | "period_type" | "included_limit"
->): string {
+export function describeAiCreditsPlan(
+  summary: Pick<AiUsageSummary, "tier" | "period_type" | "included_limit">,
+): string {
   if (summary.period_type === "free_starter") {
     return "แพ็กเริ่มต้นฟรี";
   }

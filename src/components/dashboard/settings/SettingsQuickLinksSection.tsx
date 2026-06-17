@@ -1,13 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import {
-  ExternalLink,
-  Cookie,
-  Sparkles,
-  UserCircle,
-  FileText,
-  Shield,
-  Zap,
-} from "lucide-react";
+import { ExternalLink, Cookie, Sparkles, UserCircle, FileText, Shield, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useAuth } from "@/auth/AuthProvider";
@@ -59,13 +51,23 @@ export function SettingsQuickLinksSection() {
             <Cookie className="h-4 w-4 shrink-0" />
             ตั้งค่าคุกกี้
           </Button>
-          <Button asChild variant="ghost" size="sm" className="h-9 justify-start gap-2 text-muted-foreground">
+          <Button
+            asChild
+            variant="ghost"
+            size="sm"
+            className="h-9 justify-start gap-2 text-muted-foreground"
+          >
             <Link to="/privacy">
               <Shield className="h-4 w-4 shrink-0" />
               นโยบายความเป็นส่วนตัว
             </Link>
           </Button>
-          <Button asChild variant="ghost" size="sm" className="h-9 justify-start gap-2 text-muted-foreground">
+          <Button
+            asChild
+            variant="ghost"
+            size="sm"
+            className="h-9 justify-start gap-2 text-muted-foreground"
+          >
             <Link to="/terms">
               <FileText className="h-4 w-4 shrink-0" />
               เงื่อนไขการใช้บริการ

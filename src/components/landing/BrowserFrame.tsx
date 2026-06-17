@@ -7,7 +7,11 @@ type BrowserFrameProps = {
   label?: string;
 };
 
-export function BrowserFrame({ children, className, label = "solofreelancer.com" }: BrowserFrameProps) {
+export function BrowserFrame({
+  children,
+  className,
+  label = "solofreelancer.com",
+}: BrowserFrameProps) {
   return (
     <div
       className={cn(

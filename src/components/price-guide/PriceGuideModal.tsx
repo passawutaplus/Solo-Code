@@ -1,11 +1,32 @@
 import * as React from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Sparkles, ArrowRight, ArrowLeft, Loader2, CheckCircle2, TrendingUp, ThumbsUp, ThumbsDown } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Sparkles,
+  ArrowRight,
+  ArrowLeft,
+  Loader2,
+  CheckCircle2,
+  TrendingUp,
+  ThumbsUp,
+  ThumbsDown,
+} from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { DISCLAIMER_TAX_PRICE } from "@/lib/copyConstants";
 import { toast } from "sonner";
@@ -29,14 +50,24 @@ interface Props {
 
 type Step = 1 | 2 | 3 | 4;
 
-export function PriceGuideModal({ open, onOpenChange, onApplyPrice, initialQuantity, initialJobType }: Props) {
+export function PriceGuideModal({
+  open,
+  onOpenChange,
+  onApplyPrice,
+  initialQuantity,
+  initialJobType,
+}: Props) {
   const [step, setStep] = React.useState<Step>(1);
   const [jobType, setJobType] = React.useState<JobType>(initialJobType ?? "logo");
   const [days, setDays] = React.useState<number>(3);
   const [quantity, setQuantity] = React.useState<number>(initialQuantity ?? 1);
   const [complexity, setComplexity] = React.useState<Complexity>("normal");
   const [loading, setLoading] = React.useState(false);
-  const [result, setResult] = React.useState<{ suggestion: PriceSuggestion; reasoning: string; eventId: string | null } | null>(null);
+  const [result, setResult] = React.useState<{
+    suggestion: PriceSuggestion;
+    reasoning: string;
+    eventId: string | null;
+  } | null>(null);
 
   // feedback state
   const [feedback, setFeedback] = React.useState<"up" | "down" | null>(null);
@@ -75,8 +106,7 @@ export function PriceGuideModal({ open, onOpenChange, onApplyPrice, initialQuant
       console.error(e);
       setResult({
         suggestion,
-        reasoning:
-          `ราคานี้คำนวณจากเวลาทำงาน + ความยาก + ค่าเฉลี่ยตลาดครับ\n${DISCLAIMER_TAX_PRICE}`,
+        reasoning: `ราคานี้คำนวณจากเวลาทำงาน + ความยาก + ค่าเฉลี่ยตลาดครับ\n${DISCLAIMER_TAX_PRICE}`,
         eventId: null,
       });
       setStep(4);
@@ -229,7 +259,11 @@ export function PriceGuideModal({ open, onOpenChange, onApplyPrice, initialQuant
                     <div className="flex items-center justify-between">
                       <span className="text-sm font-medium">{o.label}</span>
                       <span className="text-xs text-muted-foreground num">
-                        {o.markup > 0 ? `+${Math.round(o.markup * 100)}%` : o.markup < 0 ? `${Math.round(o.markup * 100)}%` : "—"}
+                        {o.markup > 0
+                          ? `+${Math.round(o.markup * 100)}%`
+                          : o.markup < 0
+                            ? `${Math.round(o.markup * 100)}%`
+                            : "—"}
                       </span>
                     </div>
                   </button>
@@ -241,15 +275,20 @@ export function PriceGuideModal({ open, onOpenChange, onApplyPrice, initialQuant
           {step === 4 && result && (
             <div className="space-y-4">
               <div className="rounded-2xl bg-gradient-to-br from-primary/15 via-primary/5 to-transparent border border-primary/20 p-5 text-center">
-                <p className="text-[11px] text-muted-foreground uppercase tracking-wide mb-1">ราคาแนะนำ / หน่วย</p>
-                <p className="text-3xl font-bold text-primary num">฿{fmt(result.suggestion.recommended)}</p>
+                <p className="text-[11px] text-muted-foreground uppercase tracking-wide mb-1">
+                  ราคาแนะนำ / หน่วย
+                </p>
+                <p className="text-3xl font-bold text-primary num">
+                  ฿{fmt(result.suggestion.recommended)}
+                </p>
                 <p className="text-xs text-muted-foreground mt-1 num">
                   ช่วงราคา ฿{fmt(result.suggestion.min)} – ฿{fmt(result.suggestion.max)}
                 </p>
                 <div className="mt-3 inline-flex items-center gap-1.5 text-[11px] bg-white/60 backdrop-blur px-2.5 py-1 rounded-full border border-primary/15">
                   <TrendingUp className="h-3 w-3 text-primary" />
                   <span className="num">
-                    เฉลี่ยใน So1o: ฿{fmt(result.suggestion.marketAvg.min)}–฿{fmt(result.suggestion.marketAvg.max)}
+                    เฉลี่ยใน So1o: ฿{fmt(result.suggestion.marketAvg.min)}–฿
+                    {fmt(result.suggestion.marketAvg.max)}
                   </span>
                 </div>
               </div>
@@ -285,7 +324,9 @@ export function PriceGuideModal({ open, onOpenChange, onApplyPrice, initialQuant
 
               {/* Feedback */}
               <div className="rounded-lg border border-border/60 p-3 space-y-2">
-                <p className="text-[11px] text-muted-foreground">ราคานี้ตรงใจไหมครับ? ฟีดแบ็กของคุณช่วยปรับช่วงราคาตลาดให้แม่นขึ้น</p>
+                <p className="text-[11px] text-muted-foreground">
+                  ราคานี้ตรงใจไหมครับ? ฟีดแบ็กของคุณช่วยปรับช่วงราคาตลาดให้แม่นขึ้น
+                </p>
                 <div className="flex gap-2">
                   <Button
                     type="button"
@@ -335,7 +376,12 @@ export function PriceGuideModal({ open, onOpenChange, onApplyPrice, initialQuant
 
         <div className="p-4 border-t border-border/50 bg-muted/20 flex items-center justify-between gap-2">
           {step > 1 && step < 4 && (
-            <Button variant="ghost" size="sm" onClick={() => setStep((step - 1) as Step)} disabled={loading}>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setStep((step - 1) as Step)}
+              disabled={loading}
+            >
               <ArrowLeft className="h-4 w-4 mr-1" /> ย้อนกลับ
             </Button>
           )}
@@ -348,9 +394,13 @@ export function PriceGuideModal({ open, onOpenChange, onApplyPrice, initialQuant
           {step === 3 && (
             <Button onClick={handleCalculate} disabled={loading} className="bg-gradient-primary">
               {loading ? (
-                <><Loader2 className="h-4 w-4 mr-1 animate-spin" /> กำลังคำนวณ...</>
+                <>
+                  <Loader2 className="h-4 w-4 mr-1 animate-spin" /> กำลังคำนวณ...
+                </>
               ) : (
-                <><Sparkles className="h-4 w-4 mr-1" /> คำนวณราคา</>
+                <>
+                  <Sparkles className="h-4 w-4 mr-1" /> คำนวณราคา
+                </>
               )}
             </Button>
           )}

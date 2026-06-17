@@ -38,17 +38,19 @@ export const CATEGORY_GRADIENT: Record<ArticleCategory, string> = {
 
 /** Convert a Thai/English title into a URL-safe slug. */
 export function slugify(input: string): string {
-  return input
-    .normalize("NFC")
-    .toLowerCase()
-    .trim()
-    // remove control + punctuation but keep Thai letters & alphanumerics & spaces & hyphens
-    .replace(/[\u0000-\u001F\u007F]/g, "")
-    .replace(/[^\p{L}\p{N}\s-]/gu, "")
-    .replace(/\s+/g, "-")
-    .replace(/-+/g, "-")
-    .replace(/^-|-$/g, "")
-    .slice(0, 96);
+  return (
+    input
+      .normalize("NFC")
+      .toLowerCase()
+      .trim()
+      // remove control + punctuation but keep Thai letters & alphanumerics & spaces & hyphens
+      .replace(/[\u0000-\u001F\u007F]/g, "")
+      .replace(/[^\p{L}\p{N}\s-]/gu, "")
+      .replace(/\s+/g, "-")
+      .replace(/-+/g, "-")
+      .replace(/^-|-$/g, "")
+      .slice(0, 96)
+  );
 }
 
 /** Strip HTML tags for plain-text excerpts (meta descriptions, summaries). */

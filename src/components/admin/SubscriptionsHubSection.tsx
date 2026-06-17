@@ -8,7 +8,9 @@ export function SubscriptionsHubSection({ m }: { m: AdminMetrics }) {
   return (
     <div className="space-y-4">
       <div>
-        <h2 className="text-lg sm:text-xl font-semibold tracking-tight">Subscriptions & ค่าใช้จ่าย</h2>
+        <h2 className="text-lg sm:text-xl font-semibold tracking-tight">
+          Subscriptions & ค่าใช้จ่าย
+        </h2>
         <p className="text-xs text-muted-foreground mt-0.5">
           ภาพรวมค่าใช้จ่ายของระบบ และ subscription ยอดนิยมที่ user สมัคร
         </p>

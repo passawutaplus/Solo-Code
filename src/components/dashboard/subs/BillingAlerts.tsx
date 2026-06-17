@@ -27,7 +27,8 @@ function nextOccurrence(day: number, today: Date): Date {
 }
 
 export function BillingAlerts({
-  subs, paymentMethods,
+  subs,
+  paymentMethods,
 }: {
   subs: Subscription[];
   paymentMethods: PaymentMethod[];
@@ -84,7 +85,9 @@ export function BillingAlerts({
     return out;
   }, [subs, paymentMethods, invoices]);
 
-  const upcoming = items.filter((i) => i.daysLeft >= 0 && i.daysLeft <= 7).sort((a, b) => a.daysLeft - b.daysLeft);
+  const upcoming = items
+    .filter((i) => i.daysLeft >= 0 && i.daysLeft <= 7)
+    .sort((a, b) => a.daysLeft - b.daysLeft);
   const overdueInvoices = invoices.filter((i) => i.status === "late7" || i.status === "late30");
   const overdue = items.filter((i) => i.daysLeft < 0).sort((a, b) => a.daysLeft - b.daysLeft);
 
@@ -152,8 +155,12 @@ function AlertRow({ item, overdue }: { item: UpcomingItem; overdue?: boolean }) 
         ? "พรุ่งนี้"
         : `อีก ${item.daysLeft} วัน`;
   return (
-    <div className={`flex items-center gap-2 rounded-md p-1.5 text-xs ${overdue ? "bg-destructive/5" : "bg-muted/40"}`}>
-      <div className={`rounded-md p-1.5 ${overdue ? "bg-destructive/15 text-destructive" : "bg-primary-soft text-primary"}`}>
+    <div
+      className={`flex items-center gap-2 rounded-md p-1.5 text-xs ${overdue ? "bg-destructive/5" : "bg-muted/40"}`}
+    >
+      <div
+        className={`rounded-md p-1.5 ${overdue ? "bg-destructive/15 text-destructive" : "bg-primary-soft text-primary"}`}
+      >
         <Icon className="h-3.5 w-3.5" />
       </div>
       <div className="flex-1 min-w-0">
@@ -164,7 +171,11 @@ function AlertRow({ item, overdue }: { item: UpcomingItem; overdue?: boolean }) 
         {item.amount !== undefined && item.amount > 0 && (
           <p className="num text-xs font-semibold">฿{formatTHB(item.amount)}</p>
         )}
-        <p className={`text-[10px] ${overdue ? "text-destructive font-medium" : "text-muted-foreground"}`}>{label}</p>
+        <p
+          className={`text-[10px] ${overdue ? "text-destructive font-medium" : "text-muted-foreground"}`}
+        >
+          {label}
+        </p>
       </div>
     </div>
   );

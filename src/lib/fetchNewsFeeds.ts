@@ -30,7 +30,9 @@ function stripTags(html: string): string {
 }
 
 function firstTag(block: string, tag: string): string {
-  const cdata = new RegExp(`<${tag}[^>]*><!\\[CDATA\\[([\\s\\S]*?)\\]\\]><\\/${tag}>`, "i").exec(block);
+  const cdata = new RegExp(`<${tag}[^>]*><!\\[CDATA\\[([\\s\\S]*?)\\]\\]><\\/${tag}>`, "i").exec(
+    block,
+  );
   if (cdata?.[1]) return stripTags(cdata[1]);
 
   const plain = new RegExp(`<${tag}[^>]*>([\\s\\S]*?)<\\/${tag}>`, "i").exec(block);
@@ -48,7 +50,9 @@ function extractLink(block: string): string {
 }
 
 function rawTag(block: string, tag: string): string {
-  const cdata = new RegExp(`<${tag}[^>]*><!\\[CDATA\\[([\\s\\S]*?)\\]\\]><\\/${tag}>`, "i").exec(block);
+  const cdata = new RegExp(`<${tag}[^>]*><!\\[CDATA\\[([\\s\\S]*?)\\]\\]><\\/${tag}>`, "i").exec(
+    block,
+  );
   if (cdata?.[1]) return cdata[1];
 
   const plain = new RegExp(`<${tag}[^>]*>([\\s\\S]*?)<\\/${tag}>`, "i").exec(block);
@@ -129,9 +133,7 @@ function parseFeedXml(xml: string, feed: NewsFeedSource): RawNewsArticle[] {
     if (!title || !link) continue;
 
     const excerpt =
-      firstTag(block, "description") ||
-      firstTag(block, "summary") ||
-      firstTag(block, "content");
+      firstTag(block, "description") || firstTag(block, "summary") || firstTag(block, "content");
 
     const image_url = extractImageUrl(block);
     const pubDate = extractPubDate(block);

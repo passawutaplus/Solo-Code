@@ -1,5 +1,11 @@
 import * as React from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -26,9 +32,15 @@ interface Props {
 
 const STATUS_LABELS: Record<string, { label: string; tone: string }> = {
   draft: { label: "ฉบับร่าง", tone: "bg-muted text-muted-foreground" },
-  awaiting_client: { label: "รอลูกค้ากรอก", tone: "bg-amber-500/15 text-amber-600 dark:text-amber-400" },
+  awaiting_client: {
+    label: "รอลูกค้ากรอก",
+    tone: "bg-amber-500/15 text-amber-600 dark:text-amber-400",
+  },
   awaiting_confirm: { label: "รอยืนยัน", tone: "bg-blue-500/15 text-blue-600 dark:text-blue-400" },
-  confirmed: { label: "ยืนยันแล้ว", tone: "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400" },
+  confirmed: {
+    label: "ยืนยันแล้ว",
+    tone: "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400",
+  },
 };
 
 export function AttachBriefDialog({ open, onOpenChange, onPick, currentBriefId }: Props) {
@@ -56,7 +68,9 @@ export function AttachBriefDialog({ open, onOpenChange, onPick, currentBriefId }
         }
         setLoading(false);
       });
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [open, user]);
 
   const filtered = React.useMemo(() => {
@@ -76,7 +90,8 @@ export function AttachBriefDialog({ open, onOpenChange, onPick, currentBriefId }
             <FileSignature className="h-4 w-4 text-primary" /> แนบ Design Brief
           </DialogTitle>
           <DialogDescription className="text-xs">
-            เลือกบรีฟที่สร้างจาก Smart Brief เพื่อผูกกับใบเสนอราคานี้ — ระบบจะดึงข้อมูลลูกค้าและชื่องานให้อัตโนมัติ (เฉพาะช่องที่ยังว่าง)
+            เลือกบรีฟที่สร้างจาก Smart Brief เพื่อผูกกับใบเสนอราคานี้ —
+            ระบบจะดึงข้อมูลลูกค้าและชื่องานให้อัตโนมัติ (เฉพาะช่องที่ยังว่าง)
           </DialogDescription>
         </DialogHeader>
 
@@ -93,7 +108,8 @@ export function AttachBriefDialog({ open, onOpenChange, onPick, currentBriefId }
         <div className="flex-1 overflow-y-auto -mx-1 px-1 space-y-2">
           {loading ? (
             <div className="flex items-center justify-center py-10 text-muted-foreground">
-              <Loader2 className="h-4 w-4 animate-spin mr-2" /> <span className="text-xs">กำลังโหลดบรีฟ...</span>
+              <Loader2 className="h-4 w-4 animate-spin mr-2" />{" "}
+              <span className="text-xs">กำลังโหลดบรีฟ...</span>
             </div>
           ) : filtered.length === 0 ? (
             <div className="text-center py-10 text-xs text-muted-foreground">
@@ -116,7 +132,9 @@ export function AttachBriefDialog({ open, onOpenChange, onPick, currentBriefId }
                   <div className="flex-1 min-w-0 space-y-1">
                     <div className="flex items-center gap-2 flex-wrap">
                       <p className="text-sm font-medium truncate">{b.title || "ไม่มีชื่อ"}</p>
-                      <Badge className={`${status.tone} border-0 text-[10px] rounded-full px-2 py-0`}>
+                      <Badge
+                        className={`${status.tone} border-0 text-[10px] rounded-full px-2 py-0`}
+                      >
                         {status.label}
                       </Badge>
                       {isCurrent && (
@@ -131,7 +149,10 @@ export function AttachBriefDialog({ open, onOpenChange, onPick, currentBriefId }
                       size="sm"
                       variant={isCurrent ? "outline" : "default"}
                       className="h-7 text-xs"
-                      onClick={() => { onPick(b); onOpenChange(false); }}
+                      onClick={() => {
+                        onPick(b);
+                        onOpenChange(false);
+                      }}
                     >
                       {isCurrent ? "เลือกซ้ำ" : "เลือก"}
                     </Button>

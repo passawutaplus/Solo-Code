@@ -73,7 +73,8 @@ function TaxHelpPage() {
       <main className="flex-1 max-w-3xl mx-auto w-full px-4 py-8 space-y-6">
         <div className="rounded-2xl border border-primary/20 bg-primary/5 p-5">
           <p className="text-sm leading-relaxed">
-            คู่มือสำหรับ<strong> ฟรีแลนซ์คนเดียว</strong> — ทำตามลำดับด้านล่าง แล้วใช้ My Desk เก็บข้อมูลส่งนักบัญชี
+            คู่มือสำหรับ<strong> ฟรีแลนซ์คนเดียว</strong> — ทำตามลำดับด้านล่าง แล้วใช้ My Desk
+            เก็บข้อมูลส่งนักบัญชี
           </p>
         </div>
 
@@ -99,10 +100,14 @@ function TaxHelpPage() {
                         </div>
                         <div className="min-w-0">
                           <h2 className="text-base font-semibold leading-snug">{step.title}</h2>
-                          <p className="text-sm text-muted-foreground mt-2 leading-relaxed">{step.body}</p>
+                          <p className="text-sm text-muted-foreground mt-2 leading-relaxed">
+                            {step.body}
+                          </p>
                           <div className="mt-3 rounded-lg bg-muted/50 border border-border/60 px-3 py-2">
                             <p className="text-[11px] font-medium text-foreground">ตัวอย่าง</p>
-                            <p className="text-[11px] text-muted-foreground mt-0.5">{step.example}</p>
+                            <p className="text-[11px] text-muted-foreground mt-0.5">
+                              {step.example}
+                            </p>
                           </div>
                         </div>
                       </div>
@@ -122,10 +127,12 @@ function TaxHelpPage() {
             </div>
             <ul className="text-sm text-muted-foreground space-y-2 list-disc pl-5">
               <li>
-                <strong className="text-foreground">ภงด.90</strong> — ฟรีแลนซ์มีเงินได้จากการประกอบอาชีพ (ยื่นปีละครั้ง)
+                <strong className="text-foreground">ภงด.90</strong> —
+                ฟรีแลนซ์มีเงินได้จากการประกอบอาชีพ (ยื่นปีละครั้ง)
               </li>
               <li>
-                <strong className="text-foreground">ภงด.91</strong> — เงินได้อื่นๆ นอกเหนือจากเงินเดือน (ถ้ามี)
+                <strong className="text-foreground">ภงด.91</strong> — เงินได้อื่นๆ
+                นอกเหนือจากเงินเดือน (ถ้ามี)
               </li>
               <li>เก็บใบ 50ทวิ และบิลค่าใช้จ่ายตลอดปี — จะได้ไม่รีบตอนสิ้นปี</li>
             </ul>

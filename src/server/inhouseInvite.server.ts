@@ -1,13 +1,12 @@
 import { z } from "zod";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
-import {
-  enqueueLineNotificationForUser,
-  findUserIdByEmail,
-} from "@/server/lineNotify.server";
+import { enqueueLineNotificationForUser, findUserIdByEmail } from "@/server/lineNotify.server";
 import { canonicalUrl } from "@/lib/siteUrl";
 
 const inhouseFrom = (table: string) =>
-  (supabaseAdmin as unknown as { from: (t: string) => ReturnType<typeof supabaseAdmin.from> }).from(table);
+  (supabaseAdmin as unknown as { from: (t: string) => ReturnType<typeof supabaseAdmin.from> }).from(
+    table,
+  );
 
 export async function createInhouseInviteWithNotify(opts: {
   orgId: string;
@@ -16,7 +15,8 @@ export async function createInhouseInviteWithNotify(opts: {
   email?: string;
   workspaceIds?: string[];
 }) {
-  const token = crypto.randomUUID().replace(/-/g, "") + crypto.randomUUID().replace(/-/g, "").slice(0, 8);
+  const token =
+    crypto.randomUUID().replace(/-/g, "") + crypto.randomUUID().replace(/-/g, "").slice(0, 8);
 
   const { data: invite, error } = await inhouseFrom("inhouse_invites")
     .insert({
@@ -98,7 +98,12 @@ export async function notifyInhouseMemberJoin(orgId: string, newMemberId: string
 export async function acceptInhouseInviteWithNotify(
   token: string,
   userId: string,
-  userSupabase: { rpc: (fn: string, args: Record<string, string>) => Promise<{ data: unknown; error: { message: string } | null }> },
+  userSupabase: {
+    rpc: (
+      fn: string,
+      args: Record<string, string>,
+    ) => Promise<{ data: unknown; error: { message: string } | null }>;
+  },
 ) {
   const { data: orgId, error } = await userSupabase.rpc("accept_inhouse_invite", { _token: token });
   if (error) throw new Error(error.message);

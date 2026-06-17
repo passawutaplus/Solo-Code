@@ -20,12 +20,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import {
   Kanban,
   Clock,
@@ -92,8 +87,16 @@ const COLS: { key: Status; label: string; tint: string }[] = [
 
 const PRIORITY_META: Record<Priority, { label: string; cls: string; dot: string }> = {
   low: { label: "ต่ำ", cls: "text-muted-foreground border-border", dot: "bg-muted-foreground" },
-  medium: { label: "กลาง", cls: "text-warning-foreground border-warning/40 bg-warning/10", dot: "bg-warning" },
-  high: { label: "ด่วน!", cls: "text-destructive border-destructive/40 bg-destructive/10", dot: "bg-destructive" },
+  medium: {
+    label: "กลาง",
+    cls: "text-warning-foreground border-warning/40 bg-warning/10",
+    dot: "bg-warning",
+  },
+  high: {
+    label: "ด่วน!",
+    cls: "text-destructive border-destructive/40 bg-destructive/10",
+    dot: "bg-destructive",
+  },
 };
 
 function addDays(n: number) {
@@ -139,7 +142,11 @@ function ProjectsTabInner() {
   const { user } = useAuth();
 
   // persist projects to Lovable Cloud (per user)
-  const { items: projects, setItems: setProjects, isLoading } = useSupabaseRecords<Project, ProjectRow>({
+  const {
+    items: projects,
+    setItems: setProjects,
+    isLoading,
+  } = useSupabaseRecords<Project, ProjectRow>({
     table: "work_projects",
     cacheKey: "work_projects",
     orderBy: { column: "created_at", ascending: false },
@@ -288,16 +295,15 @@ function ProjectsTabInner() {
     setProjects((arr) =>
       arr.map((p) => {
         if (p.id !== id) return p;
-        const next: Priority = p.priority === "low" ? "medium" : p.priority === "medium" ? "high" : "low";
+        const next: Priority =
+          p.priority === "low" ? "medium" : p.priority === "medium" ? "high" : "low";
         return { ...p, priority: next };
       }),
     );
   };
 
   const bumpRevision = (id: string) => {
-    setProjects((arr) =>
-      arr.map((p) => (p.id === id ? { ...p, revisions: p.revisions + 1 } : p)),
-    );
+    setProjects((arr) => arr.map((p) => (p.id === id ? { ...p, revisions: p.revisions + 1 } : p)));
   };
 
   const onDragStart = (e: DragStartEvent) => setActiveId(String(e.active.id));
@@ -378,19 +384,29 @@ function ProjectsTabInner() {
               placeholder="ชื่องาน / Task…"
               value={newTitle}
               onChange={(e) => setNewTitle(e.target.value)}
-              onKeyDown={(e) => { if (e.key === "Enter") addProject(); }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") addProject();
+              }}
               className="sm:col-span-3"
             />
             <Select value={newStatus} onValueChange={(v) => setNewStatus(v as Status)}>
-              <SelectTrigger className="sm:col-span-2"><SelectValue placeholder="สถานะ" /></SelectTrigger>
+              <SelectTrigger className="sm:col-span-2">
+                <SelectValue placeholder="สถานะ" />
+              </SelectTrigger>
               <SelectContent>
-                {COLS.map((c) => (<SelectItem key={c.key} value={c.key}>{c.label}</SelectItem>))}
+                {COLS.map((c) => (
+                  <SelectItem key={c.key} value={c.key}>
+                    {c.label}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
             <Select value={newPriority} onValueChange={(v) => setNewPriority(v as Priority)}>
-              <SelectTrigger className="sm:col-span-2"><SelectValue placeholder="ความด่วน" /></SelectTrigger>
+              <SelectTrigger className="sm:col-span-2">
+                <SelectValue placeholder="ความด่วน" />
+              </SelectTrigger>
               <SelectContent>
-                {(["low","medium","high"] as Priority[]).map((p) => (
+                {(["low", "medium", "high"] as Priority[]).map((p) => (
                   <SelectItem key={p} value={p}>
                     <span className="inline-flex items-center gap-2">
                       <span className={`h-2 w-2 rounded-full ${PRIORITY_META[p].dot}`} />
@@ -401,12 +417,15 @@ function ProjectsTabInner() {
               </SelectContent>
             </Select>
             <Select value={newClient} onValueChange={setNewClient}>
-              <SelectTrigger className="sm:col-span-2"><SelectValue placeholder="ลูกค้า" /></SelectTrigger>
+              <SelectTrigger className="sm:col-span-2">
+                <SelectValue placeholder="ลูกค้า" />
+              </SelectTrigger>
               <SelectContent>
                 <SelectItem value="__none__">ลูกค้า</SelectItem>
                 {savedClients.map((c) => (
                   <SelectItem key={c.id} value={c.id}>
-                    {c.name}{c.rate ? ` · ${c.rate.toLocaleString()}฿` : ""}
+                    {c.name}
+                    {c.rate ? ` · ${c.rate.toLocaleString()}฿` : ""}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -418,7 +437,11 @@ function ProjectsTabInner() {
               className="sm:col-span-2"
               title="กำหนดเวลา"
             />
-            <Button type="button" onClick={addProject} className="sm:col-span-1 bg-gradient-primary text-primary-foreground whitespace-nowrap">
+            <Button
+              type="button"
+              onClick={addProject}
+              className="sm:col-span-1 bg-gradient-primary text-primary-foreground whitespace-nowrap"
+            >
               <Plus className="h-4 w-4 mr-1" /> เพิ่ม
             </Button>
           </div>
@@ -426,14 +449,25 @@ function ProjectsTabInner() {
           <div className="flex items-center gap-2 flex-wrap pt-1">
             <span className="text-[11px] text-muted-foreground">กรองตามลูกค้า:</span>
             <Select value={filterClientName} onValueChange={setFilterClientName}>
-              <SelectTrigger className="h-8 w-[200px] text-xs"><SelectValue /></SelectTrigger>
+              <SelectTrigger className="h-8 w-[200px] text-xs">
+                <SelectValue />
+              </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">ลูกค้าทั้งหมด</SelectItem>
-                {clientOptions.map((name) => (<SelectItem key={name} value={name}>{name}</SelectItem>))}
+                {clientOptions.map((name) => (
+                  <SelectItem key={name} value={name}>
+                    {name}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
             {filterClientName !== "all" && (
-              <Button size="sm" variant="ghost" className="h-8 gap-1 text-xs" onClick={() => setFilterClientName("all")}>
+              <Button
+                size="sm"
+                variant="ghost"
+                className="h-8 gap-1 text-xs"
+                onClick={() => setFilterClientName("all")}
+              >
                 <X className="h-3 w-3" /> ล้างตัวกรอง
               </Button>
             )}
@@ -476,7 +510,9 @@ function ProjectsTabInner() {
                     }}
                     onEditVersions={() => setVersionEditor(proj)}
                     onAddRevision={() => bumpRevision(proj.id)}
-                    onSubRevision={() => updateProject(proj.id, { revisions: Math.max(0, proj.revisions - 1) })}
+                    onSubRevision={() =>
+                      updateProject(proj.id, { revisions: Math.max(0, proj.revisions - 1) })
+                    }
                     onShowComments={() => setCommentEditor(proj)}
                     onDelete={() => removeProject(proj.id)}
                   />
@@ -494,11 +530,7 @@ function ProjectsTabInner() {
         </DragOverlay>
       </DndContext>
 
-      <InvoiceDialog
-        proj={invoiceFor}
-        onClose={() => setInvoiceFor(null)}
-        userId={user?.id}
-      />
+      <InvoiceDialog proj={invoiceFor} onClose={() => setInvoiceFor(null)} userId={user?.id} />
       <VersionDialog
         proj={versionEditor}
         onClose={() => setVersionEditor(null)}
@@ -532,7 +564,10 @@ function ColumnDroppable({
 }) {
   const { setNodeRef, isOver } = useDroppable({ id: `col-${col.key}` });
   return (
-    <Card ref={setNodeRef} className={`animate-fade-up transition-colors ${isOver ? "ring-2 ring-primary/50" : ""}`}>
+    <Card
+      ref={setNodeRef}
+      className={`animate-fade-up transition-colors ${isOver ? "ring-2 ring-primary/50" : ""}`}
+    >
       <CardHeader className="pb-2">
         <CardTitle className="text-sm flex items-center justify-between">
           <span className={`px-2 py-0.5 rounded-md text-xs ${col.tint}`}>{col.label}</span>
@@ -625,8 +660,14 @@ const TaskCard = React.memo(function TaskCard({
 
       <div className="flex items-center gap-1 mb-2">
         <Clock className="h-3 w-3 text-muted-foreground" />
-        <span className={`text-[11px] num ${overdue ? "text-destructive font-semibold" : "text-muted-foreground"}`}>
-          {overdue ? `เลยกำหนด ${Math.abs(dl)} วัน` : proj.status === "done" ? "เสร็จแล้ว" : `เหลือ ${dl} วัน`}
+        <span
+          className={`text-[11px] num ${overdue ? "text-destructive font-semibold" : "text-muted-foreground"}`}
+        >
+          {overdue
+            ? `เลยกำหนด ${Math.abs(dl)} วัน`
+            : proj.status === "done"
+              ? "เสร็จแล้ว"
+              : `เหลือ ${dl} วัน`}
         </span>
         {overdue && <AlertCircle className="h-3 w-3 text-destructive" />}
       </div>
@@ -718,7 +759,10 @@ const TaskCard = React.memo(function TaskCard({
               <ExternalLink className="h-2.5 w-2.5" />
             </a>
           ) : (
-            <span key={v.label} className="inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
+            <span
+              key={v.label}
+              className="inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground"
+            >
               {v.label}
             </span>
           );
@@ -737,10 +781,30 @@ const TaskCard = React.memo(function TaskCard({
       {/* Actions */}
       {onMove && (
         <div className="flex gap-1">
-          <Button size="sm" variant="outline" className="h-6 text-[10px] px-2 flex-1" onClick={() => onMove(-1)}>←</Button>
-          <Button size="sm" variant="outline" className="h-6 text-[10px] px-2 flex-1" onClick={() => onMove(1)}>→</Button>
+          <Button
+            size="sm"
+            variant="outline"
+            className="h-6 text-[10px] px-2 flex-1"
+            onClick={() => onMove(-1)}
+          >
+            ←
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            className="h-6 text-[10px] px-2 flex-1"
+            onClick={() => onMove(1)}
+          >
+            →
+          </Button>
           {onDelete && (
-            <Button size="sm" variant="ghost" className="h-6 w-6 p-0 text-muted-foreground hover:text-destructive" onClick={onDelete} title="ลบ">
+            <Button
+              size="sm"
+              variant="ghost"
+              className="h-6 w-6 p-0 text-muted-foreground hover:text-destructive"
+              onClick={onDelete}
+              title="ลบ"
+            >
               <Trash2 className="h-3 w-3" />
             </Button>
           )}
@@ -822,8 +886,14 @@ function InvoiceDialog({
           </p>
         </div>
         <DialogFooter className="gap-2">
-          <Button variant="outline" onClick={onClose}>ไว้ก่อน</Button>
-          <Button onClick={submit} disabled={saving} className="bg-gradient-primary text-primary-foreground">
+          <Button variant="outline" onClick={onClose}>
+            ไว้ก่อน
+          </Button>
+          <Button
+            onClick={submit}
+            disabled={saving}
+            className="bg-gradient-primary text-primary-foreground"
+          >
             {saving ? "กำลังบันทึก…" : "ออกใบแจ้งหนี้"}
           </Button>
         </DialogFooter>
@@ -890,7 +960,9 @@ function VersionDialog({
           </Button>
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={onClose}>ยกเลิก</Button>
+          <Button variant="outline" onClick={onClose}>
+            ยกเลิก
+          </Button>
           <Button onClick={() => onSave(items.filter((x) => x.label.trim()))}>บันทึก</Button>
         </DialogFooter>
       </DialogContent>
@@ -926,7 +998,10 @@ function CommentDialog({
 
   const add = () => {
     if (!text.trim()) return;
-    setItems((arr) => [...arr, { author: author || "ลูกค้า", text: text.trim(), at: new Date().toISOString() }]);
+    setItems((arr) => [
+      ...arr,
+      { author: author || "ลูกค้า", text: text.trim(), at: new Date().toISOString() },
+    ]);
     setText("");
   };
 
@@ -940,7 +1015,13 @@ function CommentDialog({
         <div className="space-y-3">
           <div className="flex items-center gap-2">
             <span className="text-xs text-muted-foreground">จำนวนรอบแก้สูงสุดในสโคป:</span>
-            <Input type="number" min={1} className="w-20" value={limit} onChange={(e) => setLimit(Number(e.target.value) || 1)} />
+            <Input
+              type="number"
+              min={1}
+              className="w-20"
+              value={limit}
+              onChange={(e) => setLimit(Number(e.target.value) || 1)}
+            />
           </div>
 
           <div className="space-y-1.5 max-h-60 overflow-y-auto pr-1">
@@ -951,7 +1032,10 @@ function CommentDialog({
               <div key={i} className="rounded-lg border border-border bg-muted/40 p-2 text-xs">
                 <div className="flex items-center justify-between mb-1">
                   <span className="font-medium">{c.author}</span>
-                  <button onClick={() => setItems((arr) => arr.filter((_, idx) => idx !== i))} className="text-muted-foreground hover:text-destructive">
+                  <button
+                    onClick={() => setItems((arr) => arr.filter((_, idx) => idx !== i))}
+                    className="text-muted-foreground hover:text-destructive"
+                  >
                     <X className="h-3 w-3" />
                   </button>
                 </div>
@@ -961,19 +1045,30 @@ function CommentDialog({
           </div>
 
           <div className="grid grid-cols-12 gap-2">
-            <Input className="col-span-3" value={author} onChange={(e) => setAuthor(e.target.value)} placeholder="ชื่อผู้คอมเมนต์" />
+            <Input
+              className="col-span-3"
+              value={author}
+              onChange={(e) => setAuthor(e.target.value)}
+              placeholder="ชื่อผู้คอมเมนต์"
+            />
             <Input
               className="col-span-7"
               value={text}
               onChange={(e) => setText(e.target.value)}
-              onKeyDown={(e) => { if (e.key === "Enter") add(); }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") add();
+              }}
               placeholder="ลูกค้าอยากให้แก้อะไร…"
             />
-            <Button className="col-span-2" onClick={add}>เพิ่ม</Button>
+            <Button className="col-span-2" onClick={add}>
+              เพิ่ม
+            </Button>
           </div>
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={onClose}>ยกเลิก</Button>
+          <Button variant="outline" onClick={onClose}>
+            ยกเลิก
+          </Button>
           <Button onClick={() => onSave(items, limit)}>บันทึก</Button>
         </DialogFooter>
       </DialogContent>

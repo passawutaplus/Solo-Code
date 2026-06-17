@@ -13,6 +13,14 @@ export const GEMINI_CONSOLE_LINKS = {
 
 /** Where GEMINI_API_KEY is consumed (for admin docs). */
 export const GEMINI_KEY_SURFACES = [
-  { surface: "Supabase Edge Functions", env: "GEMINI_API_KEY", features: "Mentor, LINE AI, Brief, Anthem FAB, Planner, Color, Contract, Similar images" },
-  { surface: "So1o SSR Server (VPS/Vercel)", env: "GEMINI_API_KEY", features: "Assistant stream, Brief extract/images, WHT scan, HQ agents, Daily trends" },
+  {
+    surface: "Supabase Edge Functions",
+    env: "GEMINI_API_KEY",
+    features: "Mentor, LINE AI, Brief, Anthem FAB, Planner, Color, Contract, Similar images",
+  },
+  {
+    surface: "So1o SSR Server (VPS/Vercel)",
+    env: "GEMINI_API_KEY",
+    features: "Assistant stream, Brief extract/images, WHT scan, HQ agents, Daily trends",
+  },
 ] as const;

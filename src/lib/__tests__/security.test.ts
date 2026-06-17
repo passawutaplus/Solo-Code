@@ -1,5 +1,14 @@
 import { describe, it, expect } from "vitest";
-import { safeUrl, safeHref, safeNumber, escapeCSV, sanitizeText, toClientError, throwClientError, GENERIC_CLIENT_ERROR } from "../security";
+import {
+  safeUrl,
+  safeHref,
+  safeNumber,
+  escapeCSV,
+  sanitizeText,
+  toClientError,
+  throwClientError,
+  GENERIC_CLIENT_ERROR,
+} from "../security";
 
 describe("safeUrl", () => {
   it("accepts http(s)", () => {
@@ -75,7 +84,9 @@ describe("escapeCSV", () => {
 
 describe("toClientError", () => {
   it("returns fallback and never leaks internal messages", () => {
-    expect(toClientError(new Error("column profiles.secret does not exist"))).toBe(GENERIC_CLIENT_ERROR);
+    expect(toClientError(new Error("column profiles.secret does not exist"))).toBe(
+      GENERIC_CLIENT_ERROR,
+    );
     expect(toClientError("raw", "custom")).toBe("custom");
   });
 });

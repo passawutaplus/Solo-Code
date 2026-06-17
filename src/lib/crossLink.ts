@@ -13,10 +13,7 @@ export type CrossLinkContext = {
 /**
  * Build an Anthem URL with cross-link query params.
  */
-export function anthemUrl(
-  path: string,
-  params: Record<string, string | undefined> = {},
-): string {
+export function anthemUrl(path: string, params: Record<string, string | undefined> = {}): string {
   const base = ANTHEM_SHOWCASE_URL.replace(/\/$/, "");
   const url = new URL(path.startsWith("/") ? path : `/${path}`, base);
   url.searchParams.set("from", "so1o");
@@ -35,12 +32,15 @@ export function anthemPortfolioNewUrl(params: {
   coverUrl?: string;
   tags?: string[];
 }): string {
-  const safeCover =
-    params.coverUrl?.trim().startsWith("https://")
-      ? params.coverUrl.trim().slice(0, 512)
-      : undefined;
+  const safeCover = params.coverUrl?.trim().startsWith("https://")
+    ? params.coverUrl.trim().slice(0, 512)
+    : undefined;
   const tagParam = params.tags?.length
-    ? params.tags.map((t) => t.trim()).filter(Boolean).slice(0, 8).join(",")
+    ? params.tags
+        .map((t) => t.trim())
+        .filter(Boolean)
+        .slice(0, 8)
+        .join(",")
     : undefined;
 
   return anthemUrl("/portfolio/new", {
@@ -62,7 +62,11 @@ export function anthemDesignDrillUrl(params: {
   coverUrl?: string;
 }): string {
   const tagParam = params.tags?.length
-    ? params.tags.map((t) => t.trim()).filter(Boolean).slice(0, 8).join(",")
+    ? params.tags
+        .map((t) => t.trim())
+        .filter(Boolean)
+        .slice(0, 8)
+        .join(",")
     : undefined;
 
   return anthemUrl("/portfolio/new", {
@@ -70,10 +74,9 @@ export function anthemDesignDrillUrl(params: {
     description: params.description.slice(0, 4000),
     category: params.anthemCategory,
     tags: tagParam,
-    cover:
-      params.coverUrl?.trim().startsWith("https://")
-        ? params.coverUrl.trim().slice(0, 512)
-        : undefined,
+    cover: params.coverUrl?.trim().startsWith("https://")
+      ? params.coverUrl.trim().slice(0, 512)
+      : undefined,
   });
 }
 

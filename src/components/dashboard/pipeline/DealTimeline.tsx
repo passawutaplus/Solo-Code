@@ -101,16 +101,16 @@ export function DealTimeline({ deal }: { deal: PipelineDeal }) {
           <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
         </div>
       ) : items.length === 0 ? (
-        <p className="text-[11px] text-muted-foreground">ยังไม่มีเหตุการณ์ — ลากดีลใน Pipeline เพื่ออัปเดตสถานะ</p>
+        <p className="text-[11px] text-muted-foreground">
+          ยังไม่มีเหตุการณ์ — ลากดีลใน Pipeline เพื่ออัปเดตสถานะ
+        </p>
       ) : (
         <ul className="space-y-2 border-l-2 border-[#FF5F05]/30 pl-3">
           {items.map((item) => (
             <li key={item.id} className="relative">
               <span className="absolute -left-[calc(0.75rem+5px)] top-1.5 h-2 w-2 rounded-full bg-[#FF5F05]" />
               <p className="text-xs font-medium leading-tight">{item.label}</p>
-              {item.detail && (
-                <p className="text-[10px] text-muted-foreground">{item.detail}</p>
-              )}
+              {item.detail && <p className="text-[10px] text-muted-foreground">{item.detail}</p>}
               <p className="text-[10px] text-muted-foreground/80">
                 {formatDistanceToNow(new Date(item.at), { addSuffix: true, locale: th })}
               </p>

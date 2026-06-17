@@ -1,7 +1,11 @@
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { fetchNewsFromFeeds, type RawNewsArticle } from "@/lib/fetchNewsFeeds";
 import type { DailyTrendItem, DailyTrendsResponse } from "@/lib/dailyTrends.types";
-import { ensureUniqueTrendCovers, imageDedupeKey, isLikelyGenericFeedImage } from "@/lib/trendCoverImages";
+import {
+  ensureUniqueTrendCovers,
+  imageDedupeKey,
+  isLikelyGenericFeedImage,
+} from "@/lib/trendCoverImages";
 import { resolveTrendIconKey } from "@/lib/trendIcons";
 
 const TREND_ITEM_COUNT = 10;
@@ -184,7 +188,11 @@ function pickArticles(articles: RawNewsArticle[]): RawNewsArticle[] {
     if (picked.length >= TREND_ITEM_COUNT) return;
     const imgKey = imageDedupeKey(a.image_url!);
     if (usedImages.has(imgKey)) return;
-    if (preferNewCategory && categories.has(a.category) && picked.some((p) => p.category === a.category)) {
+    if (
+      preferNewCategory &&
+      categories.has(a.category) &&
+      picked.some((p) => p.category === a.category)
+    ) {
       return;
     }
     categories.add(a.category);
@@ -310,10 +318,7 @@ export async function fetchAndSummarizeTrends(): Promise<{
   return { items: FALLBACK_TRENDS_READY, feedCount: allArticles.length, source: "fallback" };
 }
 
-export async function cacheDailyTrends(
-  date: string,
-  items: DailyTrendItem[],
-): Promise<void> {
+export async function cacheDailyTrends(date: string, items: DailyTrendItem[]): Promise<void> {
   await supabaseAdmin
     .from("dashboard_daily_trends")
     .upsert([{ trend_date: date, items: items as unknown as never }], { onConflict: "trend_date" });
@@ -332,7 +337,9 @@ export async function readDailyTrends(): Promise<DailyTrendsResponse> {
   if (cached && Array.isArray(cached.items) && cached.items.length > 0) {
     return {
       date,
-      items: ensureUniqueTrendCovers(cached.items as unknown as DailyTrendItem[]) as DailyTrendItem[],
+      items: ensureUniqueTrendCovers(
+        cached.items as unknown as DailyTrendItem[],
+      ) as DailyTrendItem[],
       status: "ready",
     };
   }
@@ -354,7 +361,9 @@ export async function runDailyTrendsGeneration(force = false): Promise<DailyTren
     if (cached && Array.isArray(cached.items) && cached.items.length > 0) {
       return {
         date,
-        items: ensureUniqueTrendCovers(cached.items as unknown as DailyTrendItem[]) as DailyTrendItem[],
+        items: ensureUniqueTrendCovers(
+          cached.items as unknown as DailyTrendItem[],
+        ) as DailyTrendItem[],
         status: "ready",
       };
     }
@@ -394,4 +403,3 @@ export async function runDailyTrendsGeneration(force = false): Promise<DailyTren
     }
   }
 }
-

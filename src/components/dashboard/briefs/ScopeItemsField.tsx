@@ -74,7 +74,13 @@ export function ScopeItemsField({ value, onChange, disabled }: Props) {
         </div>
       )}
       {!disabled && (
-        <Button type="button" variant="outline" size="sm" onClick={add} className="rounded-lg gap-1">
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={add}
+          className="rounded-lg gap-1"
+        >
           <Plus className="h-3.5 w-3.5" /> เพิ่มรายการ
         </Button>
       )}

@@ -3,7 +3,11 @@ import { z } from "zod";
 export const paymentsEnvSchema = z.enum(["sandbox", "live"]);
 
 export const checkoutApiInput = z.object({
-  priceId: z.string().min(1).max(64).regex(/^[a-z0-9_]+$/),
+  priceId: z
+    .string()
+    .min(1)
+    .max(64)
+    .regex(/^[a-z0-9_]+$/),
   environment: paymentsEnvSchema.optional(),
   successUrl: z.string().url().max(500),
   cancelUrl: z.string().url().max(500),
@@ -55,8 +59,7 @@ const STATIC_ALLOWED_ORIGINS = [
   "http://127.0.0.1:3000",
 ] as const;
 
-const LOVABLE_PREVIEW_ORIGIN_RE =
-  /^https:\/\/([a-z0-9-]+\.)*lovable\.app$/i;
+const LOVABLE_PREVIEW_ORIGIN_RE = /^https:\/\/([a-z0-9-]+\.)*lovable\.app$/i;
 
 /** Origins permitted for Stripe checkout / portal / Connect redirect URLs. */
 export function getAllowedPaymentRedirectOrigins(): string[] {

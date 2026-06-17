@@ -357,21 +357,24 @@ export const RESOURCES: InspireResource[] = [
     name: "v0 by Vercel",
     url: "https://v0.dev",
     domain: "v0.dev",
-    description: "AI เจนโค้ด UI (React/Tailwind) จากการพิมพ์บรีฟ คัดลอกโค้ดไปแปะในระบบใช้งานได้ทันที",
+    description:
+      "AI เจนโค้ด UI (React/Tailwind) จากการพิมพ์บรีฟ คัดลอกโค้ดไปแปะในระบบใช้งานได้ทันที",
     category: "ai",
   },
   {
     name: "Relume AI",
     url: "https://www.relume.io",
     domain: "relume.io",
-    description: "AI ช่วยวางโครงสร้างเว็บ (Sitemap & Wireframe) พร้อมเขียนคำโฆษณาลง Figma ได้ภายในไม่กี่วินาที",
+    description:
+      "AI ช่วยวางโครงสร้างเว็บ (Sitemap & Wireframe) พร้อมเขียนคำโฆษณาลง Figma ได้ภายในไม่กี่วินาที",
     category: "ai",
   },
   {
     name: "Uizard",
     url: "https://uizard.io",
     domain: "uizard.io",
-    description: "AI อัจฉริยะแปลงภาพสเก็ตช์หรือแคปหน้าจอ ให้กลายเป็นหน้า UI/UX ที่คลิกโต้ตอบได้จริง",
+    description:
+      "AI อัจฉริยะแปลงภาพสเก็ตช์หรือแคปหน้าจอ ให้กลายเป็นหน้า UI/UX ที่คลิกโต้ตอบได้จริง",
     category: "ai",
   },
   {
@@ -392,7 +395,8 @@ export const RESOURCES: InspireResource[] = [
     name: "Adobe Firefly",
     url: "https://firefly.adobe.com",
     domain: "firefly.adobe.com",
-    description: "AI สายดีไซเนอร์จาก Adobe เจนภาพและขยายขอบเขตภาพอย่างเนียนตา ปลอดภัยเรื่องลิขสิทธิ์เชิงพาณิชย์ 100%",
+    description:
+      "AI สายดีไซเนอร์จาก Adobe เจนภาพและขยายขอบเขตภาพอย่างเนียนตา ปลอดภัยเรื่องลิขสิทธิ์เชิงพาณิชย์ 100%",
     category: "ai",
   },
   {

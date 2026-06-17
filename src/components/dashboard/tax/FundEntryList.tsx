@@ -12,8 +12,11 @@ export function parseFundItems(note: string): FundItem[] {
     const parsed = JSON.parse(note);
     if (parsed && Array.isArray(parsed.items)) {
       return parsed.items
-        .filter((x: unknown): x is FundItem =>
-          !!x && typeof (x as FundItem).name === "string" && typeof (x as FundItem).amount === "number",
+        .filter(
+          (x: unknown): x is FundItem =>
+            !!x &&
+            typeof (x as FundItem).name === "string" &&
+            typeof (x as FundItem).amount === "number",
         )
         .slice(0, 20);
     }
@@ -124,7 +127,8 @@ export function FundEntryList({ items, cap, income, pctCap = 0.3, onChange, plac
         {income > 0 && (
           <p className="text-[10px] text-muted-foreground flex items-center gap-1">
             <Sparkles className="h-3 w-3 text-primary" />
-            เพดาน = min({Math.round(pctCap * 100)}% ของรายได้ ฿{formatTHB(incomeCap)}, ฿{formatTHB(cap)})
+            เพดาน = min({Math.round(pctCap * 100)}% ของรายได้ ฿{formatTHB(incomeCap)}, ฿
+            {formatTHB(cap)})
           </p>
         )}
         {over && (

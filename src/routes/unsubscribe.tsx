@@ -7,11 +7,15 @@ import { toast } from "sonner";
 
 export const Route = createFileRoute("/unsubscribe")({
   component: UnsubscribePage,
-  head: () => ({ meta: [{ title: "ยกเลิกการรับอีเมล — So1o" }, { name: "robots", content: "noindex" }] }),
+  head: () => ({
+    meta: [{ title: "ยกเลิกการรับอีเมล — So1o" }, { name: "robots", content: "noindex" }],
+  }),
 });
 
 function UnsubscribePage() {
-  const [state, setState] = React.useState<"checking" | "valid" | "already" | "invalid" | "done" | "error">("checking");
+  const [state, setState] = React.useState<
+    "checking" | "valid" | "already" | "invalid" | "done" | "error"
+  >("checking");
   const [loading, setLoading] = React.useState(false);
 
   const token = React.useMemo(() => {
@@ -79,21 +83,27 @@ function UnsubscribePage() {
           <>
             <h1 className="text-2xl font-bold">✓ ยกเลิกสำเร็จ</h1>
             <p className="text-sm text-muted-foreground">เราจะไม่ส่งอีเมลให้คุณอีก</p>
-            <Button asChild variant="outline"><Link to="/">กลับหน้าหลัก</Link></Button>
+            <Button asChild variant="outline">
+              <Link to="/">กลับหน้าหลัก</Link>
+            </Button>
           </>
         )}
         {state === "already" && (
           <>
             <h1 className="text-2xl font-bold">คุณยกเลิกไปแล้ว</h1>
             <p className="text-sm text-muted-foreground">อีเมลนี้ถูกถอนสมัครจากระบบไปก่อนหน้านี้</p>
-            <Button asChild variant="outline"><Link to="/">กลับหน้าหลัก</Link></Button>
+            <Button asChild variant="outline">
+              <Link to="/">กลับหน้าหลัก</Link>
+            </Button>
           </>
         )}
         {(state === "invalid" || state === "error") && (
           <>
             <h1 className="text-2xl font-bold">ลิงก์ไม่ถูกต้อง</h1>
             <p className="text-sm text-muted-foreground">ลิงก์ยกเลิกอาจหมดอายุหรือถูกใช้ไปแล้ว</p>
-            <Button asChild variant="outline"><Link to="/">กลับหน้าหลัก</Link></Button>
+            <Button asChild variant="outline">
+              <Link to="/">กลับหน้าหลัก</Link>
+            </Button>
           </>
         )}
       </Card>

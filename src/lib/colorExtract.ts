@@ -53,9 +53,7 @@ export async function extractPalette(url: string, count = 5): Promise<string[]> 
       const r = Math.round(c.r / c.n);
       const g = Math.round(c.g / c.n);
       const b = Math.round(c.b / c.n);
-      const tooClose = picked.some(
-        (p) => Math.hypot(p.r - r, p.g - g, p.b - b) < 35,
-      );
+      const tooClose = picked.some((p) => Math.hypot(p.r - r, p.g - g, p.b - b) < 35);
       if (!tooClose) picked.push({ r, g, b });
       if (picked.length >= count) break;
     }

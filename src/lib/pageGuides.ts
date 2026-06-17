@@ -47,7 +47,7 @@ export const PAGE_GUIDES: Record<string, PageGuide> = {
     ],
     tips: ["บรีฟที่ confirm แล้วช่วยลด revision รอบหลัง"],
   },
-  "ใบเสนอราคา": {
+  ใบเสนอราคา: {
     title: "Quotation / Invoice",
     summary: "ออกใบเสนอราคาและใบแจ้งหนี้ พร้อมแชร์ลิงก์ติดตามให้ลูกค้า",
     tourOrder: 3,
@@ -192,19 +192,12 @@ export const PAGE_GUIDES: Record<string, PageGuide> = {
   trends: {
     title: "ข่าวสาร & เทรนด์",
     summary: "อัปเดตเทรนด์ดีไซน์และข่าวสารรายวันจาก AI",
-    steps: [
-      "อ่านบทความเด่นด้านบน",
-      "กรองตามหมวดหมู่ที่สนใจ",
-      "คลิกอ่านต่อจากแหล่งอ้างอิง",
-    ],
+    steps: ["อ่านบทความเด่นด้านบน", "กรองตามหมวดหมู่ที่สนใจ", "คลิกอ่านต่อจากแหล่งอ้างอิง"],
   },
   inspire: {
     title: "Inspire",
     summary: "รวมแรงบันดาลใจและไอเดียสำหรับงานออกแบบ",
-    steps: [
-      "สำรวจคอลเลกชันไอเดีย",
-      "บันทึกหรืออ้างอิงเวลาเริ่มโปรเจกต์ใหม่",
-    ],
+    steps: ["สำรวจคอลเลกชันไอเดีย", "บันทึกหรืออ้างอิงเวลาเริ่มโปรเจกต์ใหม่"],
   },
   review: {
     title: "รีวิวงาน",
@@ -226,17 +219,16 @@ export const PAGE_GUIDES: Record<string, PageGuide> = {
   },
 };
 
-const TOUR_TOTAL = Object.values(PAGE_GUIDES).filter((g) => g.tourOrder != null && g.tourOrder > 0).length;
+const TOUR_TOTAL = Object.values(PAGE_GUIDES).filter(
+  (g) => g.tourOrder != null && g.tourOrder > 0,
+).length;
 
 export function getPageGuide(feature: string): PageGuide {
   return (
     PAGE_GUIDES[feature] ?? {
       title: feature,
       summary: "คู่มือหน้านี้กำลังจัดทำ — สำรวจฟีเจอร์บนหน้านี้ หรือส่งฟีดแบ็กให้เราช่วยปรับปรุง",
-      steps: [
-        "ลองใช้ปุ่มและเมนูบนหน้านี้",
-        "หากติดขัด เปิด Support Hub มุมขวาล่าง",
-      ],
+      steps: ["ลองใช้ปุ่มและเมนูบนหน้านี้", "หากติดขัด เปิด Support Hub มุมขวาล่าง"],
     }
   );
 }

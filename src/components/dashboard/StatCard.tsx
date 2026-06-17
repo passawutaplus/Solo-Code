@@ -42,16 +42,40 @@ export function StatCard({
       <CardContent className="relative p-5">
         <div className="flex items-start justify-between gap-3">
           <div className="space-y-1">
-            <p className={cn("text-xs font-medium uppercase tracking-wide", accent ? "text-primary-foreground/85" : "text-muted-foreground")}>
+            <p
+              className={cn(
+                "text-xs font-medium uppercase tracking-wide",
+                accent ? "text-primary-foreground/85" : "text-muted-foreground",
+              )}
+            >
               {label}
             </p>
-            <p className={cn("text-2xl font-semibold num tracking-tight", accent ? "text-primary-foreground" : "text-foreground")}>
+            <p
+              className={cn(
+                "text-2xl font-semibold num tracking-tight",
+                accent ? "text-primary-foreground" : "text-foreground",
+              )}
+            >
               {value}
             </p>
-            {sub && <p className={cn("text-xs", accent ? "text-primary-foreground/75" : "text-muted-foreground")}>{sub}</p>}
+            {sub && (
+              <p
+                className={cn(
+                  "text-xs",
+                  accent ? "text-primary-foreground/75" : "text-muted-foreground",
+                )}
+              >
+                {sub}
+              </p>
+            )}
           </div>
           {icon && (
-            <div className={cn("rounded-xl p-2.5 backdrop-blur", accent ? "bg-white/20 text-primary-foreground" : "bg-primary-soft text-primary")}>
+            <div
+              className={cn(
+                "rounded-xl p-2.5 backdrop-blur",
+                accent ? "bg-white/20 text-primary-foreground" : "bg-primary-soft text-primary",
+              )}
+            >
               {icon}
             </div>
           )}

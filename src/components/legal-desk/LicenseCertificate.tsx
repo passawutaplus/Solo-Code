@@ -60,7 +60,9 @@ export function LicenseCertificateView({
         </div>
 
         <div className="mt-5 pt-4 border-t border-neutral-200">
-          <p className="text-[10px] font-semibold text-neutral-600 mb-1">สิ่งที่ไม่ได้รับ (โดยปกติ)</p>
+          <p className="text-[10px] font-semibold text-neutral-600 mb-1">
+            สิ่งที่ไม่ได้รับ (โดยปกติ)
+          </p>
           <ul className="text-[10px] text-neutral-600 space-y-0.5 list-disc pl-4">
             <li>สิทธิขายต่อหรือให้บุคคลที่สามใช้ โดยไม่ได้รับอนุญาต</li>
             <li>ไฟล์ต้นฉบับที่ไม่ได้ระบุในเงื่อนไขส่งมอบ</li>

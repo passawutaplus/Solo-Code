@@ -71,7 +71,10 @@ export function LoginForm({
   const passId = `${idPrefix}-pass`;
 
   return (
-    <form onSubmit={onSubmit} className={cn("space-y-4", shake && "animate-input-shake", className)}>
+    <form
+      onSubmit={onSubmit}
+      className={cn("space-y-4", shake && "animate-input-shake", className)}
+    >
       <div className="space-y-1.5">
         <Label htmlFor={emailId} className="text-xs">
           อีเมล
@@ -141,7 +144,11 @@ export function LoginForm({
       {showSignupLink && onSwitch && (
         <p className="text-center text-xs text-muted-foreground">
           ยังไม่มีบัญชี?{" "}
-          <button type="button" onClick={onSwitch} className="text-primary hover:underline font-medium">
+          <button
+            type="button"
+            onClick={onSwitch}
+            className="text-primary hover:underline font-medium"
+          >
             สมัครสมาชิกที่นี่
           </button>
         </p>

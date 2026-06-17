@@ -99,7 +99,9 @@ export function CookieConsent() {
                 <Cookie className="h-4 w-4" />
               </div>
               <div className="space-y-2">
-                <h3 className="text-sm font-semibold text-foreground">ความเป็นส่วนตัวของคุณสำคัญ</h3>
+                <h3 className="text-sm font-semibold text-foreground">
+                  ความเป็นส่วนตัวของคุณสำคัญ
+                </h3>
                 <p className="text-[12px] leading-relaxed text-muted-foreground">
                   เราใช้คุกกี้และเทคโนโลยีที่คล้ายกันเพื่อให้ระบบทำงาน จดจำการตั้งค่า
                   และวิเคราะห์การใช้งานแบบไม่ระบุตัวตน ตาม{" "}

@@ -20,7 +20,9 @@ const server = createServer((req, res) => {
       const imported = await import(pathToFileURL(serverEntry).href);
       serverBuild = imported.default;
       if (!serverBuild?.fetch) {
-        throw new Error(`Invalid server entry at ${serverEntry} — expected default export with fetch()`);
+        throw new Error(
+          `Invalid server entry at ${serverEntry} — expected default export with fetch()`,
+        );
       }
     }
 

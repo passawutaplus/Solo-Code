@@ -42,7 +42,11 @@ export function ColorCodesTable({ breakdown }: Props) {
         ["RGB", breakdown.rgb.css, "หน้าจอ / วิดีโอ / Social"],
         ["HSL", breakdown.hsl.css, "CSS / Dev"],
         ["CMYK", breakdown.cmyk.css, "งานพิมพ์ Offset / Digital"],
-        ["Pantone (~)", `${breakdown.pantone.code} (ΔE ${breakdown.pantone.deltaE})`, "สกรีน / Brand standard"],
+        [
+          "Pantone (~)",
+          `${breakdown.pantone.code} (ΔE ${breakdown.pantone.deltaE})`,
+          "สกรีน / Brand standard",
+        ],
       ];
       const escape = (v: string) => `"${String(v).replace(/"/g, '""')}"`;
       const csv = rowsCsv.map((r) => r.map(escape).join(",")).join("\r\n");
@@ -67,7 +71,11 @@ export function ColorCodesTable({ breakdown }: Props) {
     { label: "RGB", code: breakdown.rgb.css, hint: "หน้าจอ / วิดีโอ / Social" },
     { label: "HSL", code: breakdown.hsl.css, hint: "CSS / Dev" },
     { label: "CMYK", code: breakdown.cmyk.css, hint: "งานพิมพ์ Offset / Digital" },
-    { label: "Pantone (~)", code: `${breakdown.pantone.code} (ΔE ${breakdown.pantone.deltaE})`, hint: "สกรีน / Brand standard" },
+    {
+      label: "Pantone (~)",
+      code: `${breakdown.pantone.code} (ΔE ${breakdown.pantone.deltaE})`,
+      hint: "สกรีน / Brand standard",
+    },
   ];
 
   return (
@@ -75,10 +83,22 @@ export function ColorCodesTable({ breakdown }: Props) {
       <div className="flex items-center justify-between px-3 py-2 bg-muted/40 border-b">
         <div className="text-xs font-medium">รหัสสีทั้งหมด</div>
         <div className="flex items-center gap-1">
-          <Button type="button" size="sm" variant="ghost" className="h-7 text-xs gap-1" onClick={exportCsv}>
+          <Button
+            type="button"
+            size="sm"
+            variant="ghost"
+            className="h-7 text-xs gap-1"
+            onClick={exportCsv}
+          >
             <FileSpreadsheet className="h-3.5 w-3.5" /> Export CSV
           </Button>
-          <Button type="button" size="sm" variant="ghost" className="h-7 text-xs gap-1" onClick={copyJson}>
+          <Button
+            type="button"
+            size="sm"
+            variant="ghost"
+            className="h-7 text-xs gap-1"
+            onClick={copyJson}
+          >
             <FileJson className="h-3.5 w-3.5" /> Copy JSON
           </Button>
         </div>

@@ -7,7 +7,8 @@ import { useSubscription } from "@/hooks/useSubscription";
 import { acceptInhouseInviteFn, createInhouseInviteFn } from "@/server/inhouseInvite.functions";
 import type { InhouseOrg, InhouseOrgMember } from "@/lib/inhouse/types";
 
-const inhouseFrom = (table: string) => (supabase as unknown as { from: (t: string) => ReturnType<typeof supabase.from> }).from(table);
+const inhouseFrom = (table: string) =>
+  (supabase as unknown as { from: (t: string) => ReturnType<typeof supabase.from> }).from(table);
 
 async function fetchMemberProfiles(members: InhouseOrgMember[]): Promise<InhouseOrgMember[]> {
   const userIds = [...new Set(members.map((m) => m.user_id))];
@@ -106,7 +107,12 @@ export function useInhouseOrgMembers(orgId: string | undefined) {
       .channel(`inhouse-members-${orgId}`)
       .on(
         "postgres_changes",
-        { event: "*", schema: "public", table: "inhouse_org_members", filter: `org_id=eq.${orgId}` },
+        {
+          event: "*",
+          schema: "public",
+          table: "inhouse_org_members",
+          filter: `org_id=eq.${orgId}`,
+        },
         () => queryClient.invalidateQueries({ queryKey: ["inhouse-members", orgId] }),
       )
       .subscribe();
@@ -173,7 +179,11 @@ export function useUpdateInhouseOrg() {
       if (opts.address !== undefined) patch.address = opts.address;
       if (opts.phone !== undefined) patch.phone = opts.phone;
       if (opts.email !== undefined) patch.email = opts.email;
-      const { data, error } = await inhouseFrom("inhouse_orgs").update(patch).eq("id", opts.id).select("*").single();
+      const { data, error } = await inhouseFrom("inhouse_orgs")
+        .update(patch)
+        .eq("id", opts.id)
+        .select("*")
+        .single();
       if (error) throw error;
       return data as InhouseOrg;
     },

@@ -1,5 +1,15 @@
 import * as React from "react";
-import { Upload, X, Sparkles, Loader2, Save, AlertCircle, FileText, Image as ImageIcon, Palette } from "lucide-react";
+import {
+  Upload,
+  X,
+  Sparkles,
+  Loader2,
+  Save,
+  AlertCircle,
+  FileText,
+  Image as ImageIcon,
+  Palette,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
@@ -11,14 +21,27 @@ import { supabase } from "@/integrations/supabase/client";
 import { uploadBriefReference } from "./uploadReference";
 import { ClientBrandAssetsField } from "./ClientBrandAssetsField";
 import { aiBriefExtract, type AiBriefExtractResult } from "@/lib/aiBriefExtract.functions";
-import { FORMAT_OPTIONS, type DesignBrief, type BriefClientInfo, type BriefReference, emptyBrief } from "@/lib/briefSchema";
+import {
+  FORMAT_OPTIONS,
+  type DesignBrief,
+  type BriefClientInfo,
+  type BriefReference,
+  emptyBrief,
+} from "@/lib/briefSchema";
 
 type RefImage = { url: string; name: string; size: number };
 
 type SectionKey =
-  | "client" | "proposition" | "goal" | "deliverables"
-  | "element_design" | "reference" | "style"
-  | "timeline" | "budget" | "note";
+  | "client"
+  | "proposition"
+  | "goal"
+  | "deliverables"
+  | "element_design"
+  | "reference"
+  | "style"
+  | "timeline"
+  | "budget"
+  | "note";
 
 const SECTIONS: { key: SectionKey; label: string; desc: string }[] = [
   { key: "client", label: "Client", desc: "ข้อมูลลูกค้า" },
@@ -59,10 +82,16 @@ export function QuickCapturePanel({
     setClientAssets((prev) => ({ ...prev, ...patch }));
 
   const addPastWorks = async (files: FileList | File[]) => {
-    if (!user) { toast.error("กรุณาเข้าสู่ระบบก่อนอัปโหลด"); return; }
+    if (!user) {
+      toast.error("กรุณาเข้าสู่ระบบก่อนอัปโหลด");
+      return;
+    }
     const existing = clientAssets.past_works ?? [];
     const arr = Array.from(files).slice(0, 8 - existing.length);
-    if (arr.length === 0) { toast.error("อัปโหลดได้สูงสุด 8 รูป"); return; }
+    if (arr.length === 0) {
+      toast.error("อัปโหลดได้สูงสุด 8 รูป");
+      return;
+    }
     setPastWorksBusy(true);
     try {
       const uploaded: BriefReference[] = [];
@@ -87,9 +116,15 @@ export function QuickCapturePanel({
     updateAssets({ past_works: (clientAssets.past_works ?? []).filter((x) => x.url !== url) });
 
   const addFiles = async (files: FileList | File[]) => {
-    if (!user) { toast.error("กรุณาเข้าสู่ระบบก่อนอัปโหลด"); return; }
+    if (!user) {
+      toast.error("กรุณาเข้าสู่ระบบก่อนอัปโหลด");
+      return;
+    }
     const arr = Array.from(files).slice(0, 8 - images.length);
-    if (arr.length === 0) { toast.error("อัปโหลดได้สูงสุด 8 รูป"); return; }
+    if (arr.length === 0) {
+      toast.error("อัปโหลดได้สูงสุด 8 รูป");
+      return;
+    }
     setUploading(true);
     try {
       const uploaded: RefImage[] = [];
@@ -269,7 +304,9 @@ export function QuickCapturePanel({
             </p>
           </div>
         </div>
-        <Button variant="ghost" size="sm" onClick={onCancel}>ยกเลิก</Button>
+        <Button variant="ghost" size="sm" onClick={onCancel}>
+          ยกเลิก
+        </Button>
       </div>
 
       {/* Reference label */}
@@ -279,7 +316,9 @@ export function QuickCapturePanel({
         </span>
         <div>
           <p className="text-xs font-semibold">Reference จากลูกค้า</p>
-          <p className="text-[10px] text-muted-foreground">แคปแชท Line/Messenger, รูปเรฟ, mood ที่ลูกค้าส่งมาให้ดู</p>
+          <p className="text-[10px] text-muted-foreground">
+            แคปแชท Line/Messenger, รูปเรฟ, mood ที่ลูกค้าส่งมาให้ดู
+          </p>
         </div>
       </div>
 
@@ -295,10 +334,14 @@ export function QuickCapturePanel({
           }}
         />
         <div
-          onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+          onDragOver={(e) => {
+            e.preventDefault();
+            setDragOver(true);
+          }}
           onDragLeave={() => setDragOver(false)}
           onDrop={(e) => {
-            e.preventDefault(); setDragOver(false);
+            e.preventDefault();
+            setDragOver(false);
             if (e.dataTransfer.files?.length) addFiles(e.dataTransfer.files);
           }}
           onClick={() => fileInput.current?.click()}
@@ -313,7 +356,11 @@ export function QuickCapturePanel({
           }}
         >
           <div className="mx-auto h-11 w-11 rounded-xl bg-primary/15 text-primary flex items-center justify-center mb-3">
-            {uploading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Upload className="h-5 w-5" />}
+            {uploading ? (
+              <Loader2 className="h-5 w-5 animate-spin" />
+            ) : (
+              <Upload className="h-5 w-5" />
+            )}
           </div>
           <p className="text-base font-semibold">อัปโหลด บรีฟ</p>
           <p className="text-sm text-muted-foreground mt-1">So1o ช่วยสรุปบรีฟให้เข้าใจง่ายขึ้น</p>
@@ -334,10 +381,16 @@ export function QuickCapturePanel({
       {images.length > 0 && (
         <div className="flex flex-wrap gap-1.5">
           {images.map((img) => (
-            <span key={img.url} className="inline-flex items-center gap-1 rounded-full bg-muted/60 border border-border px-2 py-1 text-[11px]">
+            <span
+              key={img.url}
+              className="inline-flex items-center gap-1 rounded-full bg-muted/60 border border-border px-2 py-1 text-[11px]"
+            >
               <img src={img.url} alt="" className="h-4 w-4 rounded object-cover" loading="lazy" />
               <span className="max-w-[140px] truncate">{img.name}</span>
-              <button onClick={() => removeImage(img.url)} className="text-muted-foreground hover:text-destructive">
+              <button
+                onClick={() => removeImage(img.url)}
+                className="text-muted-foreground hover:text-destructive"
+              >
                 <X className="h-3 w-3" />
               </button>
             </span>
@@ -347,9 +400,7 @@ export function QuickCapturePanel({
 
       {/* Text บรีฟเพิ่มเติม */}
       <div className="space-y-1.5">
-        <label className="text-xs font-medium text-foreground">
-          Text บรีฟเพิ่มเติม
-        </label>
+        <label className="text-xs font-medium text-foreground">Text บรีฟเพิ่มเติม</label>
         <Textarea
           value={noteText}
           onChange={(e) => setNoteText(e.target.value)}
@@ -367,25 +418,27 @@ export function QuickCapturePanel({
           </span>
           <div>
             <p className="text-xs font-semibold">Client Brand Assets — ของลูกค้าเอง</p>
-            <p className="text-[10px] text-muted-foreground">โลโก้, รูป CI/แบรนด์, และผลงานเก่าที่ลูกค้าเคยทำ (เพื่อคุม CI)</p>
+            <p className="text-[10px] text-muted-foreground">
+              โลโก้, รูป CI/แบรนด์, และผลงานเก่าที่ลูกค้าเคยทำ (เพื่อคุม CI)
+            </p>
           </div>
         </div>
 
-        <ClientBrandAssetsField
-          value={clientAssets}
-          onChange={updateAssets}
-          userId={user?.id}
-        />
+        <ClientBrandAssetsField value={clientAssets} onChange={updateAssets} userId={user?.id} />
 
         {/* Past works */}
         <div className="rounded-xl border border-dashed border-border bg-muted/20 p-3 space-y-2">
           <div className="flex items-center justify-between gap-2">
             <div>
               <p className="text-xs font-semibold flex items-center gap-1.5">
-                <span className="text-primary"><ImageIcon className="h-3.5 w-3.5" /></span>
+                <span className="text-primary">
+                  <ImageIcon className="h-3.5 w-3.5" />
+                </span>
                 ผลงานเก่าของลูกค้า
               </p>
-              <p className="text-[10px] text-muted-foreground">โพสต์เก่า, โบรชัวร์, กราฟิกที่เคยทำ — สูงสุด 8 รูป</p>
+              <p className="text-[10px] text-muted-foreground">
+                โพสต์เก่า, โบรชัวร์, กราฟิกที่เคยทำ — สูงสุด 8 รูป
+              </p>
             </div>
             <Button
               type="button"
@@ -395,7 +448,11 @@ export function QuickCapturePanel({
               disabled={pastWorksBusy || (clientAssets.past_works?.length ?? 0) >= 8}
               onClick={() => pastWorksInput.current?.click()}
             >
-              {pastWorksBusy ? <Loader2 className="h-3 w-3 animate-spin" /> : <Upload className="h-3 w-3" />}
+              {pastWorksBusy ? (
+                <Loader2 className="h-3 w-3 animate-spin" />
+              ) : (
+                <Upload className="h-3 w-3" />
+              )}
               เพิ่มรูป
             </Button>
             <input
@@ -413,8 +470,16 @@ export function QuickCapturePanel({
           {(clientAssets.past_works?.length ?? 0) > 0 ? (
             <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
               {clientAssets.past_works!.map((pw) => (
-                <div key={pw.url} className="relative group rounded-lg border border-border overflow-hidden bg-background">
-                  <img src={pw.url} alt={pw.name ?? ""} className="w-full h-16 object-cover" loading="lazy" />
+                <div
+                  key={pw.url}
+                  className="relative group rounded-lg border border-border overflow-hidden bg-background"
+                >
+                  <img
+                    src={pw.url}
+                    alt={pw.name ?? ""}
+                    className="w-full h-16 object-cover"
+                    loading="lazy"
+                  />
                   <button
                     type="button"
                     onClick={() => removePastWork(pw.url)}
@@ -444,8 +509,6 @@ export function QuickCapturePanel({
         {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
         {busy ? "AI กำลังวิเคราะห์…" : "วิเคราะห์บรีฟกัน"}
       </Button>
-
-
 
       {/* Section 3: Structured brief */}
       {result && (
@@ -479,7 +542,11 @@ export function QuickCapturePanel({
 }
 
 function SectionEditor({
-  label, desc, section, result, onChange,
+  label,
+  desc,
+  section,
+  result,
+  onChange,
 }: {
   label: string;
   desc: string;
@@ -496,11 +563,16 @@ function SectionEditor({
     >
       <div className="flex items-center justify-between gap-2 mb-1.5">
         <div>
-          <p className="text-[11px] font-semibold uppercase tracking-wide text-foreground/70">{label}</p>
+          <p className="text-[11px] font-semibold uppercase tracking-wide text-foreground/70">
+            {label}
+          </p>
           <p className="text-[10px] text-muted-foreground">{desc}</p>
         </div>
         {isEmpty && (
-          <Badge variant="outline" className="text-[9px] border-red-400 text-red-700 dark:text-red-300 gap-1">
+          <Badge
+            variant="outline"
+            className="text-[9px] border-red-400 text-red-700 dark:text-red-300 gap-1"
+          >
             <AlertCircle className="h-2.5 w-2.5" /> ลองถามลูกค้าเพิ่ม
           </Badge>
         )}
@@ -512,16 +584,26 @@ function SectionEditor({
 
 function isSectionEmpty(key: SectionKey, r: AiBriefExtractResult): boolean {
   switch (key) {
-    case "client": return !r.client.name && !r.client.brand && !r.client.contact;
-    case "proposition": return !r.proposition.trim();
-    case "goal": return !r.goal.trim();
-    case "deliverables": return r.deliverables.length === 0;
-    case "element_design": return !r.element_design.trim();
-    case "reference": return !r.reference.trim();
-    case "style": return !r.style.trim();
-    case "timeline": return !r.timeline.start && !r.timeline.deadline;
-    case "budget": return !r.budget.trim();
-    case "note": return !r.note.trim();
+    case "client":
+      return !r.client.name && !r.client.brand && !r.client.contact;
+    case "proposition":
+      return !r.proposition.trim();
+    case "goal":
+      return !r.goal.trim();
+    case "deliverables":
+      return r.deliverables.length === 0;
+    case "element_design":
+      return !r.element_design.trim();
+    case "reference":
+      return !r.reference.trim();
+    case "style":
+      return !r.style.trim();
+    case "timeline":
+      return !r.timeline.start && !r.timeline.deadline;
+    case "budget":
+      return !r.budget.trim();
+    case "note":
+      return !r.note.trim();
   }
 }
 
@@ -533,12 +615,21 @@ function renderField(
   if (key === "client") {
     return (
       <div className="grid sm:grid-cols-3 gap-2">
-        <Input placeholder="ชื่อลูกค้า" value={r.client.name}
-          onChange={(e) => onChange("client", { ...r.client, name: e.target.value })} />
-        <Input placeholder="แบรนด์" value={r.client.brand}
-          onChange={(e) => onChange("client", { ...r.client, brand: e.target.value })} />
-        <Input placeholder="ติดต่อ (Line/เบอร์)" value={r.client.contact}
-          onChange={(e) => onChange("client", { ...r.client, contact: e.target.value })} />
+        <Input
+          placeholder="ชื่อลูกค้า"
+          value={r.client.name}
+          onChange={(e) => onChange("client", { ...r.client, name: e.target.value })}
+        />
+        <Input
+          placeholder="แบรนด์"
+          value={r.client.brand}
+          onChange={(e) => onChange("client", { ...r.client, brand: e.target.value })}
+        />
+        <Input
+          placeholder="ติดต่อ (Line/เบอร์)"
+          value={r.client.contact}
+          onChange={(e) => onChange("client", { ...r.client, contact: e.target.value })}
+        />
       </div>
     );
   }
@@ -553,10 +644,16 @@ function renderField(
   if (key === "timeline") {
     return (
       <div className="grid sm:grid-cols-2 gap-2">
-        <Input placeholder="วันเริ่ม" value={r.timeline.start}
-          onChange={(e) => onChange("timeline", { ...r.timeline, start: e.target.value })} />
-        <Input placeholder="วันส่ง / Deadline" value={r.timeline.deadline}
-          onChange={(e) => onChange("timeline", { ...r.timeline, deadline: e.target.value })} />
+        <Input
+          placeholder="วันเริ่ม"
+          value={r.timeline.start}
+          onChange={(e) => onChange("timeline", { ...r.timeline, start: e.target.value })}
+        />
+        <Input
+          placeholder="วันส่ง / Deadline"
+          value={r.timeline.deadline}
+          onChange={(e) => onChange("timeline", { ...r.timeline, deadline: e.target.value })}
+        />
       </div>
     );
   }
@@ -589,7 +686,8 @@ function renderField(
 }
 
 function DeliverablesEditor({
-  value, onChange,
+  value,
+  onChange,
 }: {
   value: AiBriefExtractResult["deliverables"];
   onChange: (v: AiBriefExtractResult["deliverables"]) => void;
@@ -618,10 +716,17 @@ function DeliverablesEditor({
               type="number"
               min={1}
               value={d.quantity}
-              onChange={(e) => update(i, { quantity: Math.max(1, parseInt(e.target.value, 10) || 1) })}
+              onChange={(e) =>
+                update(i, { quantity: Math.max(1, parseInt(e.target.value, 10) || 1) })
+              }
               className="h-8 text-xs w-16"
             />
-            <Button size="icon" variant="ghost" className="h-8 w-8 text-destructive" onClick={() => remove(i)}>
+            <Button
+              size="icon"
+              variant="ghost"
+              className="h-8 w-8 text-destructive"
+              onClick={() => remove(i)}
+            >
               <X className="h-3.5 w-3.5" />
             </Button>
           </div>
@@ -634,7 +739,9 @@ function DeliverablesEditor({
                   type="button"
                   onClick={() => toggleFormat(i, f)}
                   className={`text-[10px] px-2 py-0.5 rounded-full border transition ${
-                    on ? "bg-primary text-primary-foreground border-primary" : "bg-muted/30 hover:bg-muted border-border"
+                    on
+                      ? "bg-primary text-primary-foreground border-primary"
+                      : "bg-muted/30 hover:bg-muted border-border"
                   }`}
                 >
                   {f}

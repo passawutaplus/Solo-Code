@@ -35,13 +35,19 @@ export function RequireAuth({ children, requireAdmin = false }: Props) {
     } else if (needsTesterApproval) {
       navigate({ to: "/apply" });
     }
-  }, [user, isAdmin, profile?.is_active, loading, requireAdmin, navigate, needsTesterApproval, pathname]);
+  }, [
+    user,
+    isAdmin,
+    profile?.is_active,
+    loading,
+    requireAdmin,
+    navigate,
+    needsTesterApproval,
+    pathname,
+  ]);
 
   const blocked =
-    !user ||
-    profile?.is_active === false ||
-    (requireAdmin && !isAdmin) ||
-    needsTesterApproval;
+    !user || profile?.is_active === false || (requireAdmin && !isAdmin) || needsTesterApproval;
 
   if (!blocked && !loading) {
     hasResolvedRef.current = true;

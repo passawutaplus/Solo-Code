@@ -2,21 +2,36 @@ import * as React from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
-  DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator,
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { Check, Clock, AlertTriangle, AlertOctagon, ChevronDown } from "lucide-react";
 import { type InvoiceStatus, STATUS_LABEL } from "@/store/clientInvoices";
 import { toast } from "sonner";
 
-const STATUS_META: Record<InvoiceStatus, { icon: React.ComponentType<{ className?: string }>; classes: string }> = {
+const STATUS_META: Record<
+  InvoiceStatus,
+  { icon: React.ComponentType<{ className?: string }>; classes: string }
+> = {
   paid: { icon: Check, classes: "bg-emerald-500/15 text-emerald-600 border-emerald-500/30" },
   ontime: { icon: Clock, classes: "bg-blue-500/15 text-blue-600 border-blue-500/30" },
   late7: { icon: AlertTriangle, classes: "bg-amber-500/15 text-amber-700 border-amber-500/30" },
-  late30: { icon: AlertOctagon, classes: "bg-destructive/15 text-destructive border-destructive/30" },
+  late30: {
+    icon: AlertOctagon,
+    classes: "bg-destructive/15 text-destructive border-destructive/30",
+  },
 };
 
 export function StatusBadge({ status }: { status: InvoiceStatus }) {
@@ -30,7 +45,8 @@ export function StatusBadge({ status }: { status: InvoiceStatus }) {
 }
 
 export function InvoiceStatusMenu({
-  current, onChange,
+  current,
+  onChange,
 }: {
   current: InvoiceStatus;
   onChange: (status: InvoiceStatus, note?: string) => Promise<void> | void;
@@ -83,12 +99,12 @@ export function InvoiceStatusMenu({
       <Dialog open={!!pending} onOpenChange={(o) => !o && setPending(null)}>
         <DialogContent className="max-w-sm">
           <DialogHeader>
-            <DialogTitle>
-              เปลี่ยนเป็น "{pending && STATUS_LABEL[pending]}"
-            </DialogTitle>
+            <DialogTitle>เปลี่ยนเป็น "{pending && STATUS_LABEL[pending]}"</DialogTitle>
           </DialogHeader>
           <div className="space-y-2">
-            <p className="text-xs text-muted-foreground">บันทึกหมายเหตุ (ไม่บังคับ) — จะถูกเก็บในประวัติ</p>
+            <p className="text-xs text-muted-foreground">
+              บันทึกหมายเหตุ (ไม่บังคับ) — จะถูกเก็บในประวัติ
+            </p>
             <Textarea
               value={note}
               onChange={(e) => setNote(e.target.value)}
@@ -97,7 +113,9 @@ export function InvoiceStatusMenu({
             />
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setPending(null)}>ยกเลิก</Button>
+            <Button variant="outline" onClick={() => setPending(null)}>
+              ยกเลิก
+            </Button>
             <Button onClick={() => pending && apply(pending, note.trim() || undefined)}>
               ยืนยัน
             </Button>

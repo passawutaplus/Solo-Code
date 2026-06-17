@@ -125,7 +125,15 @@ export function useClientInvoices() {
   });
 
   const setStatusMutation = useMutation({
-    mutationFn: async ({ id, status, note }: { id: string; status: InvoiceStatus; note?: string }) => {
+    mutationFn: async ({
+      id,
+      status,
+      note,
+    }: {
+      id: string;
+      status: InvoiceStatus;
+      note?: string;
+    }) => {
       // Embed note in meta so the trigger can pick it up
       const { data: cur, error: e0 } = await supabase
         .from("finance_clients_invoices")
@@ -133,7 +141,10 @@ export function useClientInvoices() {
         .eq("id", id)
         .single();
       if (e0) throw e0;
-      const meta = { ...((cur?.meta as Record<string, unknown>) ?? {}), status_change_note: note ?? null };
+      const meta = {
+        ...((cur?.meta as Record<string, unknown>) ?? {}),
+        status_change_note: note ?? null,
+      };
       const { error } = await supabase
         .from("finance_clients_invoices")
         .update({ status, meta })
@@ -160,12 +171,21 @@ export function useClientInvoices() {
       isLoading: query.isLoading,
       isError: query.isError,
       add: (c: ClientInvoiceInput) => addMutation.mutateAsync(c),
-      update: (id: string, patch: Partial<ClientInvoiceInput>) => updateMutation.mutateAsync({ id, patch }),
+      update: (id: string, patch: Partial<ClientInvoiceInput>) =>
+        updateMutation.mutateAsync({ id, patch }),
       setStatus: (id: string, status: InvoiceStatus, note?: string) =>
         setStatusMutation.mutateAsync({ id, status, note }),
       remove: (id: string) => removeMutation.mutateAsync(id),
     }),
-    [query.data, query.isLoading, query.isError, addMutation, updateMutation, setStatusMutation, removeMutation],
+    [
+      query.data,
+      query.isLoading,
+      query.isError,
+      addMutation,
+      updateMutation,
+      setStatusMutation,
+      removeMutation,
+    ],
   );
 }
 

@@ -81,7 +81,9 @@ export async function buildBusinessSnapshot(
     .slice(0, 15);
 
   const pendingByDue = (quotationsRes.data ?? [])
-    .filter((q) => ["pending_payment", "pending_receipt", "pending_approval"].includes(q.status as string))
+    .filter((q) =>
+      ["pending_payment", "pending_receipt", "pending_approval"].includes(q.status as string),
+    )
     .map((q) => ({
       number: q.number,
       client_name: q.client_name,

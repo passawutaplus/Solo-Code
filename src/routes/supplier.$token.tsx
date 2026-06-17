@@ -46,8 +46,14 @@ function PublicSupplierPage() {
 
   React.useEffect(() => {
     (async () => {
-      const { data: payload, error } = await supabase.rpc("get_shared_supplier_by_token", { _token: token });
-      if (error || !payload) { setNotFound(true); setLoading(false); return; }
+      const { data: payload, error } = await supabase.rpc("get_shared_supplier_by_token", {
+        _token: token,
+      });
+      if (error || !payload) {
+        setNotFound(true);
+        setLoading(false);
+        return;
+      }
       const p = payload as unknown as PublicSupplier & { links?: PaperLink[] };
       setData(p);
       setLinks((p.links ?? []) as PaperLink[]);

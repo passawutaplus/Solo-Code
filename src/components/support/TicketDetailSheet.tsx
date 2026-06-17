@@ -113,8 +113,7 @@ export function TicketDetailPanel({
         <div>ประเภท: {CATEGORY_LABELS[ticket.category]}</div>
         <div>ความสำคัญ: {PRIORITY_LABELS[ticket.priority]}</div>
         <div className="col-span-2">
-          อัปเดต{" "}
-          {formatDistanceToNow(new Date(ticket.updatedAt), { addSuffix: true, locale: th })}
+          อัปเดต {formatDistanceToNow(new Date(ticket.updatedAt), { addSuffix: true, locale: th })}
         </div>
       </div>
 
@@ -140,7 +139,7 @@ export function TicketDetailPanel({
         </div>
       )}
 
-      {(ticket.resolutionNote && ["resolved", "closed"].includes(ticket.status)) && (
+      {ticket.resolutionNote && ["resolved", "closed"].includes(ticket.status) && (
         <div className="rounded-xl border border-green-200 bg-green-50 p-3">
           <p className="text-[10px] font-semibold text-green-800 mb-1">คำตอบจากทีมงาน</p>
           <p className="text-sm text-green-900 whitespace-pre-wrap">{ticket.resolutionNote}</p>
@@ -189,7 +188,11 @@ export function TicketDetailPanel({
             disabled={!comment.trim() || sending}
             onClick={sendComment}
           >
-            {sending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Send className="h-3.5 w-3.5" />}
+            {sending ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            ) : (
+              <Send className="h-3.5 w-3.5" />
+            )}
             ส่งความคิดเห็น
           </Button>
         </div>

@@ -91,7 +91,11 @@ Deno.serve(async (req) => {
     return json({ error: readErr.message }, 500);
   }
 
-  const messages = (batch ?? []) as Array<{ msg_id: number; read_ct: number; message: Record<string, unknown> }>;
+  const messages = (batch ?? []) as Array<{
+    msg_id: number;
+    read_ct: number;
+    message: Record<string, unknown>;
+  }>;
   if (messages.length === 0) {
     return json({ processed: 0 });
   }
@@ -106,10 +110,13 @@ Deno.serve(async (req) => {
     const text = String(payload.text ?? "");
 
     if (!lineUserId || !text) {
-      await admin.from("line_send_log").update({
-        status: "failed",
-        error_message: "missing line_user_id or text",
-      }).eq("message_id", messageId);
+      await admin
+        .from("line_send_log")
+        .update({
+          status: "failed",
+          error_message: "missing line_user_id or text",
+        })
+        .eq("message_id", messageId);
       await admin.rpc("delete_email", { queue_name: QUEUE, message_id: msg.msg_id });
       failed++;
       continue;
@@ -118,21 +125,30 @@ Deno.serve(async (req) => {
     const result = await pushLineText(lineUserId, text);
 
     if (result.ok) {
-      await admin.from("line_send_log").update({ status: "sent", error_message: null }).eq("message_id", messageId);
+      await admin
+        .from("line_send_log")
+        .update({ status: "sent", error_message: null })
+        .eq("message_id", messageId);
       await admin.rpc("delete_email", { queue_name: QUEUE, message_id: msg.msg_id });
       sent++;
     } else if (result.status === 429) {
       const retrySec = result.retryAfterSeconds ?? 60;
-      await admin.from("line_send_state").update({
-        retry_after_until: new Date(Date.now() + retrySec * 1000).toISOString(),
-        updated_at: new Date().toISOString(),
-      }).eq("id", 1);
+      await admin
+        .from("line_send_state")
+        .update({
+          retry_after_until: new Date(Date.now() + retrySec * 1000).toISOString(),
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", 1);
       break;
     } else if (msg.read_ct >= MAX_RETRIES || result.status === 403) {
-      await admin.from("line_send_log").update({
-        status: "dlq",
-        error_message: result.error ?? `HTTP ${result.status}`,
-      }).eq("message_id", messageId);
+      await admin
+        .from("line_send_log")
+        .update({
+          status: "dlq",
+          error_message: result.error ?? `HTTP ${result.status}`,
+        })
+        .eq("message_id", messageId);
       await admin.rpc("move_to_dlq", {
         source_queue: QUEUE,
         dlq_name: DLQ,
@@ -141,10 +157,13 @@ Deno.serve(async (req) => {
       });
       failed++;
     } else {
-      await admin.from("line_send_log").update({
-        status: "failed",
-        error_message: result.error ?? `HTTP ${result.status}`,
-      }).eq("message_id", messageId);
+      await admin
+        .from("line_send_log")
+        .update({
+          status: "failed",
+          error_message: result.error ?? `HTTP ${result.status}`,
+        })
+        .eq("message_id", messageId);
       failed++;
     }
 

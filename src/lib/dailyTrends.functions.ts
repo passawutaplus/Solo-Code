@@ -2,7 +2,11 @@ import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import type { DailyTrendsResponse } from "@/lib/dailyTrends.types";
 
-export type { DailyTrendItem, DailyTrendsResponse, DailyTrendsStatus } from "@/lib/dailyTrends.types";
+export type {
+  DailyTrendItem,
+  DailyTrendsResponse,
+  DailyTrendsStatus,
+} from "@/lib/dailyTrends.types";
 
 export const getDailyTrends = createServerFn({ method: "GET" }).handler(
   async (): Promise<DailyTrendsResponse> => {

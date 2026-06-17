@@ -150,7 +150,6 @@ export function WHTCertificates() {
     });
   }
 
-
   // Only incomes that have withholding > 0 are eligible for 50 ทวิ
   const rows = React.useMemo(() => {
     return incomes
@@ -164,18 +163,29 @@ export function WHTCertificates() {
         if (!q.trim()) return true;
         const s = q.toLowerCase();
         return (
-          i.client.toLowerCase().includes(s) ||
-          (i.certificateNo ?? "").toLowerCase().includes(s)
+          i.client.toLowerCase().includes(s) || (i.certificateNo ?? "").toLowerCase().includes(s)
         );
       })
       .sort((a, b) => b.month.localeCompare(a.month));
   }, [incomes, filter, q]);
 
   const totalWithheld = rows.reduce((s, i) => s + i.withholding, 0);
-  const pendingCount = incomes.filter((i) => (i.withholding ?? 0) > 0 && !i.certificateReceived).length;
+  const pendingCount = incomes.filter(
+    (i) => (i.withholding ?? 0) > 0 && !i.certificateReceived,
+  ).length;
 
   function exportCSV() {
-    const headers = ["เดือน", "ลูกค้า", "ประเภทเงินได้", "มาตรา", "ยอด Gross", "อัตรา WHT", "หัก ณ ที่จ่าย", "เลขใบ 50ทวิ", "สถานะ"];
+    const headers = [
+      "เดือน",
+      "ลูกค้า",
+      "ประเภทเงินได้",
+      "มาตรา",
+      "ยอด Gross",
+      "อัตรา WHT",
+      "หัก ณ ที่จ่าย",
+      "เลขใบ 50ทวิ",
+      "สถานะ",
+    ];
     const data = rows.map((i) => {
       const meta = INCOME_TYPE_META[(i.incomeType ?? "freelance") as IncomeType];
       return [
@@ -217,7 +227,10 @@ export function WHTCertificates() {
           <span className="text-muted-foreground">รวมหัก ณ ที่จ่าย</span>
           <span className="num font-semibold text-success">฿{formatTHB(totalWithheld)}</span>
           {pendingCount > 0 && (
-            <Badge variant="outline" className="ml-auto bg-warning/10 text-warning border-warning/30 gap-1">
+            <Badge
+              variant="outline"
+              className="ml-auto bg-warning/10 text-warning border-warning/30 gap-1"
+            >
               <AlertTriangle className="h-3 w-3" /> รอใบ {pendingCount} รายการ
             </Badge>
           )}
@@ -270,13 +283,21 @@ export function WHTCertificates() {
                   key={i.id}
                   className="flex items-center gap-3 rounded-xl border border-border/60 p-2.5 hover:border-primary/40 transition-colors"
                 >
-                  <div className={`rounded-lg p-2 ${i.certificateReceived ? "bg-success/15 text-success" : "bg-warning/15 text-warning"}`}>
-                    {i.certificateReceived ? <CheckCircle2 className="h-4 w-4" /> : <FileText className="h-4 w-4" />}
+                  <div
+                    className={`rounded-lg p-2 ${i.certificateReceived ? "bg-success/15 text-success" : "bg-warning/15 text-warning"}`}
+                  >
+                    {i.certificateReceived ? (
+                      <CheckCircle2 className="h-4 w-4" />
+                    ) : (
+                      <FileText className="h-4 w-4" />
+                    )}
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
                       <p className="text-sm font-medium truncate">{i.client}</p>
-                      <Badge variant="outline" className="text-[10px] h-4 px-1.5">{meta.section}</Badge>
+                      <Badge variant="outline" className="text-[10px] h-4 px-1.5">
+                        {meta.section}
+                      </Badge>
                     </div>
                     <p className="text-[11px] text-muted-foreground num">
                       {i.month} • {meta.label}
@@ -285,7 +306,9 @@ export function WHTCertificates() {
                   </div>
                   <div className="text-right shrink-0">
                     <p className="num text-sm font-semibold">฿{formatTHB(i.withholding)}</p>
-                    <p className="text-[10px] text-muted-foreground num">{i.whtRate ?? 3}% ของ ฿{formatTHB(i.gross)}</p>
+                    <p className="text-[10px] text-muted-foreground num">
+                      {i.whtRate ?? 3}% ของ ฿{formatTHB(i.gross)}
+                    </p>
                   </div>
                   <Switch
                     checked={!!i.certificateReceived}

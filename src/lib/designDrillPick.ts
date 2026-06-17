@@ -58,9 +58,7 @@ export function pickDrill(opts: {
   salt?: string;
 }): PickedDrill {
   const { category, difficulty, mode, salt = "" } = opts;
-  const pool = DRILL_PROMPTS.filter(
-    (p) => p.category === category && p.difficulty === difficulty,
-  );
+  const pool = DRILL_PROMPTS.filter((p) => p.category === category && p.difficulty === difficulty);
   const seed = hashSeed(`${todayISO()}${category}${difficulty}${mode}${salt}`);
   const template = pickFrom(pool.length > 0 ? pool : DRILL_PROMPTS, seed);
   const constraints = resolveConstraints(template, mode, seed);
@@ -89,11 +87,7 @@ export function pickDailyDrill(): PickedDrill {
 
 export function buildDrillDescription(drill: PickedDrill): string {
   const diff = DRILL_DIFFICULTY_META[drill.difficulty];
-  const lines = [
-    `[So1o Design Drill] ${drill.meta.label} · ${diff.label}`,
-    "",
-    drill.brief,
-  ];
+  const lines = [`[So1o Design Drill] ${drill.meta.label} · ${diff.label}`, "", drill.brief];
 
   if (drill.mode === "constraints" && drill.constraints.length > 0) {
     lines.push("", "ข้อจำกัด:");
@@ -111,11 +105,7 @@ export function buildDrillDescription(drill: PickedDrill): string {
 }
 
 export function buildDrillTags(drill: PickedDrill): string[] {
-  const tags = [
-    "So1oDrill",
-    drill.meta.label.replace(/\s+/g, ""),
-    drill.difficulty,
-  ];
+  const tags = ["So1oDrill", drill.meta.label.replace(/\s+/g, ""), drill.difficulty];
   if (drill.mode === "constraints") tags.push("Constraints");
   return tags;
 }

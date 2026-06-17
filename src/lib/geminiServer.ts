@@ -2,11 +2,7 @@
  * Shared Google Gemini helpers for TanStack Start server functions.
  * Replaces the former Lovable AI Gateway (`ai.gateway.lovable.dev`).
  */
-import {
-  GoogleGenerativeAI,
-  type Content,
-  type Part,
-} from "@google/generative-ai";
+import { GoogleGenerativeAI, type Content, type Part } from "@google/generative-ai";
 
 export interface ChatMessage {
   role: "system" | "user" | "assistant";

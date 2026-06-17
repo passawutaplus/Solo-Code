@@ -1,11 +1,7 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/auth/AuthProvider";
-import {
-  useQuotations,
-  computeTotals,
-  type Quotation,
-} from "@/store/quotations";
+import { useQuotations, computeTotals, type Quotation } from "@/store/quotations";
 import { useFinance } from "@/store/finance";
 import {
   derivePipelineColumn,

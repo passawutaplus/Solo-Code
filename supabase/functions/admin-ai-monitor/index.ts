@@ -15,10 +15,7 @@ const json = (req: Request, body: unknown, status = 200) =>
   });
 
 function adminClient() {
-  return createClient(
-    Deno.env.get("SUPABASE_URL")!,
-    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
-  );
+  return createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
 }
 
 async function assertAdmin(userId: string): Promise<boolean> {
@@ -44,8 +41,7 @@ async function probeGemini(): Promise<{ configured: boolean; reachable: boolean;
   try {
     const key = getGeminiApiKey();
     const model = defaultFastModel();
-    const url =
-      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(key)}`;
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(key)}`;
     const res = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -106,37 +102,39 @@ Deno.serve(async (req) => {
   d7.setDate(d7.getDate() - 7);
   const today = now.toISOString().slice(0, 10);
 
-  const [
-    ledgerRes,
-    featureCostsRes,
-    creditsRes,
-    periodRes,
-    chatUsageRes,
-    geminiProbe,
-  ] = await Promise.all([
-    admin
-      .from("ai_credit_ledger")
-      .select("id, user_id, feature, cost, source, created_at")
-      .gte("created_at", d30.toISOString())
-      .order("created_at", { ascending: false })
-      .limit(500),
-    admin.from("ai_feature_costs").select("feature, cost, label").order("feature"),
-    admin.from("user_credits").select("user_id, balance, lifetime_purchased, environment"),
-    admin.from("user_ai_period").select("user_id, included_limit, included_used, period_end, updated_at"),
-    admin
-      .from("ai_chat_usage")
-      .select("user_id, usage_date, count")
-      .gte("usage_date", d30.toISOString().slice(0, 10)),
-    probeGemini(),
-  ]);
+  const [ledgerRes, featureCostsRes, creditsRes, periodRes, chatUsageRes, geminiProbe] =
+    await Promise.all([
+      admin
+        .from("ai_credit_ledger")
+        .select("id, user_id, feature, cost, source, created_at")
+        .gte("created_at", d30.toISOString())
+        .order("created_at", { ascending: false })
+        .limit(500),
+      admin.from("ai_feature_costs").select("feature, cost, label").order("feature"),
+      admin.from("user_credits").select("user_id, balance, lifetime_purchased, environment"),
+      admin
+        .from("user_ai_period")
+        .select("user_id, included_limit, included_used, period_end, updated_at"),
+      admin
+        .from("ai_chat_usage")
+        .select("user_id, usage_date, count")
+        .gte("usage_date", d30.toISOString().slice(0, 10)),
+      probeGemini(),
+    ]);
 
   const ledger = (ledgerRes.data ?? []) as LedgerRow[];
   const featureLabels = new Map(
-    (featureCostsRes.data ?? []).map((r: { feature: string; label: string }) => [r.feature, r.label]),
+    (featureCostsRes.data ?? []).map((r: { feature: string; label: string }) => [
+      r.feature,
+      r.label,
+    ]),
   );
 
   const userIds = [...new Set(ledger.map((r) => r.user_id))];
-  const profileMap = new Map<string, { display_name: string | null; email: string | null; subscription_tier: string | null }>();
+  const profileMap = new Map<
+    string,
+    { display_name: string | null; email: string | null; subscription_tier: string | null }
+  >();
   if (userIds.length > 0) {
     const { data: profiles } = await admin
       .from("profiles")
@@ -226,7 +224,9 @@ Deno.serve(async (req) => {
     .filter((r: { usage_date: string }) => r.usage_date === today)
     .reduce((s: number, r: { count: number }) => s + r.count, 0);
   const chat7 = chatRows
-    .filter((r: { usage_date: string }) => Date.now() - new Date(r.usage_date).getTime() < 7 * 86_400_000)
+    .filter(
+      (r: { usage_date: string }) => Date.now() - new Date(r.usage_date).getTime() < 7 * 86_400_000,
+    )
     .reduce((s: number, r: { count: number }) => s + r.count, 0);
 
   return json(req, {

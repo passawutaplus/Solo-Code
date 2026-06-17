@@ -18,7 +18,8 @@ export const HELP_GUIDE_SEO = {
   },
   "/help/quotations": {
     title: "ใบเสนอราคา & เอกสาร — QT / INV / RC",
-    description: "สร้างใบเสนอราคา ส่งอีเมลลูกค้า ยอมรับ QT ออกใบแจ้งหนี้และใบเสร็จ — So1o Freelancer",
+    description:
+      "สร้างใบเสนอราคา ส่งอีเมลลูกค้า ยอมรับ QT ออกใบแจ้งหนี้และใบเสร็จ — So1o Freelancer",
   },
   "/help/payments": {
     title: "รับชำระจากลูกค้า — QR PromptPay & ชำระออนไลน์",
@@ -36,11 +37,13 @@ export const HELP_GUIDE_SEO = {
   },
   "/help/plans": {
     title: "แพ็กเกจ & เครดิต AI — Free vs Pro",
-    description: "เปรียบเทียบแพ็ก Free Pro Pro+ In-House โควต้า AI storage white-label และ ecosystem So1o + Pixel100",
+    description:
+      "เปรียบเทียบแพ็ก Free Pro Pro+ In-House โควต้า AI storage white-label และ ecosystem So1o + Pixel100",
   },
   "/help/line": {
     title: "แจ้งเตือน LINE",
-    description: "เชื่อม LINE OA รับแจ้งเตือนงานใหม่ ชำระเงิน และครบกำหนด — ตั้งค่าใน Settings So1o",
+    description:
+      "เชื่อม LINE OA รับแจ้งเตือนงานใหม่ ชำระเงิน และครบกำหนด — ตั้งค่าใน Settings So1o",
   },
 } as const;
 

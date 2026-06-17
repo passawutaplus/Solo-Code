@@ -37,10 +37,9 @@ export function AiImageToBriefButton({ brief, disabled, onApply }: Props) {
     setBusy(true);
     setSug(null);
     try {
-      const hint = [
-        brief.project_overview?.project_name,
-        brief.project_overview?.about_business,
-      ].filter(Boolean).join(" / ");
+      const hint = [brief.project_overview?.project_name, brief.project_overview?.about_business]
+        .filter(Boolean)
+        .join(" / ");
       const result = await fn({
         data: {
           imageUrls: brief.references.slice(0, 6).map((r) => r.url),
@@ -98,7 +97,9 @@ export function AiImageToBriefButton({ brief, disabled, onApply }: Props) {
           {sug.project_type && (
             <div>
               <span className="text-[10px] text-muted-foreground">ประเภทงาน: </span>
-              <Badge variant="secondary" className="text-[10px]">{sug.project_type}</Badge>
+              <Badge variant="secondary" className="text-[10px]">
+                {sug.project_type}
+              </Badge>
             </div>
           )}
           {sug.moods.length > 0 && (
@@ -106,7 +107,9 @@ export function AiImageToBriefButton({ brief, disabled, onApply }: Props) {
               <p className="text-[10px] text-muted-foreground mb-1">Mood & Tone</p>
               <div className="flex flex-wrap gap-1">
                 {sug.moods.map((m) => (
-                  <Badge key={m} variant="outline" className="text-[10px]">{m}</Badge>
+                  <Badge key={m} variant="outline" className="text-[10px]">
+                    {m}
+                  </Badge>
                 ))}
               </div>
             </div>
@@ -116,8 +119,14 @@ export function AiImageToBriefButton({ brief, disabled, onApply }: Props) {
               <p className="text-[10px] text-muted-foreground mb-1">Color Palette</p>
               <div className="flex flex-wrap gap-1.5">
                 {sug.liked_color_chips.map((c) => (
-                  <div key={c} className="flex items-center gap-1 rounded-full border border-border bg-muted/30 pl-1 pr-2 py-0.5">
-                    <span className="h-3.5 w-3.5 rounded-full border border-border/50" style={{ background: c }} />
+                  <div
+                    key={c}
+                    className="flex items-center gap-1 rounded-full border border-border bg-muted/30 pl-1 pr-2 py-0.5"
+                  >
+                    <span
+                      className="h-3.5 w-3.5 rounded-full border border-border/50"
+                      style={{ background: c }}
+                    />
                     <span className="font-mono text-[9px] uppercase">{c}</span>
                   </div>
                 ))}

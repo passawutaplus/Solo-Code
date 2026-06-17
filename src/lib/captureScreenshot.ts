@@ -84,8 +84,7 @@ export async function capturePageScreenshot(options: CaptureOptions = {}): Promi
     useCORS: true,
     logging: false,
     scale: Math.min(2, window.devicePixelRatio || 1),
-    ignoreElements: (el) =>
-      !!options.ignoreSelector && !!el.closest?.(options.ignoreSelector),
+    ignoreElements: (el) => !!options.ignoreSelector && !!el.closest?.(options.ignoreSelector),
     onclone: (clonedDoc, clonedElement) => {
       sanitizeClonedStyles(clonedDoc);
       inlineComputedStyles(source, clonedElement);

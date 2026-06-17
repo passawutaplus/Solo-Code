@@ -60,13 +60,7 @@ export const aiAssistant = createServerFn({ method: "POST" })
       throw new Error("empty_response");
     }
 
-    await persistAssistantMessages(
-      supabase,
-      userId,
-      prepared.preset,
-      prepared.message,
-      safeReply,
-    );
+    await persistAssistantMessages(supabase, userId, prepared.preset, prepared.message, safeReply);
 
     return {
       answer: safeReply,

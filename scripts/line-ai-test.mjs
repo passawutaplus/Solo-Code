@@ -52,7 +52,9 @@ if (!url || !key) {
 }
 if (!geminiKey) {
   console.error("Missing GEMINI_API_KEY — ใส่ใน Solo-Code/.env แล้วรัน:");
-  console.error("  npx supabase secrets set GEMINI_API_KEY='...' --project-ref rvnzjiskqliexysicfmh");
+  console.error(
+    "  npx supabase secrets set GEMINI_API_KEY='...' --project-ref rvnzjiskqliexysicfmh",
+  );
   process.exit(1);
 }
 if (!lineToken) {
@@ -67,7 +69,10 @@ const headers = {
 };
 
 async function supabase(path, opts = {}) {
-  const res = await fetch(`${url}/rest/v1/${path}`, { ...opts, headers: { ...headers, ...opts.headers } });
+  const res = await fetch(`${url}/rest/v1/${path}`, {
+    ...opts,
+    headers: { ...headers, ...opts.headers },
+  });
   const text = await res.text();
   if (!res.ok) throw new Error(`Supabase ${path}: ${res.status} ${text}`);
   if (!text || res.status === 204) return null;
@@ -83,9 +88,11 @@ async function geminiReply(prompt) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         systemInstruction: {
-          parts: [{
-            text: 'คุณคือ "So1o Mentor" ตอบภาษาไทย กระชับ เป็นกันเอง',
-          }],
+          parts: [
+            {
+              text: 'คุณคือ "So1o Mentor" ตอบภาษาไทย กระชับ เป็นกันเอง',
+            },
+          ],
         },
         contents: [{ role: "user", parts: [{ text: prompt }] }],
         generationConfig: { maxOutputTokens: 900, temperature: 0.7 },
@@ -95,7 +102,10 @@ async function geminiReply(prompt) {
   const json = await res.json();
   if (!res.ok) throw new Error(`Gemini ${res.status}: ${JSON.stringify(json).slice(0, 300)}`);
   const parts = json.candidates?.[0]?.content?.parts ?? [];
-  return parts.map((p) => p.text ?? "").join("").trim();
+  return parts
+    .map((p) => p.text ?? "")
+    .join("")
+    .trim();
 }
 
 async function pushLine(lineUserId, text) {

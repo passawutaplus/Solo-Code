@@ -17,7 +17,9 @@ export function LandingFinalCta({ user, remaining }: Props) {
           <h3 className="text-2xl sm:text-3xl font-bold text-primary-foreground tracking-tight">
             {FINAL_CTA.title(remaining)}
           </h3>
-          <p className="mt-3 text-sm sm:text-base text-primary-foreground/85">{FINAL_CTA.subtitle}</p>
+          <p className="mt-3 text-sm sm:text-base text-primary-foreground/85">
+            {FINAL_CTA.subtitle}
+          </p>
           <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
             <Link
               to={user ? "/dashboard" : "/apply"}

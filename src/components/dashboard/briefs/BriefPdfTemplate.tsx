@@ -1,6 +1,10 @@
 import * as React from "react";
 import type { DesignBrief } from "@/lib/briefSchema";
-import { docAccentForKind, resolveDocumentTheme, type ResolvedDocumentTheme } from "@/lib/documentTheme";
+import {
+  docAccentForKind,
+  resolveDocumentTheme,
+  type ResolvedDocumentTheme,
+} from "@/lib/documentTheme";
 import type { Tier } from "@/hooks/useSubscription";
 
 interface Props {
@@ -12,13 +16,27 @@ interface Props {
 function fmtDate(s?: string | null) {
   if (!s) return "—";
   try {
-    return new Date(s).toLocaleDateString("th-TH", { year: "numeric", month: "long", day: "numeric" });
-  } catch { return s; }
+    return new Date(s).toLocaleDateString("th-TH", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  } catch {
+    return s;
+  }
 }
 
 /* ---------- Layout primitives (sidebar-style like the reference) ---------- */
 
-function Row({ label, value, valueClassName }: { label: string; value?: React.ReactNode; valueClassName?: string }) {
+function Row({
+  label,
+  value,
+  valueClassName,
+}: {
+  label: string;
+  value?: React.ReactNode;
+  valueClassName?: string;
+}) {
   if (value === undefined || value === null || value === "") return null;
   return (
     <div className="brief-pdf-row">
@@ -29,7 +47,10 @@ function Row({ label, value, valueClassName }: { label: string; value?: React.Re
 }
 
 function Section({
-  numberLabel, title, subtitle, children,
+  numberLabel,
+  title,
+  subtitle,
+  children,
 }: {
   numberLabel: string;
   title: string;
@@ -80,7 +101,11 @@ export const BriefPdfTemplate = React.forwardRef<HTMLDivElement, Props>(function
 
   const brandName = o.brand_name || o.display_name || "So1o Freelancer";
 
-  const hasBrandCi = !!(ci.logo_url || ci.ci_image_url || (ci.ci_palette && ci.ci_palette.length > 0));
+  const hasBrandCi = !!(
+    ci.logo_url ||
+    ci.ci_image_url ||
+    (ci.ci_palette && ci.ci_palette.length > 0)
+  );
 
   return (
     <div
@@ -114,14 +139,27 @@ export const BriefPdfTemplate = React.forwardRef<HTMLDivElement, Props>(function
 
         <p className="brief-pdf-cover-intro">
           เอกสารฉบับนี้สรุปข้อตกลงระหว่างฟรีแลนซ์และลูกค้า เพื่อให้งานออกแบบเดินหน้าได้อย่างชัดเจน
-          ตรงโจทย์ และอยู่ในขอบเขตที่ตกลงกันไว้ตั้งแต่ต้น โปรดอ่านและตรวจสอบรายละเอียดทุกหัวข้อก่อนยืนยัน
+          ตรงโจทย์ และอยู่ในขอบเขตที่ตกลงกันไว้ตั้งแต่ต้น
+          โปรดอ่านและตรวจสอบรายละเอียดทุกหัวข้อก่อนยืนยัน
         </p>
 
         <div className="brief-pdf-cover-meta">
-          <div><span>โปรเจกต์</span><strong>{brief.title}</strong></div>
-          <div><span>ลูกค้า</span><strong>{ci.client_name || "—"}</strong></div>
-          <div><span>แบรนด์</span><strong>{ci.brand_name || "—"}</strong></div>
-          <div><span>วันที่</span><strong>{fmtDate(brief.created_at)}</strong></div>
+          <div>
+            <span>โปรเจกต์</span>
+            <strong>{brief.title}</strong>
+          </div>
+          <div>
+            <span>ลูกค้า</span>
+            <strong>{ci.client_name || "—"}</strong>
+          </div>
+          <div>
+            <span>แบรนด์</span>
+            <strong>{ci.brand_name || "—"}</strong>
+          </div>
+          <div>
+            <span>วันที่</span>
+            <strong>{fmtDate(brief.created_at)}</strong>
+          </div>
         </div>
       </header>
 
@@ -182,7 +220,9 @@ export const BriefPdfTemplate = React.forwardRef<HTMLDivElement, Props>(function
           </div>
           {ci.ci_palette && ci.ci_palette.length > 0 && (
             <>
-              <div className="brief-pdf-ci-caption" style={{ marginTop: 10 }}>พาเลตต์สีหลัก (ยึดเป็น CI)</div>
+              <div className="brief-pdf-ci-caption" style={{ marginTop: 10 }}>
+                พาเลตต์สีหลัก (ยึดเป็น CI)
+              </div>
               <SwatchList colors={ci.ci_palette} />
             </>
           )}
@@ -203,17 +243,21 @@ export const BriefPdfTemplate = React.forwardRef<HTMLDivElement, Props>(function
         <Row
           label="สีที่ชอบ"
           value={
-            (dd.liked_color_chips ?? []).length > 0
-              ? <SwatchList colors={dd.liked_color_chips!} />
-              : dd.liked_colors
+            (dd.liked_color_chips ?? []).length > 0 ? (
+              <SwatchList colors={dd.liked_color_chips!} />
+            ) : (
+              dd.liked_colors
+            )
           }
         />
         <Row
           label="สีต้องห้าม"
           value={
-            (dd.forbidden_color_chips ?? []).length > 0
-              ? <SwatchList colors={dd.forbidden_color_chips!} />
-              : dd.forbidden_colors
+            (dd.forbidden_color_chips ?? []).length > 0 ? (
+              <SwatchList colors={dd.forbidden_color_chips!} />
+            ) : (
+              dd.forbidden_colors
+            )
           }
         />
         <Row label="ฟอนต์ที่ชอบ" value={dd.liked_fonts} />
@@ -273,16 +317,19 @@ export const BriefPdfTemplate = React.forwardRef<HTMLDivElement, Props>(function
         </Section>
       )}
 
-
       {/* ============= SIGN-OFF ============= */}
       <section className="brief-pdf-signoff">
         <div className="brief-pdf-aside-num">SIGN</div>
-        <h2 className="brief-pdf-aside-title" style={{ marginBottom: 12 }}>OFF</h2>
+        <h2 className="brief-pdf-aside-title" style={{ marginBottom: 12 }}>
+          OFF
+        </h2>
         {brief.status === "confirmed" ? (
           <div className="brief-pdf-confirmed">
             <div className="brief-pdf-stamp">BRIEF CONFIRMED ✓</div>
             <div className="brief-pdf-sig">
-              <div className="brief-pdf-sig-line">{brief.confirmed_signature || brief.confirmed_by_name}</div>
+              <div className="brief-pdf-sig-line">
+                {brief.confirmed_signature || brief.confirmed_by_name}
+              </div>
               <div className="brief-pdf-sig-meta">
                 {brief.confirmed_by_name} · ยืนยันเมื่อ {fmtDate(brief.confirmed_at)}
               </div>

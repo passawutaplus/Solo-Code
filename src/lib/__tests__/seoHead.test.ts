@@ -33,7 +33,9 @@ describe("seoHead", () => {
         path: "/pricing",
       });
 
-      const names = head.meta.map((m) => ("name" in m ? m.name : "property" in m ? m.property : "title"));
+      const names = head.meta.map((m) =>
+        "name" in m ? m.name : "property" in m ? m.property : "title",
+      );
       expect(names).toContain("description");
       expect(names).toContain("robots");
       expect(names).toContain("og:title");

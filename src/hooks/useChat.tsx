@@ -43,7 +43,12 @@ export function useChatMessages(conversationUserId: string | null) {
       .channel(`chat_${conversationUserId}`)
       .on(
         "postgres_changes",
-        { event: "INSERT", schema: "public", table: "chat_messages", filter: `user_id=eq.${conversationUserId}` },
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "chat_messages",
+          filter: `user_id=eq.${conversationUserId}`,
+        },
         (payload) => {
           setMessages((prev) => {
             const next = payload.new as ChatMessage;
@@ -54,7 +59,12 @@ export function useChatMessages(conversationUserId: string | null) {
       )
       .on(
         "postgres_changes",
-        { event: "UPDATE", schema: "public", table: "chat_messages", filter: `user_id=eq.${conversationUserId}` },
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "chat_messages",
+          filter: `user_id=eq.${conversationUserId}`,
+        },
         (payload) => {
           const next = payload.new as ChatMessage;
           setMessages((prev) => prev.map((m) => (m.id === next.id ? next : m)));
@@ -76,8 +86,12 @@ export function playBeep(volume = 0.15) {
   if (typeof window === "undefined") return;
   try {
     const Ctx =
-      (window as unknown as { AudioContext?: typeof AudioContext; webkitAudioContext?: typeof AudioContext })
-        .AudioContext ||
+      (
+        window as unknown as {
+          AudioContext?: typeof AudioContext;
+          webkitAudioContext?: typeof AudioContext;
+        }
+      ).AudioContext ||
       (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
     if (!Ctx) return;
     const ctx = new Ctx();

@@ -62,8 +62,7 @@ export async function enqueueTemplateEmail(opts: {
   const element = React.createElement(tpl.component, opts.templateData);
   const html = await render(element);
   const text = await render(element, { plainText: true });
-  const subject =
-    typeof tpl.subject === "function" ? tpl.subject(opts.templateData) : tpl.subject;
+  const subject = typeof tpl.subject === "function" ? tpl.subject(opts.templateData) : tpl.subject;
 
   const messageId = crypto.randomUUID();
   await supabaseAdmin.from("email_send_log").insert({

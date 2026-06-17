@@ -28,8 +28,7 @@ async function probeGemini(): Promise<{ configured: boolean; reachable: boolean;
   try {
     const key = getGeminiApiKey();
     const model = defaultFastModel();
-    const url =
-      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(key)}`;
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(key)}`;
     const res = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -65,18 +64,13 @@ export async function fetchAiSummary(): Promise<AiSummarySnapshot> {
   d7.setDate(d7.getDate() - 7);
 
   const [ledgerRes, geminiProbe] = await Promise.all([
-    admin
-      .from("ai_credit_ledger")
-      .select("cost, created_at")
-      .gte("created_at", d30.toISOString()),
+    admin.from("ai_credit_ledger").select("cost, created_at").gte("created_at", d30.toISOString()),
     probeGemini(),
   ]);
 
   const ledger = (ledgerRes.data ?? []) as Array<{ cost: number; created_at: string }>;
   const sumSince = (since: Date) =>
-    ledger
-      .filter((r) => new Date(r.created_at) >= since)
-      .reduce((s, r) => s + (r.cost ?? 0), 0);
+    ledger.filter((r) => new Date(r.created_at) >= since).reduce((s, r) => s + (r.cost ?? 0), 0);
 
   const credits7 = sumSince(d7);
   const credits30 = sumSince(d30);

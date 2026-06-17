@@ -14,11 +14,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -37,10 +33,7 @@ import {
   storageUsagePercent,
   type StorageCategoryId,
 } from "@/lib/storageQuotas";
-import {
-  getUserStorageUsage,
-  purgeUserStorageCategory,
-} from "@/lib/storageUsage.functions";
+import { getUserStorageUsage, purgeUserStorageCategory } from "@/lib/storageUsage.functions";
 import type { StorageCategoryUsage, UserStorageUsageResponse } from "@/lib/storageUsage.types";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -210,7 +203,10 @@ export function StorageUsageSection() {
                 </div>
                 <div className="flex flex-wrap gap-x-4 gap-y-1">
                   {STORAGE_CATEGORIES.map((meta) => (
-                    <span key={meta.id} className="inline-flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                    <span
+                      key={meta.id}
+                      className="inline-flex items-center gap-1.5 text-[11px] text-muted-foreground"
+                    >
                       <span className={cn("h-2 w-2 rounded-full shrink-0", meta.colorClass)} />
                       {meta.label}
                     </span>
@@ -228,8 +224,8 @@ export function StorageUsageSection() {
             <CollapsibleContent>
               <div className="px-5 pb-5 space-y-3 border-t border-border/40 pt-4">
                 <p className="text-[11px] text-muted-foreground leading-relaxed">
-                  โควต้า So1o: Free {STORAGE_QUOTA_LABEL.free} · Pro {STORAGE_QUOTA_LABEL.pro} · Pro+{" "}
-                  {STORAGE_QUOTA_LABEL.pro_plus} · In-House {STORAGE_QUOTA_LABEL.inhouse}
+                  โควต้า So1o: Free {STORAGE_QUOTA_LABEL.free} · Pro {STORAGE_QUOTA_LABEL.pro} ·
+                  Pro+ {STORAGE_QUOTA_LABEL.pro_plus} · In-House {STORAGE_QUOTA_LABEL.inhouse}
                 </p>
                 <p className="text-[11px] text-muted-foreground leading-relaxed rounded-lg border border-border/50 bg-muted/20 px-3 py-2">
                   กระเป๋า Pixel100 (ผลงาน/แชท) แยกต่างหาก — จัดการที่{" "}
@@ -255,16 +251,24 @@ export function StorageUsageSection() {
                     >
                       <div className="flex items-center justify-between gap-2">
                         <div className="flex items-center gap-2 min-w-0">
-                          <span className={cn("h-2.5 w-2.5 rounded-full shrink-0", meta.colorClass)} />
+                          <span
+                            className={cn("h-2.5 w-2.5 rounded-full shrink-0", meta.colorClass)}
+                          />
                           <div className="min-w-0">
                             <p className="text-xs font-medium">{meta.label}</p>
-                            <p className="text-[10px] text-muted-foreground truncate">{meta.description}</p>
+                            <p className="text-[10px] text-muted-foreground truncate">
+                              {meta.description}
+                            </p>
                           </div>
                         </div>
                         <div className="text-right shrink-0">
-                          <p className="text-xs font-semibold tabular-nums">{formatStorageBytes(usage.bytes)}</p>
+                          <p className="text-xs font-semibold tabular-nums">
+                            {formatStorageBytes(usage.bytes)}
+                          </p>
                           {usage.fileCount > 0 && (
-                            <p className="text-[10px] text-muted-foreground">{usage.fileCount} ไฟล์</p>
+                            <p className="text-[10px] text-muted-foreground">
+                              {usage.fileCount} ไฟล์
+                            </p>
                           )}
                           {meta.id === "data" && usage.bytes > 0 && (
                             <p className="text-[10px] text-muted-foreground">ประมาณการ</p>
@@ -305,9 +309,7 @@ export function StorageUsageSection() {
                   )}
                   {tier === "pro" && (
                     <Button asChild variant="outline" className="gap-1.5 flex-1">
-                      <Link to="/pricing">
-                        ดูแพ็ก In-House ({STORAGE_QUOTA_LABEL.inhouse})
-                      </Link>
+                      <Link to="/pricing">ดูแพ็ก In-House ({STORAGE_QUOTA_LABEL.inhouse})</Link>
                     </Button>
                   )}
                 </div>

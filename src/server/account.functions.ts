@@ -29,7 +29,14 @@ export const exportUserData = createServerFn({ method: "GET" })
       job_trackers: jobs.data ?? [],
       finance_expenses: expenses.data ?? [],
       finance_incomes: incomes.data ?? [],
-      errors: [profile.error, clients.error, quotations.error, jobs.error, expenses.error, incomes.error]
+      errors: [
+        profile.error,
+        clients.error,
+        quotations.error,
+        jobs.error,
+        expenses.error,
+        incomes.error,
+      ]
         .filter(Boolean)
         .map(() => "export_partial_failure"),
     };

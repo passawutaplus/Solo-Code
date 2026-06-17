@@ -1,9 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import {
-  CATEGORY_GRADIENT,
-  CATEGORY_LABEL_TH,
-  isValidCategory,
-} from "@/lib/articleHelpers";
+import { CATEGORY_GRADIENT, CATEGORY_LABEL_TH, isValidCategory } from "@/lib/articleHelpers";
 
 export interface ArticleCardData {
   slug: string;
@@ -60,9 +56,7 @@ export function ArticleCard({ a }: { a: ArticleCardData }) {
           {a.title}
         </h3>
         {a.summary && (
-          <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2">
-            {a.summary}
-          </p>
+          <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2">{a.summary}</p>
         )}
         <div className="mt-auto pt-1 flex items-center justify-between text-[10px] text-muted-foreground">
           {a.published_at && (

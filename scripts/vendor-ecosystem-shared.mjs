@@ -62,4 +62,6 @@ ${safeRelativeFn}
 `;
 writeFileSync(join(anthemRoot, "src", "lib", "safeUrl.ts"), anthemSafeUrl);
 
-console.log("[vendor-ecosystem] synced → Anthem-Code (lineNotificationKinds, plans.vendored, safeUrl)");
+console.log(
+  "[vendor-ecosystem] synced → Anthem-Code (lineNotificationKinds, plans.vendored, safeUrl)",
+);

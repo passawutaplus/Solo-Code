@@ -1,7 +1,15 @@
 import { normalizeHex } from "./colorUtils";
 
-export interface RGB { r: number; g: number; b: number }
-export interface LAB { L: number; a: number; b: number }
+export interface RGB {
+  r: number;
+  g: number;
+  b: number;
+}
+export interface LAB {
+  L: number;
+  a: number;
+  b: number;
+}
 
 export function hexToRgb(hex: string): RGB | null {
   const n = normalizeHex(hex);
@@ -14,7 +22,10 @@ export function hexToRgb(hex: string): RGB | null {
 }
 
 export function rgbToHex({ r, g, b }: RGB): string {
-  const c = (v: number) => Math.max(0, Math.min(255, Math.round(v))).toString(16).padStart(2, "0");
+  const c = (v: number) =>
+    Math.max(0, Math.min(255, Math.round(v)))
+      .toString(16)
+      .padStart(2, "0");
   return `#${c(r)}${c(g)}${c(b)}`.toUpperCase();
 }
 
@@ -70,7 +81,9 @@ export function rgbToLab(rgb: RGB): LAB {
   const Y = r * 0.2126729 + g * 0.7151522 + b * 0.072175;
   const Z = (r * 0.0193339 + g * 0.119192 + b * 0.9503041) / 1.08883;
   const f = (t: number) => (t > 0.008856 ? Math.cbrt(t) : 7.787 * t + 16 / 116);
-  const fx = f(X), fy = f(Y), fz = f(Z);
+  const fx = f(X),
+    fy = f(Y),
+    fz = f(Z);
   return { L: 116 * fy - 16, a: 500 * (fx - fy), b: 200 * (fy - fz) };
 }
 

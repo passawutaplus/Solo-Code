@@ -5,11 +5,7 @@ import { Zap, Loader2, Sparkles, CreditCard, Crown, ChevronDown } from "lucide-r
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useSubscription } from "@/hooks/useSubscription";
 import { useAiUsage } from "@/hooks/useAiUsage";
 import {
@@ -98,9 +94,7 @@ export function AiUsageSettingsSection() {
                     />
                   </h3>
                   <p className="text-xs text-muted-foreground mt-1">
-                    {open
-                      ? planHint
-                      : `เหลือ ${total_remaining.toLocaleString("th-TH")} เครดิต`}
+                    {open ? planHint : `เหลือ ${total_remaining.toLocaleString("th-TH")} เครดิต`}
                   </p>
                 </div>
                 {isLoading ? (
@@ -108,7 +102,10 @@ export function AiUsageSettingsSection() {
                 ) : (
                   <Badge
                     variant="secondary"
-                    className={cn("shrink-0", isPro && "bg-primary/15 text-primary border-primary/20")}
+                    className={cn(
+                      "shrink-0",
+                      isPro && "bg-primary/15 text-primary border-primary/20",
+                    )}
                   >
                     {isPro ? <Crown className="h-3 w-3 mr-1" /> : null}
                     {TIER_LABEL[tier]}
@@ -138,7 +135,8 @@ export function AiUsageSettingsSection() {
                           : "text-muted-foreground",
                     )}
                   >
-                    เหลือ {total_remaining.toLocaleString("th-TH")} / {capacity.toLocaleString("th-TH")} เครดิต
+                    เหลือ {total_remaining.toLocaleString("th-TH")} /{" "}
+                    {capacity.toLocaleString("th-TH")} เครดิต
                   </span>
                   {resetsAt && !isFree && (
                     <span className="text-muted-foreground">รีเซ็ต {resetsAt}</span>
@@ -151,14 +149,17 @@ export function AiUsageSettingsSection() {
           <CollapsibleContent>
             <div className="px-5 pb-4 space-y-3 border-t border-border/40 pt-4">
               {creditsEnded && (
-                <p className="text-xs text-destructive">เครดิตหมดแล้ว — อัพเกรดหรือเติมเพื่อใช้ต่อ</p>
+                <p className="text-xs text-destructive">
+                  เครดิตหมดแล้ว — อัพเกรดหรือเติมเพื่อใช้ต่อ
+                </p>
               )}
 
               <div className="rounded-xl border border-border/60 bg-muted/30 px-4 py-3 space-y-2 text-xs">
                 <div className="flex items-center justify-between gap-3">
                   <span className="font-medium">{packLabel}</span>
                   <span className="tabular-nums text-muted-foreground">
-                    {included_used.toLocaleString("th-TH")} / {included_limit.toLocaleString("th-TH")}
+                    {included_used.toLocaleString("th-TH")} /{" "}
+                    {included_limit.toLocaleString("th-TH")}
                   </span>
                 </div>
                 {purchased_balance > 0 && (
@@ -211,7 +212,13 @@ export function AiUsageSettingsSection() {
                     </Link>
                   </Button>
                 ) : (
-                  <Button size="sm" variant="outline" onClick={openPortal} disabled={busy} className="gap-1.5">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={openPortal}
+                    disabled={busy}
+                    className="gap-1.5"
+                  >
                     {busy ? (
                       <Loader2 className="h-3.5 w-3.5 animate-spin" />
                     ) : (

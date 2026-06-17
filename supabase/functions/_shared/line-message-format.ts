@@ -39,7 +39,10 @@ function lineHeader(kind: LineNotifyKind): string {
   return ANTHEM_KINDS.has(kind) ? ANTHEM_LINE_HEADER : LINE_NOTIFICATION_HEADER;
 }
 
-const SOLO_BASE = (Deno.env.get("SOLO_SITE_URL") ?? "https://solofreelancer.com").replace(/\/$/, "");
+const SOLO_BASE = (Deno.env.get("SOLO_SITE_URL") ?? "https://solofreelancer.com").replace(
+  /\/$/,
+  "",
+);
 const ANTHEM_BASE = (Deno.env.get("ANTHEM_APP_URL") ?? "https://pixel100.com").replace(/\/$/, "");
 
 type KindCopy = {
@@ -187,11 +190,7 @@ export type LinePersonalization = {
 export function formatPersonalLine(opts?: LinePersonalization): string | null {
   const brand = opts?.brandName?.trim();
   const rawName = opts?.displayName?.trim();
-  const name = rawName
-    ? rawName.startsWith("คุณ")
-      ? rawName
-      : `คุณ${rawName}`
-    : null;
+  const name = rawName ? (rawName.startsWith("คุณ") ? rawName : `คุณ${rawName}`) : null;
 
   if (brand && name) return `${brand} (${name})`;
   if (brand) return brand;

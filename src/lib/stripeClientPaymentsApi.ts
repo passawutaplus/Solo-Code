@@ -7,12 +7,9 @@ export async function startClientJobCheckout(opts: {
   cancelUrl?: string;
 }): Promise<void> {
   const origin = window.location.origin;
-  const successUrl =
-    opts.successUrl ??
-    `${origin}/track/${opts.token}?stripe=${opts.paymentType}`;
+  const successUrl = opts.successUrl ?? `${origin}/track/${opts.token}?stripe=${opts.paymentType}`;
   const cancelUrl =
-    opts.cancelUrl ??
-    `${origin}/track/${opts.token}/checkout?payment=${opts.paymentType}`;
+    opts.cancelUrl ?? `${origin}/track/${opts.token}/checkout?payment=${opts.paymentType}`;
 
   const res = await fetch("/api/public/payments/client-checkout", {
     method: "POST",

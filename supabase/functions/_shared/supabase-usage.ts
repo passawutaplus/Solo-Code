@@ -57,9 +57,7 @@ export type SupabaseUsageSnapshot = {
 
 export function getMgmtToken(): string {
   return (
-    Deno.env.get("MGMT_ACCESS_TOKEN")?.trim() ??
-    Deno.env.get("SUPABASE_ACCESS_TOKEN")?.trim() ??
-    ""
+    Deno.env.get("MGMT_ACCESS_TOKEN")?.trim() ?? Deno.env.get("SUPABASE_ACCESS_TOKEN")?.trim() ?? ""
   );
 }
 
@@ -104,7 +102,10 @@ type ApiCountRow = {
   total_storage_requests: number;
 };
 
-async function fetchApiCounts(token: string, days: number): Promise<{
+async function fetchApiCounts(
+  token: string,
+  days: number,
+): Promise<{
   rows: ApiCountRow[];
   error?: string;
 }> {
@@ -203,9 +204,7 @@ export function buildSupabaseUpgradeAdvice(input: {
   });
 
   const storageLimitBytes = limits.storageGb * 1024 ** 3;
-  const storagePercent = storageLimitBytes > 0
-    ? (input.storageBytes / storageLimitBytes) * 100
-    : 0;
+  const storagePercent = storageLimitBytes > 0 ? (input.storageBytes / storageLimitBytes) * 100 : 0;
   thresholds.push({
     metric: "File Storage",
     used: input.storageBytes,
@@ -222,7 +221,9 @@ export function buildSupabaseUpgradeAdvice(input: {
       percent: mauPercent,
     });
     if (mauPercent >= 90) {
-      reasons.push(`Auth users ใกล้ limit (${input.authUsers.toLocaleString()} / ${limits.mau.toLocaleString()} MAU)`);
+      reasons.push(
+        `Auth users ใกล้ limit (${input.authUsers.toLocaleString()} / ${limits.mau.toLocaleString()} MAU)`,
+      );
       verdict = "upgrade_required";
     } else if (mauPercent >= 80) {
       reasons.push(`Auth users เกิน 80% ของ Free tier`);
@@ -268,29 +269,21 @@ export function buildSupabaseUpgradeAdvice(input: {
   };
 }
 
-export async function fetchSupabaseUsage(
-  admin: SupabaseClient,
-): Promise<SupabaseUsageSnapshot> {
+export async function fetchSupabaseUsage(admin: SupabaseClient): Promise<SupabaseUsageSnapshot> {
   const now = new Date();
   const mgmtToken = getMgmtToken();
 
-  const [
-    latencyMs,
-    storage,
-    profilesRes,
-    projectsRes,
-    messagesRes,
-    authUsersRes,
-  ] = await Promise.all([
-    probeLatency(admin),
-    sumStorageBytes(admin),
-    admin.from("profiles").select("*", { count: "exact", head: true }),
-    admin.from("projects").select("*", { count: "exact", head: true }),
-    admin.from("messages").select("*", { count: "exact", head: true }),
-    mgmtToken
-      ? mgmtQuery(mgmtToken, "SELECT COUNT(*)::bigint AS count FROM auth.users;")
-      : Promise.resolve({ ok: false, status: 0, body: null }),
-  ]);
+  const [latencyMs, storage, profilesRes, projectsRes, messagesRes, authUsersRes] =
+    await Promise.all([
+      probeLatency(admin),
+      sumStorageBytes(admin),
+      admin.from("profiles").select("*", { count: "exact", head: true }),
+      admin.from("projects").select("*", { count: "exact", head: true }),
+      admin.from("messages").select("*", { count: "exact", head: true }),
+      mgmtToken
+        ? mgmtQuery(mgmtToken, "SELECT COUNT(*)::bigint AS count FROM auth.users;")
+        : Promise.resolve({ ok: false, status: 0, body: null }),
+    ]);
 
   let platform: Record<string, unknown> = {
     managementConfigured: !!mgmtToken,
@@ -411,11 +404,13 @@ export async function fetchSupabaseUsage(
     };
   }
 
-  const authUserCount = mgmtToken && authUsersRes.ok
-    ? Number(
-      (authUsersRes.body as { result?: Array<{ count: string | number }> })?.result?.[0]?.count ?? 0,
-    )
-    : null;
+  const authUserCount =
+    mgmtToken && authUsersRes.ok
+      ? Number(
+          (authUsersRes.body as { result?: Array<{ count: string | number }> })?.result?.[0]
+            ?.count ?? 0,
+        )
+      : null;
 
   const upgradeAdvice = buildSupabaseUpgradeAdvice({
     plan,

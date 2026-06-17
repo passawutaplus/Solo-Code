@@ -93,7 +93,9 @@ export function OnboardingChecklist({
       >
         <div className="flex items-center justify-between gap-3">
           <div className="min-w-0 flex-1">
-            <p className="text-sm font-semibold">เริ่มต้นใช้ So1o — {completedCount}/{STEPS.length}</p>
+            <p className="text-sm font-semibold">
+              เริ่มต้นใช้ So1o — {completedCount}/{STEPS.length}
+            </p>
             <p className="text-xs text-muted-foreground mt-0.5 truncate">
               {nextStep ? `ถัดไป: ${nextStep.label}` : "เกือบครบแล้ว!"}
             </p>
@@ -112,7 +114,9 @@ export function OnboardingChecklist({
     <Card className="border-[#FF5F05]/25 bg-gradient-to-br from-[#FF5F05]/5 to-transparent">
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between gap-2">
-          <CardTitle className="text-base">เริ่มต้นใช้ So1o — {completedCount}/{STEPS.length}</CardTitle>
+          <CardTitle className="text-base">
+            เริ่มต้นใช้ So1o — {completedCount}/{STEPS.length}
+          </CardTitle>
           <button
             type="button"
             onClick={collapse}
@@ -121,7 +125,9 @@ export function OnboardingChecklist({
             ซ่อน
           </button>
         </div>
-        <p className="text-xs text-muted-foreground">ทำครบ {STEPS.length} ขั้นเพื่อบริหารงานแบบมืออาชีพ</p>
+        <p className="text-xs text-muted-foreground">
+          ทำครบ {STEPS.length} ขั้นเพื่อบริหารงานแบบมืออาชีพ
+        </p>
         <Progress value={progressPct} className="h-1.5 mt-1 [&>div]:bg-gradient-primary" />
       </CardHeader>
       <CardContent className="space-y-1.5">

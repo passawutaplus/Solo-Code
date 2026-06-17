@@ -21,7 +21,12 @@ export default defineConfig(({ mode }) => {
 
   return {
     define,
-    plugins: [tailwindcss(), tsconfigPaths({ projects: ["./tsconfig.json"] }), tanstackStart(), react()],
+    plugins: [
+      tailwindcss(),
+      tsconfigPaths({ projects: ["./tsconfig.json"] }),
+      tanstackStart(),
+      react(),
+    ],
     resolve: {
       alias: { "@": path.resolve(root, "src") },
       dedupe: [

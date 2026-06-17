@@ -3,7 +3,16 @@ import { escapeCSV } from "@/lib/security";
 import type { IncomeRecord } from "@/data/mockData";
 
 export function exportIncomeCsv(incomes: IncomeRecord[]) {
-  const headers = ["เดือน", "ลูกค้า", "ประเภท", "ยอด Gross", "อัตรา WHT", "หัก ณ ที่จ่าย", "เลขใบ 50ทวิ", "ได้รับใบ"];
+  const headers = [
+    "เดือน",
+    "ลูกค้า",
+    "ประเภท",
+    "ยอด Gross",
+    "อัตรา WHT",
+    "หัก ณ ที่จ่าย",
+    "เลขใบ 50ทวิ",
+    "ได้รับใบ",
+  ];
   const rows = incomes.map((i) => [
     i.month,
     i.client,

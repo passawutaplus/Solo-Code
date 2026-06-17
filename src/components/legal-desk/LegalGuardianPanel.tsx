@@ -12,9 +12,17 @@ import type { Quotation } from "@/store/quotations";
 import type { UsageRightsInput } from "@/lib/usageRightsSchema";
 
 const QUICK_PROMPTS = [
-  { id: "review", label: "ตรวจสัญญา", prompt: "ช่วยตรวจสอบความเสี่ยงในสัญญา/เงื่อนไขนี้ และแนะนำข้อความที่ควรเพิ่ม" },
+  {
+    id: "review",
+    label: "ตรวจสัญญา",
+    prompt: "ช่วยตรวจสอบความเสี่ยงในสัญญา/เงื่อนไขนี้ และแนะนำข้อความที่ควรเพิ่ม",
+  },
   { id: "debt", label: "ทวงเงิน", prompt: "ช่วยร่างข้อความทวงเงินลูกค้าอย่างสุภาพแต่ชัดเจน" },
-  { id: "copyright", label: "อธิบายลิขสิทธิ์", prompt: "อธิบายสิทธิ์ลูกค้าใช้งานงานนี้แบบเข้าใจง่าย" },
+  {
+    id: "copyright",
+    label: "อธิบายลิขสิทธิ์",
+    prompt: "อธิบายสิทธิ์ลูกค้าใช้งานงานนี้แบบเข้าใจง่าย",
+  },
 ];
 
 export function LegalGuardianPanel({
@@ -164,7 +172,11 @@ export function LegalGuardianPanel({
               disabled={genContract}
               onClick={() => void generateContract()}
             >
-              {genContract ? <Loader2 className="h-3 w-3 animate-spin" /> : <FileText className="h-3 w-3" />}
+              {genContract ? (
+                <Loader2 className="h-3 w-3 animate-spin" />
+              ) : (
+                <FileText className="h-3 w-3" />
+              )}
               ร่างสัญญาเต็มฉบับ
             </Button>
           )}
@@ -183,7 +195,11 @@ export function LegalGuardianPanel({
           disabled={loading || !prompt.trim()}
           onClick={() => void askGuardian(prompt.trim())}
         >
-          {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <MessageSquare className="h-3.5 w-3.5" />}
+          {loading ? (
+            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+          ) : (
+            <MessageSquare className="h-3.5 w-3.5" />
+          )}
           ปรึกษา
         </Button>
 

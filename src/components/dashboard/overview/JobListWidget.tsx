@@ -5,19 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Progress } from "@/components/ui/progress";
-import {
-  Plus,
-  Trash2,
-  CalendarDays,
-  ChevronDown,
-  NotebookPen,
-  Star,
-} from "lucide-react";
+import { Plus, Trash2, CalendarDays, ChevronDown, NotebookPen, Star } from "lucide-react";
 import { useDashboardJobs, type DashboardJob } from "@/store/dashboardJobs";
-import {
-  useDashboardJobTasks,
-  type DashboardJobTask,
-} from "@/store/dashboardJobTasks";
+import { useDashboardJobTasks, type DashboardJobTask } from "@/store/dashboardJobTasks";
 import { useClients } from "@/store/clients";
 import { toast } from "sonner";
 
@@ -98,8 +88,7 @@ export function JobListWidget() {
   const doneWeek = weekRows.filter((r) => r.task.done).length;
   const pct = totalWeek > 0 ? Math.round((doneWeek / totalWeek) * 100) : 0;
 
-  const countByDay = (dow: number) =>
-    weekRows.filter((r) => r.weekday === dow).length;
+  const countByDay = (dow: number) => weekRows.filter((r) => r.weekday === dow).length;
 
   const handleAdd = async (overrideName?: string) => {
     const b = (overrideName ?? newBrand).trim();
@@ -118,7 +107,9 @@ export function JobListWidget() {
           try {
             const created = await clients.add({ name: b });
             clientName = created.name;
-            toast.success(`เพิ่มลูกค้าใหม่ "${clientName}" แล้ว — ไปเติมรายละเอียดในแท็บลูกค้าได้เลย`);
+            toast.success(
+              `เพิ่มลูกค้าใหม่ "${clientName}" แล้ว — ไปเติมรายละเอียดในแท็บลูกค้าได้เลย`,
+            );
           } catch {
             // If client add fails, still proceed with brand-only
           }
@@ -145,8 +136,7 @@ export function JobListWidget() {
   }, [clients.list, newBrand]);
 
   const exactMatch = React.useMemo(
-    () =>
-      clients.list.some((c) => c.name.toLowerCase() === newBrand.trim().toLowerCase()),
+    () => clients.list.some((c) => c.name.toLowerCase() === newBrand.trim().toLowerCase()),
     [clients.list, newBrand],
   );
 
@@ -189,9 +179,7 @@ export function JobListWidget() {
             return (
               <div
                 key={i}
-                className={`text-center rounded-lg py-1 ${
-                  isToday ? "bg-primary-soft/60" : ""
-                }`}
+                className={`text-center rounded-lg py-1 ${isToday ? "bg-primary-soft/60" : ""}`}
               >
                 <div
                   className={`text-[10px] font-medium flex items-center justify-center gap-0.5 ${
@@ -203,7 +191,11 @@ export function JobListWidget() {
                 </div>
                 <div
                   className={`text-sm font-semibold tabular-nums ${
-                    count > 0 ? (isToday ? "text-primary" : "text-foreground") : "text-muted-foreground/75"
+                    count > 0
+                      ? isToday
+                        ? "text-primary"
+                        : "text-foreground"
+                      : "text-muted-foreground/75"
                   }`}
                 >
                   {count}
@@ -275,7 +267,9 @@ export function JobListWidget() {
                           }}
                           className="w-full text-left px-2 py-1.5 text-xs hover:bg-muted/60 flex items-center gap-1.5"
                         >
-                          <span className={`text-[9px] font-semibold px-1.5 py-0.5 rounded border ${brandClass(c.name)}`}>
+                          <span
+                            className={`text-[9px] font-semibold px-1.5 py-0.5 rounded border ${brandClass(c.name)}`}
+                          >
                             {c.name.slice(0, 2).toLowerCase()}
                           </span>
                           <span className="truncate">{c.name}</span>
@@ -300,9 +294,7 @@ export function JobListWidget() {
               )}
             </div>
             {selectedClientId && (
-              <p className="text-[10px] text-success px-0.5">
-                ✓ ลิงก์กับลูกค้าที่บันทึกไว้แล้ว
-              </p>
+              <p className="text-[10px] text-success px-0.5">✓ ลิงก์กับลูกค้าที่บันทึกไว้แล้ว</p>
             )}
             <div className="flex justify-between items-center gap-1">
               <p className="text-[10px] text-muted-foreground">
@@ -321,7 +313,11 @@ export function JobListWidget() {
                 >
                   ยกเลิก
                 </Button>
-                <Button size="sm" className="h-7 text-xs bg-gradient-primary" onClick={() => handleAdd()}>
+                <Button
+                  size="sm"
+                  className="h-7 text-xs bg-gradient-primary"
+                  onClick={() => handleAdd()}
+                >
                   เพิ่มแบรนด์
                 </Button>
               </div>
@@ -354,7 +350,12 @@ export function JobListWidget() {
                   </div>
                   <div className="space-y-0.5 pl-1">
                     {dayRows.map((r) => (
-                      <TaskRow key={r.task.id} row={r} onUpdate={tasks.update} onRemove={tasks.remove} />
+                      <TaskRow
+                        key={r.task.id}
+                        row={r}
+                        onUpdate={tasks.update}
+                        onRemove={tasks.remove}
+                      />
                     ))}
                   </div>
                 </div>
@@ -368,7 +369,12 @@ export function JobListWidget() {
                 </div>
                 <div className="space-y-0.5 pl-1">
                   {noScheduled.map((r) => (
-                    <TaskRow key={r.task.id} row={r} onUpdate={tasks.update} onRemove={tasks.remove} />
+                    <TaskRow
+                      key={r.task.id}
+                      row={r}
+                      onUpdate={tasks.update}
+                      onRemove={tasks.remove}
+                    />
                   ))}
                 </div>
               </div>
@@ -380,7 +386,9 @@ export function JobListWidget() {
                 onClick={() => setExpanded((v) => !v)}
                 className="text-[10px] text-muted-foreground hover:text-foreground flex items-center gap-1"
               >
-                <ChevronDown className={`h-3 w-3 transition-transform ${expanded ? "" : "-rotate-90"}`} />
+                <ChevronDown
+                  className={`h-3 w-3 transition-transform ${expanded ? "" : "-rotate-90"}`}
+                />
                 จัดการแบรนด์ ({jobs.list.length})
               </button>
               <AnimatePresence initial={false}>
@@ -502,7 +510,9 @@ function BrandManageRow({
 
   return (
     <div className="flex items-center gap-1 group/brand">
-      <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded border ${brandClass(job.brand)}`}>
+      <span
+        className={`text-[10px] font-semibold px-1.5 py-0.5 rounded border ${brandClass(job.brand)}`}
+      >
         {job.brand || "—"}
       </span>
       <select

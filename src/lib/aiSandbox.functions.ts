@@ -53,10 +53,7 @@ function buildTrainedPrompt(
 
   const kb = examples.length
     ? `\n\n[Knowledge Base — ตัวอย่างคำตอบสไตล์ So1o ที่บอส approve แล้ว ใช้เป็นแนวเสียงและโครงสร้าง]\n${examples
-        .map(
-          (e, i) =>
-            `--- Example ${i + 1} ---\nUser: ${e.prompt}\nSo1o: ${e.ideal_response}`,
-        )
+        .map((e, i) => `--- Example ${i + 1} ---\nUser: ${e.prompt}\nSo1o: ${e.ideal_response}`)
         .join("\n\n")}`
     : "";
 
@@ -69,7 +66,6 @@ export const sandboxChat = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context as { supabase: any; userId: string };
     await assertAdmin(supabase, userId);
-
 
     let systemPrompt = STANDARD_PROMPT;
     if (data.mode === "trained") {
@@ -93,10 +89,7 @@ export const sandboxChat = createServerFn({ method: "POST" })
     const model = normalizeGeminiModel(data.model);
     const { text: reply } = await geminiChat({
       model,
-      messages: [
-        { role: "system", content: systemPrompt },
-        ...data.messages,
-      ],
+      messages: [{ role: "system", content: systemPrompt }, ...data.messages],
       temperature: data.mode === "trained" ? 0.75 : 0.7,
       maxOutputTokens: 1000,
     });

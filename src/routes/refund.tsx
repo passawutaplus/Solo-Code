@@ -27,8 +27,8 @@ function RefundPage() {
       <LegalSectionBlock id="intro" title="1. บทนำ">
         <p>
           นโยบายนี้อธิบายเงื่อนไขการคืนเงินสำหรับการสมัครแผน Solo Pro (฿{PRICING.proMonthly}/เดือน),
-          Pro+ (฿{PRICING.proPlusMonthly}/เดือน), และ In-House (฿{PRICING.inhouseMonthlyPerSeat}/ที่นั่ง/เดือน)
-          ของ {LEGAL.siteName} แผน Free ไม่มีค่าใช้จ่าย จึงไม่เกี่ยวข้องกับนโยบายนี้
+          Pro+ (฿{PRICING.proPlusMonthly}/เดือน), และ In-House (฿{PRICING.inhouseMonthlyPerSeat}
+          /ที่นั่ง/เดือน) ของ {LEGAL.siteName} แผน Free ไม่มีค่าใช้จ่าย จึงไม่เกี่ยวข้องกับนโยบายนี้
         </p>
       </LegalSectionBlock>
 
@@ -43,7 +43,10 @@ function RefundPage() {
       <LegalSectionBlock id="eligible" title="3. กรณีที่อาจพิจารณาคืนเงิน">
         <ul className="list-disc pl-5 space-y-1.5">
           <li>ชำระเงินซ้ำโดยไม่ตั้งใจ (double charge) ภายใน 7 วัน</li>
-          <li>ระบบมีปัญหาร้ายแรงที่ทำให้ใช้งาน Pro ไม่ได้ต่อเนื่องเกิน 72 ชั่วโมง และเราไม่สามารถแก้ไขได้</li>
+          <li>
+            ระบบมีปัญหาร้ายแรงที่ทำให้ใช้งาน Pro ไม่ได้ต่อเนื่องเกิน 72 ชั่วโมง
+            และเราไม่สามารถแก้ไขได้
+          </li>
           <li>กรณีอื่นที่กฎหมายคุ้มครองผู้บริโภคบังคับ</li>
         </ul>
       </LegalSectionBlock>
@@ -53,16 +56,20 @@ function RefundPage() {
           <li>เปลี่ยนใจหลังใช้งานไปแล้วในช่วงรอบบิลปัจจุบัน</li>
           <li>ไม่ได้ใช้งานฟีเจอร์ Pro/Pro+ แต่ไม่ได้ยกเลิก subscription</li>
           <li>เครดิต AI ที่ใช้ไปแล้วบางส่วนในรอบบิล</li>
-          <li>การละเมิด{" "}
-            <Link to="/terms" className="text-primary hover:underline">ข้อกำหนดการใช้งาน</Link>
+          <li>
+            การละเมิด{" "}
+            <Link to="/terms" className="text-primary hover:underline">
+              ข้อกำหนดการใช้งาน
+            </Link>
           </li>
         </ul>
       </LegalSectionBlock>
 
       <LegalSectionBlock id="client-payments" title="5. ชำระจากลูกค้า (Stripe Connect)">
         <p>
-          เงินที่ลูกค้าชำระผ่าน QR/โอนหรือ Stripe Connect บนหน้า Track เป็นธุรกรรมระหว่างคุณกับลูกค้า
-          So1o ไม่รับผิดชอบการคืนเงินในกรณีนั้น — จัดการโดยตรงกับลูกค้าหรือผ่าน Stripe Dashboard ของคุณ
+          เงินที่ลูกค้าชำระผ่าน QR/โอนหรือ Stripe Connect บนหน้า Track
+          เป็นธุรกรรมระหว่างคุณกับลูกค้า So1o ไม่รับผิดชอบการคืนเงินในกรณีนั้น —
+          จัดการโดยตรงกับลูกค้าหรือผ่าน Stripe Dashboard ของคุณ
         </p>
       </LegalSectionBlock>
 
@@ -72,8 +79,8 @@ function RefundPage() {
           <a href={`mailto:${LEGAL.contactEmail}`} className="text-primary hover:underline">
             {LEGAL.contactEmail}
           </a>{" "}
-          พร้อมอีเมลบัญชี วันที่ชำระเงิน และเหตุผล เราจะตอบภายใน 7–14 วันทำการ
-          หากอนุมัติ การคืนเงินจะดำเนินการผ่านช่องทางเดิมที่ชำระ (Stripe) ภายใน 14–30 วัน
+          พร้อมอีเมลบัญชี วันที่ชำระเงิน และเหตุผล เราจะตอบภายใน 7–14 วันทำการ หากอนุมัติ
+          การคืนเงินจะดำเนินการผ่านช่องทางเดิมที่ชำระ (Stripe) ภายใน 14–30 วัน
         </p>
       </LegalSectionBlock>
 
@@ -84,7 +91,9 @@ function RefundPage() {
             {LEGAL.contactEmail}
           </a>
           {" · "}
-          <Link to="/terms" className="text-primary hover:underline">ข้อกำหนดการใช้งาน</Link>
+          <Link to="/terms" className="text-primary hover:underline">
+            ข้อกำหนดการใช้งาน
+          </Link>
         </p>
       </LegalSectionBlock>
     </LegalPageLayout>

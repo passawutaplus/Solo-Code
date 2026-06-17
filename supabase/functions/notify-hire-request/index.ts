@@ -68,7 +68,9 @@ Deno.serve(async (req) => {
     hire.message,
     hire.budget_amount ? `งบประมาณ: ${formatBudget(hire.budget_amount)}` : "",
     hire.deadline ? `กำหนดส่ง: ${hire.deadline}` : "",
-  ].filter(Boolean).join("\n");
+  ]
+    .filter(Boolean)
+    .join("\n");
 
   const notifyUserIds: string[] = [];
 

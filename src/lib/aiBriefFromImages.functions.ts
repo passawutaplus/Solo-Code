@@ -1,11 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import {
-  defaultVisionModel,
-  fetchUrlAsInlinePart,
-  geminiChatWithParts,
-} from "@/lib/geminiServer";
+import { defaultVisionModel, fetchUrlAsInlinePart, geminiChatWithParts } from "@/lib/geminiServer";
 import { assertAiCreditsAvailable, debitAiCredits, refundAiCredits } from "@/lib/aiCreditsServer";
 
 const FEATURE = "ai_brief_from_images";
@@ -67,9 +63,13 @@ export const aiBriefFromImages = createServerFn({ method: "POST" })
 
       return {
         project_type: typeof parsed.project_type === "string" ? parsed.project_type : "",
-        moods: Array.isArray(parsed.moods) ? parsed.moods.filter((x): x is string => typeof x === "string").slice(0, 6) : [],
+        moods: Array.isArray(parsed.moods)
+          ? parsed.moods.filter((x): x is string => typeof x === "string").slice(0, 6)
+          : [],
         liked_color_chips: Array.isArray(parsed.liked_color_chips)
-          ? parsed.liked_color_chips.filter((x): x is string => typeof x === "string" && /^#[0-9a-fA-F]{6}$/.test(x)).slice(0, 8)
+          ? parsed.liked_color_chips
+              .filter((x): x is string => typeof x === "string" && /^#[0-9a-fA-F]{6}$/.test(x))
+              .slice(0, 8)
           : [],
         liked_colors: typeof parsed.liked_colors === "string" ? parsed.liked_colors : "",
         inspiration: typeof parsed.inspiration === "string" ? parsed.inspiration : "",

@@ -50,7 +50,11 @@ export function useMyBetaFeedback(feature?: string) {
     queryKey: [...KEY_MINE(uid), feature ?? "*"],
     enabled: !!uid,
     queryFn: async () => {
-      let q = supabase.from("beta_feedback").select("*").eq("user_id", uid!).order("created_at", { ascending: false });
+      let q = supabase
+        .from("beta_feedback")
+        .select("*")
+        .eq("user_id", uid!)
+        .order("created_at", { ascending: false });
       if (feature) q = q.eq("feature", feature);
       const { data, error } = await q;
       if (error) throw error;

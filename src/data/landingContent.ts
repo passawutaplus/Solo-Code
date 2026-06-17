@@ -192,12 +192,22 @@ export const FEATURE_GROUPS: FeatureGroup[] = [
 
 export const HOW_IT_WORKS_STEPS = [
   { n: "01", t: "สมัครฟรี", d: "สมัครและตอบแบบฟอร์มกลุ่มบุกเบิกสั้นๆ ให้เรารู้จักคุณ" },
-  { n: "02", t: "รับสิทธิ์ Tester", d: "เข้าใช้งานหลังบ้านได้ทันทีหลังตอบแบบฟอร์ม จำกัด 100 user แรก" },
+  {
+    n: "02",
+    t: "รับสิทธิ์ Tester",
+    d: "เข้าใช้งานหลังบ้านได้ทันทีหลังตอบแบบฟอร์ม จำกัด 100 user แรก",
+  },
   { n: "03", t: "ใช้งาน + ให้ฟีดแบ็ก", d: "ทดลองทุกฟีเจอร์ พร้อมรับสิทธิพิเศษเมื่อเปิดตัวจริง" },
 ] as const;
 
 /** Subset of HELP_FAQ ids shown on landing */
-export const LANDING_FAQ_IDS = ["free", "track-brief", "accept-qt", "ecosystem", "pro-worth"] as const;
+export const LANDING_FAQ_IDS = [
+  "free",
+  "track-brief",
+  "accept-qt",
+  "ecosystem",
+  "pro-worth",
+] as const;
 
 export const FINAL_CTA = {
   title: (remaining: number) =>

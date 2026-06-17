@@ -17,12 +17,28 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ZoomIn, ZoomOut, Sparkles, CheckCircle2, ChevronLeft, ChevronRight, AlertTriangle } from "lucide-react";
+import {
+  ZoomIn,
+  ZoomOut,
+  Sparkles,
+  CheckCircle2,
+  ChevronLeft,
+  ChevronRight,
+  AlertTriangle,
+} from "lucide-react";
 import { formatTHB, INCOME_TYPE_META, type IncomeType } from "@/data/mockData";
 import { sectionToIncomeType, parseThaiDate, inferWhtRate } from "./whtUtils";
 import type { WhtScanResult } from "@/lib/whtScan.functions";
 
-export type WhtFormType = "" | "pnd1a" | "pnd1a_special" | "pnd2" | "pnd3" | "pnd2a" | "pnd3a" | "pnd53";
+export type WhtFormType =
+  | ""
+  | "pnd1a"
+  | "pnd1a_special"
+  | "pnd2"
+  | "pnd3"
+  | "pnd2a"
+  | "pnd3a"
+  | "pnd53";
 
 const FORM_TYPE_OPTIONS: Array<{ value: WhtFormType; label: string }> = [
   { value: "", label: "— ไม่ระบุ —" },
@@ -62,10 +78,8 @@ export function whtDraftFromScan(
   mimeType: string,
   scan: WhtScanResult,
 ): WhtDraft {
-  const issueDate =
-    parseThaiDate(scan.issueDate) || new Date().toISOString().slice(0, 10);
-  const inferredRate =
-    scan.whtRate || inferWhtRate(scan.grossAmount, scan.whtAmount) || 3;
+  const issueDate = parseThaiDate(scan.issueDate) || new Date().toISOString().slice(0, 10);
+  const inferredRate = scan.whtRate || inferWhtRate(scan.grossAmount, scan.whtAmount) || 3;
   return {
     fileUrl,
     fileName,
@@ -95,7 +109,14 @@ type Props = {
   onSkip: () => void;
 };
 
-export function WhtScanVerifyDialog({ open, onOpenChange, drafts, onDraftChange, onConfirm, onSkip }: Props) {
+export function WhtScanVerifyDialog({
+  open,
+  onOpenChange,
+  drafts,
+  onDraftChange,
+  onConfirm,
+  onSkip,
+}: Props) {
   const [idx, setIdx] = React.useState(0);
   const [zoom, setZoom] = React.useState(1);
 
@@ -141,7 +162,10 @@ export function WhtScanVerifyDialog({ open, onOpenChange, drafts, onDraftChange,
               {idx + 1} / {drafts.length}
             </Badge>
             {current.error ? (
-              <Badge variant="outline" className="bg-destructive/10 text-destructive border-destructive/30 gap-1">
+              <Badge
+                variant="outline"
+                className="bg-destructive/10 text-destructive border-destructive/30 gap-1"
+              >
                 <AlertTriangle className="h-3 w-3" /> AI อ่านไม่สำเร็จ
               </Badge>
             ) : lowConf ? (
@@ -160,11 +184,23 @@ export function WhtScanVerifyDialog({ open, onOpenChange, drafts, onDraftChange,
           {/* Left: preview */}
           <div className="bg-muted/40 border-r relative overflow-auto">
             <div className="absolute top-2 right-2 z-10 flex gap-1">
-              <Button size="icon" variant="outline" className="h-7 w-7" onClick={() => setZoom((z) => Math.max(0.5, z - 0.25))}>
+              <Button
+                size="icon"
+                variant="outline"
+                className="h-7 w-7"
+                onClick={() => setZoom((z) => Math.max(0.5, z - 0.25))}
+              >
                 <ZoomOut className="h-3.5 w-3.5" />
               </Button>
-              <Badge variant="outline" className="num text-[10px] bg-card">{Math.round(zoom * 100)}%</Badge>
-              <Button size="icon" variant="outline" className="h-7 w-7" onClick={() => setZoom((z) => Math.min(3, z + 0.25))}>
+              <Badge variant="outline" className="num text-[10px] bg-card">
+                {Math.round(zoom * 100)}%
+              </Badge>
+              <Button
+                size="icon"
+                variant="outline"
+                className="h-7 w-7"
+                onClick={() => setZoom((z) => Math.min(3, z + 0.25))}
+              >
                 <ZoomIn className="h-3.5 w-3.5" />
               </Button>
             </div>
@@ -224,7 +260,9 @@ export function WhtScanVerifyDialog({ open, onOpenChange, drafts, onDraftChange,
               <FieldRow label="เลขผู้เสียภาษี (13 หลัก)">
                 <Input
                   value={current.payeeTaxId}
-                  onChange={(e) => update("payeeTaxId", e.target.value.replace(/\D/g, "").slice(0, 13))}
+                  onChange={(e) =>
+                    update("payeeTaxId", e.target.value.replace(/\D/g, "").slice(0, 13))
+                  }
                   inputMode="numeric"
                   className="num"
                   placeholder="1234567890123"
@@ -252,12 +290,20 @@ export function WhtScanVerifyDialog({ open, onOpenChange, drafts, onDraftChange,
 
             <div className="grid grid-cols-2 gap-3">
               <FieldRow label="ประเภทเงินได้ (มาตรา)">
-                <Select value={current.incomeType} onValueChange={(v) => update("incomeType", v as IncomeType)}>
+                <Select
+                  value={current.incomeType}
+                  onValueChange={(v) => update("incomeType", v as IncomeType)}
+                >
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {(Object.entries(INCOME_TYPE_META) as [IncomeType, typeof INCOME_TYPE_META[IncomeType]][]).map(([k, m]) => (
+                    {(
+                      Object.entries(INCOME_TYPE_META) as [
+                        IncomeType,
+                        (typeof INCOME_TYPE_META)[IncomeType],
+                      ][]
+                    ).map(([k, m]) => (
                       <SelectItem key={k} value={k}>
                         {m.section} · {m.label}
                       </SelectItem>
@@ -293,7 +339,8 @@ export function WhtScanVerifyDialog({ open, onOpenChange, drafts, onDraftChange,
                   onChange={(e) => {
                     const v = Number(e.target.value);
                     update("grossAmount", v);
-                    if (current.whtRate) update("whtAmount", +(v * (current.whtRate / 100)).toFixed(2));
+                    if (current.whtRate)
+                      update("whtAmount", +(v * (current.whtRate / 100)).toFixed(2));
                   }}
                   className="num"
                 />
@@ -308,7 +355,8 @@ export function WhtScanVerifyDialog({ open, onOpenChange, drafts, onDraftChange,
                   onChange={(e) => {
                     const v = Number(e.target.value);
                     update("whtRate", v);
-                    if (current.grossAmount) update("whtAmount", +(current.grossAmount * (v / 100)).toFixed(2));
+                    if (current.grossAmount)
+                      update("whtAmount", +(current.grossAmount * (v / 100)).toFixed(2));
                   }}
                   className="num"
                 />

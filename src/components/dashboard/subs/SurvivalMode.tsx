@@ -25,7 +25,12 @@ export function SurvivalMode({ subs }: { subs: Subscription[] }) {
   const burnMonths = monthly > 0 && avgIncome > 0 ? avgIncome / monthly : 0;
 
   const ratioStatus = ratio >= 50 ? "danger" : ratio >= 30 ? "warn" : "safe";
-  const ratioCls = ratioStatus === "danger" ? "text-destructive" : ratioStatus === "warn" ? "text-amber-600" : "text-emerald-600";
+  const ratioCls =
+    ratioStatus === "danger"
+      ? "text-destructive"
+      : ratioStatus === "warn"
+        ? "text-amber-600"
+        : "text-emerald-600";
 
   return (
     <Card className="animate-fade-up border-primary/30 bg-gradient-to-br from-primary/5 via-card to-card">
@@ -36,12 +41,16 @@ export function SurvivalMode({ subs }: { subs: Subscription[] }) {
       </CardHeader>
       <CardContent className="space-y-4">
         {avgIncome === 0 ? (
-          <p className="text-xs text-muted-foreground">เพิ่มรายได้ในแท็บ "ภาษี & รายได้" เพื่อให้ระบบคำนวณความเสี่ยงให้</p>
+          <p className="text-xs text-muted-foreground">
+            เพิ่มรายได้ในแท็บ "ภาษี & รายได้" เพื่อให้ระบบคำนวณความเสี่ยงให้
+          </p>
         ) : (
           <>
             <div>
               <div className="flex items-center justify-between text-xs mb-1.5">
-                <span className="flex items-center gap-1.5"><Activity className="h-3.5 w-3.5" /> ค่าซัพ vs รายได้เฉลี่ย</span>
+                <span className="flex items-center gap-1.5">
+                  <Activity className="h-3.5 w-3.5" /> ค่าซัพ vs รายได้เฉลี่ย
+                </span>
                 <span className={`num font-semibold ${ratioCls}`}>{ratio.toFixed(1)}%</span>
               </div>
               <Progress value={Math.min(100, ratio)} className="h-2" />
@@ -56,8 +65,16 @@ export function SurvivalMode({ subs }: { subs: Subscription[] }) {
               <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 flex items-start gap-2">
                 <AlertTriangle className="h-4 w-4 text-amber-600 mt-0.5 shrink-0" />
                 <div className="text-xs">
-                  <p className="font-semibold text-amber-700 dark:text-amber-400">Shortfall Alert</p>
-                  <p className="text-muted-foreground">ต้องการอีก <span className="num font-semibold text-foreground">฿{formatTHB(shortfall)}</span> เพื่อครอบคลุมค่าใช้จ่ายคงที่ของเดือนนี้</p>
+                  <p className="font-semibold text-amber-700 dark:text-amber-400">
+                    Shortfall Alert
+                  </p>
+                  <p className="text-muted-foreground">
+                    ต้องการอีก{" "}
+                    <span className="num font-semibold text-foreground">
+                      ฿{formatTHB(shortfall)}
+                    </span>{" "}
+                    เพื่อครอบคลุมค่าใช้จ่ายคงที่ของเดือนนี้
+                  </p>
                 </div>
               </div>
             )}
@@ -67,7 +84,10 @@ export function SurvivalMode({ subs }: { subs: Subscription[] }) {
               <div className="text-xs flex-1">
                 <p className="font-semibold">Burn Rate</p>
                 <p className="text-muted-foreground">
-                  ถ้าไม่มีรายได้ใหม่ จ่ายค่าซัพได้อีก <span className="num font-semibold text-foreground">{burnMonths.toFixed(1)} เดือน</span>
+                  ถ้าไม่มีรายได้ใหม่ จ่ายค่าซัพได้อีก{" "}
+                  <span className="num font-semibold text-foreground">
+                    {burnMonths.toFixed(1)} เดือน
+                  </span>
                 </p>
               </div>
             </div>

@@ -8,18 +8,40 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Plus, Trash2, Pencil, ArrowUp, ArrowDown, Loader2, ImageIcon, Eye, EyeOff, Monitor, Tablet, Smartphone } from "lucide-react";
+import {
+  Plus,
+  Trash2,
+  Pencil,
+  ArrowUp,
+  ArrowDown,
+  Loader2,
+  ImageIcon,
+  Eye,
+  EyeOff,
+  Monitor,
+  Tablet,
+  Smartphone,
+} from "lucide-react";
 import { uploadCompressedImage } from "@/lib/imageCompress";
 import { AuthBannerSlider, type BannerSlide } from "@/components/auth/AuthBannerSlider";
 
 type DevicePreview = "desktop" | "tablet" | "mobile";
 
-const DEVICE_FRAMES: Record<DevicePreview, { label: string; w: number; h: number; icon: typeof Monitor; showsBanner: boolean }> = {
+const DEVICE_FRAMES: Record<
+  DevicePreview,
+  { label: string; w: number; h: number; icon: typeof Monitor; showsBanner: boolean }
+> = {
   desktop: { label: "คอมพิวเตอร์", w: 1440, h: 900, icon: Monitor, showsBanner: true },
-  tablet:  { label: "แท็บเล็ต",    w: 820,  h: 1180, icon: Tablet, showsBanner: false },
-  mobile:  { label: "มือถือ",      w: 390,  h: 844, icon: Smartphone, showsBanner: false },
+  tablet: { label: "แท็บเล็ต", w: 820, h: 1180, icon: Tablet, showsBanner: false },
+  mobile: { label: "มือถือ", w: 390, h: 844, icon: Smartphone, showsBanner: false },
 };
 
 export function AuthBannerSection() {
@@ -42,7 +64,10 @@ export function AuthBannerSection() {
 
   const reorderMut = useMutation({
     mutationFn: async ({ id, sort_order }: { id: string; sort_order: number }) => {
-      const { error } = await supabase.from("auth_banner_slides").update({ sort_order }).eq("id", id);
+      const { error } = await supabase
+        .from("auth_banner_slides")
+        .update({ sort_order })
+        .eq("id", id);
       if (error) throw error;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["admin_auth_banner_slides"] }),
@@ -50,7 +75,10 @@ export function AuthBannerSection() {
 
   const toggleMut = useMutation({
     mutationFn: async ({ id, is_active }: { id: string; is_active: boolean }) => {
-      const { error } = await supabase.from("auth_banner_slides").update({ is_active }).eq("id", id);
+      const { error } = await supabase
+        .from("auth_banner_slides")
+        .update({ is_active })
+        .eq("id", id);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -87,7 +115,9 @@ export function AuthBannerSection() {
           <h2 className="text-lg font-semibold tracking-tight flex items-center gap-2">
             <ImageIcon className="h-4 w-4 text-primary" /> แบนเนอร์หน้า Login
           </h2>
-          <p className="text-xs text-muted-foreground mt-0.5">จัดการสไลด์ที่แสดงในหน้าเข้าสู่ระบบ / สมัครสมาชิก</p>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            จัดการสไลด์ที่แสดงในหน้าเข้าสู่ระบบ / สมัครสมาชิก
+          </p>
         </div>
         <Button
           size="sm"
@@ -121,7 +151,11 @@ export function AuthBannerSection() {
                 <div key={s.id} className="flex items-start gap-3 p-3 rounded-xl border bg-card">
                   <div className="h-16 w-24 rounded-lg overflow-hidden bg-muted shrink-0">
                     {s.image_url ? (
-                      <img src={s.image_url} alt={s.title ?? ""} className="w-full h-full object-cover" />
+                      <img
+                        src={s.image_url}
+                        alt={s.title ?? ""}
+                        className="w-full h-full object-cover"
+                      />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-muted-foreground">
                         <ImageIcon className="h-5 w-5" />
@@ -130,19 +164,37 @@ export function AuthBannerSection() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                      {s.subtitle && <span className="text-[11px] text-muted-foreground truncate">{s.subtitle}</span>}
+                      {s.subtitle && (
+                        <span className="text-[11px] text-muted-foreground truncate">
+                          {s.subtitle}
+                        </span>
+                      )}
                       {!s.is_active && (
-                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground">ปิดอยู่</span>
+                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
+                          ปิดอยู่
+                        </span>
                       )}
                     </div>
                     <p className="text-sm font-medium truncate">{s.title || "(ไม่มีหัวเรื่อง)"}</p>
                   </div>
                   <div className="flex flex-col gap-1">
                     <div className="flex gap-1">
-                      <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => move(s.id, -1)} disabled={i === 0}>
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="h-7 w-7"
+                        onClick={() => move(s.id, -1)}
+                        disabled={i === 0}
+                      >
                         <ArrowUp className="h-3.5 w-3.5" />
                       </Button>
-                      <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => move(s.id, 1)} disabled={i === slides.length - 1}>
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="h-7 w-7"
+                        onClick={() => move(s.id, 1)}
+                        disabled={i === slides.length - 1}
+                      >
                         <ArrowDown className="h-3.5 w-3.5" />
                       </Button>
                     </div>
@@ -154,9 +206,21 @@ export function AuthBannerSection() {
                         onClick={() => toggleMut.mutate({ id: s.id, is_active: !s.is_active })}
                         title={s.is_active ? "ปิดสไลด์" : "เปิดสไลด์"}
                       >
-                        {s.is_active ? <Eye className="h-3.5 w-3.5" /> : <EyeOff className="h-3.5 w-3.5" />}
+                        {s.is_active ? (
+                          <Eye className="h-3.5 w-3.5" />
+                        ) : (
+                          <EyeOff className="h-3.5 w-3.5" />
+                        )}
                       </Button>
-                      <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => { setEditing(s); setOpenDialog(true); }}>
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="h-7 w-7"
+                        onClick={() => {
+                          setEditing(s);
+                          setOpenDialog(true);
+                        }}
+                      >
                         <Pencil className="h-3.5 w-3.5" />
                       </Button>
                       <Button
@@ -229,7 +293,9 @@ function DevicePreviewPanel() {
                 onClick={() => setDevice(k)}
                 title={F.label}
                 className={`inline-flex items-center gap-1 px-2 py-1 rounded-md text-[11px] transition-colors ${
-                  active ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"
+                  active
+                    ? "bg-background shadow-sm text-foreground"
+                    : "text-muted-foreground hover:text-foreground"
                 }`}
               >
                 <Icon className="h-3.5 w-3.5" />
@@ -243,10 +309,7 @@ function DevicePreviewPanel() {
         ref={containerRef}
         className="rounded-xl border bg-gradient-to-br from-muted/40 to-muted/10 p-3 overflow-hidden"
       >
-        <div
-          className="mx-auto relative"
-          style={{ width: "100%", height: scaledH }}
-        >
+        <div className="mx-auto relative" style={{ width: "100%", height: scaledH }}>
           <div
             className="absolute top-0 left-1/2 bg-background rounded-[14px] border shadow-xl overflow-hidden"
             style={{
@@ -272,7 +335,10 @@ function DevicePreviewPanel() {
 function MockLoginPage({ device }: { device: DevicePreview }) {
   const showBanner = DEVICE_FRAMES[device].showsBanner;
   return (
-    <div className="w-full h-full grid" style={{ gridTemplateColumns: showBanner ? "1fr 1fr" : "1fr" }}>
+    <div
+      className="w-full h-full grid"
+      style={{ gridTemplateColumns: showBanner ? "1fr 1fr" : "1fr" }}
+    >
       {showBanner && (
         <div className="p-6 xl:p-8 h-full">
           <div className="h-full min-h-full rounded-2xl overflow-hidden">
@@ -283,7 +349,9 @@ function MockLoginPage({ device }: { device: DevicePreview }) {
       <div className="flex items-center justify-center p-6">
         <div className="w-full max-w-sm space-y-4">
           <div className="text-center">
-            <div className="inline-flex items-center justify-center h-10 w-10 rounded-xl bg-gradient-to-br from-orange-500 to-orange-600 text-white font-bold text-sm">So</div>
+            <div className="inline-flex items-center justify-center h-10 w-10 rounded-xl bg-gradient-to-br from-orange-500 to-orange-600 text-white font-bold text-sm">
+              So
+            </div>
             <p className="text-lg font-semibold mt-3">เข้าสู่ระบบ</p>
             <p className="text-xs text-muted-foreground">ยินดีต้อนรับกลับ</p>
           </div>
@@ -362,7 +430,12 @@ function SlideDialog({
       if (slide) {
         const { error } = await supabase
           .from("auth_banner_slides")
-          .update({ title: title.trim() || null, subtitle: subtitle.trim() || null, image_url: imageUrl, is_active: isActive })
+          .update({
+            title: title.trim() || null,
+            subtitle: subtitle.trim() || null,
+            image_url: imageUrl,
+            is_active: isActive,
+          })
           .eq("id", slide.id);
         if (error) throw error;
         toast.success("บันทึกการแก้ไขแล้ว");
@@ -401,28 +474,59 @@ function SlideDialog({
                 <img src={imageUrl} alt="preview" className="w-full h-full object-cover" />
               </div>
             )}
-            <Input type="file" accept="image/*" onChange={handleFile} disabled={uploading} className="h-10" />
-            {uploading && <p className="text-xs text-muted-foreground"><Loader2 className="h-3 w-3 animate-spin inline mr-1" />กำลังอัปโหลด...</p>}
+            <Input
+              type="file"
+              accept="image/*"
+              onChange={handleFile}
+              disabled={uploading}
+              className="h-10"
+            />
+            {uploading && (
+              <p className="text-xs text-muted-foreground">
+                <Loader2 className="h-3 w-3 animate-spin inline mr-1" />
+                กำลังอัปโหลด...
+              </p>
+            )}
           </div>
           <div className="space-y-1.5">
             <Label className="text-xs">คำโปรยบนสุด (subtitle)</Label>
-            <Input value={subtitle} onChange={(e) => setSubtitle(e.target.value)} placeholder="เช่น You can easily" className="h-10" maxLength={80} />
+            <Input
+              value={subtitle}
+              onChange={(e) => setSubtitle(e.target.value)}
+              placeholder="เช่น You can easily"
+              className="h-10"
+              maxLength={80}
+            />
           </div>
           <div className="space-y-1.5">
             <Label className="text-xs">หัวเรื่องใหญ่ (title)</Label>
-            <Textarea value={title} onChange={(e) => setTitle(e.target.value)} placeholder="เช่น หลังบ้านฟรีแลนซ์ครบวงจร ที่คิดมาเพื่อคุณ" rows={2} maxLength={160} />
+            <Textarea
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="เช่น หลังบ้านฟรีแลนซ์ครบวงจร ที่คิดมาเพื่อคุณ"
+              rows={2}
+              maxLength={160}
+            />
           </div>
           <div className="flex items-center justify-between rounded-lg border p-3">
             <div>
               <p className="text-sm font-medium">เปิดใช้งาน</p>
-              <p className="text-xs text-muted-foreground">เฉพาะสไลด์ที่เปิดอยู่จะแสดงในหน้า Login</p>
+              <p className="text-xs text-muted-foreground">
+                เฉพาะสไลด์ที่เปิดอยู่จะแสดงในหน้า Login
+              </p>
             </div>
             <Switch checked={isActive} onCheckedChange={setIsActive} />
           </div>
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={onClose} disabled={saving}>ยกเลิก</Button>
-          <Button onClick={save} disabled={saving || uploading} className="bg-primary hover:bg-primary/90">
+          <Button variant="outline" onClick={onClose} disabled={saving}>
+            ยกเลิก
+          </Button>
+          <Button
+            onClick={save}
+            disabled={saving || uploading}
+            className="bg-primary hover:bg-primary/90"
+          >
             {saving && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
             บันทึก
           </Button>

@@ -23,26 +23,34 @@ export function useFinanceSettings(userId: string | undefined) {
       if (!userId) return;
       const existing = settingsQuery.data;
       if (existing) {
-        const { error } = await supabase.from("finance_settings").update(patch).eq("user_id", userId);
+        const { error } = await supabase
+          .from("finance_settings")
+          .update(patch)
+          .eq("user_id", userId);
         if (error) throw error;
       } else {
-        const { error } = await supabase.from("finance_settings").insert({ user_id: userId, ...patch });
+        const { error } = await supabase
+          .from("finance_settings")
+          .insert({ user_id: userId, ...patch });
         if (error) throw error;
       }
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: settingsKey(userId) }),
   });
 
-  const setExpenseMethod: React.Dispatch<React.SetStateAction<"lumpsum" | "actual">> = React.useCallback(
-    (next) => {
-      const value = typeof next === "function" ? next(expenseMethod) : next;
-      upsertSettings.mutate({ expense_method: value });
-    },
-    [expenseMethod, upsertSettings],
-  );
+  const setExpenseMethod: React.Dispatch<React.SetStateAction<"lumpsum" | "actual">> =
+    React.useCallback(
+      (next) => {
+        const value = typeof next === "function" ? next(expenseMethod) : next;
+        upsertSettings.mutate({ expense_method: value });
+      },
+      [expenseMethod, upsertSettings],
+    );
 
   const setMonthlyGoal = React.useCallback(
-    (goal: number) => { upsertSettings.mutate({ monthly_goal: Math.max(0, Math.round(goal)) }); },
+    (goal: number) => {
+      upsertSettings.mutate({ monthly_goal: Math.max(0, Math.round(goal)) });
+    },
     [upsertSettings],
   );
 

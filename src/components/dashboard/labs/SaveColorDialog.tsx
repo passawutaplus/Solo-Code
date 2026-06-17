@@ -1,5 +1,11 @@
 import * as React from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -55,7 +61,10 @@ export function SaveColorDialog({ open, onOpenChange, hex }: Props) {
         </DialogHeader>
         <div className="space-y-4">
           <div className="flex items-center gap-3 rounded-lg border border-border p-3">
-            <div className="w-12 h-12 rounded-md border border-border" style={{ backgroundColor: hex }} />
+            <div
+              className="w-12 h-12 rounded-md border border-border"
+              style={{ backgroundColor: hex }}
+            />
             <div>
               <div className="text-xs text-muted-foreground">สีที่จะบันทึก</div>
               <div className="font-mono font-semibold text-sm">{hex}</div>
@@ -64,7 +73,12 @@ export function SaveColorDialog({ open, onOpenChange, hex }: Props) {
 
           <div className="space-y-2">
             <Label className="text-xs">ชื่อสี (ถ้ามี)</Label>
-            <Input value={label} onChange={(e) => setLabel(e.target.value)} placeholder="เช่น สีหลักโลโก้" maxLength={60} />
+            <Input
+              value={label}
+              onChange={(e) => setLabel(e.target.value)}
+              placeholder="เช่น สีหลักโลโก้"
+              maxLength={60}
+            />
           </div>
 
           {!creating && palettes.length > 0 ? (

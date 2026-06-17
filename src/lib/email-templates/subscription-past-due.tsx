@@ -1,12 +1,12 @@
-import * as React from 'react'
-import type { TemplateEntry } from './registry'
-import { EmailLayout, EmailButton, EmailText } from './layout'
+import * as React from "react";
+import type { TemplateEntry } from "./registry";
+import { EmailLayout, EmailButton, EmailText } from "./layout";
 
 interface PastDueProps {
-  priceId?: string
+  priceId?: string;
 }
 
-const PastDueEmail = ({ priceId = 'pro' }: PastDueProps) => (
+const PastDueEmail = ({ priceId = "pro" }: PastDueProps) => (
   <EmailLayout
     preview="การชำระเงินไม่สำเร็จ — กรุณาอัปเดตวิธีชำระเงิน"
     badge="แจ้งเตือนการชำระเงิน"
@@ -24,13 +24,13 @@ const PastDueEmail = ({ priceId = 'pro' }: PastDueProps) => (
     </EmailText>
     <EmailButton href="https://solofreelancer.com/pricing">อัปเดตวิธีชำระเงิน</EmailButton>
   </EmailLayout>
-)
+);
 
 export const template = {
   component: PastDueEmail,
   subject: () => `[So1o] การชำระเงินไม่สำเร็จ — โปรดอัปเดตบัตร`,
-  displayName: 'Subscription past due',
-  previewData: { priceId: 'pro_monthly' },
-} satisfies TemplateEntry
+  displayName: "Subscription past due",
+  previewData: { priceId: "pro_monthly" },
+} satisfies TemplateEntry;
 
-export default PastDueEmail
+export default PastDueEmail;

@@ -106,16 +106,9 @@ console.log(`Added ${toAdd.size} key(s): ${[...toAdd.keys()].join(", ")}`);
 
 const oldRef = "jdqrrzaleapablabphmw";
 const newRef = "rvnzjiskqliexysicfmh";
-const usesOld =
-  [...merged.entries()].some(
-    ([, v]) => typeof v === "string" && v.includes(oldRef),
-  );
+const usesOld = [...merged.entries()].some(([, v]) => typeof v === "string" && v.includes(oldRef));
 if (usesOld) {
   console.log("");
-  console.log(
-    `⚠️  .env still points to closed project ${oldRef}.`,
-  );
-  console.log(
-    `   Copy Supabase keys from your other machine or Dashboard → project ${newRef}`,
-  );
+  console.log(`⚠️  .env still points to closed project ${oldRef}.`);
+  console.log(`   Copy Supabase keys from your other machine or Dashboard → project ${newRef}`);
 }

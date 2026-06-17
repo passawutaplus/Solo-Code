@@ -38,10 +38,8 @@ export function DraggableFabDock() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const isDashboard = pathname.startsWith("/dashboard");
 
-  const rightOffset =
-    view === "sidebar" && !isMobile ? sidebarWidth + MARGIN : MARGIN;
-  const bottomOffset =
-    isMobile && isDashboard ? DASH_MOBILE_NAV_SPACER_PX + MARGIN : 24;
+  const rightOffset = view === "sidebar" && !isMobile ? sidebarWidth + MARGIN : MARGIN;
+  const bottomOffset = isMobile && isDashboard ? DASH_MOBILE_NAV_SPACER_PX + MARGIN : 24;
 
   return (
     <div
@@ -50,7 +48,8 @@ export function DraggableFabDock() {
       style={{
         right: rightOffset,
         bottom: `calc(${bottomOffset}px + env(safe-area-inset-bottom, 0px))`,
-        transition: "right 0.25s cubic-bezier(0.2, 0.9, 0.3, 1), opacity 0.2s ease, transform 0.25s ease",
+        transition:
+          "right 0.25s cubic-bezier(0.2, 0.9, 0.3, 1), opacity 0.2s ease, transform 0.25s ease",
         opacity: modalOpen ? 0 : 1,
         transform: modalOpen ? "scale(0.85)" : "scale(1)",
         pointerEvents: modalOpen ? "none" : "auto",

@@ -1,5 +1,12 @@
 import * as React from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -20,7 +27,15 @@ interface Props {
   defaultName?: string;
 }
 
-export function ConfirmBriefDialog({ open, onOpenChange, shareToken, briefTitle, onConfirmed, mode = "client", defaultName }: Props) {
+export function ConfirmBriefDialog({
+  open,
+  onOpenChange,
+  shareToken,
+  briefTitle,
+  onConfirmed,
+  mode = "client",
+  defaultName,
+}: Props) {
   const [name, setName] = React.useState(defaultName ?? "");
   const [signature, setSignature] = React.useState("");
   const [agree, setAgree] = React.useState(false);
@@ -28,16 +43,28 @@ export function ConfirmBriefDialog({ open, onOpenChange, shareToken, briefTitle,
 
   React.useEffect(() => {
     if (!open) {
-      setName(defaultName ?? ""); setSignature(""); setAgree(false); setBusy(false);
+      setName(defaultName ?? "");
+      setSignature("");
+      setAgree(false);
+      setBusy(false);
     } else {
       setName(defaultName ?? "");
     }
   }, [open, defaultName]);
 
   const submit = async () => {
-    if (!name.trim()) { toast.error("กรุณาใส่ชื่อ"); return; }
-    if (!signature.trim()) { toast.error("กรุณาเซ็นชื่อ (พิมพ์)"); return; }
-    if (!agree) { toast.error("กรุณายืนยันว่าข้อมูลถูกต้อง"); return; }
+    if (!name.trim()) {
+      toast.error("กรุณาใส่ชื่อ");
+      return;
+    }
+    if (!signature.trim()) {
+      toast.error("กรุณาเซ็นชื่อ (พิมพ์)");
+      return;
+    }
+    if (!agree) {
+      toast.error("กรุณายืนยันว่าข้อมูลถูกต้อง");
+      return;
+    }
     setBusy(true);
     try {
       const finalName = mode === "self" ? `${name.trim()} (ยืนยันโดยฟรีแลนซ์)` : name.trim();
@@ -79,7 +106,13 @@ export function ConfirmBriefDialog({ open, onOpenChange, shareToken, briefTitle,
         <div className="space-y-3 py-2">
           <div className="space-y-1.5">
             <Label htmlFor="conf-name">ชื่อ-นามสกุล</Label>
-            <Input id="conf-name" value={name} onChange={(e) => setName(e.target.value)} placeholder="เช่น สมชาย ใจดี" maxLength={120} />
+            <Input
+              id="conf-name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="เช่น สมชาย ใจดี"
+              maxLength={120}
+            />
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="conf-sig">ลายเซ็น (พิมพ์ชื่อสำหรับลายเซ็นดิจิทัล)</Label>
@@ -94,16 +127,28 @@ export function ConfirmBriefDialog({ open, onOpenChange, shareToken, briefTitle,
           </div>
           <div className="flex items-start gap-2 rounded-xl bg-muted/50 p-3">
             <Checkbox id="agree" checked={agree} onCheckedChange={(v) => setAgree(!!v)} />
-            <label htmlFor="agree" className="text-xs text-muted-foreground leading-relaxed cursor-pointer">
-              ฉันยืนยันว่าข้อมูลในบรีฟนี้ถูกต้องและตกลงให้ใช้เป็นขอบเขตการทำงาน หากมีการเปลี่ยนแปลงนอกเหนือจากนี้อาจมีค่าใช้จ่ายเพิ่มเติม
+            <label
+              htmlFor="agree"
+              className="text-xs text-muted-foreground leading-relaxed cursor-pointer"
+            >
+              ฉันยืนยันว่าข้อมูลในบรีฟนี้ถูกต้องและตกลงให้ใช้เป็นขอบเขตการทำงาน
+              หากมีการเปลี่ยนแปลงนอกเหนือจากนี้อาจมีค่าใช้จ่ายเพิ่มเติม
             </label>
           </div>
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={busy}>ยกเลิก</Button>
+          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={busy}>
+            ยกเลิก
+          </Button>
           <Button onClick={submit} disabled={busy}>
-            {busy ? <><Loader2 className="h-4 w-4 mr-1.5 animate-spin" /> กำลังยืนยัน…</> : "ยืนยันบรีฟนี้"}
+            {busy ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-1.5 animate-spin" /> กำลังยืนยัน…
+              </>
+            ) : (
+              "ยืนยันบรีฟนี้"
+            )}
           </Button>
         </DialogFooter>
       </DialogContent>

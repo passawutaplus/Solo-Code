@@ -1,8 +1,25 @@
 import * as React from "react";
 import {
-  Palette, Camera, Pencil, Code2, Megaphone, Video, Music, Sparkles,
-  User, Briefcase, Wallet, Target, Clock, AlertCircle, BarChart3,
-  Heart, Crown, History, Layers, Star,
+  Palette,
+  Camera,
+  Pencil,
+  Code2,
+  Megaphone,
+  Video,
+  Music,
+  Sparkles,
+  User,
+  Briefcase,
+  Wallet,
+  Target,
+  Clock,
+  AlertCircle,
+  BarChart3,
+  Heart,
+  Crown,
+  History,
+  Layers,
+  Star,
 } from "lucide-react";
 
 export type Persona = "freelancer" | "client";
@@ -23,7 +40,10 @@ export interface Question {
 
 export const FREELANCER_QS: Question[] = [
   {
-    key: "category", title: "หมวดหมู่ที่คุณถนัด", subtitle: "เลือกได้มากกว่าหนึ่งข้อ", multi: true,
+    key: "category",
+    title: "หมวดหมู่ที่คุณถนัด",
+    subtitle: "เลือกได้มากกว่าหนึ่งข้อ",
+    multi: true,
     options: [
       { value: "graphic", label: "Graphic", icon: Palette },
       { value: "photo", label: "Photography", icon: Camera },
@@ -36,7 +56,9 @@ export const FREELANCER_QS: Question[] = [
     ],
   },
   {
-    key: "experience", title: "ประสบการณ์ของคุณ", subtitle: "เพื่อจัดเครื่องมือให้เหมาะกับระดับ",
+    key: "experience",
+    title: "ประสบการณ์ของคุณ",
+    subtitle: "เพื่อจัดเครื่องมือให้เหมาะกับระดับ",
     options: [
       { value: "junior", label: "< 1 ปี", icon: Star },
       { value: "mid", label: "1–3 ปี", icon: Star },
@@ -45,7 +67,9 @@ export const FREELANCER_QS: Question[] = [
     ],
   },
   {
-    key: "pain_point", title: "ปัญหาที่อยากแก้ที่สุด", subtitle: "บอกเราหน่อย เราจะแนะนำฟีเจอร์ให้",
+    key: "pain_point",
+    title: "ปัญหาที่อยากแก้ที่สุด",
+    subtitle: "บอกเราหน่อย เราจะแนะนำฟีเจอร์ให้",
     options: [
       { value: "client", label: "หาลูกค้ายาก", icon: User },
       { value: "money", label: "บริหารเงิน/ภาษี", icon: Wallet },
@@ -54,7 +78,9 @@ export const FREELANCER_QS: Question[] = [
     ],
   },
   {
-    key: "volume", title: "ปริมาณงานต่อเดือน", subtitle: "ประมาณเท่าไหร่",
+    key: "volume",
+    title: "ปริมาณงานต่อเดือน",
+    subtitle: "ประมาณเท่าไหร่",
     options: [
       { value: "1-3", label: "1–3 งาน", icon: BarChart3 },
       { value: "4-8", label: "4–8 งาน", icon: BarChart3 },
@@ -63,7 +89,9 @@ export const FREELANCER_QS: Question[] = [
     ],
   },
   {
-    key: "goal", title: "เป้าหมายในปีนี้", subtitle: "อยากไปถึงจุดไหน",
+    key: "goal",
+    title: "เป้าหมายในปีนี้",
+    subtitle: "อยากไปถึงจุดไหน",
     options: [
       { value: "income", label: "รายได้เพิ่ม", icon: Wallet },
       { value: "brand", label: "สร้างแบรนด์", icon: Crown },
@@ -75,7 +103,10 @@ export const FREELANCER_QS: Question[] = [
 
 export const CLIENT_QS: Question[] = [
   {
-    key: "interest", title: "งานที่สนใจจ้าง", subtitle: "เลือกได้มากกว่าหนึ่งข้อ", multi: true,
+    key: "interest",
+    title: "งานที่สนใจจ้าง",
+    subtitle: "เลือกได้มากกว่าหนึ่งข้อ",
+    multi: true,
     options: [
       { value: "graphic", label: "Graphic", icon: Palette },
       { value: "photo", label: "Photography", icon: Camera },
@@ -88,7 +119,9 @@ export const CLIENT_QS: Question[] = [
     ],
   },
   {
-    key: "budget", title: "งบประมาณต่อโปรเจกต์", subtitle: "โดยเฉลี่ย",
+    key: "budget",
+    title: "งบประมาณต่อโปรเจกต์",
+    subtitle: "โดยเฉลี่ย",
     options: [
       { value: "<5k", label: "< 5,000", icon: Wallet },
       { value: "5-20k", label: "5k–20k", icon: Wallet },
@@ -97,7 +130,9 @@ export const CLIENT_QS: Question[] = [
     ],
   },
   {
-    key: "scope", title: "ขนาดของงาน", subtitle: "งานแบบไหนที่จ้างบ่อย",
+    key: "scope",
+    title: "ขนาดของงาน",
+    subtitle: "งานแบบไหนที่จ้างบ่อย",
     options: [
       { value: "oneoff", label: "งานเดี่ยว", icon: Layers },
       { value: "campaign", label: "แคมเปญ", icon: Target },
@@ -106,7 +141,9 @@ export const CLIENT_QS: Question[] = [
     ],
   },
   {
-    key: "priority", title: "สิ่งที่ให้ความสำคัญ", subtitle: "ปัจจัยหลักในการเลือก",
+    key: "priority",
+    title: "สิ่งที่ให้ความสำคัญ",
+    subtitle: "ปัจจัยหลักในการเลือก",
     options: [
       { value: "quality", label: "คุณภาพ", icon: Crown },
       { value: "price", label: "ราคา", icon: Wallet },
@@ -115,7 +152,9 @@ export const CLIENT_QS: Question[] = [
     ],
   },
   {
-    key: "history", title: "เคยจ้างฟรีแลนซ์มาก่อน?", subtitle: "ประสบการณ์ที่ผ่านมา",
+    key: "history",
+    title: "เคยจ้างฟรีแลนซ์มาก่อน?",
+    subtitle: "ประสบการณ์ที่ผ่านมา",
     options: [
       { value: "never", label: "ครั้งแรก", icon: Star },
       { value: "few", label: "1–5 ครั้ง", icon: History },

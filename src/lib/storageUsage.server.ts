@@ -148,25 +148,17 @@ async function countUserRows(
 
 /** Rough DB payload estimate from row counts (not exact pg_column_size). */
 async function estimateUserDataBytes(userId: string): Promise<number> {
-  const [
-    quotations,
-    briefs,
-    aiChat,
-    clients,
-    incomes,
-    expenses,
-    planner,
-    notifs,
-  ] = await Promise.all([
-    countUserRows("quotations", userId),
-    countUserRows("design_briefs", userId),
-    countUserRows("ai_chat_messages", userId),
-    countUserRows("saved_clients", userId),
-    countUserRows("finance_incomes", userId),
-    countUserRows("finance_expenses", userId),
-    countUserRows("planner_posts", userId),
-    countUserRows("notifications", userId),
-  ]);
+  const [quotations, briefs, aiChat, clients, incomes, expenses, planner, notifs] =
+    await Promise.all([
+      countUserRows("quotations", userId),
+      countUserRows("design_briefs", userId),
+      countUserRows("ai_chat_messages", userId),
+      countUserRows("saved_clients", userId),
+      countUserRows("finance_incomes", userId),
+      countUserRows("finance_expenses", userId),
+      countUserRows("planner_posts", userId),
+      countUserRows("notifications", userId),
+    ]);
 
   return (
     quotations * 12_000 +
@@ -248,10 +240,7 @@ export async function purgeUserStorageCategory(
   category: StorageCategoryId,
 ): Promise<PurgeStorageCategoryResult> {
   if (category === "data") {
-    const tables = [
-      "ai_chat_messages",
-      "notifications",
-    ] as const;
+    const tables = ["ai_chat_messages", "notifications"] as const;
 
     let freed = 0;
     for (const table of tables) {

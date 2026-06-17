@@ -72,9 +72,7 @@ function tailwindDir(angle: number): string {
     { a: 315, cls: "bg-gradient-to-tl" },
     { a: 360, cls: "bg-gradient-to-t" },
   ];
-  return dirs.reduce((best, d) =>
-    Math.abs(d.a - a) < Math.abs(best.a - a) ? d : best
-  ).cls;
+  return dirs.reduce((best, d) => (Math.abs(d.a - a) < Math.abs(best.a - a) ? d : best)).cls;
 }
 
 export function toTailwind(type: GradientType, angle: number, stops: Stop[]): string {

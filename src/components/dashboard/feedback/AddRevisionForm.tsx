@@ -64,8 +64,17 @@ export function AddRevisionForm({
       {images.length > 0 && (
         <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
           {images.map((src, i) => (
-            <div key={i} className="relative group rounded-lg overflow-hidden border border-border/60">
-              <img src={src} alt={`ref ${i + 1}`} className="w-full aspect-square object-cover"  loading="lazy" decoding="async" />
+            <div
+              key={i}
+              className="relative group rounded-lg overflow-hidden border border-border/60"
+            >
+              <img
+                src={src}
+                alt={`ref ${i + 1}`}
+                className="w-full aspect-square object-cover"
+                loading="lazy"
+                decoding="async"
+              />
               <button
                 type="button"
                 onClick={() => setImages((arr) => arr.filter((_, idx) => idx !== i))}
@@ -105,7 +114,10 @@ export function AddRevisionForm({
           </SelectContent>
         </Select>
 
-        <Button onClick={submit} className="ml-auto rounded-xl bg-primary hover:bg-primary/90 gap-1.5">
+        <Button
+          onClick={submit}
+          className="ml-auto rounded-xl bg-primary hover:bg-primary/90 gap-1.5"
+        >
           <Plus className="h-3.5 w-3.5" /> บันทึก
         </Button>
       </div>

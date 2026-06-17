@@ -10,13 +10,9 @@ function webhookSecretCandidates(): string[] {
 
 function hmacBase64(secret: string, body: string): Promise<string> {
   return crypto.subtle
-    .importKey(
-      "raw",
-      new TextEncoder().encode(secret),
-      { name: "HMAC", hash: "SHA-256" },
-      false,
-      ["sign"],
-    )
+    .importKey("raw", new TextEncoder().encode(secret), { name: "HMAC", hash: "SHA-256" }, false, [
+      "sign",
+    ])
     .then((key) => crypto.subtle.sign("HMAC", key, new TextEncoder().encode(body)))
     .then((mac) => {
       const bytes = new Uint8Array(mac);

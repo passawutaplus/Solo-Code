@@ -13,9 +13,7 @@ export function EmptyState({ docType, onCreate }: { docType: DocKind; onCreate: 
       <p className="text-sm font-medium">ยังไม่มี{meta.label}</p>
       {docType === "quotation" ? (
         <>
-          <p className="text-xs text-muted-foreground mt-1">
-            กดปุ่ม "ทำใบเสนอราคา" เพื่อเริ่มต้น
-          </p>
+          <p className="text-xs text-muted-foreground mt-1">กดปุ่ม "ทำใบเสนอราคา" เพื่อเริ่มต้น</p>
           <Button
             onClick={onCreate}
             size="sm"

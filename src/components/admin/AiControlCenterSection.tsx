@@ -34,7 +34,17 @@ type Personality = {
 
 const db = supabase as any;
 
-function MetricCard({ icon: Icon, label, value, sub }: { icon: typeof Brain; label: string; value: string | number; sub?: string }) {
+function MetricCard({
+  icon: Icon,
+  label,
+  value,
+  sub,
+}: {
+  icon: typeof Brain;
+  label: string;
+  value: string | number;
+  sub?: string;
+}) {
   return (
     <Card className="glass">
       <CardContent className="p-4">
@@ -69,7 +79,9 @@ export function AiControlCenterSection() {
   const kb = useQuery({
     queryKey: ["ai_knowledge_base_count"],
     queryFn: async () => {
-      const { count } = await db.from("ai_knowledge_base").select("*", { count: "exact", head: true });
+      const { count } = await db
+        .from("ai_knowledge_base")
+        .select("*", { count: "exact", head: true });
       return count ?? 0;
     },
   });
@@ -77,7 +89,11 @@ export function AiControlCenterSection() {
   const personality = useQuery({
     queryKey: ["ai_personality"],
     queryFn: async () => {
-      const { data, error } = await db.from("ai_personality_settings").select("*").limit(1).maybeSingle();
+      const { data, error } = await db
+        .from("ai_personality_settings")
+        .select("*")
+        .limit(1)
+        .maybeSingle();
       if (error) throw error;
       return data as Personality;
     },
@@ -124,7 +140,9 @@ export function AiControlCenterSection() {
           <h2 className="text-lg font-semibold tracking-tight flex items-center gap-2">
             <Brain className="h-5 w-5 text-primary" /> So1o AI Control Center
           </h2>
-          <p className="text-xs text-muted-foreground">เทรน AI ให้มีบุคลิกของ So1o · คัดเลือกคำตอบที่ดีเข้า Knowledge Base</p>
+          <p className="text-xs text-muted-foreground">
+            เทรน AI ให้มีบุคลิกของ So1o · คัดเลือกคำตอบที่ดีเข้า Knowledge Base
+          </p>
         </div>
         <Button
           size="sm"
@@ -141,10 +159,25 @@ export function AiControlCenterSection() {
 
       {/* Scorecard */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <MetricCard icon={Database} label="Knowledge Base" value={kb.data ?? "—"} sub="ตัวอย่างที่ approve" />
-        <MetricCard icon={ThumbsUp} label="Satisfaction" value={`${satisfaction}%`} sub={`${rated} ratings`} />
+        <MetricCard
+          icon={Database}
+          label="Knowledge Base"
+          value={kb.data ?? "—"}
+          sub="ตัวอย่างที่ approve"
+        />
+        <MetricCard
+          icon={ThumbsUp}
+          label="Satisfaction"
+          value={`${satisfaction}%`}
+          sub={`${rated} ratings`}
+        />
         <MetricCard icon={Sparkles} label="Total Samples" value={list.length} sub="50 ล่าสุด" />
-        <MetricCard icon={Brain} label="Tokens Used" value={totalTokens.toLocaleString()} sub="ใน batch ปัจจุบัน" />
+        <MetricCard
+          icon={Brain}
+          label="Tokens Used"
+          value={totalTokens.toLocaleString()}
+          sub="ใน batch ปัจจุบัน"
+        />
       </div>
 
       <div className="grid lg:grid-cols-[1fr_320px] gap-4">
@@ -156,16 +189,22 @@ export function AiControlCenterSection() {
           <CardContent className="space-y-3 max-h-[600px] overflow-auto">
             {samples.isLoading && <Loader2 className="h-4 w-4 animate-spin" />}
             {!samples.isLoading && list.length === 0 && (
-              <p className="text-xs text-muted-foreground text-center py-8">ยังไม่มีข้อมูล AI สำหรับคัดกรอง · ผู้ใช้ต้องคุยกับ AI แล้วกดให้คะแนนก่อน</p>
+              <p className="text-xs text-muted-foreground text-center py-8">
+                ยังไม่มีข้อมูล AI สำหรับคัดกรอง · ผู้ใช้ต้องคุยกับ AI แล้วกดให้คะแนนก่อน
+              </p>
             )}
             {list.map((s) => (
               <div key={s.id} className="rounded-xl border p-3 space-y-2">
                 <div className="flex items-center gap-2 text-[10px]">
                   <Badge variant="outline">{s.feature}</Badge>
-                  {s.user_rating === 1 && <Badge className="bg-emerald-500/15 text-emerald-700">👍</Badge>}
+                  {s.user_rating === 1 && (
+                    <Badge className="bg-emerald-500/15 text-emerald-700">👍</Badge>
+                  )}
                   {s.user_rating === -1 && <Badge className="bg-red-500/15 text-red-700">👎</Badge>}
                   <Badge variant="secondary">{s.status}</Badge>
-                  <span className="text-muted-foreground ml-auto">{new Date(s.created_at).toLocaleString("th-TH")}</span>
+                  <span className="text-muted-foreground ml-auto">
+                    {new Date(s.created_at).toLocaleString("th-TH")}
+                  </span>
                 </div>
                 <div className="text-xs">
                   <div className="font-medium text-muted-foreground">Prompt:</div>
@@ -189,10 +228,19 @@ export function AiControlCenterSection() {
                   className="text-xs"
                 />
                 <div className="flex justify-end gap-1.5">
-                  <Button size="sm" variant="ghost" className="h-7 text-xs gap-1" onClick={() => discard(s.id)}>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="h-7 text-xs gap-1"
+                    onClick={() => discard(s.id)}
+                  >
                     <X className="h-3 w-3" /> Discard
                   </Button>
-                  <Button size="sm" className="h-7 text-xs gap-1 bg-primary" onClick={() => approve(s)}>
+                  <Button
+                    size="sm"
+                    className="h-7 text-xs gap-1 bg-primary"
+                    onClick={() => approve(s)}
+                  >
                     <Check className="h-3 w-3" /> Approve for Brain
                   </Button>
                 </div>
@@ -203,7 +251,10 @@ export function AiControlCenterSection() {
 
         {/* Personality Tuner */}
         {personality.data && (
-          <PersonalityTuner data={personality.data} onSaved={() => qc.invalidateQueries({ queryKey: ["ai_personality"] })} />
+          <PersonalityTuner
+            data={personality.data}
+            onSaved={() => qc.invalidateQueries({ queryKey: ["ai_personality"] })}
+          />
         )}
       </div>
 
@@ -230,7 +281,10 @@ function PersonalityTuner({ data, onSaved }: { data: Personality; onSaved: () =>
           creativity,
           formality,
           detail_level: detail,
-          forbidden_keywords: keywords.split(",").map((s) => s.trim()).filter(Boolean),
+          forbidden_keywords: keywords
+            .split(",")
+            .map((s) => s.trim())
+            .filter(Boolean),
           system_prompt_override: override || null,
         })
         .eq("id", data.id);
@@ -251,24 +305,62 @@ function PersonalityTuner({ data, onSaved }: { data: Personality; onSaved: () =>
       </CardHeader>
       <CardContent className="space-y-4">
         <div>
-          <div className="flex justify-between text-xs mb-1.5"><span>Creativity</span><span className="num">{creativity.toFixed(2)}</span></div>
-          <Slider value={[creativity]} min={0} max={1} step={0.05} onValueChange={(v) => setCreativity(v[0])} />
+          <div className="flex justify-between text-xs mb-1.5">
+            <span>Creativity</span>
+            <span className="num">{creativity.toFixed(2)}</span>
+          </div>
+          <Slider
+            value={[creativity]}
+            min={0}
+            max={1}
+            step={0.05}
+            onValueChange={(v) => setCreativity(v[0])}
+          />
         </div>
         <div>
-          <div className="flex justify-between text-xs mb-1.5"><span>Formality</span><span className="num">{formality.toFixed(2)}</span></div>
-          <Slider value={[formality]} min={0} max={1} step={0.05} onValueChange={(v) => setFormality(v[0])} />
+          <div className="flex justify-between text-xs mb-1.5">
+            <span>Formality</span>
+            <span className="num">{formality.toFixed(2)}</span>
+          </div>
+          <Slider
+            value={[formality]}
+            min={0}
+            max={1}
+            step={0.05}
+            onValueChange={(v) => setFormality(v[0])}
+          />
         </div>
         <div>
-          <div className="flex justify-between text-xs mb-1.5"><span>Detail Level</span><span className="num">{detail.toFixed(2)}</span></div>
-          <Slider value={[detail]} min={0} max={1} step={0.05} onValueChange={(v) => setDetail(v[0])} />
+          <div className="flex justify-between text-xs mb-1.5">
+            <span>Detail Level</span>
+            <span className="num">{detail.toFixed(2)}</span>
+          </div>
+          <Slider
+            value={[detail]}
+            min={0}
+            max={1}
+            step={0.05}
+            onValueChange={(v) => setDetail(v[0])}
+          />
         </div>
         <div>
           <label className="text-xs font-medium">Forbidden Keywords</label>
-          <Input value={keywords} onChange={(e) => setKeywords(e.target.value)} placeholder="คั่นด้วย , " className="mt-1 text-xs" />
+          <Input
+            value={keywords}
+            onChange={(e) => setKeywords(e.target.value)}
+            placeholder="คั่นด้วย , "
+            className="mt-1 text-xs"
+          />
         </div>
         <div>
           <label className="text-xs font-medium">System Prompt Override</label>
-          <Textarea rows={4} value={override} onChange={(e) => setOverride(e.target.value)} placeholder="ใส่ master prompt ของ So1o (ถ้าเว้นว่างจะใช้ค่าเริ่มต้น)" className="mt-1 text-xs" />
+          <Textarea
+            rows={4}
+            value={override}
+            onChange={(e) => setOverride(e.target.value)}
+            placeholder="ใส่ master prompt ของ So1o (ถ้าเว้นว่างจะใช้ค่าเริ่มต้น)"
+            className="mt-1 text-xs"
+          />
         </div>
         <Button size="sm" className="w-full bg-primary" disabled={saving} onClick={save}>
           {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : "บันทึก Personality"}

@@ -11,10 +11,7 @@ import {
   getGeminiApiKey,
   type GeminiChatMessage,
 } from "./gemini.ts";
-import {
-  AI_DISCLAIMER_TAX_PRICE_PROMPT,
-  RULE_BREVITY_LINE,
-} from "./copy-prompts.ts";
+import { AI_DISCLAIMER_TAX_PRICE_PROMPT, RULE_BREVITY_LINE } from "./copy-prompts.ts";
 
 const MENTOR_SYSTEM_PROMPT = `คุณคือ "So1o Mentor" พี่เลี้ยงฟรีแลนซ์ไทย เชี่ยวชาญดีไซน์ ราคาตลาด การคุยลูกค้า และภาษีฟรีแลนซ์
 - ${RULE_BREVITY_LINE}
@@ -31,17 +28,17 @@ type AssistantPreset = keyof typeof FEATURE_BY_PRESET;
 const HUMAN_RE = /^(ทีมงาน|แอดมิน|คุยกับคน|support|human)$/i;
 
 function adminClient(): SupabaseClient {
-  return createClient(
-    Deno.env.get("SUPABASE_URL")!,
-    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
-  );
+  return createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
 }
 
 function resolvePreset(message: string): AssistantPreset {
   return isBusinessQuestion(message) ? "business" : "mentor";
 }
 
-async function loadRecentHistory(admin: SupabaseClient, userId: string): Promise<GeminiChatMessage[]> {
+async function loadRecentHistory(
+  admin: SupabaseClient,
+  userId: string,
+): Promise<GeminiChatMessage[]> {
   const { data } = await admin
     .from("ai_chat_messages")
     .select("role, content")
@@ -50,12 +47,10 @@ async function loadRecentHistory(admin: SupabaseClient, userId: string): Promise
     .limit(8);
 
   if (!data?.length) return [];
-  return [...data]
-    .reverse()
-    .map((row) => ({
-      role: row.role === "assistant" ? "assistant" as const : "user" as const,
-      content: String(row.content ?? ""),
-    }));
+  return [...data].reverse().map((row) => ({
+    role: row.role === "assistant" ? ("assistant" as const) : ("user" as const),
+    content: String(row.content ?? ""),
+  }));
 }
 
 export function isHumanHandoffRequest(text: string): boolean {
@@ -70,7 +65,7 @@ function appendLineReplyFooter(
   const brand = personal?.brandName?.trim();
   const rawName = personal?.displayName?.trim();
   const name = rawName ? (rawName.startsWith("คุณ") ? rawName : `คุณ${rawName}`) : null;
-  const signoff = brand && name ? `${brand} (${name})` : brand ?? name;
+  const signoff = brand && name ? `${brand} (${name})` : (brand ?? name);
 
   const lines = [body.trim(), ""];
   if (signoff) lines.push(signoff);
@@ -155,9 +150,8 @@ export async function handleLineAssistantMessage(opts: {
 
   const history = await loadRecentHistory(admin, opts.userId);
   // Gemini requires turns to start with user after system instruction.
-  const trimmedHistory = history.length && history[0].role === "assistant"
-    ? history.slice(1)
-    : history;
+  const trimmedHistory =
+    history.length && history[0].role === "assistant" ? history.slice(1) : history;
   const messages: GeminiChatMessage[] = [
     { role: "system", content: systemPrompt },
     ...trimmedHistory,
@@ -173,11 +167,7 @@ export async function handleLineAssistantMessage(opts: {
   const safeReply = reply.trim();
   if (!safeReply) {
     return {
-      reply: appendLineReplyFooter(
-        "ขออภัย ตอบไม่ทัน ลองถามใหม่อีกครั้งนะ",
-        quota,
-        opts,
-      ),
+      reply: appendLineReplyFooter("ขออภัย ตอบไม่ทัน ลองถามใหม่อีกครั้งนะ", quota, opts),
     };
   }
 

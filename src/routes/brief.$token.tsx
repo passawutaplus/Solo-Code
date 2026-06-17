@@ -9,12 +9,23 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Loader2, ShieldCheck, Send, Printer, FileText, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import {
-  type DesignBrief, briefCompleteness,
-  STATUS_LABEL, STATUS_TONE, PROJECT_TYPES, MOOD_OPTIONS, FORMAT_OPTIONS,
+  type DesignBrief,
+  briefCompleteness,
+  STATUS_LABEL,
+  STATUS_TONE,
+  PROJECT_TYPES,
+  MOOD_OPTIONS,
+  FORMAT_OPTIONS,
 } from "@/lib/briefSchema";
 import { ReferenceUploader } from "@/components/dashboard/briefs/ReferenceUploader";
 import { ConfirmBriefDialog } from "@/components/dashboard/briefs/ConfirmBriefDialog";
@@ -26,7 +37,8 @@ import type { PortalBranding } from "@/lib/documentTheme/types";
 export const Route = createFileRoute("/brief/$token")({
   head: ({ params }) => {
     const title = "บรีฟงานออกแบบ | So1o Freelancer";
-    const description = "กรอกบรีฟงานออกแบบออนไลน์ ระบุขอบเขตงาน เป้าหมาย และยืนยันรายละเอียดร่วมกับฟรีแลนซ์ของคุณผ่าน So1o Freelancer";
+    const description =
+      "กรอกบรีฟงานออกแบบออนไลน์ ระบุขอบเขตงาน เป้าหมาย และยืนยันรายละเอียดร่วมกับฟรีแลนซ์ของคุณผ่าน So1o Freelancer";
     const url = `https://solofreelancer.com/brief/${params.token}`;
     return {
       meta: [
@@ -71,7 +83,9 @@ function PublicBriefPage() {
     setLoading(false);
   }, [token, getPortalBranding]);
 
-  React.useEffect(() => { load(); }, [load]);
+  React.useEffect(() => {
+    load();
+  }, [load]);
 
   const patch = (p: Partial<DesignBrief>) => setBrief((cur) => (cur ? { ...cur, ...p } : cur));
   const patchSection = <K extends keyof DesignBrief>(key: K, p: Partial<DesignBrief[K]>) =>
@@ -98,7 +112,9 @@ function PublicBriefPage() {
       if (error) toast.error(error.message);
       else setSavedAt(new Date());
     }, 1200);
-    return () => { if (debRef.current) clearTimeout(debRef.current); };
+    return () => {
+      if (debRef.current) clearTimeout(debRef.current);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [brief]);
 
@@ -117,7 +133,9 @@ function PublicBriefPage() {
           <FileText className="h-10 w-10 mx-auto text-muted-foreground mb-2" />
           <h1 className="text-lg font-semibold">ไม่พบบรีฟนี้</h1>
           <p className="text-sm text-muted-foreground mt-1">ลิงก์อาจถูกลบ หรือไม่ถูกต้อง</p>
-          <Button asChild className="mt-4 rounded-xl"><Link to="/">กลับหน้าแรก</Link></Button>
+          <Button asChild className="mt-4 rounded-xl">
+            <Link to="/">กลับหน้าแรก</Link>
+          </Button>
         </div>
       </div>
     );
@@ -129,11 +147,15 @@ function PublicBriefPage() {
 
   const toggleMood = (m: string) => {
     const cur = brief.design_direction.moods ?? [];
-    patchSection("design_direction", { moods: cur.includes(m) ? cur.filter((x) => x !== m) : [...cur, m] });
+    patchSection("design_direction", {
+      moods: cur.includes(m) ? cur.filter((x) => x !== m) : [...cur, m],
+    });
   };
   const toggleFormat = (f: string) => {
     const cur = brief.tech_specs.formats ?? [];
-    patchSection("tech_specs", { formats: cur.includes(f) ? cur.filter((x) => x !== f) : [...cur, f] });
+    patchSection("tech_specs", {
+      formats: cur.includes(f) ? cur.filter((x) => x !== f) : [...cur, f],
+    });
   };
 
   const exportPdf = () => {
@@ -154,11 +176,17 @@ function PublicBriefPage() {
               </div>
             )}
             <div className="min-w-0">
-              <div className="text-sm font-semibold truncate">{o.brand_name || o.display_name || "Freelancer"}</div>
-              {o.tagline && <div className="text-[10px] text-muted-foreground truncate">{o.tagline}</div>}
+              <div className="text-sm font-semibold truncate">
+                {o.brand_name || o.display_name || "Freelancer"}
+              </div>
+              {o.tagline && (
+                <div className="text-[10px] text-muted-foreground truncate">{o.tagline}</div>
+              )}
             </div>
           </div>
-          <Badge className={`${STATUS_TONE[brief.status]} border-0 text-[10px]`}>{STATUS_LABEL[brief.status]}</Badge>
+          <Badge className={`${STATUS_TONE[brief.status]} border-0 text-[10px]`}>
+            {STATUS_LABEL[brief.status]}
+          </Badge>
         </div>
       </header>
 
@@ -177,7 +205,8 @@ function PublicBriefPage() {
           <div className="flex-1">
             <Progress value={completeness} className="h-1.5" />
             <p className="text-[10px] text-muted-foreground mt-1">
-              กรอกแล้ว {completeness}%{savedAt && ` · บันทึกล่าสุด ${savedAt.toLocaleTimeString("th-TH")}`}
+              กรอกแล้ว {completeness}%
+              {savedAt && ` · บันทึกล่าสุด ${savedAt.toLocaleTimeString("th-TH")}`}
             </p>
           </div>
           {saving && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
@@ -186,47 +215,134 @@ function PublicBriefPage() {
         {locked && (
           <div className="rounded-xl bg-emerald-500/10 border border-emerald-500/30 p-3 text-xs text-emerald-700 dark:text-emerald-300 flex items-center gap-2">
             <ShieldCheck className="h-4 w-4" />
-            บรีฟนี้ยืนยันแล้วโดย {brief.confirmed_by_name} เมื่อ {new Date(brief.confirmed_at!).toLocaleString("th-TH")}
+            บรีฟนี้ยืนยันแล้วโดย {brief.confirmed_by_name} เมื่อ{" "}
+            {new Date(brief.confirmed_at!).toLocaleString("th-TH")}
           </div>
         )}
 
         {/* Sections */}
         <Section title="1. ข้อมูลของคุณ">
           <div className="grid sm:grid-cols-2 gap-3">
-            <Field label="ชื่อ-นามสกุล"><Input value={brief.client_info.client_name ?? ""} onChange={(e) => patchSection("client_info", { client_name: e.target.value })} disabled={locked} /></Field>
-            <Field label="ชื่อแบรนด์ / ธุรกิจ"><Input value={brief.client_info.brand_name ?? ""} onChange={(e) => patchSection("client_info", { brand_name: e.target.value })} disabled={locked} /></Field>
-            <Field label="อีเมล"><Input type="email" value={brief.client_info.contact_email ?? ""} onChange={(e) => patchSection("client_info", { contact_email: e.target.value })} disabled={locked} /></Field>
-            <Field label="เบอร์โทร"><Input value={brief.client_info.contact_phone ?? ""} onChange={(e) => patchSection("client_info", { contact_phone: e.target.value })} disabled={locked} /></Field>
-            <Field label="LINE ID" full><Input value={brief.client_info.contact_line ?? ""} onChange={(e) => patchSection("client_info", { contact_line: e.target.value })} disabled={locked} /></Field>
+            <Field label="ชื่อ-นามสกุล">
+              <Input
+                value={brief.client_info.client_name ?? ""}
+                onChange={(e) => patchSection("client_info", { client_name: e.target.value })}
+                disabled={locked}
+              />
+            </Field>
+            <Field label="ชื่อแบรนด์ / ธุรกิจ">
+              <Input
+                value={brief.client_info.brand_name ?? ""}
+                onChange={(e) => patchSection("client_info", { brand_name: e.target.value })}
+                disabled={locked}
+              />
+            </Field>
+            <Field label="อีเมล">
+              <Input
+                type="email"
+                value={brief.client_info.contact_email ?? ""}
+                onChange={(e) => patchSection("client_info", { contact_email: e.target.value })}
+                disabled={locked}
+              />
+            </Field>
+            <Field label="เบอร์โทร">
+              <Input
+                value={brief.client_info.contact_phone ?? ""}
+                onChange={(e) => patchSection("client_info", { contact_phone: e.target.value })}
+                disabled={locked}
+              />
+            </Field>
+            <Field label="LINE ID" full>
+              <Input
+                value={brief.client_info.contact_line ?? ""}
+                onChange={(e) => patchSection("client_info", { contact_line: e.target.value })}
+                disabled={locked}
+              />
+            </Field>
           </div>
         </Section>
 
         <Section title="2. เกี่ยวกับโปรเจกต์">
           <div className="grid sm:grid-cols-2 gap-3">
             <Field label="ประเภทงาน">
-              <Select value={brief.project_overview.project_type ?? ""} onValueChange={(v) => patchSection("project_overview", { project_type: v })} disabled={locked}>
-                <SelectTrigger><SelectValue placeholder="เลือก" /></SelectTrigger>
-                <SelectContent>{PROJECT_TYPES.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
+              <Select
+                value={brief.project_overview.project_type ?? ""}
+                onValueChange={(v) => patchSection("project_overview", { project_type: v })}
+                disabled={locked}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="เลือก" />
+                </SelectTrigger>
+                <SelectContent>
+                  {PROJECT_TYPES.map((t) => (
+                    <SelectItem key={t} value={t}>
+                      {t}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
               </Select>
             </Field>
             <Field label="เป้าหมายของงานนี้">
-              <Input value={brief.project_overview.goal ?? ""} onChange={(e) => patchSection("project_overview", { goal: e.target.value })} placeholder="เช่น เพิ่มยอดขาย" disabled={locked} />
+              <Input
+                value={brief.project_overview.goal ?? ""}
+                onChange={(e) => patchSection("project_overview", { goal: e.target.value })}
+                placeholder="เช่น เพิ่มยอดขาย"
+                disabled={locked}
+              />
             </Field>
             <Field label="เกี่ยวกับธุรกิจของคุณ" full>
-              <Textarea rows={2} value={brief.project_overview.about_business ?? ""} onChange={(e) => patchSection("project_overview", { about_business: e.target.value })} placeholder="ขายอะไร ใครคือลูกค้า จุดเด่นคืออะไร" disabled={locked} />
+              <Textarea
+                rows={2}
+                value={brief.project_overview.about_business ?? ""}
+                onChange={(e) =>
+                  patchSection("project_overview", { about_business: e.target.value })
+                }
+                placeholder="ขายอะไร ใครคือลูกค้า จุดเด่นคืออะไร"
+                disabled={locked}
+              />
             </Field>
             <Field label="ปัญหาหรือความต้องการ" full>
-              <Textarea rows={2} value={brief.project_overview.problem ?? ""} onChange={(e) => patchSection("project_overview", { problem: e.target.value })} disabled={locked} />
+              <Textarea
+                rows={2}
+                value={brief.project_overview.problem ?? ""}
+                onChange={(e) => patchSection("project_overview", { problem: e.target.value })}
+                disabled={locked}
+              />
             </Field>
           </div>
         </Section>
 
         <Section title="3. กลุ่มเป้าหมาย">
           <div className="grid sm:grid-cols-2 gap-3">
-            <Field label="เพศ"><Input value={brief.audience.gender ?? ""} onChange={(e) => patchSection("audience", { gender: e.target.value })} disabled={locked} /></Field>
-            <Field label="ช่วงอายุ"><Input value={brief.audience.age_range ?? ""} onChange={(e) => patchSection("audience", { age_range: e.target.value })} placeholder="เช่น 25-35" disabled={locked} /></Field>
-            <Field label="ไลฟ์สไตล์" full><Input value={brief.audience.lifestyle ?? ""} onChange={(e) => patchSection("audience", { lifestyle: e.target.value })} disabled={locked} /></Field>
-            <Field label="ความสนใจ" full><Input value={brief.audience.interests ?? ""} onChange={(e) => patchSection("audience", { interests: e.target.value })} disabled={locked} /></Field>
+            <Field label="เพศ">
+              <Input
+                value={brief.audience.gender ?? ""}
+                onChange={(e) => patchSection("audience", { gender: e.target.value })}
+                disabled={locked}
+              />
+            </Field>
+            <Field label="ช่วงอายุ">
+              <Input
+                value={brief.audience.age_range ?? ""}
+                onChange={(e) => patchSection("audience", { age_range: e.target.value })}
+                placeholder="เช่น 25-35"
+                disabled={locked}
+              />
+            </Field>
+            <Field label="ไลฟ์สไตล์" full>
+              <Input
+                value={brief.audience.lifestyle ?? ""}
+                onChange={(e) => patchSection("audience", { lifestyle: e.target.value })}
+                disabled={locked}
+              />
+            </Field>
+            <Field label="ความสนใจ" full>
+              <Input
+                value={brief.audience.interests ?? ""}
+                onChange={(e) => patchSection("audience", { interests: e.target.value })}
+                disabled={locked}
+              />
+            </Field>
           </div>
         </Section>
 
@@ -237,17 +353,56 @@ function PublicBriefPage() {
                 {MOOD_OPTIONS.map((m) => {
                   const on = (brief.design_direction.moods ?? []).includes(m);
                   return (
-                    <button key={m} type="button" disabled={locked} onClick={() => toggleMood(m)}
-                      className={`text-xs px-3 py-1.5 rounded-full border transition ${on ? "bg-primary text-primary-foreground border-primary" : "bg-muted/40 hover:bg-muted border-border"}`}>{m}</button>
+                    <button
+                      key={m}
+                      type="button"
+                      disabled={locked}
+                      onClick={() => toggleMood(m)}
+                      className={`text-xs px-3 py-1.5 rounded-full border transition ${on ? "bg-primary text-primary-foreground border-primary" : "bg-muted/40 hover:bg-muted border-border"}`}
+                    >
+                      {m}
+                    </button>
                   );
                 })}
               </div>
             </Field>
             <div className="grid sm:grid-cols-2 gap-3">
-              <Field label="สีที่ชอบ"><Input value={brief.design_direction.liked_colors ?? ""} onChange={(e) => patchSection("design_direction", { liked_colors: e.target.value })} disabled={locked} /></Field>
-              <Field label="สีที่ไม่ชอบ"><Input value={brief.design_direction.forbidden_colors ?? ""} onChange={(e) => patchSection("design_direction", { forbidden_colors: e.target.value })} disabled={locked} /></Field>
-              <Field label="ฟอนต์ที่ชอบ"><Input value={brief.design_direction.liked_fonts ?? ""} onChange={(e) => patchSection("design_direction", { liked_fonts: e.target.value })} disabled={locked} /></Field>
-              <Field label="แรงบันดาลใจ / Reference"><Input value={brief.design_direction.inspiration ?? ""} onChange={(e) => patchSection("design_direction", { inspiration: e.target.value })} disabled={locked} /></Field>
+              <Field label="สีที่ชอบ">
+                <Input
+                  value={brief.design_direction.liked_colors ?? ""}
+                  onChange={(e) =>
+                    patchSection("design_direction", { liked_colors: e.target.value })
+                  }
+                  disabled={locked}
+                />
+              </Field>
+              <Field label="สีที่ไม่ชอบ">
+                <Input
+                  value={brief.design_direction.forbidden_colors ?? ""}
+                  onChange={(e) =>
+                    patchSection("design_direction", { forbidden_colors: e.target.value })
+                  }
+                  disabled={locked}
+                />
+              </Field>
+              <Field label="ฟอนต์ที่ชอบ">
+                <Input
+                  value={brief.design_direction.liked_fonts ?? ""}
+                  onChange={(e) =>
+                    patchSection("design_direction", { liked_fonts: e.target.value })
+                  }
+                  disabled={locked}
+                />
+              </Field>
+              <Field label="แรงบันดาลใจ / Reference">
+                <Input
+                  value={brief.design_direction.inspiration ?? ""}
+                  onChange={(e) =>
+                    patchSection("design_direction", { inspiration: e.target.value })
+                  }
+                  disabled={locked}
+                />
+              </Field>
             </div>
           </div>
         </Section>
@@ -268,17 +423,37 @@ function PublicBriefPage() {
                 {FORMAT_OPTIONS.map((f) => {
                   const on = (brief.tech_specs.formats ?? []).includes(f);
                   return (
-                    <button key={f} type="button" disabled={locked} onClick={() => toggleFormat(f)}
-                      className={`text-xs px-3 py-1.5 rounded-full border transition ${on ? "bg-primary text-primary-foreground border-primary" : "bg-muted/40 hover:bg-muted border-border"}`}>{f}</button>
+                    <button
+                      key={f}
+                      type="button"
+                      disabled={locked}
+                      onClick={() => toggleFormat(f)}
+                      className={`text-xs px-3 py-1.5 rounded-full border transition ${on ? "bg-primary text-primary-foreground border-primary" : "bg-muted/40 hover:bg-muted border-border"}`}
+                    >
+                      {f}
+                    </button>
                   );
                 })}
               </div>
             </Field>
             <div className="grid sm:grid-cols-2 gap-3">
-              <Field label="ขนาด / สเปก"><Input value={brief.tech_specs.size ?? ""} onChange={(e) => patchSection("tech_specs", { size: e.target.value })} placeholder="เช่น 1080x1080" disabled={locked} /></Field>
+              <Field label="ขนาด / สเปก">
+                <Input
+                  value={brief.tech_specs.size ?? ""}
+                  onChange={(e) => patchSection("tech_specs", { size: e.target.value })}
+                  placeholder="เช่น 1080x1080"
+                  disabled={locked}
+                />
+              </Field>
               <Field label="การนำไปใช้">
-                <Select value={brief.tech_specs.usage ?? ""} onValueChange={(v) => patchSection("tech_specs", { usage: v })} disabled={locked}>
-                  <SelectTrigger><SelectValue placeholder="เลือก" /></SelectTrigger>
+                <Select
+                  value={brief.tech_specs.usage ?? ""}
+                  onValueChange={(v) => patchSection("tech_specs", { usage: v })}
+                  disabled={locked}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="เลือก" />
+                  </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="online">ออนไลน์ (Web/Social)</SelectItem>
                     <SelectItem value="print">งานพิมพ์</SelectItem>
@@ -292,14 +467,41 @@ function PublicBriefPage() {
 
         <Section title="7. ไทม์ไลน์และงบประมาณ">
           <div className="grid sm:grid-cols-2 gap-3">
-            <Field label="วันที่อยากได้ร่างแรก"><Input type="date" value={brief.timeline_budget.draft_date ?? ""} onChange={(e) => patchSection("timeline_budget", { draft_date: e.target.value })} disabled={locked} /></Field>
-            <Field label="วันปิดงาน (Deadline)"><Input type="date" value={brief.timeline_budget.deadline ?? ""} onChange={(e) => patchSection("timeline_budget", { deadline: e.target.value })} disabled={locked} /></Field>
-            <Field label="งบประมาณ" full><Input value={brief.timeline_budget.budget ?? ""} onChange={(e) => patchSection("timeline_budget", { budget: e.target.value })} placeholder="เช่น 5,000-10,000 บาท" disabled={locked} /></Field>
+            <Field label="วันที่อยากได้ร่างแรก">
+              <Input
+                type="date"
+                value={brief.timeline_budget.draft_date ?? ""}
+                onChange={(e) => patchSection("timeline_budget", { draft_date: e.target.value })}
+                disabled={locked}
+              />
+            </Field>
+            <Field label="วันปิดงาน (Deadline)">
+              <Input
+                type="date"
+                value={brief.timeline_budget.deadline ?? ""}
+                onChange={(e) => patchSection("timeline_budget", { deadline: e.target.value })}
+                disabled={locked}
+              />
+            </Field>
+            <Field label="งบประมาณ" full>
+              <Input
+                value={brief.timeline_budget.budget ?? ""}
+                onChange={(e) => patchSection("timeline_budget", { budget: e.target.value })}
+                placeholder="เช่น 5,000-10,000 บาท"
+                disabled={locked}
+              />
+            </Field>
           </div>
         </Section>
 
         <Section title="8. หมายเหตุเพิ่มเติม">
-          <Textarea rows={3} value={brief.notes} onChange={(e) => patch({ notes: e.target.value })} placeholder="สิ่งที่อยากบอกเพิ่มเติม" disabled={locked} />
+          <Textarea
+            rows={3}
+            value={brief.notes}
+            onChange={(e) => patch({ notes: e.target.value })}
+            placeholder="สิ่งที่อยากบอกเพิ่มเติม"
+            disabled={locked}
+          />
         </Section>
 
         {/* Confirm CTA */}
@@ -310,11 +512,16 @@ function PublicBriefPage() {
               <div>
                 <h3 className="font-semibold text-sm">พร้อมยืนยันบรีฟนี้แล้ว?</h3>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  เมื่อยืนยัน บรีฟจะถูกล็อกเพื่อใช้เป็นหลักฐานขอบเขตงาน — หากต้องการแก้ไขทีหลังอาจมีค่าใช้จ่ายเพิ่ม
+                  เมื่อยืนยัน บรีฟจะถูกล็อกเพื่อใช้เป็นหลักฐานขอบเขตงาน —
+                  หากต้องการแก้ไขทีหลังอาจมีค่าใช้จ่ายเพิ่ม
                 </p>
               </div>
             </div>
-            <Button onClick={() => setConfirmOpen(true)} className="w-full rounded-xl gap-2" size="lg">
+            <Button
+              onClick={() => setConfirmOpen(true)}
+              className="w-full rounded-xl gap-2"
+              size="lg"
+            >
               <Send className="h-4 w-4" /> ยืนยันและส่งบรีฟ
             </Button>
           </div>
@@ -326,17 +533,17 @@ function PublicBriefPage() {
 
         {portal?.showPoweredBy !== false && (
           <p className="text-center text-[10px] text-muted-foreground pt-2">
-            Powered by <Link to="/" className="text-primary hover:underline">So1o Freelancer</Link>
+            Powered by{" "}
+            <Link to="/" className="text-primary hover:underline">
+              So1o Freelancer
+            </Link>
           </p>
         )}
       </main>
 
       {/* Print template */}
       <div className="brief-print-only">
-        <BriefPdfTemplate
-          brief={brief}
-          theme={portal?.theme}
-        />
+        <BriefPdfTemplate brief={brief} theme={portal?.theme} />
       </div>
 
       <ConfirmBriefDialog
@@ -359,7 +566,15 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   );
 }
 
-function Field({ label, children, full }: { label: string; children: React.ReactNode; full?: boolean }) {
+function Field({
+  label,
+  children,
+  full,
+}: {
+  label: string;
+  children: React.ReactNode;
+  full?: boolean;
+}) {
   return (
     <div className={`space-y-1 ${full ? "sm:col-span-2" : ""}`}>
       <Label className="text-xs">{label}</Label>

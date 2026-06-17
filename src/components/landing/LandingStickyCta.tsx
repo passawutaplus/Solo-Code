@@ -15,10 +15,10 @@ export function LandingStickyCta({ user }: Props) {
     const hero = document.getElementById("hero");
     if (!hero || dismissed) return;
 
-    const io = new IntersectionObserver(
-      ([entry]) => setVisible(!entry.isIntersecting),
-      { threshold: 0, rootMargin: "0px" },
-    );
+    const io = new IntersectionObserver(([entry]) => setVisible(!entry.isIntersecting), {
+      threshold: 0,
+      rootMargin: "0px",
+    });
     io.observe(hero);
     return () => io.disconnect();
   }, [dismissed]);
@@ -26,12 +26,7 @@ export function LandingStickyCta({ user }: Props) {
   if (dismissed || !visible) return null;
 
   return (
-    <div
-      className={cn(
-        "fixed bottom-0 inset-x-0 z-40 p-3 sm:hidden",
-        "animate-fade-in",
-      )}
-    >
+    <div className={cn("fixed bottom-0 inset-x-0 z-40 p-3 sm:hidden", "animate-fade-in")}>
       <div className="glass border border-border rounded-2xl shadow-elevated px-3 py-2.5 flex items-center gap-2">
         <Link
           to={user ? "/dashboard" : "/apply"}

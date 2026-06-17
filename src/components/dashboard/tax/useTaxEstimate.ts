@@ -7,13 +7,7 @@ import { computeActiveDeductions } from "./DeductionsPanel";
 const PERSONAL_DEDUCTION = 60000;
 
 export function useTaxEstimate() {
-  const {
-    incomes,
-    workExpenses,
-    deductions,
-    deductionAmounts,
-    expenseMethod,
-  } = useFinance();
+  const { incomes, workExpenses, deductions, deductionAmounts, expenseMethod } = useFinance();
 
   const totalWorkExp = workExpenses.reduce((s, i) => s + i.amount, 0);
 

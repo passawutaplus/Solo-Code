@@ -18,10 +18,7 @@ export type PreparedAssistant = {
   chatMessages: ChatMessage[];
 };
 
-export function resolveAssistantPreset(
-  message: string,
-  preset?: AssistantPreset,
-): AssistantPreset {
+export function resolveAssistantPreset(message: string, preset?: AssistantPreset): AssistantPreset {
   if (preset) return preset;
   return isBusinessQuestion(message) ? "business" : "mentor";
 }

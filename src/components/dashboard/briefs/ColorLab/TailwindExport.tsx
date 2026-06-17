@@ -2,7 +2,12 @@ import * as React from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
 } from "@/components/ui/dialog";
 import { Code2, Copy, Download } from "lucide-react";
 import { tints, shades, tones } from "@/lib/colorVariations";
@@ -73,7 +78,9 @@ export function TailwindExport({ hex }: Props) {
         </DialogHeader>
         <div className="space-y-3">
           <div className="flex items-center gap-2">
-            <label htmlFor="tw-prefix" className="text-xs text-muted-foreground">Token prefix</label>
+            <label htmlFor="tw-prefix" className="text-xs text-muted-foreground">
+              Token prefix
+            </label>
             <Input
               id="tw-prefix"
               value={prefix}

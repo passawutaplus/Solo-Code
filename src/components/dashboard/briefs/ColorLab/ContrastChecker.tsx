@@ -22,15 +22,32 @@ function StatusPill({ ok, label }: { ok: boolean; label: string }) {
   );
 }
 
-function Row({ hex, bg, textColor, label }: { hex: string; bg: string; textColor: string; label: string }) {
+function Row({
+  hex,
+  bg,
+  textColor,
+  label,
+}: {
+  hex: string;
+  bg: string;
+  textColor: string;
+  label: string;
+}) {
   const ratio = hexContrast(hex, bg);
   const s = wcagStatus(ratio);
   return (
     <div className="rounded-xl border border-border/50 overflow-hidden">
-      <div className="p-3 flex items-center justify-between" style={{ backgroundColor: bg, color: textColor }}>
+      <div
+        className="p-3 flex items-center justify-between"
+        style={{ backgroundColor: bg, color: textColor }}
+      >
         <div className="space-y-0.5">
-          <div className="text-base font-normal" style={{ color: textColor }}>Aa อักษรไทย (Normal)</div>
-          <div className="text-2xl font-bold" style={{ color: textColor }}>Aa อักษรไทย (Large)</div>
+          <div className="text-base font-normal" style={{ color: textColor }}>
+            Aa อักษรไทย (Normal)
+          </div>
+          <div className="text-2xl font-bold" style={{ color: textColor }}>
+            Aa อักษรไทย (Large)
+          </div>
         </div>
         <div className="text-right">
           <div className="text-xs opacity-70">{label}</div>

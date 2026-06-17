@@ -17,7 +17,10 @@ import { SITE_NAME, SITE_URL } from "../src/lib/siteUrl.ts";
 
 const OUT = join(import.meta.dirname ?? ".", "..", "email-previews");
 
-const AUTH_TEMPLATES: Record<string, { component: React.ComponentType<any>; data: Record<string, unknown> }> = {
+const AUTH_TEMPLATES: Record<
+  string,
+  { component: React.ComponentType<any>; data: Record<string, unknown> }
+> = {
   signup: {
     component: SignupEmail,
     data: {

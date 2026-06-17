@@ -36,8 +36,18 @@ const CATALOG = [
     productName: "So1o Pro",
     productDescription: "Pro subscription — So1o My Desk + an1hem",
     prices: [
-      { lookup_key: "pro_monthly", unit_amount: 24900, currency: "thb", recurring: { interval: "month" } },
-      { lookup_key: "pro_yearly", unit_amount: 238800, currency: "thb", recurring: { interval: "year" } },
+      {
+        lookup_key: "pro_monthly",
+        unit_amount: 24900,
+        currency: "thb",
+        recurring: { interval: "month" },
+      },
+      {
+        lookup_key: "pro_yearly",
+        unit_amount: 238800,
+        currency: "thb",
+        recurring: { interval: "year" },
+      },
     ],
   },
   {
@@ -45,8 +55,18 @@ const CATALOG = [
     productName: "So1o Pro+",
     productDescription: "Pro+ ecosystem subscription",
     prices: [
-      { lookup_key: "pro_plus_monthly", unit_amount: 39900, currency: "thb", recurring: { interval: "month" } },
-      { lookup_key: "pro_plus_yearly", unit_amount: 382800, currency: "thb", recurring: { interval: "year" } },
+      {
+        lookup_key: "pro_plus_monthly",
+        unit_amount: 39900,
+        currency: "thb",
+        recurring: { interval: "month" },
+      },
+      {
+        lookup_key: "pro_plus_yearly",
+        unit_amount: 382800,
+        currency: "thb",
+        recurring: { interval: "year" },
+      },
     ],
   },
   {
@@ -54,8 +74,18 @@ const CATALOG = [
     productName: "So1o In-House",
     productDescription: "Team subscription (per seat)",
     prices: [
-      { lookup_key: "inhouse_monthly", unit_amount: 59900, currency: "thb", recurring: { interval: "month" } },
-      { lookup_key: "inhouse_yearly", unit_amount: 575000, currency: "thb", recurring: { interval: "year" } },
+      {
+        lookup_key: "inhouse_monthly",
+        unit_amount: 59900,
+        currency: "thb",
+        recurring: { interval: "month" },
+      },
+      {
+        lookup_key: "inhouse_yearly",
+        unit_amount: 575000,
+        currency: "thb",
+        recurring: { interval: "year" },
+      },
     ],
   },
   {
@@ -196,7 +226,11 @@ async function main() {
   for (const group of CATALOG) {
     catalog.products[group.catalogKey] = { name: group.productName, prices: {} };
     for (const def of group.prices) {
-      const res = await stripe.prices.list({ lookup_keys: [def.lookup_key], active: true, limit: 1 });
+      const res = await stripe.prices.list({
+        lookup_keys: [def.lookup_key],
+        active: true,
+        limit: 1,
+      });
       if (res.data[0]) catalog.products[group.catalogKey].prices[def.lookup_key] = res.data[0].id;
     }
   }

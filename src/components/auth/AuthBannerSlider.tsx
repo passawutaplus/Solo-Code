@@ -79,7 +79,11 @@ export function AuthBannerSlider({ className }: { className?: string }) {
             />
           ) : (
             <div className="w-full h-full bg-gradient-to-br from-primary via-primary/70 to-accent flex items-center justify-center">
-              <img src={logoUrl} alt="So1o" className="h-24 w-24 rounded-3xl shadow-elevated opacity-90" />
+              <img
+                src={logoUrl}
+                alt="So1o"
+                className="h-24 w-24 rounded-3xl shadow-elevated opacity-90"
+              />
             </div>
           )}
           {/* dark overlay for text legibility */}
@@ -89,7 +93,11 @@ export function AuthBannerSlider({ className }: { className?: string }) {
 
       {/* Logo top-left */}
       <div className="absolute top-6 left-6 flex items-center gap-2 z-10">
-        <img src={logoUrl} alt="So1o" className="h-9 w-9 rounded-xl ring-1 ring-white/30 shadow-soft" />
+        <img
+          src={logoUrl}
+          alt="So1o"
+          className="h-9 w-9 rounded-xl ring-1 ring-white/30 shadow-soft"
+        />
         <span className="text-white font-semibold tracking-tight text-sm drop-shadow">
           So<span className="text-primary-foreground/90">1</span>o Freelancer
         </span>

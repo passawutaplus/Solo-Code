@@ -6,11 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useAuth } from "@/auth/AuthProvider";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -37,13 +33,7 @@ export type LineNotificationPrefsPanelProps = {
   tierLabel?: string;
 };
 
-function LineGlyphBadge({
-  className,
-  onboarding,
-}: {
-  className?: string;
-  onboarding?: boolean;
-}) {
+function LineGlyphBadge({ className, onboarding }: { className?: string; onboarding?: boolean }) {
   return (
     <span
       className={cn(
@@ -84,9 +74,7 @@ export function LineNotificationPrefsPanel({
   const linkedAt = profile?.line_linked_at;
   const enabledCount = countEnabledPrefs(prefs);
 
-  const visibleGroups = LINE_NOTIFY_GROUPS.filter(
-    (g) => g.id !== "inhouse" || showInhouseGroup,
-  );
+  const visibleGroups = LINE_NOTIFY_GROUPS.filter((g) => g.id !== "inhouse" || showInhouseGroup);
 
   React.useEffect(() => {
     setEnabled(!!profile?.line_notify_enabled);
@@ -252,7 +240,9 @@ export function LineNotificationPrefsPanel({
           <div
             className={cn(
               "rounded-xl border p-3.5 space-y-2",
-              linked ? "border-[#06C755]/40 bg-[#06C755]/5" : "border-dashed border-border bg-muted/30",
+              linked
+                ? "border-[#06C755]/40 bg-[#06C755]/5"
+                : "border-dashed border-border bg-muted/30",
             )}
           >
             <div className="flex items-center justify-between gap-2 flex-wrap">
@@ -276,7 +266,9 @@ export function LineNotificationPrefsPanel({
                 >
                   <Link to="/line-link">
                     <LineGlyph className="h-3.5 w-3.5" />
-                    {linked ? t("จัดการการเชื่อม", "Manage link") : t("เชื่อมบัญชี", "Link account")}
+                    {linked
+                      ? t("จัดการการเชื่อม", "Manage link")
+                      : t("เชื่อมบัญชี", "Link account")}
                   </Link>
                 </Button>
                 {!linked && (
@@ -342,9 +334,7 @@ export function LineNotificationPrefsPanel({
           <div
             className={cn(
               "flex items-center justify-between gap-3 rounded-xl border px-3.5 py-3",
-              onboarding
-                ? "border-white/10 bg-white/[0.04]"
-                : "border-border/60 bg-muted/20",
+              onboarding ? "border-white/10 bg-white/[0.04]" : "border-border/60 bg-muted/20",
             )}
           >
             <div>
@@ -358,7 +348,10 @@ export function LineNotificationPrefsPanel({
                 )}
               >
                 {linked
-                  ? t("ส่งแจ้งเตือนเมื่อมีเหตุการณ์ที่เลือกด้านล่าง", "Notify for selected events below")
+                  ? t(
+                      "ส่งแจ้งเตือนเมื่อมีเหตุการณ์ที่เลือกด้านล่าง",
+                      "Notify for selected events below",
+                    )
                   : t("ต้องเชื่อมบัญชีก่อนจึงจะส่งได้", "Link your account first")}
               </p>
             </div>
@@ -398,9 +391,7 @@ export function LineNotificationPrefsPanel({
                       key={kind.key}
                       className={cn(
                         "flex items-start justify-between gap-3 rounded-lg border px-3 py-2.5",
-                        onboarding
-                          ? "border-white/10 bg-white/[0.03]"
-                          : "border-border/50",
+                        onboarding ? "border-white/10 bg-white/[0.03]" : "border-border/50",
                         isQuotation && "opacity-60",
                       )}
                     >

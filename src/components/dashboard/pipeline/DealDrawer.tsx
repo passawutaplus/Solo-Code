@@ -101,13 +101,23 @@ export function DealDrawer({
           <div className="space-y-2">
             <p className="text-xs font-semibold">ทางลัด</p>
             <div className="grid grid-cols-2 gap-2">
-              <Button size="sm" variant="outline" className="h-8 text-xs gap-1" onClick={onOpenQuotation}>
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-8 text-xs gap-1"
+                onClick={onOpenQuotation}
+              >
                 <FileText className="h-3.5 w-3.5" />
                 เปิดใบเสนอราคา
               </Button>
               {deal.job ? (
                 <>
-                  <Button size="sm" variant="outline" className="h-8 text-xs gap-1" onClick={onOpenJobs}>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="h-8 text-xs gap-1"
+                    onClick={onOpenJobs}
+                  >
                     <Receipt className="h-3.5 w-3.5" />
                     Job Tracker
                   </Button>
@@ -126,12 +136,22 @@ export function DealDrawer({
                   )}
                 </>
               ) : (
-                <Button size="sm" variant="outline" className="h-8 text-xs gap-1" onClick={onOpenJobs}>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="h-8 text-xs gap-1"
+                  onClick={onOpenJobs}
+                >
                   สร้าง Job Tracker
                 </Button>
               )}
               {deal.hasIncome && (
-                <Button size="sm" variant="outline" className="h-8 text-xs gap-1" onClick={onOpenTax}>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="h-8 text-xs gap-1"
+                  onClick={onOpenTax}
+                >
                   <Calculator className="h-3.5 w-3.5" />
                   ดูภาษี
                 </Button>

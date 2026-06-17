@@ -72,7 +72,10 @@ export function PaletteFromImage({ onPick }: Props) {
       </div>
 
       <div
-        onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+        onDragOver={(e) => {
+          e.preventDefault();
+          setDragOver(true);
+        }}
         onDragLeave={() => setDragOver(false)}
         onDrop={onDrop}
         onClick={() => inputRef.current?.click()}
@@ -85,7 +88,10 @@ export function PaletteFromImage({ onPick }: Props) {
           type="file"
           accept="image/*"
           className="hidden"
-          onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFile(f); }}
+          onChange={(e) => {
+            const f = e.target.files?.[0];
+            if (f) handleFile(f);
+          }}
         />
         {preview ? (
           <img src={preview} alt="ภาพต้นฉบับสำหรับดึงสี" className="mx-auto max-h-32 rounded-lg" />

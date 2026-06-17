@@ -63,17 +63,52 @@ function OrgWorkspaceNav({ orgId, orgSlug, orgName, collapsed }: OrgNavProps) {
   const base = wsSlug ? inhouseWorkspacePath(orgSlug, wsSlug) : `/inhouse/${orgSlug}/settings`;
 
   const links = [
-    { label: "Overview", href: base, icon: LayoutDashboard, match: (p: string) => p === base || p === `${base}/` },
+    {
+      label: "Overview",
+      href: base,
+      icon: LayoutDashboard,
+      match: (p: string) => p === base || p === `${base}/`,
+    },
     ...(wsSlug
       ? [
-          { label: "Kanban", href: inhouseWorkspacePath(orgSlug, wsSlug, "kanban"), icon: Kanban, match: (p: string) => p.includes("/kanban") },
-          { label: "To Do", href: inhouseWorkspacePath(orgSlug, wsSlug, "todos"), icon: ListTodo, match: (p: string) => p.includes("/todos") },
-          { label: "Chat", href: inhouseWorkspacePath(orgSlug, wsSlug, "chat"), icon: MessageSquare, match: (p: string) => p.includes("/chat") },
-          { label: "Canvas", href: inhouseWorkspacePath(orgSlug, wsSlug, "canvas"), icon: PenTool, match: (p: string) => p.includes("/canvas") },
+          {
+            label: "Kanban",
+            href: inhouseWorkspacePath(orgSlug, wsSlug, "kanban"),
+            icon: Kanban,
+            match: (p: string) => p.includes("/kanban"),
+          },
+          {
+            label: "To Do",
+            href: inhouseWorkspacePath(orgSlug, wsSlug, "todos"),
+            icon: ListTodo,
+            match: (p: string) => p.includes("/todos"),
+          },
+          {
+            label: "Chat",
+            href: inhouseWorkspacePath(orgSlug, wsSlug, "chat"),
+            icon: MessageSquare,
+            match: (p: string) => p.includes("/chat"),
+          },
+          {
+            label: "Canvas",
+            href: inhouseWorkspacePath(orgSlug, wsSlug, "canvas"),
+            icon: PenTool,
+            match: (p: string) => p.includes("/canvas"),
+          },
           ...(isAdmin
             ? [
-                { label: "Monitor", href: inhouseWorkspacePath(orgSlug, wsSlug, "monitor"), icon: Activity, match: (p: string) => p.includes("/monitor") },
-                { label: "Settings", href: inhouseOrgSettingsPath(orgSlug), icon: Settings, match: (p: string) => p.includes("/settings") },
+                {
+                  label: "Monitor",
+                  href: inhouseWorkspacePath(orgSlug, wsSlug, "monitor"),
+                  icon: Activity,
+                  match: (p: string) => p.includes("/monitor"),
+                },
+                {
+                  label: "Settings",
+                  href: inhouseOrgSettingsPath(orgSlug),
+                  icon: Settings,
+                  match: (p: string) => p.includes("/settings"),
+                },
               ]
             : []),
         ]
@@ -139,7 +174,11 @@ export function InhouseSidebarNav({ collapsed }: { collapsed: boolean }) {
   const { profileTier } = useSubscription();
   const { data: orgs = [] } = useMyInhouseOrgs();
   if (!isInhouseWorkspaceEnabled()) return null;
-  if (!canAccessInhouse(profileTier, []) && orgs.length === 0 && !canCreateInhouseOrg(profileTier)) {
+  if (
+    !canAccessInhouse(profileTier, []) &&
+    orgs.length === 0 &&
+    !canCreateInhouseOrg(profileTier)
+  ) {
     return null;
   }
 

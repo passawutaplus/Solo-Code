@@ -12,7 +12,11 @@ interface Props {
 }
 
 export function InhouseMonitorTab({ org, workspace }: Props) {
-  const { memberSummaries, activity, taskStats } = useInhouseMonitor(org.id, org.slug, workspace.id);
+  const { memberSummaries, activity, taskStats } = useInhouseMonitor(
+    org.id,
+    org.slug,
+    workspace.id,
+  );
   const seatUsed = memberSummaries.length;
   const seatPct = org.seat_limit > 0 ? (seatUsed / org.seat_limit) * 100 : 0;
 
@@ -103,7 +107,10 @@ export function InhouseMonitorTab({ org, workspace }: Props) {
         </CardHeader>
         <CardContent className="space-y-2">
           {activity.slice(0, 20).map((ev) => (
-            <div key={ev.id} className="flex items-center gap-2 text-sm border-b border-dashed pb-2 last:border-0">
+            <div
+              key={ev.id}
+              className="flex items-center gap-2 text-sm border-b border-dashed pb-2 last:border-0"
+            >
               <span className="text-muted-foreground shrink-0 w-28 text-xs">
                 {new Date(ev.created_at).toLocaleString("th-TH")}
               </span>

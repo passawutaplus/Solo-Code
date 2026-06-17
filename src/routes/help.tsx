@@ -81,25 +81,19 @@ function HelpIndexPage() {
   const [query, setQuery] = useState("");
   const q = normalize(query.trim());
 
-  const filteredQuick = useMemo(
-    () => HELP_QUICK_TOPICS.filter((t) => matchesLink(t, q)),
-    [q],
-  );
+  const filteredQuick = useMemo(() => HELP_QUICK_TOPICS.filter((t) => matchesLink(t, q)), [q]);
 
   const filteredFaqs = useMemo(() => {
     if (!q) return HELP_FAQ;
     return HELP_FAQ.filter(
       (f) =>
-        normalize(`${f.question} ${f.answer}`).includes(q) ||
-        normalize(f.category).includes(q),
+        normalize(`${f.question} ${f.answer}`).includes(q) || normalize(f.category).includes(q),
     );
   }, [q]);
 
   const filteredGlossary = useMemo(() => {
     if (!q) return HELP_GLOSSARY;
-    return HELP_GLOSSARY.filter(
-      (g) => normalize(`${g.term} ${g.definition}`).includes(q),
-    );
+    return HELP_GLOSSARY.filter((g) => normalize(`${g.term} ${g.definition}`).includes(q));
   }, [q]);
 
   const filteredCategories = useMemo(
@@ -108,9 +102,7 @@ function HelpIndexPage() {
         ...cat,
         topics: cat.topics.filter((t) => matchesLink(t, q)),
       })).filter(
-        (cat) =>
-          cat.topics.length > 0 ||
-          normalize(`${cat.title} ${cat.description}`).includes(q),
+        (cat) => cat.topics.length > 0 || normalize(`${cat.title} ${cat.description}`).includes(q),
       ),
     [q],
   );
@@ -133,10 +125,7 @@ function HelpIndexPage() {
   }, [q]);
 
   const showSettings =
-    !q ||
-    HELP_SETTINGS_MAP.some(
-      (r) => normalize(`${r.task} ${r.settingsPath}`).includes(q),
-    );
+    !q || HELP_SETTINGS_MAP.some((r) => normalize(`${r.task} ${r.settingsPath}`).includes(q));
 
   const hasResults =
     filteredQuick.length > 0 ||
@@ -174,7 +163,9 @@ function HelpIndexPage() {
         {/* Hero */}
         <div
           className="border-b border-border/40"
-          style={{ background: "linear-gradient(135deg, hsl(var(--primary) / 0.08) 0%, transparent 60%)" }}
+          style={{
+            background: "linear-gradient(135deg, hsl(var(--primary) / 0.08) 0%, transparent 60%)",
+          }}
         >
           <div className="max-w-5xl mx-auto px-4 py-8 sm:py-10 space-y-5">
             <div className="flex items-start gap-4">
@@ -189,8 +180,8 @@ function HelpIndexPage() {
                   มีอะไรให้เราช่วยไหม?
                 </h2>
                 <p className="text-sm text-muted-foreground leading-relaxed max-w-2xl">
-                  คู่มือภาษาไทยสำหรับฟรีแลนซ์ — ตั้งแต่สมัครครั้งแรก ส่งใบเสนอราคา รับเงิน
-                  ทำภาษี ไปจนถึง white-label และ Pixel100 ทุกหัวข้อกดแล้วไปบทความที่เกี่ยวข้อง
+                  คู่มือภาษาไทยสำหรับฟรีแลนซ์ — ตั้งแต่สมัครครั้งแรก ส่งใบเสนอราคา รับเงิน ทำภาษี
+                  ไปจนถึง white-label และ Pixel100 ทุกหัวข้อกดแล้วไปบทความที่เกี่ยวข้อง
                 </p>
               </div>
             </div>
@@ -280,9 +271,7 @@ function HelpIndexPage() {
               {showSettings && !q && (
                 <section className="space-y-3">
                   <SectionHeading>ไป Settings ตรงไหน?</SectionHeading>
-                  <p className="text-xs text-muted-foreground">
-                    สรุปทางลัดใน My Desk → Settings
-                  </p>
+                  <p className="text-xs text-muted-foreground">สรุปทางลัดใน My Desk → Settings</p>
                   <HelpSettingsTable rows={HELP_SETTINGS_MAP} />
                 </section>
               )}
@@ -302,7 +291,9 @@ function HelpIndexPage() {
                               </div>
                               <div>
                                 <h3 className="text-sm font-semibold">{cat.title}</h3>
-                                <p className="text-xs text-muted-foreground mt-0.5">{cat.description}</p>
+                                <p className="text-xs text-muted-foreground mt-0.5">
+                                  {cat.description}
+                                </p>
                               </div>
                             </div>
                             <div className="space-y-0.5 pl-1 border-l-2 border-primary/20 ml-1 flex-1">

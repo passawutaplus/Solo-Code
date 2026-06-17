@@ -5,7 +5,13 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { PlusCircle, Plus, Trash2, Tag, Sparkles } from "lucide-react";
 import { PriceGuideModal } from "@/components/price-guide/PriceGuideModal";
 
@@ -18,7 +24,12 @@ interface Props {
 export function ServicesPanel({ q, patch, sections }: Props) {
   const show = (key: NonNullable<Props["sections"]>[number]) => !sections || sections.includes(key);
   const totals = React.useMemo(() => computeTotals(q), [q]);
-  const [draft, setDraft] = React.useState({ name: "", description: "", unitPrice: 0, quantity: 1 });
+  const [draft, setDraft] = React.useState({
+    name: "",
+    description: "",
+    unitPrice: 0,
+    quantity: 1,
+  });
   const [priceGuideTarget, setPriceGuideTarget] = React.useState<"draft" | string | null>(null);
 
   function addItem() {
@@ -77,7 +88,9 @@ export function ServicesPanel({ q, patch, sections }: Props) {
               <Input
                 type="number"
                 value={draft.unitPrice || ""}
-                onChange={(e) => setDraft((d) => ({ ...d, unitPrice: Number(e.target.value) || 0 }))}
+                onChange={(e) =>
+                  setDraft((d) => ({ ...d, unitPrice: Number(e.target.value) || 0 }))
+                }
                 className="num h-9"
                 placeholder="0"
               />
@@ -165,7 +178,9 @@ export function ServicesPanel({ q, patch, sections }: Props) {
                       <Input
                         type="number"
                         value={it.quantity}
-                        onChange={(e) => updateItem(it.id, { quantity: Number(e.target.value) || 0 })}
+                        onChange={(e) =>
+                          updateItem(it.id, { quantity: Number(e.target.value) || 0 })
+                        }
                         className="h-9 num"
                       />
                     </div>
@@ -174,13 +189,17 @@ export function ServicesPanel({ q, patch, sections }: Props) {
                       <Input
                         type="number"
                         value={it.unitPrice}
-                        onChange={(e) => updateItem(it.id, { unitPrice: Number(e.target.value) || 0 })}
+                        onChange={(e) =>
+                          updateItem(it.id, { unitPrice: Number(e.target.value) || 0 })
+                        }
                         className="h-9 num"
                       />
                     </div>
                     <div className="text-right pb-1">
                       <p className="text-[10px] text-muted-foreground mb-0.5">ราคารวม</p>
-                      <p className="num text-sm font-semibold text-foreground">฿{formatBaht(subtotal)}</p>
+                      <p className="num text-sm font-semibold text-foreground">
+                        ฿{formatBaht(subtotal)}
+                      </p>
                     </div>
                   </div>
                   <button
@@ -213,8 +232,13 @@ export function ServicesPanel({ q, patch, sections }: Props) {
                   className="h-9 text-sm num flex-1"
                   placeholder="0"
                 />
-                <Select value={q.discountKind} onValueChange={(v) => patch({ discountKind: v as "percent" | "amount" })}>
-                  <SelectTrigger className="h-9 w-[64px] text-sm"><SelectValue /></SelectTrigger>
+                <Select
+                  value={q.discountKind}
+                  onValueChange={(v) => patch({ discountKind: v as "percent" | "amount" })}
+                >
+                  <SelectTrigger className="h-9 w-[64px] text-sm">
+                    <SelectValue />
+                  </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="percent">%</SelectItem>
                     <SelectItem value="amount">฿</SelectItem>
@@ -222,25 +246,37 @@ export function ServicesPanel({ q, patch, sections }: Props) {
                 </Select>
               </div>
               {totals.discountAmount > 0 && (
-                <p className="text-xs text-right num text-emerald-600">−฿{formatBaht(totals.discountAmount)}</p>
+                <p className="text-xs text-right num text-emerald-600">
+                  −฿{formatBaht(totals.discountAmount)}
+                </p>
               )}
             </div>
             {totals.discountAmount > 0 && (
               <Row label="ราคาหลังหักส่วนลด" value={`฿${formatBaht(totals.preTax)}`} />
             )}
             <div className="flex items-center gap-2 py-1">
-              <Checkbox checked={q.vatEnabled} onCheckedChange={(v) => patch({ vatEnabled: !!v })} />
+              <Checkbox
+                checked={q.vatEnabled}
+                onCheckedChange={(v) => patch({ vatEnabled: !!v })}
+              />
               <span className="text-xs flex-1">VAT {q.vatRate}%</span>
               <span className="text-xs num">฿{formatBaht(totals.vatAmount)}</span>
             </div>
             <div className="flex items-center gap-2 py-1">
-              <Checkbox checked={q.whtEnabled} onCheckedChange={(v) => patch({ whtEnabled: !!v })} />
+              <Checkbox
+                checked={q.whtEnabled}
+                onCheckedChange={(v) => patch({ whtEnabled: !!v })}
+              />
               <span className="text-xs flex-1">หัก ณ ที่จ่าย {q.whtRate}%</span>
-              <span className="text-xs num text-emerald-600">−฿{formatBaht(totals.withholdingAmount)}</span>
+              <span className="text-xs num text-emerald-600">
+                −฿{formatBaht(totals.withholdingAmount)}
+              </span>
             </div>
             <div className="pt-3 border-t border-border/40 flex items-center justify-between">
               <span className="text-sm font-semibold">จำนวนเงินรวมทั้งสิ้น</span>
-              <span className="num text-xl font-bold text-primary">฿{formatBaht(totals.grandTotal)}</span>
+              <span className="num text-xl font-bold text-primary">
+                ฿{formatBaht(totals.grandTotal)}
+              </span>
             </div>
           </div>
         </div>

@@ -35,9 +35,13 @@ export function normalizeHex(input: unknown): string | null {
   const v = input.trim();
   if (!HEX_RE.test(v)) return null;
   const hex = v.startsWith("#") ? v.slice(1) : v;
-  const full = hex.length === 3
-    ? hex.split("").map((c) => c + c).join("")
-    : hex;
+  const full =
+    hex.length === 3
+      ? hex
+          .split("")
+          .map((c) => c + c)
+          .join("")
+      : hex;
   return "#" + full.toUpperCase();
 }
 

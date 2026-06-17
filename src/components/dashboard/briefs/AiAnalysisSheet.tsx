@@ -1,7 +1,22 @@
 import * as React from "react";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+} from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { Loader2, Brain, Save, AlertTriangle, CheckSquare, HelpCircle, Copy, Printer } from "lucide-react";
+import {
+  Loader2,
+  Brain,
+  Save,
+  AlertTriangle,
+  CheckSquare,
+  HelpCircle,
+  Copy,
+  Printer,
+} from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import type { DesignBrief, BriefAiAnalysis } from "@/lib/briefSchema";
@@ -116,7 +131,9 @@ export function AiAnalysisSheet({ open, onOpenChange, brief, onSaved }: Props) {
               acc += delta;
               setRaw(acc);
             }
-          } catch { /* ignore */ }
+          } catch {
+            /* ignore */
+          }
         }
       }
       const parsed = parseAnalysis(acc);
@@ -161,7 +178,8 @@ export function AiAnalysisSheet({ open, onOpenChange, brief, onSaved }: Props) {
             recipientName: name || "คุณ",
             projectName: brief.title || "บรีฟของคุณ",
             alertType: "analysis_complete",
-            message: "AI วิเคราะห์บรีฟเสร็จเรียบร้อย — เปิดดู Action Items, Red Flags และคำถามที่ต้องเคลียร์กับลูกค้าได้เลย",
+            message:
+              "AI วิเคราะห์บรีฟเสร็จเรียบร้อย — เปิดดู Action Items, Red Flags และคำถามที่ต้องเคลียร์กับลูกค้าได้เลย",
             actionUrl: `${window.location.origin}/dashboard`,
           },
         });
@@ -212,9 +230,7 @@ export function AiAnalysisSheet({ open, onOpenChange, brief, onSaved }: Props) {
             </div>
           )}
 
-          {!busy && analysis && (
-            <ReceiptView analysis={analysis} brief={brief} />
-          )}
+          {!busy && analysis && <ReceiptView analysis={analysis} brief={brief} />}
 
           {!busy && !analysis && (
             <p className="text-xs text-muted-foreground text-center py-6">
@@ -251,26 +267,45 @@ function ReceiptView({ analysis, brief }: { analysis: BriefAiAnalysis; brief: De
   return (
     <div className="space-y-2">
       <div className="flex justify-end gap-1.5">
-        <Button size="sm" variant="ghost" onClick={copyAll}><Copy className="h-3.5 w-3.5 mr-1" /> คัดลอก</Button>
+        <Button size="sm" variant="ghost" onClick={copyAll}>
+          <Copy className="h-3.5 w-3.5 mr-1" /> คัดลอก
+        </Button>
       </div>
-      <div ref={ref} className="rounded-2xl border-2 border-dashed border-border bg-card p-4 space-y-3 font-sans">
+      <div
+        ref={ref}
+        className="rounded-2xl border-2 border-dashed border-border bg-card p-4 space-y-3 font-sans"
+      >
         <div className="text-center border-b border-dashed border-border pb-2">
-          <div className="text-[9px] font-mono tracking-[0.3em] text-muted-foreground">SO1O · AI BRIEF RECEIPT</div>
+          <div className="text-[9px] font-mono tracking-[0.3em] text-muted-foreground">
+            SO1O · AI BRIEF RECEIPT
+          </div>
           <div className="text-sm font-bold mt-0.5 truncate">{brief.title}</div>
           <div className="text-[10px] text-muted-foreground font-mono">
             {analysis.generated_at ? new Date(analysis.generated_at).toLocaleString("th-TH") : "—"}
           </div>
         </div>
 
-        <ReceiptSection icon={<CheckSquare className="h-3.5 w-3.5" />} label="ACTION ITEMS" tone="text-emerald-600 dark:text-emerald-400">
+        <ReceiptSection
+          icon={<CheckSquare className="h-3.5 w-3.5" />}
+          label="ACTION ITEMS"
+          tone="text-emerald-600 dark:text-emerald-400"
+        >
           {analysis.key_takeaways}
         </ReceiptSection>
         <div className="border-t border-dashed border-border" />
-        <ReceiptSection icon={<AlertTriangle className="h-3.5 w-3.5" />} label="RED FLAGS" tone="text-amber-600 dark:text-amber-400">
+        <ReceiptSection
+          icon={<AlertTriangle className="h-3.5 w-3.5" />}
+          label="RED FLAGS"
+          tone="text-amber-600 dark:text-amber-400"
+        >
           {analysis.red_flags}
         </ReceiptSection>
         <div className="border-t border-dashed border-border" />
-        <ReceiptSection icon={<HelpCircle className="h-3.5 w-3.5" />} label="คำถามต้องเคลียร์" tone="text-blue-600 dark:text-blue-400">
+        <ReceiptSection
+          icon={<HelpCircle className="h-3.5 w-3.5" />}
+          label="คำถามต้องเคลียร์"
+          tone="text-blue-600 dark:text-blue-400"
+        >
           {analysis.questions}
         </ReceiptSection>
 
@@ -282,10 +317,22 @@ function ReceiptView({ analysis, brief }: { analysis: BriefAiAnalysis; brief: De
   );
 }
 
-function ReceiptSection({ icon, label, tone, children }: { icon: React.ReactNode; label: string; tone: string; children?: string }) {
+function ReceiptSection({
+  icon,
+  label,
+  tone,
+  children,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  tone: string;
+  children?: string;
+}) {
   return (
     <div className="space-y-1.5">
-      <div className={`flex items-center gap-1.5 text-[10px] font-mono font-bold tracking-wider ${tone}`}>
+      <div
+        className={`flex items-center gap-1.5 text-[10px] font-mono font-bold tracking-wider ${tone}`}
+      >
         {icon} {label}
       </div>
       <div className="text-[13px] whitespace-pre-wrap leading-relaxed pl-1">

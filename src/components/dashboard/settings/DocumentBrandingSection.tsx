@@ -6,19 +6,12 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useAuth } from "@/auth/AuthProvider";
 import { useSubscription } from "@/hooks/useSubscription";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import {
-  resolveDocumentTheme,
-  type DocumentThemeInput,
-} from "@/lib/documentTheme";
+import { resolveDocumentTheme, type DocumentThemeInput } from "@/lib/documentTheme";
 import {
   SOLO_DEFAULT_BRIEF,
   SOLO_DEFAULT_INVOICE,
@@ -36,7 +29,15 @@ const PREVIEW_QUOTATION: Quotation = {
   number: "QT-PREVIEW",
   projectName: "ตัวอย่างโปรเจกต์",
   clientName: "ลูกค้าตัวอย่าง",
-  items: [{ id: "1", name: "ออกแบบโลโก้", description: "3 แบบ + แก้ไข 2 รอบ", quantity: 1, unitPrice: 15000 }],
+  items: [
+    {
+      id: "1",
+      name: "ออกแบบโลโก้",
+      description: "3 แบบ + แก้ไข 2 รอบ",
+      quantity: 1,
+      unitPrice: 15000,
+    },
+  ],
   addons: [],
   difficulties: [],
   milestones: [],
@@ -182,10 +183,7 @@ function PortalPreview({
         {showLogo && logoUrl && !showPoweredBy && (
           <img src={logoUrl} alt="" className="h-9 mx-auto object-contain" />
         )}
-        <p
-          className="text-[10px] font-semibold tracking-[0.18em]"
-          style={{ color: portalPrimary }}
-        >
+        <p className="text-[10px] font-semibold tracking-[0.18em]" style={{ color: portalPrimary }}>
           {!showPoweredBy ? brandName.toUpperCase() : "CLIENT PORTAL"}
         </p>
         <h3 className="text-base font-semibold text-foreground">งานตัวอย่าง</h3>
@@ -197,18 +195,16 @@ function PortalPreview({
           style={{ borderColor: `color-mix(in srgb, ${portalPrimary} 35%, transparent)` }}
         >
           <span className="font-medium text-foreground">สถานะงาน</span>
-          <div
-            className="mt-1.5 h-1.5 rounded-full overflow-hidden bg-muted"
-          >
-            <div
-              className="h-full w-2/3 rounded-full"
-              style={{ backgroundColor: portalPrimary }}
-            />
+          <div className="mt-1.5 h-1.5 rounded-full overflow-hidden bg-muted">
+            <div className="h-full w-2/3 rounded-full" style={{ backgroundColor: portalPrimary }} />
           </div>
         </div>
         {showPoweredBy && (
           <p className="text-[9px] text-muted-foreground pt-2">
-            Powered by <span className="font-semibold" style={{ color: portalPrimary }}>So1o Freelancer</span>
+            Powered by{" "}
+            <span className="font-semibold" style={{ color: portalPrimary }}>
+              So1o Freelancer
+            </span>
           </p>
         )}
       </div>
@@ -236,7 +232,7 @@ export function DocumentBrandingSection() {
 
   const portalPreviewPrimary = form.portalUseDocumentColors
     ? previewTheme.colors.primary
-    : normalizeHex(form.portalPrimary) ?? previewTheme.colors.primary;
+    : (normalizeHex(form.portalPrimary) ?? previewTheme.colors.primary);
 
   async function onSave(e: React.FormEvent) {
     e.preventDefault();
@@ -313,177 +309,188 @@ export function DocumentBrandingSection() {
 
           <CollapsibleContent>
             <div className="px-4 sm:px-5 pb-4 sm:pb-5 space-y-5 border-t border-border/50 pt-4">
-        {!isPro && (
-          <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 text-sm space-y-2">
-            <p className="font-medium">อัพเกรด Pro เพื่อเอาแบรนด์ So1o ออกและปรับสีเอกสาร</p>
-            <p className="text-xs text-muted-foreground">
-              แผน Free จะมี footer &quot;So1o Freelancer&quot; บน PDF และ Powered by บน portal ลูกค้า
-            </p>
-            <Button size="sm" asChild>
-              <Link to="/pricing">ดูแพ็ก Pro</Link>
-            </Button>
-          </div>
-        )}
-
-        <form onSubmit={onSave} className="space-y-6">
-          <SettingsFormSubsection
-            title="ธีมเอกสาร"
-            description="ใบเสนอราคา ใบแจ้งหนี้ ใบเสร็จ และ Brief PDF"
-          >
-            <div className="grid sm:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label className="text-xs">สีหลัก (Primary)</Label>
-                <div className="flex gap-2">
-                  <Input
-                    type="color"
-                    value={form.primary}
-                    onChange={(e) => setForm((f) => ({ ...f, primary: e.target.value }))}
-                    className="h-10 w-14 p-1 cursor-pointer"
-                    disabled={!isPro}
-                  />
-                  <Input
-                    value={form.primary}
-                    onChange={(e) => setForm((f) => ({ ...f, primary: e.target.value }))}
-                    className="font-mono text-xs"
-                    disabled={!isPro}
-                    placeholder="#F37021"
-                  />
+              {!isPro && (
+                <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 text-sm space-y-2">
+                  <p className="font-medium">อัพเกรด Pro เพื่อเอาแบรนด์ So1o ออกและปรับสีเอกสาร</p>
+                  <p className="text-xs text-muted-foreground">
+                    แผน Free จะมี footer &quot;So1o Freelancer&quot; บน PDF และ Powered by บน portal
+                    ลูกค้า
+                  </p>
+                  <Button size="sm" asChild>
+                    <Link to="/pricing">ดูแพ็ก Pro</Link>
+                  </Button>
                 </div>
-              </div>
-              <ThemeToggleRow
-                title="ใช้สีเดียวทุกเอกสาร"
-                description="ปิดเพื่อแยกสีใบแจ้งหนี้/ใบเสร็จ/บรีฟ"
-                checked={form.unifiedColors}
-                onCheckedChange={(v) => setForm((f) => ({ ...f, unifiedColors: v }))}
-                disabled={!isPro}
-              />
-            </div>
+              )}
 
-            {!form.unifiedColors && (
-              <div className="grid sm:grid-cols-3 gap-3">
-                {(
-                  [
-                    ["invoiceColor", "ใบแจ้งหนี้"],
-                    ["receiptColor", "ใบเสร็จ"],
-                    ["briefAccent", "บรีฟ"],
-                  ] as const
-                ).map(([key, label]) => (
-                  <div key={key} className="space-y-1">
-                    <Label className="text-[10px]">{label}</Label>
-                    <Input
-                      type="color"
-                      value={form[key]}
-                      onChange={(e) => setForm((f) => ({ ...f, [key]: e.target.value }))}
-                      className="h-9 w-full p-1 cursor-pointer"
+              <form onSubmit={onSave} className="space-y-6">
+                <SettingsFormSubsection
+                  title="ธีมเอกสาร"
+                  description="ใบเสนอราคา ใบแจ้งหนี้ ใบเสร็จ และ Brief PDF"
+                >
+                  <div className="grid sm:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label className="text-xs">สีหลัก (Primary)</Label>
+                      <div className="flex gap-2">
+                        <Input
+                          type="color"
+                          value={form.primary}
+                          onChange={(e) => setForm((f) => ({ ...f, primary: e.target.value }))}
+                          className="h-10 w-14 p-1 cursor-pointer"
+                          disabled={!isPro}
+                        />
+                        <Input
+                          value={form.primary}
+                          onChange={(e) => setForm((f) => ({ ...f, primary: e.target.value }))}
+                          className="font-mono text-xs"
+                          disabled={!isPro}
+                          placeholder="#F37021"
+                        />
+                      </div>
+                    </div>
+                    <ThemeToggleRow
+                      title="ใช้สีเดียวทุกเอกสาร"
+                      description="ปิดเพื่อแยกสีใบแจ้งหนี้/ใบเสร็จ/บรีฟ"
+                      checked={form.unifiedColors}
+                      onCheckedChange={(v) => setForm((f) => ({ ...f, unifiedColors: v }))}
                       disabled={!isPro}
                     />
                   </div>
-                ))}
-              </div>
-            )}
 
-            <ThemeToggleRow
-              title="แสดง So1o badge บนเอกสาร"
-              description="Footer &quot;So1o Freelancer&quot; บน PDF — Pro ปิดได้"
-              checked={form.showSo1oBadge}
-              onCheckedChange={(v) => setForm((f) => ({ ...f, showSo1oBadge: v }))}
-              disabled={!isPro}
-            />
+                  {!form.unifiedColors && (
+                    <div className="grid sm:grid-cols-3 gap-3">
+                      {(
+                        [
+                          ["invoiceColor", "ใบแจ้งหนี้"],
+                          ["receiptColor", "ใบเสร็จ"],
+                          ["briefAccent", "บรีฟ"],
+                        ] as const
+                      ).map(([key, label]) => (
+                        <div key={key} className="space-y-1">
+                          <Label className="text-[10px]">{label}</Label>
+                          <Input
+                            type="color"
+                            value={form[key]}
+                            onChange={(e) => setForm((f) => ({ ...f, [key]: e.target.value }))}
+                            className="h-9 w-full p-1 cursor-pointer"
+                            disabled={!isPro}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  )}
 
-            <div className="rounded-xl border bg-white overflow-hidden">
-              <p className="text-[10px] font-medium text-muted-foreground px-3 py-2 border-b bg-muted/30">
-                ตัวอย่างใบเสนอราคา
-              </p>
-              <div className="p-2 scale-[0.85] origin-top-left w-[118%] max-h-[280px] overflow-hidden pointer-events-none">
-                <PreviewPanel q={PREVIEW_QUOTATION} themeOverride={previewTheme} />
-              </div>
-            </div>
-          </SettingsFormSubsection>
-
-          <SettingsFormSubsection
-            title="Portal ลูกค้า"
-            description="หน้า Track / Brief ที่ลูกค้าเปิดจากลิงก์"
-          >
-            <ThemeToggleRow
-              title="ใช้สีเดียวกับเอกสาร"
-              description="ปิดเพื่อตั้งสี Portal แยกจาก PDF"
-              checked={form.portalUseDocumentColors}
-              onCheckedChange={(v) =>
-                setForm((f) => ({
-                  ...f,
-                  portalUseDocumentColors: v,
-                  portalPrimary: v ? f.primary : f.portalPrimary,
-                }))
-              }
-              disabled={!isPro}
-            />
-
-            {!form.portalUseDocumentColors && (
-              <div className="space-y-2">
-                <Label className="text-xs">สี Portal</Label>
-                <div className="flex gap-2 max-w-sm">
-                  <Input
-                    type="color"
-                    value={form.portalPrimary}
-                    onChange={(e) => setForm((f) => ({ ...f, portalPrimary: e.target.value }))}
-                    className="h-10 w-14 p-1 cursor-pointer"
+                  <ThemeToggleRow
+                    title="แสดง So1o badge บนเอกสาร"
+                    description='Footer "So1o Freelancer" บน PDF — Pro ปิดได้'
+                    checked={form.showSo1oBadge}
+                    onCheckedChange={(v) => setForm((f) => ({ ...f, showSo1oBadge: v }))}
                     disabled={!isPro}
                   />
-                  <Input
-                    value={form.portalPrimary}
-                    onChange={(e) => setForm((f) => ({ ...f, portalPrimary: e.target.value }))}
-                    className="font-mono text-xs"
+
+                  <div className="rounded-xl border bg-white overflow-hidden">
+                    <p className="text-[10px] font-medium text-muted-foreground px-3 py-2 border-b bg-muted/30">
+                      ตัวอย่างใบเสนอราคา
+                    </p>
+                    <div className="p-2 scale-[0.85] origin-top-left w-[118%] max-h-[280px] overflow-hidden pointer-events-none">
+                      <PreviewPanel q={PREVIEW_QUOTATION} themeOverride={previewTheme} />
+                    </div>
+                  </div>
+                </SettingsFormSubsection>
+
+                <SettingsFormSubsection
+                  title="Portal ลูกค้า"
+                  description="หน้า Track / Brief ที่ลูกค้าเปิดจากลิงก์"
+                >
+                  <ThemeToggleRow
+                    title="ใช้สีเดียวกับเอกสาร"
+                    description="ปิดเพื่อตั้งสี Portal แยกจาก PDF"
+                    checked={form.portalUseDocumentColors}
+                    onCheckedChange={(v) =>
+                      setForm((f) => ({
+                        ...f,
+                        portalUseDocumentColors: v,
+                        portalPrimary: v ? f.primary : f.portalPrimary,
+                      }))
+                    }
                     disabled={!isPro}
-                    placeholder="#F37021"
                   />
-                </div>
-              </div>
-            )}
 
-            <ThemeToggleRow
-              title="แสดงโลโก้บน Portal"
-              description="ใช้โลโก้จากโปรไฟล์ร้าน — ปิดได้ถ้าต้องการแสดงแค่ชื่อ"
-              checked={form.portalShowLogo}
-              onCheckedChange={(v) => setForm((f) => ({ ...f, portalShowLogo: v }))}
-              disabled={!isPro}
-            />
+                  {!form.portalUseDocumentColors && (
+                    <div className="space-y-2">
+                      <Label className="text-xs">สี Portal</Label>
+                      <div className="flex gap-2 max-w-sm">
+                        <Input
+                          type="color"
+                          value={form.portalPrimary}
+                          onChange={(e) =>
+                            setForm((f) => ({ ...f, portalPrimary: e.target.value }))
+                          }
+                          className="h-10 w-14 p-1 cursor-pointer"
+                          disabled={!isPro}
+                        />
+                        <Input
+                          value={form.portalPrimary}
+                          onChange={(e) =>
+                            setForm((f) => ({ ...f, portalPrimary: e.target.value }))
+                          }
+                          className="font-mono text-xs"
+                          disabled={!isPro}
+                          placeholder="#F37021"
+                        />
+                      </div>
+                    </div>
+                  )}
 
-            <div className="space-y-2">
-              <Label className="text-xs">ข้อความต้อนรับ (ไม่บังคับ)</Label>
-              <Input
-                value={form.portalWelcomeMessage}
-                onChange={(e) => setForm((f) => ({ ...f, portalWelcomeMessage: e.target.value }))}
-                placeholder="เช่น ยินดีต้อนรับ — ติดตามงานของคุณได้ที่นี่"
-                disabled={!isPro}
-                maxLength={200}
-              />
-            </div>
+                  <ThemeToggleRow
+                    title="แสดงโลโก้บน Portal"
+                    description="ใช้โลโก้จากโปรไฟล์ร้าน — ปิดได้ถ้าต้องการแสดงแค่ชื่อ"
+                    checked={form.portalShowLogo}
+                    onCheckedChange={(v) => setForm((f) => ({ ...f, portalShowLogo: v }))}
+                    disabled={!isPro}
+                  />
 
-            <ThemeToggleRow
-              title="แสดง Powered by So1o"
-              description="Footer solofreelancer.com บน portal ลูกค้า"
-              checked={form.showPoweredBy}
-              onCheckedChange={(v) => setForm((f) => ({ ...f, showPoweredBy: v }))}
-              disabled={!isPro}
-            />
+                  <div className="space-y-2">
+                    <Label className="text-xs">ข้อความต้อนรับ (ไม่บังคับ)</Label>
+                    <Input
+                      value={form.portalWelcomeMessage}
+                      onChange={(e) =>
+                        setForm((f) => ({ ...f, portalWelcomeMessage: e.target.value }))
+                      }
+                      placeholder="เช่น ยินดีต้อนรับ — ติดตามงานของคุณได้ที่นี่"
+                      disabled={!isPro}
+                      maxLength={200}
+                    />
+                  </div>
 
-            <PortalPreview
-              brandName={profile?.brand_name?.trim() || profile?.display_name?.trim() || "So1o Freelancer"}
-              logoUrl={profile?.logo_url?.trim() || null}
-              portalPrimary={portalPreviewPrimary}
-              welcomeMessage={form.portalWelcomeMessage.trim()}
-              showLogo={form.portalShowLogo}
-              showPoweredBy={form.showPoweredBy}
-            />
-          </SettingsFormSubsection>
+                  <ThemeToggleRow
+                    title="แสดง Powered by So1o"
+                    description="Footer solofreelancer.com บน portal ลูกค้า"
+                    checked={form.showPoweredBy}
+                    onCheckedChange={(v) => setForm((f) => ({ ...f, showPoweredBy: v }))}
+                    disabled={!isPro}
+                  />
 
-          {isPro && (
-            <Button type="submit" disabled={saving} className="w-full sm:w-auto">
-              {saving ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : null}
-              บันทึกธีมเอกสาร & Portal
-            </Button>
-          )}
-        </form>
+                  <PortalPreview
+                    brandName={
+                      profile?.brand_name?.trim() ||
+                      profile?.display_name?.trim() ||
+                      "So1o Freelancer"
+                    }
+                    logoUrl={profile?.logo_url?.trim() || null}
+                    portalPrimary={portalPreviewPrimary}
+                    welcomeMessage={form.portalWelcomeMessage.trim()}
+                    showLogo={form.portalShowLogo}
+                    showPoweredBy={form.showPoweredBy}
+                  />
+                </SettingsFormSubsection>
+
+                {isPro && (
+                  <Button type="submit" disabled={saving} className="w-full sm:w-auto">
+                    {saving ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : null}
+                    บันทึกธีมเอกสาร & Portal
+                  </Button>
+                )}
+              </form>
             </div>
           </CollapsibleContent>
         </CardContent>

@@ -19,17 +19,18 @@ const STATIC_ORIGINS = [
   "http://127.0.0.1:8080",
 ] as const;
 
-const LOVABLE_PREVIEW_ORIGIN_RE =
-  /^https:\/\/([a-z0-9-]+\.)*lovable\.app$/i;
+const LOVABLE_PREVIEW_ORIGIN_RE = /^https:\/\/([a-z0-9-]+\.)*lovable\.app$/i;
 
 /** Vercel production + preview deploys for so1o-ops-hub */
-const VERCEL_OPS_HUB_ORIGIN_RE =
-  /^https:\/\/so1o-ops[-a-z0-9.]*\.vercel\.app$/i;
+const VERCEL_OPS_HUB_ORIGIN_RE = /^https:\/\/so1o-ops[-a-z0-9.]*\.vercel\.app$/i;
 
 function extraOriginsFromEnv(): string[] {
   const raw = Deno.env.get("CORS_ALLOWED_ORIGINS_EXTRA")?.trim();
   if (!raw) return [];
-  return raw.split(/[\s,]+/).map((s) => s.trim()).filter(Boolean);
+  return raw
+    .split(/[\s,]+/)
+    .map((s) => s.trim())
+    .filter(Boolean);
 }
 
 export function isAllowedCorsOrigin(origin: string): boolean {
@@ -44,7 +45,7 @@ export function corsHeadersForRequest(req: Request): Record<string, string> {
   const allowed = origin && isAllowedCorsOrigin(origin) ? origin : STATIC_ORIGINS[0];
   return {
     "Access-Control-Allow-Origin": allowed,
-    "Vary": "Origin",
+    Vary: "Origin",
     "Access-Control-Allow-Headers":
       "authorization, x-client-info, apikey, content-type, x-ecosystem-secret",
     "Access-Control-Allow-Methods": "POST, GET, OPTIONS",

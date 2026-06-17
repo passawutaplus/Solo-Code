@@ -4,17 +4,14 @@ import { checkAiQuota, isProUser } from "../_shared/ai-quota.ts";
 import { AI_DISCLAIMER_TAX_PRICE_PROMPT } from "../_shared/copy-prompts.ts";
 import { defaultFastModel, geminiGenerateText, getGeminiApiKey } from "../_shared/gemini.ts";
 
-const ALLOWED_ORIGINS = [
-  "https://solofreelancer.com",
-  "https://www.solofreelancer.com",
-];
+const ALLOWED_ORIGINS = ["https://solofreelancer.com", "https://www.solofreelancer.com"];
 
 function getCorsHeaders(req: Request): Record<string, string> {
   const origin = req.headers.get("Origin") ?? "";
   const allowed = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
   return {
     "Access-Control-Allow-Origin": allowed,
-    "Vary": "Origin",
+    Vary: "Origin",
     "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
     "Access-Control-Allow-Methods": "POST, OPTIONS",
   };
@@ -55,10 +52,14 @@ Deno.serve(async (req) => {
     const pro = await isProUser(userId);
     const quota = await checkAiQuota(userId, "ai_price_suggest", pro);
     if (!quota.allowed) {
-      return json(req, {
-        error: `เครดิต AI หมดแล้ว — อัพเกรดหรือเติมเครดิตได้ที่ตั้งค่า`,
-        quota,
-      }, 429);
+      return json(
+        req,
+        {
+          error: `เครดิต AI หมดแล้ว — อัพเกรดหรือเติมเครดิตได้ที่ตั้งค่า`,
+          quota,
+        },
+        429,
+      );
     }
 
     const body = await req.json();
@@ -89,7 +90,10 @@ Deno.serve(async (req) => {
         .eq("job_type", jobType)
         .maybeSingle();
       if (ov && ov.max_price > 0) {
-        marketAvg = { min: Math.round(Number(ov.min_price)), max: Math.round(Number(ov.max_price)) };
+        marketAvg = {
+          min: Math.round(Number(ov.min_price)),
+          max: Math.round(Number(ov.max_price)),
+        };
       } else {
         // 2) Fallback to anonymized aggregate
         const { data: rows } = await admin
@@ -99,7 +103,10 @@ Deno.serve(async (req) => {
           .gte("created_at", new Date(Date.now() - 1000 * 60 * 60 * 24 * 180).toISOString())
           .limit(200);
         if (rows && rows.length >= 3) {
-          const prices = rows.map((r: any) => Number(r.recommended_price)).filter((n) => n > 0).sort((a, b) => a - b);
+          const prices = rows
+            .map((r: any) => Number(r.recommended_price))
+            .filter((n) => n > 0)
+            .sort((a, b) => a - b);
           if (prices.length >= 3) {
             const min = prices[Math.floor(prices.length * 0.2)];
             const max = prices[Math.floor(prices.length * 0.8)];
@@ -128,8 +135,7 @@ Deno.serve(async (req) => {
       console.error("market resolve error", e);
     }
 
-    let reasoning =
-      `ราคานี้คำนวณจากเวลาทำงาน + ความยาก + ค่าเฉลี่ยตลาด เผื่อต่อนิดหน่อยให้ลูกค้าเลือกได้ครับ\n${AI_DISCLAIMER_TAX_PRICE_PROMPT}`;
+    let reasoning = `ราคานี้คำนวณจากเวลาทำงาน + ความยาก + ค่าเฉลี่ยตลาด เผื่อต่อนิดหน่อยให้ลูกค้าเลือกได้ครับ\n${AI_DISCLAIMER_TAX_PRICE_PROMPT}`;
 
     if (geminiKey) {
       try {

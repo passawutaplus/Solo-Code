@@ -88,9 +88,7 @@ export function DailyTrendsWidget() {
                   {trend.category}
                 </span>
                 <h4 className="text-sm font-semibold leading-snug">{trend.title}</h4>
-                <p className="text-xs text-muted-foreground leading-relaxed mt-0.5">
-                  {trend.body}
-                </p>
+                <p className="text-xs text-muted-foreground leading-relaxed mt-0.5">{trend.body}</p>
               </div>
             </motion.div>
           </AnimatePresence>
@@ -103,7 +101,9 @@ export function DailyTrendsWidget() {
               onClick={() => setIdx(i)}
               aria-label={`สไลด์ที่ ${i + 1}`}
               className={`h-1.5 rounded-full transition-all ${
-                i === idx ? "bg-primary w-5" : "bg-muted-foreground/30 w-1.5 hover:bg-muted-foreground/60"
+                i === idx
+                  ? "bg-primary w-5"
+                  : "bg-muted-foreground/30 w-1.5 hover:bg-muted-foreground/60"
               }`}
             />
           ))}

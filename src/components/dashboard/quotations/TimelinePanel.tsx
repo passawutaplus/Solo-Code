@@ -61,7 +61,11 @@ export function TimelinePanel({ q, patch, sections }: Props) {
 
   // Build full timeline view (start, revisions, end)
   const timelineEvents = React.useMemo(() => {
-    const events: { date?: string; label: string; type: "deposit" | "start" | "revision" | "end" }[] = [];
+    const events: {
+      date?: string;
+      label: string;
+      type: "deposit" | "start" | "revision" | "end";
+    }[] = [];
     if (q.depositDueDate) {
       events.push({ date: q.depositDueDate, label: "ชำระมัดจำก่อนเริ่มงาน", type: "deposit" });
     }
@@ -77,117 +81,125 @@ export function TimelinePanel({ q, patch, sections }: Props) {
     <div className="space-y-4 text-sm">
       {/* Date range */}
       {show("dates") && (
-      <Section icon={<CalendarIcon className="h-3.5 w-3.5" />} title="วันที่โครงการ">
-        <div className="grid grid-cols-2 gap-2">
-          <DatePicker
-            label="วันที่เริ่ม"
-            value={q.startDate}
-            onChange={(d) => {
-              // ถ้า end อยู่ก่อน start ใหม่ → ล้าง end ออก
-              if (q.endDate && d && q.endDate < d) {
-                patch({ startDate: d, endDate: "" });
-              } else {
-                patch({ startDate: d });
-              }
-            }}
-          />
-          <DatePicker
-            label="วันที่จบงาน"
-            value={q.endDate}
-            minDate={q.startDate}
-            onChange={(d) => patch({ endDate: d })}
-          />
-        </div>
-        {q.startDate && q.endDate && q.endDate < q.startDate && (
-          <p className="text-[11px] text-destructive mt-1.5" role="alert">
-            วันจบงานต้องไม่อยู่ก่อนวันเริ่มงาน
-          </p>
-        )}
-
-        {/* Auto timeline preview */}
-        {timelineEvents.length > 0 && (
-          <div className="rounded-lg border border-dashed border-primary/30 bg-primary-soft/30 p-2.5 mt-2 space-y-1.5">
-            <p className="text-[11px] font-semibold text-primary flex items-center gap-1">
-              <Repeat className="h-3 w-3" /> ไทม์ไลน์อัตโนมัติ
-            </p>
-            <div className="space-y-1">
-              {timelineEvents.map((e, i) => (
-                <div key={i} className="flex items-center justify-between text-[11px]">
-                  <span className="flex items-center gap-1.5">
-                    {e.type === "deposit" && <Wallet className="h-3 w-3 text-orange-500" />}
-                    {e.type === "start" && <CircleDot className="h-3 w-3 text-primary" />}
-                    {e.type === "revision" && <Repeat className="h-3 w-3 text-amber-500" />}
-                    {e.type === "end" && <Flag className="h-3 w-3 text-emerald-600" />}
-                    <span>{e.label}</span>
-                  </span>
-                  <span className="num text-muted-foreground">
-                    {e.date && format(new Date(e.date), "d MMM yy", { locale: th })}
-                  </span>
-                </div>
-              ))}
-            </div>
-            <p className="text-[10px] text-muted-foreground italic">
-              ปรับจำนวนแก้ไขได้ที่ช่อง "จำนวนแก้ไขงานฟรี" ในแท็บตั้งค่า
-            </p>
+        <Section icon={<CalendarIcon className="h-3.5 w-3.5" />} title="วันที่โครงการ">
+          <div className="grid grid-cols-2 gap-2">
+            <DatePicker
+              label="วันที่เริ่ม"
+              value={q.startDate}
+              onChange={(d) => {
+                // ถ้า end อยู่ก่อน start ใหม่ → ล้าง end ออก
+                if (q.endDate && d && q.endDate < d) {
+                  patch({ startDate: d, endDate: "" });
+                } else {
+                  patch({ startDate: d });
+                }
+              }}
+            />
+            <DatePicker
+              label="วันที่จบงาน"
+              value={q.endDate}
+              minDate={q.startDate}
+              onChange={(d) => patch({ endDate: d })}
+            />
           </div>
-        )}
-      </Section>
+          {q.startDate && q.endDate && q.endDate < q.startDate && (
+            <p className="text-[11px] text-destructive mt-1.5" role="alert">
+              วันจบงานต้องไม่อยู่ก่อนวันเริ่มงาน
+            </p>
+          )}
+
+          {/* Auto timeline preview */}
+          {timelineEvents.length > 0 && (
+            <div className="rounded-lg border border-dashed border-primary/30 bg-primary-soft/30 p-2.5 mt-2 space-y-1.5">
+              <p className="text-[11px] font-semibold text-primary flex items-center gap-1">
+                <Repeat className="h-3 w-3" /> ไทม์ไลน์อัตโนมัติ
+              </p>
+              <div className="space-y-1">
+                {timelineEvents.map((e, i) => (
+                  <div key={i} className="flex items-center justify-between text-[11px]">
+                    <span className="flex items-center gap-1.5">
+                      {e.type === "deposit" && <Wallet className="h-3 w-3 text-orange-500" />}
+                      {e.type === "start" && <CircleDot className="h-3 w-3 text-primary" />}
+                      {e.type === "revision" && <Repeat className="h-3 w-3 text-amber-500" />}
+                      {e.type === "end" && <Flag className="h-3 w-3 text-emerald-600" />}
+                      <span>{e.label}</span>
+                    </span>
+                    <span className="num text-muted-foreground">
+                      {e.date && format(new Date(e.date), "d MMM yy", { locale: th })}
+                    </span>
+                  </div>
+                ))}
+              </div>
+              <p className="text-[10px] text-muted-foreground italic">
+                ปรับจำนวนแก้ไขได้ที่ช่อง "จำนวนแก้ไขงานฟรี" ในแท็บตั้งค่า
+              </p>
+            </div>
+          )}
+        </Section>
       )}
 
       {/* Milestones (payment) — date only */}
       {show("milestones") && (
-      <Section icon={<Flag className="h-3.5 w-3.5" />} title="งวดการชำระเงิน">
-        <div className="space-y-3">
-          {q.milestones.map((m, i) => {
-            const amount = totals.grandTotal * ((m.percent || 0) / 100);
-            const isLast = i === q.milestones.length - 1;
-            return (
-              <div key={m.id} className="flex gap-2">
-                <div className="flex flex-col items-center pt-1.5">
-                  {m.done ? (
-                    <CheckCircle2 className="h-4 w-4 text-success fill-success/20" />
-                  ) : i === 0 ? (
-                    <CircleDot className="h-4 w-4 text-primary" />
-                  ) : (
-                    <Circle className="h-4 w-4 text-muted-foreground/70" />
-                  )}
-                  {!isLast && <div className="w-px h-full bg-border/60 mt-1" />}
-                </div>
-                <div className="flex-1 space-y-1.5 pb-1">
-                  <div className="flex items-center gap-2">
-                    <Input
-                      value={m.label}
-                      onChange={(e) => updateMs(m.id, { label: e.target.value })}
-                      className="h-7 text-xs font-medium border-0 bg-transparent shadow-none px-0 focus-visible:ring-0"
-                      placeholder="ชื่องวด"
-                    />
-                    <button onClick={() => removeMs(m.id)} className="text-destructive hover:text-destructive/80">
-                      <Trash2 className="h-3 w-3" />
-                    </button>
+        <Section icon={<Flag className="h-3.5 w-3.5" />} title="งวดการชำระเงิน">
+          <div className="space-y-3">
+            {q.milestones.map((m, i) => {
+              const amount = totals.grandTotal * ((m.percent || 0) / 100);
+              const isLast = i === q.milestones.length - 1;
+              return (
+                <div key={m.id} className="flex gap-2">
+                  <div className="flex flex-col items-center pt-1.5">
+                    {m.done ? (
+                      <CheckCircle2 className="h-4 w-4 text-success fill-success/20" />
+                    ) : i === 0 ? (
+                      <CircleDot className="h-4 w-4 text-primary" />
+                    ) : (
+                      <Circle className="h-4 w-4 text-muted-foreground/70" />
+                    )}
+                    {!isLast && <div className="w-px h-full bg-border/60 mt-1" />}
                   </div>
-                  <DatePicker
-                    compact
-                    value={m.date}
-                    minDate={q.startDate}
-                    onChange={(d) => updateMs(m.id, { date: d })}
-                  />
-                  {m.percent > 0 && amount > 0 && (
-                    <p className="text-[11px] text-muted-foreground num">
-                      {m.percent}% = ฿{formatBaht(amount)}
-                    </p>
-                  )}
+                  <div className="flex-1 space-y-1.5 pb-1">
+                    <div className="flex items-center gap-2">
+                      <Input
+                        value={m.label}
+                        onChange={(e) => updateMs(m.id, { label: e.target.value })}
+                        className="h-7 text-xs font-medium border-0 bg-transparent shadow-none px-0 focus-visible:ring-0"
+                        placeholder="ชื่องวด"
+                      />
+                      <button
+                        onClick={() => removeMs(m.id)}
+                        className="text-destructive hover:text-destructive/80"
+                      >
+                        <Trash2 className="h-3 w-3" />
+                      </button>
+                    </div>
+                    <DatePicker
+                      compact
+                      value={m.date}
+                      minDate={q.startDate}
+                      onChange={(d) => updateMs(m.id, { date: d })}
+                    />
+                    {m.percent > 0 && amount > 0 && (
+                      <p className="text-[11px] text-muted-foreground num">
+                        {m.percent}% = ฿{formatBaht(amount)}
+                      </p>
+                    )}
+                  </div>
                 </div>
-              </div>
-            );
-          })}
-          <Button size="sm" variant="outline" onClick={addMilestone} className="w-full h-7 text-xs">
-            <Plus className="h-3 w-3" /> เพิ่มงวด
-          </Button>
-          <p className="text-[10px] text-muted-foreground italic">
-            สัดส่วน % ของแต่ละงวดตั้งจาก "เงื่อนไขการชำระ" ในแท็บตั้งค่า
-          </p>
-        </div>
-      </Section>
+              );
+            })}
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={addMilestone}
+              className="w-full h-7 text-xs"
+            >
+              <Plus className="h-3 w-3" /> เพิ่มงวด
+            </Button>
+            <p className="text-[10px] text-muted-foreground italic">
+              สัดส่วน % ของแต่ละงวดตั้งจาก "เงื่อนไขการชำระ" ในแท็บตั้งค่า
+            </p>
+          </div>
+        </Section>
       )}
 
       {/* Notes */}

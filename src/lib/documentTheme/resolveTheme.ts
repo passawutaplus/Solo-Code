@@ -17,20 +17,12 @@ function pickColor(input: string | undefined, fallback: string): string {
 export function resolveDocumentColors(input?: DocumentThemeInput | null): ResolvedDocumentColors {
   const unified = input?.unifiedColors !== false;
   const primary = pickColor(input?.primary, SOLO_DEFAULT_PRIMARY);
-  const invoiceAccent = unified
-    ? primary
-    : pickColor(input?.invoiceColor, SOLO_DEFAULT_INVOICE);
-  const receiptAccent = unified
-    ? primary
-    : pickColor(input?.receiptColor, SOLO_DEFAULT_RECEIPT);
-  const briefAccent = unified
-    ? primary
-    : pickColor(input?.briefAccent, SOLO_DEFAULT_BRIEF);
+  const invoiceAccent = unified ? primary : pickColor(input?.invoiceColor, SOLO_DEFAULT_INVOICE);
+  const receiptAccent = unified ? primary : pickColor(input?.receiptColor, SOLO_DEFAULT_RECEIPT);
+  const briefAccent = unified ? primary : pickColor(input?.briefAccent, SOLO_DEFAULT_BRIEF);
 
   const portalPrimary =
-    input?.portalUseDocumentColors === false
-      ? pickColor(input?.portalPrimary, primary)
-      : primary;
+    input?.portalUseDocumentColors === false ? pickColor(input?.portalPrimary, primary) : primary;
 
   return {
     primary,
@@ -49,9 +41,7 @@ export function resolveDocumentTheme(
   input?: DocumentThemeInput | null,
 ): ResolvedDocumentTheme {
   const canCustomize = canCustomizeDocumentColors(tier);
-  const colors = canCustomize
-    ? resolveDocumentColors(input)
-    : resolveDocumentColors(null);
+  const colors = canCustomize ? resolveDocumentColors(input) : resolveDocumentColors(null);
 
   const tierBadge = showSo1oBadge(tier);
   const tierPowered = showPoweredBy(tier);
@@ -59,13 +49,9 @@ export function resolveDocumentTheme(
   return {
     colors,
     showSo1oBadge:
-      canCustomize && input?.showSo1oBadge !== undefined
-        ? input.showSo1oBadge
-        : tierBadge,
+      canCustomize && input?.showSo1oBadge !== undefined ? input.showSo1oBadge : tierBadge,
     showPoweredBy:
-      canCustomize && input?.showPoweredBy !== undefined
-        ? input.showPoweredBy
-        : tierPowered,
+      canCustomize && input?.showPoweredBy !== undefined ? input.showPoweredBy : tierPowered,
     canCustomize,
   };
 }

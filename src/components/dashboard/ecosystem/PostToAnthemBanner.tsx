@@ -12,13 +12,7 @@ type Props = {
 };
 
 /** Deep-link to Anthem project editor with prefill + ecosystem_links tracking. */
-export function PostToAnthemBanner({
-  jobId,
-  jobTitle,
-  clientName,
-  previewImageUrl,
-  tags,
-}: Props) {
+export function PostToAnthemBanner({ jobId, jobTitle, clientName, previewImageUrl, tags }: Props) {
   const [href, setHref] = React.useState(() =>
     anthemPortfolioNewUrl({ jobTitle, clientName, jobId, coverUrl: previewImageUrl, tags }),
   );
@@ -61,7 +55,8 @@ export function PostToAnthemBanner({
         <div className="min-w-0">
           <p className="text-xs font-semibold text-foreground">ปิดลูป — โพสต์ผลงานบน Pixel100</p>
           <p className="text-[11px] text-muted-foreground mt-0.5 leading-relaxed">
-            งานเสร็จแล้ว? นำผลงานไปหน้าร้านเพื่อรับงานใหม่ — ชื่อโปรเจกต์จะถูก prefill จาก Job Tracker
+            งานเสร็จแล้ว? นำผลงานไปหน้าร้านเพื่อรับงานใหม่ — ชื่อโปรเจกต์จะถูก prefill จาก Job
+            Tracker
           </p>
         </div>
       </div>

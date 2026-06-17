@@ -58,7 +58,8 @@ export function DashboardShortcuts({ onGo }: Props) {
   };
 
   const addShortcut = async (id: string) => {
-    const replacing = replaceIndex != null && replaceIndex >= 0 && replaceIndex < shortcutIds.length;
+    const replacing =
+      replaceIndex != null && replaceIndex >= 0 && replaceIndex < shortcutIds.length;
     const existingAt = shortcutIds.indexOf(id);
     if (!replacing && existingAt >= 0) {
       toast.info("มีปุ่มลัดนี้อยู่แล้ว");
@@ -140,9 +141,7 @@ export function DashboardShortcuts({ onGo }: Props) {
                   >
                     <option.icon className="h-4 w-4 text-primary" />
                     <span className="flex-1">{option.label}</span>
-                    {taken && (
-                      <span className="text-[10px] text-muted-foreground">มีอยู่แล้ว</span>
-                    )}
+                    {taken && <span className="text-[10px] text-muted-foreground">มีอยู่แล้ว</span>}
                   </CommandItem>
                 );
               })}

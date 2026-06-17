@@ -13,13 +13,7 @@ type Props = {
   actions?: React.ReactNode;
 };
 
-export function HelpArticleLink({
-  link,
-  className,
-}: {
-  link: HelpLink;
-  className?: string;
-}) {
+export function HelpArticleLink({ link, className }: { link: HelpLink; className?: string }) {
   return (
     <Link
       to={link.to}
@@ -93,7 +87,10 @@ export function HelpLayout({ title, subtitle, route, children, actions }: Props)
                 <p className="text-xs font-semibold text-muted-foreground mb-2">อ่านต่อ</p>
                 <div className="flex flex-wrap gap-x-4 gap-y-1">
                   {related.map((link) => (
-                    <HelpArticleLink key={`${link.to}-${link.hash ?? ""}-${link.label}`} link={link} />
+                    <HelpArticleLink
+                      key={`${link.to}-${link.hash ?? ""}-${link.label}`}
+                      link={link}
+                    />
                   ))}
                 </div>
               </div>

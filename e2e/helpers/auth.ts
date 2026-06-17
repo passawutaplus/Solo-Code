@@ -15,7 +15,9 @@ export async function signIn(page: Page, role: Role) {
   await emailInput.fill(email);
   await passwordInput.fill(password);
 
-  const submit = page.getByRole("button", { name: /เข้าสู่ระบบ|ลงชื่อเข้าใช้|sign in|log in/i }).first();
+  const submit = page
+    .getByRole("button", { name: /เข้าสู่ระบบ|ลงชื่อเข้าใช้|sign in|log in/i })
+    .first();
   await submit.click();
 
   // Wait until we land somewhere authenticated (dashboard or apply)

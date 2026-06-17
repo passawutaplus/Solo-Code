@@ -52,7 +52,11 @@ export function QuotationExportOptionsDialog({
   const subtitle = isPreview
     ? "เลือกว่าจะให้พรีวิวรวมเอกสารอะไรบ้าง (เห็นเหมือนตอนกดบันทึก PDF)"
     : "เลือกว่าจะให้แทรกเอกสารอื่นเข้าไปท้ายไฟล์ PDF ด้วยมั้ย";
-  const ctaIcon = isPreview ? <Eye className="h-3.5 w-3.5" /> : <Download className="h-3.5 w-3.5" />;
+  const ctaIcon = isPreview ? (
+    <Eye className="h-3.5 w-3.5" />
+  ) : (
+    <Download className="h-3.5 w-3.5" />
+  );
   const ctaLabel = isPreview ? "ดูตัวอย่าง" : "บันทึก PDF";
 
   // Reset state every time the dialog opens
@@ -79,9 +83,7 @@ export function QuotationExportOptionsDialog({
             <HeadIcon className="h-4 w-4 text-primary" />
             {title}
           </DialogTitle>
-          <DialogDescription className="text-xs">
-            {subtitle}
-          </DialogDescription>
+          <DialogDescription className="text-xs">{subtitle}</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-2 py-1">
@@ -117,9 +119,9 @@ export function QuotationExportOptionsDialog({
               <p className="text-sm font-medium">{isPreview ? "รวมใบบรีฟ" : "แทรกใบบรีฟ"}</p>
               <p className="text-[11px] text-muted-foreground">
                 {hasBrief
-                  ? (isPreview
-                      ? "พรีวิวใบบรีฟที่ผูกไว้ต่อท้ายใบเสนอราคา"
-                      : "ต่อท้าย PDF ด้วยใบบรีฟที่ผูกไว้กับใบเสนอราคานี้")
+                  ? isPreview
+                    ? "พรีวิวใบบรีฟที่ผูกไว้ต่อท้ายใบเสนอราคา"
+                    : "ต่อท้าย PDF ด้วยใบบรีฟที่ผูกไว้กับใบเสนอราคานี้"
                   : "ใบเสนอราคานี้ยังไม่ได้แนบบรีฟ"}
               </p>
             </div>
@@ -143,12 +145,14 @@ export function QuotationExportOptionsDialog({
             />
             <CalendarRange className="h-4 w-4 mt-0.5 text-muted-foreground" />
             <div className="flex-1">
-              <p className="text-sm font-medium">{isPreview ? "รวมภาคผนวกไทม์ไลน์" : "แทรกภาคผนวกไทม์ไลน์"}</p>
+              <p className="text-sm font-medium">
+                {isPreview ? "รวมภาคผนวกไทม์ไลน์" : "แทรกภาคผนวกไทม์ไลน์"}
+              </p>
               <p className="text-[11px] text-muted-foreground">
                 {hasTimeline
-                  ? (isPreview
-                      ? "ตารางรายละเอียดแยกหน้า — วันเริ่ม-จบ รอบแก้ และงวดชำระเงิน"
-                      : "ต่อท้าย PDF ด้วยตารางไทม์ไลน์แบบละเอียด (หน้าแยก)")
+                  ? isPreview
+                    ? "ตารางรายละเอียดแยกหน้า — วันเริ่ม-จบ รอบแก้ และงวดชำระเงิน"
+                    : "ต่อท้าย PDF ด้วยตารางไทม์ไลน์แบบละเอียด (หน้าแยก)"
                   : "ยังไม่มีข้อมูลไทม์ไลน์ที่จะแทรกได้"}
               </p>
             </div>
@@ -163,7 +167,11 @@ export function QuotationExportOptionsDialog({
         </p>
 
         <DialogFooter className="gap-2 sm:gap-2">
-          <Button variant="outline" onClick={() => onOpenChange(false)} className="flex-1 sm:flex-none">
+          <Button
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+            className="flex-1 sm:flex-none"
+          >
             ยกเลิก
           </Button>
           <Button
@@ -178,4 +186,3 @@ export function QuotationExportOptionsDialog({
     </Dialog>
   );
 }
-

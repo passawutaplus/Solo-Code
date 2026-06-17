@@ -78,7 +78,10 @@ async function main() {
     .eq("user_id", userId);
 
   if (subsBefore?.length) {
-    console.log("Removing subscriptions:", subsBefore.map((s) => s.stripe_subscription_id).join(", "));
+    console.log(
+      "Removing subscriptions:",
+      subsBefore.map((s) => s.stripe_subscription_id).join(", "),
+    );
     const { error: delErr } = await supabase.from("subscriptions").delete().eq("user_id", userId);
     if (delErr) throw delErr;
     console.log("✓ subscriptions deleted");

@@ -49,9 +49,9 @@ describe("parseStudioDashboardParams", () => {
 
 describe("parseAnthemDashboardParams", () => {
   it("ignores studio handoff URLs", () => {
-    expect(
-      parseAnthemDashboardParams("?from=anthem&handoff=studio&studio_id=s1"),
-    ).toEqual({ fromAnthem: false });
+    expect(parseAnthemDashboardParams("?from=anthem&handoff=studio&studio_id=s1")).toEqual({
+      fromAnthem: false,
+    });
   });
 });
 

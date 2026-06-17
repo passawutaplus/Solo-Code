@@ -2,7 +2,13 @@ import * as React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Loader2, RefreshCw, LineChart as LineIcon, BarChart3, Users } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -18,8 +24,16 @@ import {
   CartesianGrid,
 } from "recharts";
 
-interface DauRow { day: string; active_users: number; total_events: number; }
-interface HourRow { hour: number; events: number; unique_users: number; }
+interface DauRow {
+  day: string;
+  active_users: number;
+  total_events: number;
+}
+interface HourRow {
+  hour: number;
+  events: number;
+  unique_users: number;
+}
 interface TopUserRow {
   user_id: string;
   display_name: string | null;
@@ -31,10 +45,9 @@ interface TopUserRow {
 
 type RpcResult<T> = { data: T | null; error: Error | null };
 const rpc = <T = unknown,>(fn: string, args?: Record<string, unknown>) =>
-  (supabase.rpc as unknown as (
-    f: string,
-    a?: Record<string, unknown>,
-  ) => Promise<RpcResult<T>>).call(supabase, fn, args);
+  (
+    supabase.rpc as unknown as (f: string, a?: Record<string, unknown>) => Promise<RpcResult<T>>
+  ).call(supabase, fn, args);
 
 export function ActivityAnalyticsSection() {
   const [days, setDays] = React.useState("30");
@@ -59,32 +72,46 @@ export function ActivityAnalyticsSection() {
 
       // Fill 0-23
       const hMap = new Map<number, HourRow>();
-      ((h.data ?? []) as HourRow[]).forEach((r) => hMap.set(Number(r.hour), {
-        ...r,
-        hour: Number(r.hour),
-        events: Number(r.events),
-        unique_users: Number(r.unique_users),
-      }));
-      const filled: HourRow[] = Array.from({ length: 24 }, (_, i) =>
-        hMap.get(i) ?? { hour: i, events: 0, unique_users: 0 },
+      ((h.data ?? []) as HourRow[]).forEach((r) =>
+        hMap.set(Number(r.hour), {
+          ...r,
+          hour: Number(r.hour),
+          events: Number(r.events),
+          unique_users: Number(r.unique_users),
+        }),
+      );
+      const filled: HourRow[] = Array.from(
+        { length: 24 },
+        (_, i) => hMap.get(i) ?? { hour: i, events: 0, unique_users: 0 },
       );
       setHours(filled);
       setTop((t.data ?? []) as TopUserRow[]);
     } catch (e) {
-      const msg = e instanceof Error ? e.message : (typeof e === "object" && e && "message" in e ? String((e as {message:unknown}).message) : String(e));
+      const msg =
+        e instanceof Error
+          ? e.message
+          : typeof e === "object" && e && "message" in e
+            ? String((e as { message: unknown }).message)
+            : String(e);
       toast.error("โหลดสถิติไม่สำเร็จ", { description: msg });
     } finally {
       setLoading(false);
     }
   }, [days, topDays]);
 
-  React.useEffect(() => { load(); }, [load]);
+  React.useEffect(() => {
+    load();
+  }, [load]);
 
   const totalEvents = dau.reduce((s, r) => s + Number(r.total_events), 0);
-  const peakDay = dau.reduce<DauRow | null>((p, r) =>
-    !p || Number(r.active_users) > Number(p.active_users) ? r : p, null);
-  const peakHour = hours.reduce<HourRow | null>((p, r) =>
-    !p || Number(r.events) > Number(p.events) ? r : p, null);
+  const peakDay = dau.reduce<DauRow | null>(
+    (p, r) => (!p || Number(r.active_users) > Number(p.active_users) ? r : p),
+    null,
+  );
+  const peakHour = hours.reduce<HourRow | null>(
+    (p, r) => (!p || Number(r.events) > Number(p.events) ? r : p),
+    null,
+  );
 
   return (
     <div className="space-y-5">
@@ -97,7 +124,9 @@ export function ActivityAnalyticsSection() {
         </div>
         <div className="flex items-center gap-2">
           <Select value={days} onValueChange={setDays}>
-            <SelectTrigger className="w-[130px] h-9"><SelectValue /></SelectTrigger>
+            <SelectTrigger className="w-[130px] h-9">
+              <SelectValue />
+            </SelectTrigger>
             <SelectContent>
               <SelectItem value="7">7 วัน</SelectItem>
               <SelectItem value="14">14 วัน</SelectItem>
@@ -106,7 +135,11 @@ export function ActivityAnalyticsSection() {
             </SelectContent>
           </Select>
           <Button size="sm" variant="outline" onClick={load} disabled={loading}>
-            {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RefreshCw className="h-3.5 w-3.5" />}
+            {loading ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            ) : (
+              <RefreshCw className="h-3.5 w-3.5" />
+            )}
           </Button>
         </div>
       </div>
@@ -115,7 +148,9 @@ export function ActivityAnalyticsSection() {
         <Card>
           <CardContent className="p-4">
             <p className="text-[11px] text-muted-foreground">เหตุการณ์รวม</p>
-            <p className="text-2xl font-semibold mt-1 tabular-nums">{totalEvents.toLocaleString()}</p>
+            <p className="text-2xl font-semibold mt-1 tabular-nums">
+              {totalEvents.toLocaleString()}
+            </p>
           </CardContent>
         </Card>
         <Card>
@@ -130,7 +165,9 @@ export function ActivityAnalyticsSection() {
           <CardContent className="p-4">
             <p className="text-[11px] text-muted-foreground">ช่วงเวลาที่นิยมที่สุด</p>
             <p className="text-base font-semibold mt-1">
-              {peakHour ? `${String(peakHour.hour).padStart(2, "0")}:00 · ${peakHour.events} เหตุการณ์` : "—"}
+              {peakHour
+                ? `${String(peakHour.hour).padStart(2, "0")}:00 · ${peakHour.events} เหตุการณ์`
+                : "—"}
             </p>
           </CardContent>
         </Card>
@@ -146,9 +183,13 @@ export function ActivityAnalyticsSection() {
         </CardHeader>
         <CardContent>
           {loading ? (
-            <div className="py-10 flex justify-center"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>
+            <div className="py-10 flex justify-center">
+              <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+            </div>
           ) : dau.length === 0 ? (
-            <div className="py-10 text-center text-sm text-muted-foreground">ยังไม่มีข้อมูลการใช้งาน</div>
+            <div className="py-10 text-center text-sm text-muted-foreground">
+              ยังไม่มีข้อมูลการใช้งาน
+            </div>
           ) : (
             <div className="h-[280px] w-full">
               <ResponsiveContainer width="100%" height="100%">
@@ -159,7 +200,10 @@ export function ActivityAnalyticsSection() {
                     tick={{ fontSize: 10, fill: "var(--muted-foreground)" }}
                     tickFormatter={(v: string) => v.slice(5)}
                   />
-                  <YAxis tick={{ fontSize: 10, fill: "var(--muted-foreground)" }} allowDecimals={false} />
+                  <YAxis
+                    tick={{ fontSize: 10, fill: "var(--muted-foreground)" }}
+                    allowDecimals={false}
+                  />
                   <Tooltip
                     contentStyle={{
                       background: "var(--popover)",
@@ -169,8 +213,22 @@ export function ActivityAnalyticsSection() {
                       color: "var(--popover-foreground)",
                     }}
                   />
-                  <Line type="monotone" dataKey="active_users" name="Active users" stroke="var(--chart-1)" strokeWidth={2} dot={{ r: 2 }} />
-                  <Line type="monotone" dataKey="total_events" name="Events" stroke="var(--chart-2)" strokeWidth={2} dot={false} />
+                  <Line
+                    type="monotone"
+                    dataKey="active_users"
+                    name="Active users"
+                    stroke="var(--chart-1)"
+                    strokeWidth={2}
+                    dot={{ r: 2 }}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="total_events"
+                    name="Events"
+                    stroke="var(--chart-2)"
+                    strokeWidth={2}
+                    dot={false}
+                  />
                 </LineChart>
               </ResponsiveContainer>
             </div>
@@ -188,7 +246,9 @@ export function ActivityAnalyticsSection() {
         </CardHeader>
         <CardContent>
           {loading ? (
-            <div className="py-10 flex justify-center"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>
+            <div className="py-10 flex justify-center">
+              <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+            </div>
           ) : (
             <div className="h-[260px] w-full">
               <ResponsiveContainer width="100%" height="100%">
@@ -199,7 +259,10 @@ export function ActivityAnalyticsSection() {
                     tick={{ fontSize: 10, fill: "var(--muted-foreground)" }}
                     tickFormatter={(v: number) => `${String(v).padStart(2, "0")}`}
                   />
-                  <YAxis tick={{ fontSize: 10, fill: "var(--muted-foreground)" }} allowDecimals={false} />
+                  <YAxis
+                    tick={{ fontSize: 10, fill: "var(--muted-foreground)" }}
+                    allowDecimals={false}
+                  />
                   <Tooltip
                     contentStyle={{
                       background: "var(--popover)",
@@ -227,7 +290,9 @@ export function ActivityAnalyticsSection() {
               Top Active Users
             </span>
             <Select value={topDays} onValueChange={setTopDays}>
-              <SelectTrigger className="w-[130px] h-8 text-xs"><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-[130px] h-8 text-xs">
+                <SelectValue />
+              </SelectTrigger>
               <SelectContent>
                 <SelectItem value="7">7 วัน</SelectItem>
                 <SelectItem value="14">14 วัน</SelectItem>
@@ -238,25 +303,37 @@ export function ActivityAnalyticsSection() {
         </CardHeader>
         <CardContent>
           {loading ? (
-            <div className="py-10 flex justify-center"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>
+            <div className="py-10 flex justify-center">
+              <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+            </div>
           ) : top.length === 0 ? (
             <div className="py-10 text-center text-sm text-muted-foreground">ยังไม่มีข้อมูล</div>
           ) : (
             <div className="space-y-2">
               {top.map((u, i) => (
-                <div key={u.user_id} className="flex items-center justify-between gap-3 rounded-lg border border-border px-3 py-2">
+                <div
+                  key={u.user_id}
+                  className="flex items-center justify-between gap-3 rounded-lg border border-border px-3 py-2"
+                >
                   <div className="flex items-center gap-2.5 min-w-0">
-                    <Badge variant={i < 3 ? "default" : "secondary"} className="h-6 w-6 p-0 flex items-center justify-center text-[11px] shrink-0">
+                    <Badge
+                      variant={i < 3 ? "default" : "secondary"}
+                      className="h-6 w-6 p-0 flex items-center justify-center text-[11px] shrink-0"
+                    >
                       {i + 1}
                     </Badge>
                     <div className="min-w-0">
-                      <p className="text-sm font-medium truncate">{u.display_name || u.email || u.user_id.slice(0, 8)}</p>
+                      <p className="text-sm font-medium truncate">
+                        {u.display_name || u.email || u.user_id.slice(0, 8)}
+                      </p>
                       <p className="text-[10px] text-muted-foreground truncate">{u.email}</p>
                     </div>
                   </div>
                   <div className="text-right shrink-0">
                     <p className="text-sm font-semibold tabular-nums">{u.active_days} วัน</p>
-                    <p className="text-[10px] text-muted-foreground">{Number(u.total_events).toLocaleString()} เหตุการณ์</p>
+                    <p className="text-[10px] text-muted-foreground">
+                      {Number(u.total_events).toLocaleString()} เหตุการณ์
+                    </p>
                   </div>
                 </div>
               ))}

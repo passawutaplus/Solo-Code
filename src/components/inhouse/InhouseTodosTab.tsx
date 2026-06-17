@@ -4,7 +4,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useCreateInhouseTask, useInhouseTasks, useUpdateInhouseTask } from "@/hooks/inhouse/useInhouseTasks";
+import {
+  useCreateInhouseTask,
+  useInhouseTasks,
+  useUpdateInhouseTask,
+} from "@/hooks/inhouse/useInhouseTasks";
 import type { InhouseOrg, InhouseTask, InhouseWorkspace } from "@/lib/inhouse/types";
 import { toast } from "sonner";
 
@@ -25,7 +29,11 @@ export function InhouseTodosTab({ org, workspace }: Props) {
   const handleAdd = async () => {
     if (!newTitle.trim()) return;
     try {
-      await createTask.mutateAsync({ workspaceId: workspace.id, title: newTitle.trim(), columnKey: "todo" });
+      await createTask.mutateAsync({
+        workspaceId: workspace.id,
+        title: newTitle.trim(),
+        columnKey: "todo",
+      });
       setNewTitle("");
     } catch {
       toast.error("เพิ่มไม่สำเร็จ");
@@ -81,10 +89,7 @@ export function InhouseTodosTab({ org, workspace }: Props) {
                 key={task.id}
                 className="flex items-center gap-3 rounded-lg border bg-card px-3 py-2"
               >
-                <Checkbox
-                  checked={false}
-                  onCheckedChange={() => handleComplete(task.id)}
-                />
+                <Checkbox checked={false} onCheckedChange={() => handleComplete(task.id)} />
                 <div className="min-w-0 flex-1">
                   <p className="text-sm">{task.title}</p>
                   {task.due_date && (
@@ -99,7 +104,12 @@ export function InhouseTodosTab({ org, workspace }: Props) {
                     </AvatarFallback>
                   </Avatar>
                 )}
-                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleComplete(task.id)}>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8"
+                  onClick={() => handleComplete(task.id)}
+                >
                   <Check className="h-4 w-4" />
                 </Button>
               </div>
@@ -109,7 +119,9 @@ export function InhouseTodosTab({ org, workspace }: Props) {
       ))}
 
       {openTasks.length === 0 && (
-        <p className="py-8 text-center text-sm text-muted-foreground">ไม่มีงานค้าง — เพิ่มรายการด้านบน</p>
+        <p className="py-8 text-center text-sm text-muted-foreground">
+          ไม่มีงานค้าง — เพิ่มรายการด้านบน
+        </p>
       )}
     </div>
   );

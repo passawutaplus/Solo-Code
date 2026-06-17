@@ -9,23 +9,18 @@ import {
   getGeminiApiKey,
   GeminiError,
 } from "../_shared/gemini.ts";
-import {
-  AI_DISCLAIMER_TAX_PRICE_PROMPT,
-  RULE_BREVITY_TH,
-} from "../_shared/copy-prompts.ts";
+import { AI_DISCLAIMER_TAX_PRICE_PROMPT, RULE_BREVITY_TH } from "../_shared/copy-prompts.ts";
 
-const ALLOWED_ORIGINS = [
-  "https://solofreelancer.com",
-  "https://www.solofreelancer.com",
-];
+const ALLOWED_ORIGINS = ["https://solofreelancer.com", "https://www.solofreelancer.com"];
 
 function getCorsHeaders(req: Request): Record<string, string> {
   const origin = req.headers.get("Origin") ?? "";
   const allowed = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
   return {
     "Access-Control-Allow-Origin": allowed,
-    "Vary": "Origin",
-    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-guest-id",
+    Vary: "Origin",
+    "Access-Control-Allow-Headers":
+      "authorization, x-client-info, apikey, content-type, x-guest-id",
     "Access-Control-Allow-Methods": "POST, OPTIONS",
   };
 }
@@ -75,11 +70,15 @@ Deno.serve(async (req) => {
         });
         const { data: userData } = await userClient.auth.getUser();
         if (userData?.user) userId = userData.user.id;
-      } catch (_) { /* guest */ }
+      } catch (_) {
+        /* guest */
+      }
     }
 
     const body = await req.json().catch(() => ({}));
-    const message = String(body?.message ?? "").trim().slice(0, MAX_CHARS);
+    const message = String(body?.message ?? "")
+      .trim()
+      .slice(0, MAX_CHARS);
     const priceContext = body?.priceContext ?? null;
     const guestId = String(body?.guestId ?? req.headers.get("x-guest-id") ?? "").slice(0, 64);
     const stream = body?.stream !== false; // default true
@@ -97,14 +96,23 @@ Deno.serve(async (req) => {
     let usedToday = 0;
     let totalEver = 0;
     if (userId) {
-      const { data: r } = await admin.from("ai_chat_usage")
-        .select("count, total_count").eq("user_id", userId).eq("usage_date", today).maybeSingle();
+      const { data: r } = await admin
+        .from("ai_chat_usage")
+        .select("count, total_count")
+        .eq("user_id", userId)
+        .eq("usage_date", today)
+        .maybeSingle();
       usedToday = r?.count ?? 0;
       totalEver = r?.total_count ?? 0;
     } else {
-      if (!guestKey || guestKey.length < 8) return jsonResp(req, { error: "missing_guest_id" }, 400);
-      const { data: g } = await admin.from("ai_chat_guest_usage")
-        .select("count").eq("guest_id", guestKey).eq("usage_date", today).maybeSingle();
+      if (!guestKey || guestKey.length < 8)
+        return jsonResp(req, { error: "missing_guest_id" }, 400);
+      const { data: g } = await admin
+        .from("ai_chat_guest_usage")
+        .select("count")
+        .eq("guest_id", guestKey)
+        .eq("usage_date", today)
+        .maybeSingle();
       usedToday = g?.count ?? 0;
     }
 
@@ -115,9 +123,12 @@ Deno.serve(async (req) => {
     // History
     let historyMsgs: Array<{ role: string; content: string }> = [];
     if (userId) {
-      const { data: history } = await admin.from("ai_chat_messages")
-        .select("role, content").eq("user_id", userId)
-        .order("created_at", { ascending: false }).limit(10);
+      const { data: history } = await admin
+        .from("ai_chat_messages")
+        .select("role, content")
+        .eq("user_id", userId)
+        .order("created_at", { ascending: false })
+        .limit(10);
       historyMsgs = (history ?? []).reverse().map((h) => ({ role: h.role, content: h.content }));
     }
 
@@ -140,7 +151,16 @@ Deno.serve(async (req) => {
     if (!stream) {
       try {
         const reply = await geminiGenerateText(geminiKey, geminiModel, { messages: chatMessages });
-        await persistAndBump(admin, { userId, guestKey, message, reply, usedToday, totalEver, today, ip });
+        await persistAndBump(admin, {
+          userId,
+          guestKey,
+          message,
+          reply,
+          usedToday,
+          totalEver,
+          today,
+          ip,
+        });
         return jsonResp(req, { reply, used: usedToday + 1, limit: effectiveLimit, guest: !userId });
       } catch (e) {
         if (e instanceof GeminiError && e.status === 429) {
@@ -158,7 +178,11 @@ Deno.serve(async (req) => {
 
     const out = new ReadableStream({
       async start(controller) {
-        controller.enqueue(encoder.encode(`event: meta\ndata: ${JSON.stringify({ used: usedToday + 1, limit: effectiveLimit })}\n\n`));
+        controller.enqueue(
+          encoder.encode(
+            `event: meta\ndata: ${JSON.stringify({ used: usedToday + 1, limit: effectiveLimit })}\n\n`,
+          ),
+        );
 
         const reader = geminiBody.getReader();
         const decoder = new TextDecoder();
@@ -184,21 +208,43 @@ Deno.serve(async (req) => {
               }
             }
           }
-          controller.enqueue(encoder.encode(`event: done\ndata: ${JSON.stringify({ used: usedToday + 1, limit: effectiveLimit })}\n\n`));
+          controller.enqueue(
+            encoder.encode(
+              `event: done\ndata: ${JSON.stringify({ used: usedToday + 1, limit: effectiveLimit })}\n\n`,
+            ),
+          );
         } catch (e) {
           console.error("stream read error", e);
         } finally {
           controller.close();
           // @ts-ignore EdgeRuntime exists in Supabase Edge runtime
           (globalThis.EdgeRuntime?.waitUntil ?? ((p: Promise<unknown>) => p))(
-            persistAndBump(admin, { userId, guestKey, message, reply: fullReply, usedToday, totalEver, today, ip }),
+            persistAndBump(admin, {
+              userId,
+              guestKey,
+              message,
+              reply: fullReply,
+              usedToday,
+              totalEver,
+              today,
+              ip,
+            }),
           );
         }
       },
       cancel() {
         // @ts-ignore
         (globalThis.EdgeRuntime?.waitUntil ?? ((p: Promise<unknown>) => p))(
-          persistAndBump(admin, { userId, guestKey, message, reply: fullReply, usedToday, totalEver, today, ip }),
+          persistAndBump(admin, {
+            userId,
+            guestKey,
+            message,
+            reply: fullReply,
+            usedToday,
+            totalEver,
+            today,
+            ip,
+          }),
         );
       },
     });
@@ -238,16 +284,27 @@ async function persistAndBump(admin: ReturnType<typeof createClient>, a: Persist
           { user_id: a.userId, role: "assistant", content: safeReply },
         ]);
       }
-      await admin.from("ai_chat_usage").upsert({
-        user_id: a.userId, usage_date: a.today,
-        count: a.usedToday + 1, total_count: a.totalEver + 1,
-        updated_at: new Date().toISOString(),
-      }, { onConflict: "user_id,usage_date" });
+      await admin.from("ai_chat_usage").upsert(
+        {
+          user_id: a.userId,
+          usage_date: a.today,
+          count: a.usedToday + 1,
+          total_count: a.totalEver + 1,
+          updated_at: new Date().toISOString(),
+        },
+        { onConflict: "user_id,usage_date" },
+      );
     } else {
-      await admin.from("ai_chat_guest_usage").upsert({
-        guest_id: a.guestKey, usage_date: a.today, count: a.usedToday + 1, ip: a.ip,
-        updated_at: new Date().toISOString(),
-      }, { onConflict: "guest_id,usage_date" });
+      await admin.from("ai_chat_guest_usage").upsert(
+        {
+          guest_id: a.guestKey,
+          usage_date: a.today,
+          count: a.usedToday + 1,
+          ip: a.ip,
+          updated_at: new Date().toISOString(),
+        },
+        { onConflict: "guest_id,usage_date" },
+      );
     }
   } catch (e) {
     console.error("persistAndBump error", e);

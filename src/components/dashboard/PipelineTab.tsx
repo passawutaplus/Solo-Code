@@ -34,7 +34,7 @@ export function PipelineTab({ onNavigate, onGoTab, onOpenQuotation }: Props) {
   const [creating, setCreating] = React.useState(false);
 
   const liveSelected = selected
-    ? deals.find((d) => d.quotation.id === selected.quotation.id) ?? null
+    ? (deals.find((d) => d.quotation.id === selected.quotation.id) ?? null)
     : null;
 
   React.useEffect(() => {
@@ -160,11 +160,7 @@ export function PipelineTab({ onNavigate, onGoTab, onOpenQuotation }: Props) {
           </Button>
         </div>
       ) : (
-        <PipelineKanban
-          deals={deals}
-          onColumnChange={handleColumnChange}
-          onSelect={setSelected}
-        />
+        <PipelineKanban deals={deals} onColumnChange={handleColumnChange} onSelect={setSelected} />
       )}
 
       <div className="rounded-xl border border-dashed border-[#FF5F05]/30 bg-[#FF5F05]/5 p-4 flex gap-3 items-start">
@@ -173,7 +169,8 @@ export function PipelineTab({ onNavigate, onGoTab, onOpenQuotation }: Props) {
           <p className="font-semibold text-foreground">So1o Squad — เร็วๆ นี้</p>
           <p className="text-muted-foreground text-xs mt-1">
             แชร์โปรเจกต์กับทีมฟรีแลนซ์ หารเงิน/ภาษีอัตโนมัติ — เริ่ม ฿
-            {SQUAD_PRICING.payPerProject.min}/โปรเจกต์ หรือ ฿{SQUAD_PRICING.monthlySquad.price}/เดือน
+            {SQUAD_PRICING.payPerProject.min}/โปรเจกต์ หรือ ฿{SQUAD_PRICING.monthlySquad.price}
+            /เดือน
           </p>
         </div>
       </div>

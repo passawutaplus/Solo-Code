@@ -39,7 +39,9 @@ export function StepComments({ token, stepIndex, authorRole, showAllSteps = fals
     }
   }, [token]);
 
-  React.useEffect(() => { load(); }, [load]);
+  React.useEffect(() => {
+    load();
+  }, [load]);
 
   const submit = async () => {
     const text = body.trim();
@@ -76,7 +78,9 @@ export function StepComments({ token, stepIndex, authorRole, showAllSteps = fals
       </div>
 
       {loading ? (
-        <div className="flex justify-center py-2"><Loader2 className="h-3 w-3 animate-spin text-muted-foreground" /></div>
+        <div className="flex justify-center py-2">
+          <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />
+        </div>
       ) : visible.length === 0 ? (
         <p className="text-[11px] text-muted-foreground">ยังไม่มีคอมเมนต์ — เพิ่มได้เลย</p>
       ) : (
@@ -89,13 +93,19 @@ export function StepComments({ token, stepIndex, authorRole, showAllSteps = fals
                 </div>
               )}
               {list.map((c) => (
-                <div key={c.id} className={`rounded-md px-2 py-1.5 text-xs ${c.author_role === "owner" ? "bg-primary/10 border border-primary/20" : "bg-card border border-border"}`}>
+                <div
+                  key={c.id}
+                  className={`rounded-md px-2 py-1.5 text-xs ${c.author_role === "owner" ? "bg-primary/10 border border-primary/20" : "bg-card border border-border"}`}
+                >
                   <div className="flex items-center justify-between gap-2 mb-0.5">
                     <span className="text-[10px] font-semibold">
                       {c.author_role === "owner" ? "🧑‍💻 ฟรีแลนซ์" : "👤 ลูกค้า"}
                     </span>
                     <span className="text-[9px] text-muted-foreground">
-                      {new Date(c.created_at).toLocaleString("th-TH", { dateStyle: "short", timeStyle: "short" })}
+                      {new Date(c.created_at).toLocaleString("th-TH", {
+                        dateStyle: "short",
+                        timeStyle: "short",
+                      })}
                     </span>
                   </div>
                   <p className="whitespace-pre-wrap break-words">{c.body}</p>
@@ -114,8 +124,17 @@ export function StepComments({ token, stepIndex, authorRole, showAllSteps = fals
           placeholder="พิมพ์หมายเหตุ/คอมเมนต์..."
           className="text-xs min-h-[44px] resize-none"
         />
-        <Button size="sm" onClick={submit} disabled={sending || !body.trim()} className="h-9 w-9 p-0 shrink-0">
-          {sending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Send className="h-3.5 w-3.5" />}
+        <Button
+          size="sm"
+          onClick={submit}
+          disabled={sending || !body.trim()}
+          className="h-9 w-9 p-0 shrink-0"
+        >
+          {sending ? (
+            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+          ) : (
+            <Send className="h-3.5 w-3.5" />
+          )}
         </Button>
       </div>
       <div className="text-[9px] text-muted-foreground text-right">{body.length}/1000</div>

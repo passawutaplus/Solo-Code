@@ -19,11 +19,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { TierDetailsSection } from "@/components/tier/TierDetailsSection";
 import type { PlanId } from "@/data/plans";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -31,7 +27,11 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/auth/AuthProvider";
 import { useSubscription } from "@/hooks/useSubscription";
-import { createCheckoutSession, createPortalSession, upgradeSubscriptionTier } from "@/utils/payments.functions";
+import {
+  createCheckoutSession,
+  createPortalSession,
+  upgradeSubscriptionTier,
+} from "@/utils/payments.functions";
 import { buildCheckoutRedirectUrls, currentOriginReturnUrl } from "@/lib/paymentRedirect";
 import { getStripeEnvironment, PRICE_IDS, CREDITS_PER_PRICE } from "@/lib/stripe";
 import { isPaymentFnError, tierLabel, type UpgradeTargetTier } from "@/lib/subscriptionTiers";
@@ -274,7 +274,10 @@ function PricingPage() {
       {/* Top bar */}
       <header className="border-b border-border/60 bg-background/80 backdrop-blur">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 h-14 flex items-center justify-between">
-          <Link to={user ? "/dashboard" : "/"} className="flex items-center gap-2 text-sm font-semibold">
+          <Link
+            to={user ? "/dashboard" : "/"}
+            className="flex items-center gap-2 text-sm font-semibold"
+          >
             <ArrowLeft className="h-4 w-4" /> {user ? "กลับ Dashboard" : "กลับหน้าหลัก"}
           </Link>
           {user && (
@@ -333,13 +336,15 @@ function PricingPage() {
                 So1o Pro ปลดล็อกทั้งหลังบ้านและ Pixel100
               </h2>
               <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-                <strong className="text-foreground font-medium">So1o Freelancer (My Desk)</strong> คือหลังบ้านสำหรับฟรีแลนซ์ —
-                ออกใบเสนอราคา จัดการลูกค้า การเงิน บันทึกงาน Brief และ Labs ·{" "}
-                <strong className="text-foreground font-medium">Pixel100</strong> คือหน้าร้องโชว์ผลงานและรับงานจากชุมชน
-                ลงผลงานใน Pixel100 มีคนติดต่อจ้าง → ไปทำใบเสนอราคาที่ So1o · งานลูกค้าเสร็จที่หลังบ้าน → นำผลงานมาโพสต์ใน Pixel100 ต่อ
+                <strong className="text-foreground font-medium">So1o Freelancer (My Desk)</strong>{" "}
+                คือหลังบ้านสำหรับฟรีแลนซ์ — ออกใบเสนอราคา จัดการลูกค้า การเงิน บันทึกงาน Brief และ
+                Labs · <strong className="text-foreground font-medium">Pixel100</strong>{" "}
+                คือหน้าร้องโชว์ผลงานและรับงานจากชุมชน ลงผลงานใน Pixel100 มีคนติดต่อจ้าง →
+                ไปทำใบเสนอราคาที่ So1o · งานลูกค้าเสร็จที่หลังบ้าน → นำผลงานมาโพสต์ใน Pixel100 ต่อ
               </p>
               <p className="mt-2 text-xs text-muted-foreground">
-                เมื่อคุณสมัคร Pro ที่หน้านี้ สิทธิ์จะผูกกับบัญชีของคุณและใช้ได้ทั้งสองแอป (อนาคตจะเชื่อมข้อมูล การเงิน และฟีเจอร์ร่วมกันเพิ่มเติม)
+                เมื่อคุณสมัคร Pro ที่หน้านี้ สิทธิ์จะผูกกับบัญชีของคุณและใช้ได้ทั้งสองแอป
+                (อนาคตจะเชื่อมข้อมูล การเงิน และฟีเจอร์ร่วมกันเพิ่มเติม)
               </p>
               <a
                 href={ANTHEM_SHOWCASE_URL}
@@ -412,7 +417,10 @@ function PricingPage() {
                 )}
                 {isInhouse && (
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-20">
-                    <Badge variant="outline" className="bg-card text-muted-foreground border-border shadow-sm text-[10px]">
+                    <Badge
+                      variant="outline"
+                      className="bg-card text-muted-foreground border-border shadow-sm text-[10px]"
+                    >
                       ทีม · เร็วๆ นี้
                     </Badge>
                   </div>
@@ -451,11 +459,7 @@ function PricingPage() {
                       </span>
                       <span className="text-sm text-muted-foreground">
                         THB
-                        {plan.id === "free"
-                          ? ""
-                          : cycle === "monthly"
-                            ? " / เดือน"
-                            : " / ปี"}
+                        {plan.id === "free" ? "" : cycle === "monthly" ? " / เดือน" : " / ปี"}
                       </span>
                     </div>
                     {isInhouse && (
@@ -648,13 +652,7 @@ function PricingPage() {
           loadingTier={loadingId as PlanId | null}
           onUpgrade={(targetTier) => {
             if (targetTier === "free") return;
-            if (
-              user &&
-              isPro &&
-              isActive &&
-              tier !== "free" &&
-              isHigherPlan(tier, targetTier)
-            ) {
+            if (user && isPro && isActive && tier !== "free" && isHigherPlan(tier, targetTier)) {
               void handleUpgradePlan(targetTier);
             } else {
               void handleCheckoutPlan(targetTier);
@@ -672,8 +670,8 @@ function PricingPage() {
               เติมเครดิต AI ตามต้องการ
             </h2>
             <p className="mt-2 text-sm text-muted-foreground">
-              สำหรับใช้กับ AI Mentor, Creative Agent และฟีเจอร์ AI อื่นๆ ·
-              เครดิตไม่หมดอายุ · ซื้อครั้งเดียวจ่ายครั้งเดียว
+              สำหรับใช้กับ AI Mentor, Creative Agent และฟีเจอร์ AI อื่นๆ · เครดิตไม่หมดอายุ ·
+              ซื้อครั้งเดียวจ่ายครั้งเดียว
             </p>
           </div>
 
@@ -681,63 +679,64 @@ function PricingPage() {
             {TOPUPS.map((pack) => {
               const analysis = TOPUP_PACK_ANALYSIS.find((p) => p.id === pack.id);
               return (
-              <Card
-                key={pack.id}
-                className={cn(
-                  "relative p-5 sm:p-6 flex flex-col bg-card border transition-all hover:shadow-md",
-                  pack.badge ? "border-primary/40 ring-1 ring-primary/20" : "border-border",
-                )}
-              >
-                {pack.badge && (
-                  <div className="absolute -top-2.5 right-4">
-                    <Badge className="bg-primary text-primary-foreground border-0 text-[10px] px-2 py-0.5">
-                      {pack.badge}
-                    </Badge>
-                  </div>
-                )}
-                <div className="flex items-center justify-between gap-2">
-                  <h3 className="font-bold text-base">{pack.name}</h3>
-                  <Zap className="h-4 w-4 text-amber-500" />
-                </div>
-                <div className="mt-3 flex items-baseline gap-1.5">
-                  <span className="text-3xl font-bold tracking-tight">
-                    {pack.amount.toLocaleString("th-TH")}
-                  </span>
-                  <span className="text-xs text-muted-foreground">THB</span>
-                </div>
-                <p className="mt-2 text-sm font-semibold text-foreground/90">
-                  +{pack.credits.toLocaleString("th-TH")} เครดิต
-                </p>
-                <p className="text-[11px] text-muted-foreground">{pack.perUnit}</p>
-                {analysis && (
-                  <p className="mt-1 text-[11px] text-muted-foreground">
-                    ≈ {analysis.estActions.toLocaleString("th-TH")} ครั้งใช้งานเฉลี่ย
-                  </p>
-                )}
-
-                <Button
-                  onClick={() => handleTopup(pack)}
-                  disabled={loadingId === pack.id}
-                  variant="outline"
-                  className="mt-4 w-full"
-                >
-                  {loadingId === pack.id ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    "ซื้อเครดิต"
+                <Card
+                  key={pack.id}
+                  className={cn(
+                    "relative p-5 sm:p-6 flex flex-col bg-card border transition-all hover:shadow-md",
+                    pack.badge ? "border-primary/40 ring-1 ring-primary/20" : "border-border",
                   )}
-                </Button>
-              </Card>
-            );
+                >
+                  {pack.badge && (
+                    <div className="absolute -top-2.5 right-4">
+                      <Badge className="bg-primary text-primary-foreground border-0 text-[10px] px-2 py-0.5">
+                        {pack.badge}
+                      </Badge>
+                    </div>
+                  )}
+                  <div className="flex items-center justify-between gap-2">
+                    <h3 className="font-bold text-base">{pack.name}</h3>
+                    <Zap className="h-4 w-4 text-amber-500" />
+                  </div>
+                  <div className="mt-3 flex items-baseline gap-1.5">
+                    <span className="text-3xl font-bold tracking-tight">
+                      {pack.amount.toLocaleString("th-TH")}
+                    </span>
+                    <span className="text-xs text-muted-foreground">THB</span>
+                  </div>
+                  <p className="mt-2 text-sm font-semibold text-foreground/90">
+                    +{pack.credits.toLocaleString("th-TH")} เครดิต
+                  </p>
+                  <p className="text-[11px] text-muted-foreground">{pack.perUnit}</p>
+                  {analysis && (
+                    <p className="mt-1 text-[11px] text-muted-foreground">
+                      ≈ {analysis.estActions.toLocaleString("th-TH")} ครั้งใช้งานเฉลี่ย
+                    </p>
+                  )}
+
+                  <Button
+                    onClick={() => handleTopup(pack)}
+                    disabled={loadingId === pack.id}
+                    variant="outline"
+                    className="mt-4 w-full"
+                  >
+                    {loadingId === pack.id ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      "ซื้อเครดิต"
+                    )}
+                  </Button>
+                </Card>
+              );
             })}
           </div>
 
           <p className="mt-4 text-center text-[11px] text-muted-foreground max-w-xl mx-auto">
-            ประมาณการครั้งใช้งานจาก mix สมมติฐาน: Mentor {Math.round((USAGE_MIX_ASSUMPTION.ai_assistant_mentor ?? 0) * 100)}% ·
-            ธุรกิจ {Math.round((USAGE_MIX_ASSUMPTION.ai_assistant_business ?? 0) * 100)}% ·
-            Planner {Math.round((USAGE_MIX_ASSUMPTION.planner_ai_assist ?? 0) * 100)}% ·
-            Smart Brief {Math.round((USAGE_MIX_ASSUMPTION.ai_brief_extract ?? 0) * 100)}%
-            (เฉลี่ย {weightedCreditsPerAction().toFixed(2)} เครดิต/ครั้ง)
+            ประมาณการครั้งใช้งานจาก mix สมมติฐาน: Mentor{" "}
+            {Math.round((USAGE_MIX_ASSUMPTION.ai_assistant_mentor ?? 0) * 100)}% · ธุรกิจ{" "}
+            {Math.round((USAGE_MIX_ASSUMPTION.ai_assistant_business ?? 0) * 100)}% · Planner{" "}
+            {Math.round((USAGE_MIX_ASSUMPTION.planner_ai_assist ?? 0) * 100)}% · Smart Brief{" "}
+            {Math.round((USAGE_MIX_ASSUMPTION.ai_brief_extract ?? 0) * 100)}% (เฉลี่ย{" "}
+            {weightedCreditsPerAction().toFixed(2)} เครดิต/ครั้ง)
           </p>
         </section>
 

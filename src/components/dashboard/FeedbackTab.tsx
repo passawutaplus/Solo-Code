@@ -44,7 +44,11 @@ function FeedbackTabInner() {
   const qc = useQueryClient();
   const { user } = useAuth();
 
-  const { items: jobs, setItems: setJobs, isLoading } = useSupabaseRecords<FeedbackJob, FeedbackRow>({
+  const {
+    items: jobs,
+    setItems: setJobs,
+    isLoading,
+  } = useSupabaseRecords<FeedbackJob, FeedbackRow>({
     table: "feedback_jobs",
     cacheKey: "feedback_jobs",
     orderBy: { column: "created_at", ascending: false },
@@ -90,8 +94,7 @@ function FeedbackTabInner() {
     [savedClients],
   );
 
-  const clientName = (id: string) =>
-    savedClients.find((c) => c.id === id)?.name ?? "—";
+  const clientName = (id: string) => savedClients.find((c) => c.id === id)?.name ?? "—";
 
   const filtered = jobs.filter((j) =>
     filter === "all" ? true : filter === "open" ? !j.closed : j.closed,

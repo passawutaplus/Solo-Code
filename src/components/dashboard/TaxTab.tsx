@@ -7,7 +7,18 @@ import { StatCard } from "./StatCard";
 import { AddExpenseModal, EditExpenseButton } from "./Modals";
 import { useFinance } from "@/store/finance";
 import { formatTHB } from "@/data/mockData";
-import { Download, Receipt, Calculator, AlertCircle, Sparkles, Paperclip, Trash2, FlaskConical, Coins, ArrowRight } from "lucide-react";
+import {
+  Download,
+  Receipt,
+  Calculator,
+  AlertCircle,
+  Sparkles,
+  Paperclip,
+  Trash2,
+  FlaskConical,
+  Coins,
+  ArrowRight,
+} from "lucide-react";
 import { toast } from "sonner";
 import { FinanceMoneyNav, type FinanceMoneySub } from "./FinanceMoneyNav";
 import type { FinanceSub } from "./FinanceTab";
@@ -130,7 +141,8 @@ export function TaxTab({ onNavigate, onSubChange }: Props) {
           <div className="min-w-0">
             <p className="text-xs text-muted-foreground">จากรายได้ที่บันทึก</p>
             <p className="num text-sm font-semibold">
-              ฿{formatTHB(est.totalGross)} <span className="text-muted-foreground font-normal">({incomes.length} รายการ)</span>
+              ฿{formatTHB(est.totalGross)}{" "}
+              <span className="text-muted-foreground font-normal">({incomes.length} รายการ)</span>
             </p>
           </div>
         </div>
@@ -140,7 +152,12 @@ export function TaxTab({ onNavigate, onSubChange }: Props) {
       </button>
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        <StatCard label="ภาษีประมาณการ" value={`฿${formatTHB(est.estimatedTax)}`} sub={`เงินได้สุทธิ ฿${formatTHB(est.netIncome)}`} icon={<Calculator className="h-5 w-5" />} />
+        <StatCard
+          label="ภาษีประมาณการ"
+          value={`฿${formatTHB(est.estimatedTax)}`}
+          sub={`เงินได้สุทธิ ฿${formatTHB(est.netIncome)}`}
+          icon={<Calculator className="h-5 w-5" />}
+        />
         <StatCard
           accent
           label={taxOwed > 0 ? "ต้องจ่ายเพิ่ม" : "ขอคืนได้"}
@@ -148,7 +165,12 @@ export function TaxTab({ onNavigate, onSubChange }: Props) {
           sub={taxOwed > 0 ? "ยื่น ภงด.90/91" : "รอคืนภาษี"}
           icon={<AlertCircle className="h-5 w-5" />}
         />
-        <StatCard label="หัก ณ ที่จ่ายสะสม" value={`฿${formatTHB(est.totalWithheld)}`} sub="เครดิตภาษีจากรายได้" icon={<Receipt className="h-5 w-5" />} />
+        <StatCard
+          label="หัก ณ ที่จ่ายสะสม"
+          value={`฿${formatTHB(est.totalWithheld)}`}
+          sub="เครดิตภาษีจากรายได้"
+          icon={<Receipt className="h-5 w-5" />}
+        />
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
@@ -159,7 +181,13 @@ export function TaxTab({ onNavigate, onSubChange }: Props) {
           <CardContent>
             <div className="relative mx-auto" style={{ width: 260, height: 150 }}>
               <svg viewBox="0 0 200 110" className="w-full h-full">
-                <path d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="var(--color-muted)" strokeWidth="14" strokeLinecap="round" />
+                <path
+                  d="M 20 100 A 80 80 0 0 1 180 100"
+                  fill="none"
+                  stroke="var(--color-muted)"
+                  strokeWidth="14"
+                  strokeLinecap="round"
+                />
                 <path
                   d="M 20 100 A 80 80 0 0 1 180 100"
                   fill="none"
@@ -209,7 +237,9 @@ export function TaxTab({ onNavigate, onSubChange }: Props) {
           </CardHeader>
           <CardContent className="space-y-2">
             <p className="num text-xl font-semibold">฿{formatTHB(totalWorkExp)}</p>
-            <p className="text-[11px] text-muted-foreground mb-2">ใช้เมื่อเลือก "หักจริง" ในวิธีหักค่าใช้จ่าย</p>
+            <p className="text-[11px] text-muted-foreground mb-2">
+              ใช้เมื่อเลือก "หักจริง" ในวิธีหักค่าใช้จ่าย
+            </p>
             <div className="space-y-1 max-h-48 overflow-auto pr-1">
               {workExpenses.length === 0 && (
                 <p className="text-[11px] text-muted-foreground py-3 text-center border border-dashed border-border/60 rounded-lg">
@@ -217,7 +247,10 @@ export function TaxTab({ onNavigate, onSubChange }: Props) {
                 </p>
               )}
               {workExpenses.map((w) => (
-                <div key={w.id} className="group flex items-center gap-2 rounded-lg border border-border/40 px-2 py-1.5 hover:border-primary/30 transition-colors">
+                <div
+                  key={w.id}
+                  className="group flex items-center gap-2 rounded-lg border border-border/40 px-2 py-1.5 hover:border-primary/30 transition-colors"
+                >
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-1.5">
                       <span className="text-xs font-medium truncate">{w.description}</span>
@@ -291,12 +324,20 @@ export function TaxTab({ onNavigate, onSubChange }: Props) {
               </button>
             </div>
             <div className="rounded-lg bg-muted/40 p-2.5 text-[11px] text-muted-foreground leading-relaxed">
-              <p><span className="font-semibold text-foreground">เหมา:</span> ใช้สูตรกฎหมาย เช่น 40(2) 50% (max 100k), 40(8) 60%</p>
-              <p className="mt-1"><span className="font-semibold text-foreground">หักจริง:</span> ใช้รายจ่ายจริงที่บันทึก ต้องมีหลักฐาน</p>
+              <p>
+                <span className="font-semibold text-foreground">เหมา:</span> ใช้สูตรกฎหมาย เช่น
+                40(2) 50% (max 100k), 40(8) 60%
+              </p>
+              <p className="mt-1">
+                <span className="font-semibold text-foreground">หักจริง:</span>{" "}
+                ใช้รายจ่ายจริงที่บันทึก ต้องมีหลักฐาน
+              </p>
             </div>
             <div className="flex items-center justify-between pt-1 border-t">
               <span className="text-xs text-muted-foreground">หักได้รวม</span>
-              <span className="num text-base font-semibold text-success">฿{formatTHB(est.expenseDeduction)}</span>
+              <span className="num text-base font-semibold text-success">
+                ฿{formatTHB(est.expenseDeduction)}
+              </span>
             </div>
           </CardContent>
         </Card>
@@ -316,20 +357,37 @@ export function TaxTab({ onNavigate, onSubChange }: Props) {
               <Row label="เงินได้สุทธิ" value={`฿${formatTHB(est.netIncome)}`} bold />
               <TaxBracketGauge netIncome={est.netIncome} estimatedTax={est.estimatedTax} />
               <div className="pt-1">
-                <Badge variant="outline" className={taxOwed > 0 ? "bg-destructive/10 text-destructive border-destructive/30" : "bg-success/10 text-success border-success/30"}>
-                  {taxOwed > 0 ? `ต้องจ่ายเพิ่ม ฿${formatTHB(taxOwed)}` : `ขอคืนได้ ฿${formatTHB(refund)}`}
+                <Badge
+                  variant="outline"
+                  className={
+                    taxOwed > 0
+                      ? "bg-destructive/10 text-destructive border-destructive/30"
+                      : "bg-success/10 text-success border-success/30"
+                  }
+                >
+                  {taxOwed > 0
+                    ? `ต้องจ่ายเพิ่ม ฿${formatTHB(taxOwed)}`
+                    : `ขอคืนได้ ฿${formatTHB(refund)}`}
                 </Badge>
               </div>
               <AiTaxInsight
                 netIncome={est.netIncome}
                 estimatedTax={est.estimatedTax}
-                rmfSsfUsed={(deductions.rmf ? Math.min(deductionAmounts.rmf ?? 0, 500000) : 0) + (deductions.thaiESG ? Math.min(deductionAmounts.thaiESG ?? 0, 300000) : 0)}
+                rmfSsfUsed={
+                  (deductions.rmf ? Math.min(deductionAmounts.rmf ?? 0, 500000) : 0) +
+                  (deductions.thaiESG ? Math.min(deductionAmounts.thaiESG ?? 0, 300000) : 0)
+                }
                 rmfSsfCap={500000}
               />
             </div>
             <TaxDisclaimer compact />
             <div className="flex flex-col gap-2 mt-2">
-              <Button onClick={() => exportIncomeCsv(incomes)} variant="outline" className="w-full gap-1.5" size="sm">
+              <Button
+                onClick={() => exportIncomeCsv(incomes)}
+                variant="outline"
+                className="w-full gap-1.5"
+                size="sm"
+              >
                 <Download className="h-3.5 w-3.5" /> Export CSV (รายได้)
               </Button>
               <Button onClick={handleAccountantExport} className="w-full gap-1.5" size="sm">
@@ -363,8 +421,19 @@ export function PersonalTab() {
   return (
     <div className="space-y-4">
       <div className="grid gap-4 sm:grid-cols-2">
-        <StatCard accent label="รวมรายจ่ายส่วนตัว" value={`฿${formatTHB(total)}`} sub="เดือนนี้" icon={<Receipt className="h-5 w-5" />} />
-        <StatCard label="จำนวนรายการ" value={personalExpenses.length} sub="ที่บันทึกไว้" icon={<Calculator className="h-5 w-5" />} />
+        <StatCard
+          accent
+          label="รวมรายจ่ายส่วนตัว"
+          value={`฿${formatTHB(total)}`}
+          sub="เดือนนี้"
+          icon={<Receipt className="h-5 w-5" />}
+        />
+        <StatCard
+          label="จำนวนรายการ"
+          value={personalExpenses.length}
+          sub="ที่บันทึกไว้"
+          icon={<Calculator className="h-5 w-5" />}
+        />
       </div>
 
       <Card className="animate-fade-up">
@@ -375,8 +444,13 @@ export function PersonalTab() {
         <CardContent>
           <div className="space-y-2">
             {personalExpenses.map((e) => (
-              <div key={e.id} className="group flex items-center gap-3 rounded-xl border border-border/60 p-3 hover:border-primary/40 transition-colors">
-                <div className="rounded-lg bg-primary-soft p-2 text-primary"><Receipt className="h-4 w-4" /></div>
+              <div
+                key={e.id}
+                className="group flex items-center gap-3 rounded-xl border border-border/60 p-3 hover:border-primary/40 transition-colors"
+              >
+                <div className="rounded-lg bg-primary-soft p-2 text-primary">
+                  <Receipt className="h-4 w-4" />
+                </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium">{e.description}</p>
                   <p className="text-[11px] text-muted-foreground num">{e.date}</p>

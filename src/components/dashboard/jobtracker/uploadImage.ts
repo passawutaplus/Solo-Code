@@ -6,10 +6,7 @@ import { compressImageFile, dataUrlToBlob } from "@/lib/imageCompress";
  * folder must start with the user's auth uid (e.g. "<uid>/previews") for owner uploads,
  * or "slips/<jobId>" for anonymous client slip uploads.
  */
-export async function uploadJobTrackerImage(
-  file: File,
-  folder: string,
-): Promise<string> {
+export async function uploadJobTrackerImage(file: File, folder: string): Promise<string> {
   let blob: Blob = file;
   let contentType = file.type;
   let ext = (file.name.split(".").pop() ?? "jpg").toLowerCase();

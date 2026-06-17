@@ -68,7 +68,13 @@ export function AiMonitorSection() {
             Ecosystem credits + ประมาณต้นทุน Gemini · อัปเดต {fmtWhen(data.generated_at)}
           </p>
         </div>
-        <Button size="sm" variant="outline" className="gap-1.5" onClick={() => void refetch()} disabled={isFetching}>
+        <Button
+          size="sm"
+          variant="outline"
+          className="gap-1.5"
+          onClick={() => void refetch()}
+          disabled={isFetching}
+        >
           <RefreshCw className={`h-3.5 w-3.5 ${isFetching ? "animate-spin" : ""}`} />
           รีเฟรช
         </Button>
@@ -121,7 +127,8 @@ export function AiMonitorSection() {
             <p className="text-xs font-medium">Key นี้ใช้ที่ไหน</p>
             {gemini.keySurfaces.map((s) => (
               <p key={s.surface} className="text-[11px] text-muted-foreground">
-                <span className="font-medium text-foreground">{s.surface}</span> ({s.env}) — {s.features}
+                <span className="font-medium text-foreground">{s.surface}</span> ({s.env}) —{" "}
+                {s.features}
               </p>
             ))}
           </div>
@@ -162,7 +169,9 @@ export function AiMonitorSection() {
           </CardHeader>
           <CardContent className="space-y-2">
             {byFeature.length === 0 ? (
-              <p className="text-sm text-muted-foreground py-4 text-center">ยังไม่มีการใช้งานใน ledger</p>
+              <p className="text-sm text-muted-foreground py-4 text-center">
+                ยังไม่มีการใช้งานใน ledger
+              </p>
             ) : (
               byFeature.map((f) => (
                 <div
@@ -248,8 +257,8 @@ export function AiMonitorSection() {
       </Card>
 
       <p className="text-[11px] text-muted-foreground">
-        Landing mentor (guest): วันนี้ {legacyGuestChat.messagesToday} · 7 วัน {legacyGuestChat.messages7d} —{" "}
-        {legacyGuestChat.note}
+        Landing mentor (guest): วันนี้ {legacyGuestChat.messagesToday} · 7 วัน{" "}
+        {legacyGuestChat.messages7d} — {legacyGuestChat.note}
       </p>
     </div>
   );

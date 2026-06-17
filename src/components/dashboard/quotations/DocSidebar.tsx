@@ -66,8 +66,8 @@ export function DocSidebar({
               ลำดับการทำงาน: เสนอราคา → แจ้งหนี้ → รับเงิน → ออกใบเสร็จ
             </p>
             <p className="text-[10px] text-muted-foreground/80 leading-relaxed mt-1.5">
-              💡 รายได้ที่ปิดงานแล้วจะ <span className="font-semibold">sync เข้าหมวดภาษี & รายได้</span>{" "}
-              อัตโนมัติ
+              💡 รายได้ที่ปิดงานแล้วจะ{" "}
+              <span className="font-semibold">sync เข้าหมวดภาษี & รายได้</span> อัตโนมัติ
             </p>
           </div>
         </CardContent>

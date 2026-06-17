@@ -14,10 +14,7 @@ import {
   Terminal,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import {
-  getSupabaseProjectInfo,
-  isProjectConfigConsistent,
-} from "@/lib/supabaseProject";
+import { getSupabaseProjectInfo, isProjectConfigConsistent } from "@/lib/supabaseProject";
 import { toast } from "sonner";
 
 type ProbeStatus = "ok" | "missing" | "error" | "checking";
@@ -34,7 +31,10 @@ const PENDING_SQL_BUNDLE = `supabase/manual/apply-pending-202606.sql`;
 const FEEDBACK_SQL_BUNDLE = `supabase/manual/apply-feedback-tickets-20260607.sql`;
 
 async function probeTable(table: string): Promise<{ status: ProbeStatus; detail?: string }> {
-  const { error } = await supabase.from(table as never).select("id").limit(1);
+  const { error } = await supabase
+    .from(table as never)
+    .select("id")
+    .limit(1);
   if (!error) return { status: "ok" };
   const msg = error.message ?? "";
   if (msg.includes("does not exist") || msg.includes("Could not find the table")) {
@@ -66,10 +66,14 @@ async function probeFeedbackTicketFields(): Promise<{ status: ProbeStatus; detai
 }
 
 async function probeActivityFeedRpc(): Promise<{ status: ProbeStatus; detail?: string }> {
-  const { error } = await (supabase as { rpc: (fn: string, args: object) => Promise<{ error: { message?: string; code?: string } | null }> }).rpc(
-    "get_admin_activity_feed",
-    { _days: 1, _category: "all", _limit: 1 },
-  );
+  const { error } = await (
+    supabase as {
+      rpc: (
+        fn: string,
+        args: object,
+      ) => Promise<{ error: { message?: string; code?: string } | null }>;
+    }
+  ).rpc("get_admin_activity_feed", { _days: 1, _category: "all", _limit: 1 });
   if (!error) return { status: "ok" };
   const msg = error.message ?? "";
   if (msg.includes("Could not find the function") || msg.includes("PGRST202")) {
@@ -96,7 +100,9 @@ async function probeAdminBusinessRls(): Promise<{ status: ProbeStatus; detail?: 
   }
 
   const statsRows = (statsRes.data ?? []) as Array<{ table_name: string; total_records: number }>;
-  const statsTotal = Number(statsRows.find((r) => r.table_name === "quotations")?.total_records ?? 0);
+  const statsTotal = Number(
+    statsRows.find((r) => r.table_name === "quotations")?.total_records ?? 0,
+  );
   const directCount = quotesRes.count ?? 0;
 
   if (statsTotal > 0 && directCount < statsTotal) {
@@ -108,7 +114,10 @@ async function probeAdminBusinessRls(): Promise<{ status: ProbeStatus; detail?: 
 
   return {
     status: "ok",
-    detail: statsTotal > 0 ? `admin เห็น quotations ${directCount}/${statsTotal}` : "พร้อม (ยังไม่มีใบเสนอในระบบ)",
+    detail:
+      statsTotal > 0
+        ? `admin เห็น quotations ${directCount}/${statsTotal}`
+        : "พร้อม (ยังไม่มีใบเสนอในระบบ)",
   };
 }
 
@@ -157,9 +166,14 @@ async function probeQuotationCollabColumns(): Promise<{ status: ProbeStatus; det
 }
 
 async function probeCoeditRlsHelpers(): Promise<{ status: ProbeStatus; detail?: string }> {
-  const { error } = await (supabase as {
-    rpc: (fn: string, args: object) => Promise<{ error: { message?: string; code?: string } | null }>;
-  }).rpc("is_quotation_collaborator", { p_quotation_id: "00000000-0000-0000-0000-000000000000" });
+  const { error } = await (
+    supabase as {
+      rpc: (
+        fn: string,
+        args: object,
+      ) => Promise<{ error: { message?: string; code?: string } | null }>;
+    }
+  ).rpc("is_quotation_collaborator", { p_quotation_id: "00000000-0000-0000-0000-000000000000" });
   if (!error) return { status: "ok" };
   const msg = error.message ?? "";
   if (msg.includes("Could not find the function") || msg.includes("PGRST202")) {
@@ -295,15 +309,60 @@ export function SupabaseConnectionSection() {
         : { status: "missing", detail: "รันหลัง feedback_ticket_fields" };
 
     setProbes([
-      { id: "contract", label: "สัญญาจ้าง (contract_* บน quotations)", migrationFile: "20260605100000_quotations_contract.sql", ...contract },
-      { id: "support_tickets", label: "Support Tickets MVP", migrationFile: "20260604150000_support_tickets.sql", ...tickets },
-      { id: "shared_projects", label: "Shared Squad (Phase 2 schema)", migrationFile: "20260605110000_shared_projects_phase2.sql", ...shared },
-      { id: "pipeline_org", label: "Pipeline indexes & organization", migrationFile: "20260605120000_pipeline_supabase_organization.sql", ...pipelineOrg },
-      { id: "feedback_ticket_fields", label: "Give Feedback → Tickets (rating + link)", migrationFile: "20260607120000_feedback_ticket_fields.sql", ...feedbackFields },
-      { id: "feedback_notify", label: "แจ้งลูกค้าเมื่อแก้ฟีดแบ็ก", migrationFile: "20260607120100_ticket_feedback_notify.sql", ...feedbackNotify },
-      { id: "admin_activity_feed", label: "Mission Control Activity Feed RPC", migrationFile: "20260607130000_admin_activity_feed.sql", ...activityFeed },
-      { id: "admin_business_rls", label: "Admin business KPI RLS (quotations + finance)", migrationFile: "20260609120000_admin_business_rls.sql", ...adminBusinessRls },
-      { id: "inhouse_workspace", label: "In-House Co-working (org + kanban + chat)", migrationFile: "20260612120000_inhouse_workspace.sql", ...inhouse },
+      {
+        id: "contract",
+        label: "สัญญาจ้าง (contract_* บน quotations)",
+        migrationFile: "20260605100000_quotations_contract.sql",
+        ...contract,
+      },
+      {
+        id: "support_tickets",
+        label: "Support Tickets MVP",
+        migrationFile: "20260604150000_support_tickets.sql",
+        ...tickets,
+      },
+      {
+        id: "shared_projects",
+        label: "Shared Squad (Phase 2 schema)",
+        migrationFile: "20260605110000_shared_projects_phase2.sql",
+        ...shared,
+      },
+      {
+        id: "pipeline_org",
+        label: "Pipeline indexes & organization",
+        migrationFile: "20260605120000_pipeline_supabase_organization.sql",
+        ...pipelineOrg,
+      },
+      {
+        id: "feedback_ticket_fields",
+        label: "Give Feedback → Tickets (rating + link)",
+        migrationFile: "20260607120000_feedback_ticket_fields.sql",
+        ...feedbackFields,
+      },
+      {
+        id: "feedback_notify",
+        label: "แจ้งลูกค้าเมื่อแก้ฟีดแบ็ก",
+        migrationFile: "20260607120100_ticket_feedback_notify.sql",
+        ...feedbackNotify,
+      },
+      {
+        id: "admin_activity_feed",
+        label: "Mission Control Activity Feed RPC",
+        migrationFile: "20260607130000_admin_activity_feed.sql",
+        ...activityFeed,
+      },
+      {
+        id: "admin_business_rls",
+        label: "Admin business KPI RLS (quotations + finance)",
+        migrationFile: "20260609120000_admin_business_rls.sql",
+        ...adminBusinessRls,
+      },
+      {
+        id: "inhouse_workspace",
+        label: "In-House Co-working (org + kanban + chat)",
+        migrationFile: "20260612120000_inhouse_workspace.sql",
+        ...inhouse,
+      },
       {
         id: "document_theme",
         label: "Custom Docs — profiles.document_theme",
@@ -357,7 +416,13 @@ export function SupabaseConnectionSection() {
             โปรเจกต์ที่แอปเชื่อมต่ออยู่จริง + สถานะ migrations ล่าสุด
           </p>
         </div>
-        <Button size="sm" variant="outline" onClick={runChecks} disabled={loading} className="h-8 gap-1.5">
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={runChecks}
+          disabled={loading}
+          className="h-8 gap-1.5"
+        >
           <RefreshCw className={`h-3 w-3 ${loading ? "animate-spin" : ""}`} />
           ตรวจสอบใหม่
         </Button>
@@ -371,7 +436,10 @@ export function SupabaseConnectionSection() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <InfoRow label="Project Ref" value={info.projectRef || "—"} mono />
             <InfoRow label="API Host" value={info.apiHost || "—"} mono />
-            <InfoRow label="Publishable Key" value={info.hasPublishableKey ? "ตั้งค่าแล้ว" : "ไม่พบ"} />
+            <InfoRow
+              label="Publishable Key"
+              value={info.hasPublishableKey ? "ตั้งค่าแล้ว" : "ไม่พบ"}
+            />
             <InfoRow
               label="Key ↔ Project"
               value={
@@ -412,11 +480,7 @@ export function SupabaseConnectionSection() {
               </a>
             </Button>
             <Button size="sm" variant="outline" className="h-8 gap-1.5" asChild>
-              <a
-                href={`${info.dashboardUrl}/editor`}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
+              <a href={`${info.dashboardUrl}/editor`} target="_blank" rel="noopener noreferrer">
                 <Terminal className="h-3.5 w-3.5" />
                 SQL Editor
               </a>
@@ -452,7 +516,9 @@ export function SupabaseConnectionSection() {
                   {p.migrationFile}
                 </p>
                 {p.detail && (
-                  <p className="text-[10px] text-muted-foreground mt-0.5 line-clamp-2">{p.detail}</p>
+                  <p className="text-[10px] text-muted-foreground mt-0.5 line-clamp-2">
+                    {p.detail}
+                  </p>
                 )}
               </div>
               <ProbeBadge status={p.status} />
@@ -463,13 +529,25 @@ export function SupabaseConnectionSection() {
             <div className="mt-3 rounded-lg bg-muted/50 border border-dashed p-3 text-[11px] text-muted-foreground space-y-2">
               <p className="font-semibold text-foreground">วิธี push migrations</p>
               <ol className="list-decimal list-inside space-y-1">
-                <li>รัน <code className="bg-muted px-1 rounded">./scripts/install-supabase-cli.sh</code></li>
-                <li>รัน <code className="bg-muted px-1 rounded">npx supabase login</code> (หรือตั้ง <code>SUPABASE_ACCESS_TOKEN</code>)</li>
-                <li>รัน <code className="bg-muted px-1 rounded">./scripts/supabase-push-via-api.sh</code> (หรือ <code className="bg-muted px-1 rounded">supabase-push-pipeline.sh</code> ถ้ามี DB password)</li>
+                <li>
+                  รัน{" "}
+                  <code className="bg-muted px-1 rounded">./scripts/install-supabase-cli.sh</code>
+                </li>
+                <li>
+                  รัน <code className="bg-muted px-1 rounded">npx supabase login</code> (หรือตั้ง{" "}
+                  <code>SUPABASE_ACCESS_TOKEN</code>)
+                </li>
+                <li>
+                  รัน{" "}
+                  <code className="bg-muted px-1 rounded">./scripts/supabase-push-via-api.sh</code>{" "}
+                  (หรือ <code className="bg-muted px-1 rounded">supabase-push-pipeline.sh</code>{" "}
+                  ถ้ามี DB password)
+                </li>
                 <li>
                   หรือวาง SQL ใน Dashboard → SQL Editor:{" "}
-                  <code className="bg-muted px-1 rounded">{PENDING_SQL_BUNDLE}</code> (schema มิ.ย.) หรือ{" "}
-                  <code className="bg-muted px-1 rounded">{FEEDBACK_SQL_BUNDLE}</code> (ฟีดแบ็ก + Activity Feed)
+                  <code className="bg-muted px-1 rounded">{PENDING_SQL_BUNDLE}</code> (schema มิ.ย.)
+                  หรือ <code className="bg-muted px-1 rounded">{FEEDBACK_SQL_BUNDLE}</code> (ฟีดแบ็ก
+                  + Activity Feed)
                 </li>
               </ol>
             </div>
@@ -514,23 +592,16 @@ export function SupabaseConnectionSection() {
 
       <Card className="border-border bg-muted/20">
         <CardContent className="p-3.5 text-[11px] text-muted-foreground leading-relaxed">
-          <strong>หมายเหตุ:</strong> Cursor MCP อาจแสดงโปรเจกต์คนละตัวกับที่แอปใช้ — อ้างอิง Project Ref ด้านบนเท่านั้น.
-          เอกสาร: <code>supabase/README.md</code> · ค่าใน <code>config.toml</code> ต้องตรง <code>VITE_SUPABASE_PROJECT_ID</code>
+          <strong>หมายเหตุ:</strong> Cursor MCP อาจแสดงโปรเจกต์คนละตัวกับที่แอปใช้ — อ้างอิง Project
+          Ref ด้านบนเท่านั้น. เอกสาร: <code>supabase/README.md</code> · ค่าใน{" "}
+          <code>config.toml</code> ต้องตรง <code>VITE_SUPABASE_PROJECT_ID</code>
         </CardContent>
       </Card>
     </div>
   );
 }
 
-function InfoRow({
-  label,
-  value,
-  mono,
-}: {
-  label: string;
-  value: string;
-  mono?: boolean;
-}) {
+function InfoRow({ label, value, mono }: { label: string; value: string; mono?: boolean }) {
   return (
     <div>
       <p className="text-[10px] text-muted-foreground uppercase tracking-wide">{label}</p>
@@ -562,7 +633,9 @@ function SetupRow({
         {done ? (
           <Badge className="text-[9px] bg-emerald-600 hover:bg-emerald-600">เสร็จ</Badge>
         ) : (
-          <Badge variant="outline" className="text-[9px]">ทำเอง</Badge>
+          <Badge variant="outline" className="text-[9px]">
+            ทำเอง
+          </Badge>
         )}
         {link && (
           <a
@@ -581,13 +654,15 @@ function SetupRow({
 
 function ProbeBadge({ status }: { status: ProbeStatus }) {
   if (status === "checking") {
-    return <Badge variant="outline" className="shrink-0 text-[9px]">กำลังตรวจ...</Badge>;
+    return (
+      <Badge variant="outline" className="shrink-0 text-[9px]">
+        กำลังตรวจ...
+      </Badge>
+    );
   }
   if (status === "ok") {
     return (
-      <Badge className="shrink-0 text-[9px] bg-emerald-600 hover:bg-emerald-600">
-        ขึ้นแล้ว
-      </Badge>
+      <Badge className="shrink-0 text-[9px] bg-emerald-600 hover:bg-emerald-600">ขึ้นแล้ว</Badge>
     );
   }
   if (status === "missing") {

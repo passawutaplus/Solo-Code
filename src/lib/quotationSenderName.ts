@@ -16,9 +16,5 @@ export function resolveQuotationSenderName(opts: {
   if (opts.quotationKind === "studio" && opts.studioSnapshot?.brandName?.trim()) {
     return opts.studioSnapshot.brandName.trim();
   }
-  return (
-    opts.profileBrandName?.trim() ||
-    opts.profileDisplayName?.trim() ||
-    fallback
-  );
+  return opts.profileBrandName?.trim() || opts.profileDisplayName?.trim() || fallback;
 }

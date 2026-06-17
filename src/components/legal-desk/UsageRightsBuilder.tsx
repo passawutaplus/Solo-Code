@@ -95,7 +95,8 @@ export function UsageRightsBuilder({
             สิทธิ์ลูกค้าใช้งานยังไง?
           </DialogTitle>
           <p className="text-xs text-muted-foreground">
-            เลือกแบบที่ใกล้เคียงที่สุด แล้วปรับทีหลังได้ — เราจะช่วยเขียนข้อความในใบเสนอราคาและสัญญาให้
+            เลือกแบบที่ใกล้เคียงที่สุด แล้วปรับทีหลังได้ —
+            เราจะช่วยเขียนข้อความในใบเสนอราคาและสัญญาให้
           </p>
         </DialogHeader>
 
@@ -172,7 +173,9 @@ export function UsageRightsBuilder({
               <select
                 className="w-full h-9 rounded-md border border-input bg-background px-2 text-xs"
                 value={form.term}
-                onChange={(e) => setForm((f) => ({ ...f, term: e.target.value as UsageRightsInput["term"] }))}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, term: e.target.value as UsageRightsInput["term"] }))
+                }
               >
                 {TERMS.map((t) => (
                   <option key={t} value={t}>
@@ -187,7 +190,10 @@ export function UsageRightsBuilder({
                 className="w-full h-9 rounded-md border border-input bg-background px-2 text-xs"
                 value={form.transferOn}
                 onChange={(e) =>
-                  setForm((f) => ({ ...f, transferOn: e.target.value as UsageRightsInput["transferOn"] }))
+                  setForm((f) => ({
+                    ...f,
+                    transferOn: e.target.value as UsageRightsInput["transferOn"],
+                  }))
                 }
               >
                 {TRANSFER_ON.map((t) => (
@@ -205,7 +211,10 @@ export function UsageRightsBuilder({
               className="w-full h-9 rounded-md border border-input bg-background px-2 text-xs"
               value={form.territory}
               onChange={(e) =>
-                setForm((f) => ({ ...f, territory: e.target.value as UsageRightsInput["territory"] }))
+                setForm((f) => ({
+                  ...f,
+                  territory: e.target.value as UsageRightsInput["territory"],
+                }))
               }
             >
               {TERRITORIES.map((t) => (

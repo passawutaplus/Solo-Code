@@ -29,16 +29,9 @@ export function SettingsCategoryGroup({
   );
 }
 
-export function SettingsJumpNav({
-  items,
-}: {
-  items: { id: string; label: string }[];
-}) {
+export function SettingsJumpNav({ items }: { items: { id: string; label: string }[] }) {
   return (
-    <nav
-      className="flex gap-1.5 overflow-x-auto pb-1 -mx-1 px-1"
-      aria-label="ไปยังหมวดตั้งค่า"
-    >
+    <nav className="flex gap-1.5 overflow-x-auto pb-1 -mx-1 px-1" aria-label="ไปยังหมวดตั้งค่า">
       {items.map((item) => (
         <a
           key={item.id}

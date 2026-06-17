@@ -39,7 +39,12 @@ export function BusinessSection({ m }: { m: AdminMetrics }) {
     return Array.from(map.entries())
       .map(([uid, gross]) => {
         const p = m.profiles.find((x) => x.user_id === uid);
-        return { uid, gross, email: p?.email ?? "—", brand: p?.brand_name ?? p?.display_name ?? "—" };
+        return {
+          uid,
+          gross,
+          email: p?.email ?? "—",
+          brand: p?.brand_name ?? p?.display_name ?? "—",
+        };
       })
       .sort((a, b) => b.gross - a.gross)
       .slice(0, 10);
@@ -51,7 +56,9 @@ export function BusinessSection({ m }: { m: AdminMetrics }) {
     <div className="space-y-5">
       <div>
         <h2 className="text-lg font-semibold tracking-tight">Business KPIs</h2>
-        <p className="text-xs text-muted-foreground">รายได้, ใบเสนอราคา และผู้ใช้ที่ใช้งานมากที่สุด</p>
+        <p className="text-xs text-muted-foreground">
+          รายได้, ใบเสนอราคา และผู้ใช้ที่ใช้งานมากที่สุด
+        </p>
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
@@ -91,7 +98,10 @@ export function BusinessSection({ m }: { m: AdminMetrics }) {
                 <p className="text-xs text-muted-foreground">ยังไม่มีข้อมูล</p>
               ) : (
                 byStatus.map(([s, n]) => {
-                  const meta = STATUS_LABEL[s] ?? { label: s, cls: "bg-muted text-muted-foreground" };
+                  const meta = STATUS_LABEL[s] ?? {
+                    label: s,
+                    cls: "bg-muted text-muted-foreground",
+                  };
                   const pct = m.quotations.length ? (n / m.quotations.length) * 100 : 0;
                   return (
                     <div key={s} className="space-y-1">
@@ -102,7 +112,10 @@ export function BusinessSection({ m }: { m: AdminMetrics }) {
                         <span className="num font-medium">{n}</span>
                       </div>
                       <div className="h-1.5 bg-muted rounded-full overflow-hidden">
-                        <div className="h-full bg-primary rounded-full" style={{ width: `${pct}%` }} />
+                        <div
+                          className="h-full bg-primary rounded-full"
+                          style={{ width: `${pct}%` }}
+                        />
                       </div>
                     </div>
                   );
@@ -127,7 +140,10 @@ export function BusinessSection({ m }: { m: AdminMetrics }) {
                 <TableBody>
                   {topUsers.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={3} className="text-center text-xs text-muted-foreground py-6">
+                      <TableCell
+                        colSpan={3}
+                        className="text-center text-xs text-muted-foreground py-6"
+                      >
                         ยังไม่มีรายได้ในระบบ
                       </TableCell>
                     </TableRow>
@@ -168,7 +184,10 @@ export function BusinessSection({ m }: { m: AdminMetrics }) {
               <TableBody>
                 {recentQuotes.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={4} className="text-center text-xs text-muted-foreground py-6">
+                    <TableCell
+                      colSpan={4}
+                      className="text-center text-xs text-muted-foreground py-6"
+                    >
                       ยังไม่มีใบเสนอ
                     </TableCell>
                   </TableRow>
@@ -180,7 +199,9 @@ export function BusinessSection({ m }: { m: AdminMetrics }) {
                         <TableCell className="text-xs font-mono">{q.number}</TableCell>
                         <TableCell className="text-xs">
                           <div className="font-medium">{q.client_name || "—"}</div>
-                          <div className="text-[10px] text-muted-foreground">{q.project_name || "—"}</div>
+                          <div className="text-[10px] text-muted-foreground">
+                            {q.project_name || "—"}
+                          </div>
                         </TableCell>
                         <TableCell>
                           <Badge className={`${meta.cls} text-[10px]`} variant="secondary">

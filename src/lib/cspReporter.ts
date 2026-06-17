@@ -26,7 +26,7 @@ export function installCspReporter() {
       columnNumber: e.columnNumber,
       disposition: e.disposition,
     };
-    // eslint-disable-next-line no-console
+
     console.warn("[CSP]", payload);
 
     try {

@@ -13,7 +13,12 @@ export const TICKET_PRIORITIES = ["critical", "high", "medium", "low"] as const;
 
 export const TICKET_CATEGORIES = ["bug", "improvement", "question", "other"] as const;
 
-export const TICKET_SOURCES = ["feedback_button", "support_hub", "admin_manual", "error_page"] as const;
+export const TICKET_SOURCES = [
+  "feedback_button",
+  "support_hub",
+  "admin_manual",
+  "error_page",
+] as const;
 
 export type TicketStatus = (typeof TICKET_STATUSES)[number];
 export type TicketPriority = (typeof TICKET_PRIORITIES)[number];
@@ -66,13 +71,7 @@ export const CATEGORY_OPTIONS = [
   { value: "other" as const, label: "📌 อื่นๆ" },
 ];
 
-export const KANBAN_COLUMNS: TicketStatus[] = [
-  "new",
-  "in_progress",
-  "qa",
-  "resolved",
-  "closed",
-];
+export const KANBAN_COLUMNS: TicketStatus[] = ["new", "in_progress", "qa", "resolved", "closed"];
 
 export const createTicketSchema = z.object({
   title: z.string().trim().min(3, "พิมพ์อย่างน้อย 3 ตัวอักษร").max(120),

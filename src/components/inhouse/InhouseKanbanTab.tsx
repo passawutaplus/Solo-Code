@@ -31,7 +31,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useCreateInhouseTask, useDeleteInhouseTask, useInhouseTasks, useUpdateInhouseTask } from "@/hooks/inhouse/useInhouseTasks";
+import {
+  useCreateInhouseTask,
+  useDeleteInhouseTask,
+  useInhouseTasks,
+  useUpdateInhouseTask,
+} from "@/hooks/inhouse/useInhouseTasks";
 import { useInhouseOrgMembers } from "@/hooks/inhouse/useInhouseOrg";
 import { tasksByColumn } from "@/hooks/inhouse/useInhouseMonitor";
 import type { InhouseOrg, InhouseTask, InhouseWorkspace } from "@/lib/inhouse/types";
@@ -57,13 +62,15 @@ function TaskCard({ task, onDelete }: { task: InhouseTask; onDelete: () => void 
     <div
       ref={setNodeRef}
       style={style}
-      className={cn(
-        "rounded-lg border bg-card p-3 shadow-sm",
-        isDragging && "opacity-50",
-      )}
+      className={cn("rounded-lg border bg-card p-3 shadow-sm", isDragging && "opacity-50")}
     >
       <div className="flex items-start gap-2">
-        <button type="button" className="mt-0.5 cursor-grab touch-none text-muted-foreground" {...listeners} {...attributes}>
+        <button
+          type="button"
+          className="mt-0.5 cursor-grab touch-none text-muted-foreground"
+          {...listeners}
+          {...attributes}
+        >
           <GripVertical className="h-4 w-4" />
         </button>
         <div className="min-w-0 flex-1">
@@ -87,7 +94,11 @@ function TaskCard({ task, onDelete }: { task: InhouseTask; onDelete: () => void 
             </Badge>
           </div>
         </div>
-        <button type="button" onClick={onDelete} className="text-muted-foreground hover:text-destructive">
+        <button
+          type="button"
+          onClick={onDelete}
+          className="text-muted-foreground hover:text-destructive"
+        >
           <Trash2 className="h-3.5 w-3.5" />
         </button>
       </div>
@@ -232,11 +243,18 @@ export function InhouseKanbanTab({ org, workspace }: Props) {
           <div className="space-y-4 py-2">
             <div className="space-y-2">
               <Label>ชื่องาน</Label>
-              <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="ทำอะไร..." />
+              <Input
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="ทำอะไร..."
+              />
             </div>
             <div className="space-y-2">
               <Label>มอบหมายให้</Label>
-              <Select value={assigneeId || "none"} onValueChange={(v) => setAssigneeId(v === "none" ? "" : v)}>
+              <Select
+                value={assigneeId || "none"}
+                onValueChange={(v) => setAssigneeId(v === "none" ? "" : v)}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="เลือกสมาชิก" />
                 </SelectTrigger>

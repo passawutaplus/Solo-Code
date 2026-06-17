@@ -66,14 +66,16 @@ export function ActivityFeedSection() {
     setLoading(true);
     setLoadError(null);
     try {
-      const { data, error } = await (supabase.rpc as unknown as (
-        fn: string,
-        args: Record<string, unknown>,
-      ) => Promise<{ data: FeedRow[] | null; error: { message: string } | null }>).call(
-        supabase,
-        "get_admin_activity_feed",
-        { _days: days, _category: category, _limit: 100 },
-      );
+      const { data, error } = await (
+        supabase.rpc as unknown as (
+          fn: string,
+          args: Record<string, unknown>,
+        ) => Promise<{ data: FeedRow[] | null; error: { message: string } | null }>
+      ).call(supabase, "get_admin_activity_feed", {
+        _days: days,
+        _category: category,
+        _limit: 100,
+      });
       if (error) throw new Error(error.message);
       setRows(data ?? []);
     } catch (e) {
@@ -151,7 +153,10 @@ export function ActivityFeedSection() {
           ) : (
             <ul className="divide-y divide-border/60">
               {rows.map((r, i) => (
-                <li key={`${r.ref_id}-${i}`} className="flex items-start gap-3 px-4 py-3 hover:bg-muted/30">
+                <li
+                  key={`${r.ref_id}-${i}`}
+                  className="flex items-start gap-3 px-4 py-3 hover:bg-muted/30"
+                >
                   <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-muted">
                     {categoryIcon(r.category, r.event_type)}
                   </div>
@@ -163,10 +168,15 @@ export function ActivityFeedSection() {
                       </Badge>
                     </div>
                     {r.detail && (
-                      <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{r.detail}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">
+                        {r.detail}
+                      </p>
                     )}
                     <p className="text-[10px] text-muted-foreground mt-1">
-                      {formatDistanceToNow(new Date(r.occurred_at), { addSuffix: true, locale: th })}
+                      {formatDistanceToNow(new Date(r.occurred_at), {
+                        addSuffix: true,
+                        locale: th,
+                      })}
                       {r.user_id && (
                         <span className="ml-1 font-mono">· {r.user_id.slice(0, 8)}</span>
                       )}

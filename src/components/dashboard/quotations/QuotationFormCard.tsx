@@ -61,9 +61,7 @@ export function QuotationFormCard({
               )}
             </div>
           </div>
-          <div className="flex items-center gap-2 shrink-0">
-            {headerExtra}
-          </div>
+          <div className="flex items-center gap-2 shrink-0">{headerExtra}</div>
         </CollapsibleTrigger>
         <CollapsibleContent>
           <div className="p-5 space-y-4">{children}</div>

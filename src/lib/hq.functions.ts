@@ -74,9 +74,7 @@ export const updateAgent = createServerFn({ method: "POST" })
 // -------- list conversations for an agent --------
 export const listConversations = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) =>
-    z.object({ agentSlug: z.string().min(1) }).parse(d),
-  )
+  .inputValidator((d: unknown) => z.object({ agentSlug: z.string().min(1) }).parse(d))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context as { supabase: any; userId: string };
     await assertAdmin(supabase, userId);
@@ -95,9 +93,7 @@ export const listConversations = createServerFn({ method: "POST" })
 // -------- list messages in a conversation --------
 export const listMessages = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) =>
-    z.object({ conversationId: z.string().uuid() }).parse(d),
-  )
+  .inputValidator((d: unknown) => z.object({ conversationId: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context as { supabase: any; userId: string };
     await assertAdmin(supabase, userId);
@@ -213,9 +209,7 @@ export const chatWithAgent = createServerFn({ method: "POST" })
 // -------- delete conversation --------
 export const deleteConversation = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) =>
-    z.object({ conversationId: z.string().uuid() }).parse(d),
-  )
+  .inputValidator((d: unknown) => z.object({ conversationId: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context as { supabase: any; userId: string };
     await assertAdmin(supabase, userId);

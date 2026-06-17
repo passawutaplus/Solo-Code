@@ -116,8 +116,8 @@ function rgbToXyz(r: number, g: number, b: number): [number, number, number] {
   const B = srgbToLinear(b);
   // sRGB D65
   const x = R * 0.4124564 + G * 0.3575761 + B * 0.1804375;
-  const y = R * 0.2126729 + G * 0.7151522 + B * 0.0721750;
-  const z = R * 0.0193339 + G * 0.1191920 + B * 0.9503041;
+  const y = R * 0.2126729 + G * 0.7151522 + B * 0.072175;
+  const z = R * 0.0193339 + G * 0.119192 + B * 0.9503041;
   return [x * 100, y * 100, z * 100];
 }
 
@@ -158,8 +158,9 @@ function deltaE76(a: [number, number, number], b: [number, number, number]): num
 }
 
 // Precompute LABs for Pantone entries
-const PANTONE_LAB: Array<PantoneEntry & { lab: [number, number, number] }> =
-  PANTONE_DATA.map((e) => ({ ...e, lab: hexToLab(e.hex) }));
+const PANTONE_LAB: Array<PantoneEntry & { lab: [number, number, number] }> = PANTONE_DATA.map(
+  (e) => ({ ...e, lab: hexToLab(e.hex) }),
+);
 
 /** Find nearest Pantone Coated approximation for a hex color. */
 export function findNearestPantone(hex: string): PantoneEntry {

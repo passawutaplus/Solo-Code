@@ -143,7 +143,10 @@ const headers = {
 };
 
 async function supabase(path, opts = {}) {
-  const res = await fetch(`${url}/rest/v1/${path}`, { ...opts, headers: { ...headers, ...opts.headers } });
+  const res = await fetch(`${url}/rest/v1/${path}`, {
+    ...opts,
+    headers: { ...headers, ...opts.headers },
+  });
   const text = await res.text();
   if (!res.ok) throw new Error(`Supabase ${path}: ${res.status} ${text}`);
   if (!text || res.status === 204) return null;

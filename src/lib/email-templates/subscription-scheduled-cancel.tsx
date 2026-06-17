@@ -1,30 +1,47 @@
-import * as React from 'react'
-import type { TemplateEntry } from './registry'
-import { EmailLayout, EmailCard, EmailCardLabel, EmailCardRow, EmailButton, EmailText, brand } from './layout'
+import * as React from "react";
+import type { TemplateEntry } from "./registry";
+import {
+  EmailLayout,
+  EmailCard,
+  EmailCardLabel,
+  EmailCardRow,
+  EmailButton,
+  EmailText,
+  brand,
+} from "./layout";
 
 interface Props {
-  priceId?: string
-  endsAt?: string | null
+  priceId?: string;
+  endsAt?: string | null;
 }
 
 const planLabel = (priceId?: string) => {
   switch (priceId) {
-    case 'pro_monthly': return 'Pro (รายเดือน)'
-    case 'pro_yearly': return 'Pro (รายปี)'
-    case 'inhouse_monthly': return 'In-House (รายเดือน)'
-    case 'inhouse_yearly': return 'In-House (รายปี)'
-    default: return 'Pro'
+    case "pro_monthly":
+      return "Pro (รายเดือน)";
+    case "pro_yearly":
+      return "Pro (รายปี)";
+    case "inhouse_monthly":
+      return "In-House (รายเดือน)";
+    case "inhouse_yearly":
+      return "In-House (รายปี)";
+    default:
+      return "Pro";
   }
-}
+};
 
 const fmtDate = (iso?: string | null) => {
-  if (!iso) return '—'
+  if (!iso) return "—";
   try {
-    return new Date(iso).toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric' })
+    return new Date(iso).toLocaleDateString("th-TH", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    });
   } catch {
-    return iso
+    return iso;
   }
-}
+};
 
 const ScheduledCancelEmail = ({ priceId, endsAt = null }: Props) => (
   <EmailLayout
@@ -35,8 +52,8 @@ const ScheduledCancelEmail = ({ priceId, endsAt = null }: Props) => (
     title="ยืนยันการกำหนดยกเลิก"
   >
     <EmailText>
-      เราได้รับคำขอยกเลิกแพ็กเกจ <strong style={{ color: brand.ink }}>{planLabel(priceId)}</strong> ของคุณแล้ว
-      คุณยังใช้งานฟีเจอร์ Pro ได้จนถึงวันที่กำหนดด้านล่าง
+      เราได้รับคำขอยกเลิกแพ็กเกจ <strong style={{ color: brand.ink }}>{planLabel(priceId)}</strong>{" "}
+      ของคุณแล้ว คุณยังใช้งานฟีเจอร์ Pro ได้จนถึงวันที่กำหนดด้านล่าง
     </EmailText>
     <EmailCard>
       <EmailCardLabel>แพ็กเกจ</EmailCardLabel>
@@ -49,13 +66,13 @@ const ScheduledCancelEmail = ({ priceId, endsAt = null }: Props) => (
     </EmailText>
     <EmailButton href="https://solofreelancer.com/pricing">จัดการ Subscription</EmailButton>
   </EmailLayout>
-)
+);
 
 export const template = {
   component: ScheduledCancelEmail,
   subject: () => `[So1o] ยืนยันกำหนดยกเลิก subscription`,
-  displayName: 'Subscription scheduled cancel',
-  previewData: { priceId: 'pro_monthly', endsAt: '2026-06-27' },
-} satisfies TemplateEntry
+  displayName: "Subscription scheduled cancel",
+  previewData: { priceId: "pro_monthly", endsAt: "2026-06-27" },
+} satisfies TemplateEntry;
 
-export default ScheduledCancelEmail
+export default ScheduledCancelEmail;

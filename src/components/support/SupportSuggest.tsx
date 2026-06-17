@@ -157,7 +157,11 @@ export function SupportSuggest() {
             className="text-white hover:opacity-90 gap-1.5"
             style={{ background: "#FF5F05" }}
           >
-            {submitting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Send className="h-3.5 w-3.5" />}
+            {submitting ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            ) : (
+              <Send className="h-3.5 w-3.5" />
+            )}
             ส่งข้อเสนอ
           </Button>
         </div>
@@ -182,7 +186,9 @@ export function SupportSuggest() {
                 <div key={it.id} className="rounded-lg border border-gray-200 bg-white p-3">
                   <div className="flex items-start justify-between gap-2">
                     <div className="text-sm font-medium text-gray-900 flex-1">{it.title}</div>
-                    <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${status.color}`}>
+                    <span
+                      className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${status.color}`}
+                    >
                       {status.label}
                     </span>
                   </div>
@@ -196,7 +202,11 @@ export function SupportSuggest() {
                     </div>
                   )}
                   <div className="text-[10px] text-gray-400 mt-1.5">
-                    {new Date(it.created_at).toLocaleDateString("th-TH", { day: "2-digit", month: "short", year: "numeric" })}
+                    {new Date(it.created_at).toLocaleDateString("th-TH", {
+                      day: "2-digit",
+                      month: "short",
+                      year: "numeric",
+                    })}
                   </div>
                 </div>
               );

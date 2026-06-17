@@ -35,9 +35,7 @@ export const deleteUser = createServerFn({ method: "POST" })
       const denied = await assertAdmin(supabase, userId);
       if (denied) return { ok: false, error: denied };
 
-      const purgeAfter = new Date(
-        Date.now() + SOFT_DELETE_PURGE_DAYS * 86400000,
-      ).toISOString();
+      const purgeAfter = new Date(Date.now() + SOFT_DELETE_PURGE_DAYS * 86400000).toISOString();
       const warnings: string[] = [];
 
       const { data: targetProfile, error: profileErr } = await (supabaseAdmin as any)
@@ -120,7 +118,10 @@ export const deleteUser = createServerFn({ method: "POST" })
       };
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
-      console.error("[deleteUser] unexpected:", { message: msg, stack: e instanceof Error ? e.stack : undefined });
+      console.error("[deleteUser] unexpected:", {
+        message: msg,
+        stack: e instanceof Error ? e.stack : undefined,
+      });
       return { ok: false, error: msg || "เกิดข้อผิดพลาดที่ไม่คาดคิด" };
     }
   });
@@ -132,10 +133,9 @@ export const purgeInactiveUsers = createServerFn({ method: "POST" })
     const denied = await assertAdmin(supabase, userId);
     if (denied) return { ok: false, error: denied };
 
-    const { data: rows, error } = await (supabaseAdmin as any).rpc(
-      "purge_inactive_profile_data",
-      { _limit: 25 },
-    );
+    const { data: rows, error } = await (supabaseAdmin as any).rpc("purge_inactive_profile_data", {
+      _limit: 25,
+    });
     if (error) {
       console.error("[purgeInactiveUsers] rpc failed:", error);
       return { ok: false, error: `Purge ล้มเหลว: ${error.message}` };

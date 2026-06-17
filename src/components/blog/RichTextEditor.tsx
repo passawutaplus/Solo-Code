@@ -56,17 +56,14 @@ export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorP
     },
     editorProps: {
       attributes: {
-        class:
-          "prose prose-sm sm:prose-base max-w-none focus:outline-none min-h-[400px] px-4 py-3",
+        class: "prose prose-sm sm:prose-base max-w-none focus:outline-none min-h-[400px] px-4 py-3",
       },
     },
     immediatelyRender: false,
   });
 
   if (!editor) {
-    return (
-      <div className="rounded-xl border border-border bg-muted/30 h-[480px] animate-pulse" />
-    );
+    return <div className="rounded-xl border border-border bg-muted/30 h-[480px] animate-pulse" />;
   }
 
   return (
@@ -133,33 +130,69 @@ function Toolbar({ editor }: { editor: Editor }) {
 
   return (
     <div className="flex items-center gap-0.5 flex-wrap border-b border-border bg-muted/30 px-2 py-1.5">
-      <Btn label="หัวข้อใหญ่ H2" onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()} active={editor.isActive("heading", { level: 2 })}>
+      <Btn
+        label="หัวข้อใหญ่ H2"
+        onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
+        active={editor.isActive("heading", { level: 2 })}
+      >
         <Heading2 className="h-4 w-4" />
       </Btn>
-      <Btn label="หัวข้อย่อย H3" onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()} active={editor.isActive("heading", { level: 3 })}>
+      <Btn
+        label="หัวข้อย่อย H3"
+        onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
+        active={editor.isActive("heading", { level: 3 })}
+      >
         <Heading3 className="h-4 w-4" />
       </Btn>
-      <Btn label="ย่อหน้า" onClick={() => editor.chain().focus().setParagraph().run()} active={editor.isActive("paragraph")}>
+      <Btn
+        label="ย่อหน้า"
+        onClick={() => editor.chain().focus().setParagraph().run()}
+        active={editor.isActive("paragraph")}
+      >
         <Pilcrow className="h-4 w-4" />
       </Btn>
       <div className="w-px h-5 bg-border mx-1" />
-      <Btn label="ตัวหนา" onClick={() => editor.chain().focus().toggleBold().run()} active={editor.isActive("bold")}>
+      <Btn
+        label="ตัวหนา"
+        onClick={() => editor.chain().focus().toggleBold().run()}
+        active={editor.isActive("bold")}
+      >
         <Bold className="h-4 w-4" />
       </Btn>
-      <Btn label="ตัวเอียง" onClick={() => editor.chain().focus().toggleItalic().run()} active={editor.isActive("italic")}>
+      <Btn
+        label="ตัวเอียง"
+        onClick={() => editor.chain().focus().toggleItalic().run()}
+        active={editor.isActive("italic")}
+      >
         <Italic className="h-4 w-4" />
       </Btn>
-      <Btn label="โค้ด" onClick={() => editor.chain().focus().toggleCode().run()} active={editor.isActive("code")}>
+      <Btn
+        label="โค้ด"
+        onClick={() => editor.chain().focus().toggleCode().run()}
+        active={editor.isActive("code")}
+      >
         <Code className="h-4 w-4" />
       </Btn>
       <div className="w-px h-5 bg-border mx-1" />
-      <Btn label="bullet list" onClick={() => editor.chain().focus().toggleBulletList().run()} active={editor.isActive("bulletList")}>
+      <Btn
+        label="bullet list"
+        onClick={() => editor.chain().focus().toggleBulletList().run()}
+        active={editor.isActive("bulletList")}
+      >
         <List className="h-4 w-4" />
       </Btn>
-      <Btn label="ลำดับเลข" onClick={() => editor.chain().focus().toggleOrderedList().run()} active={editor.isActive("orderedList")}>
+      <Btn
+        label="ลำดับเลข"
+        onClick={() => editor.chain().focus().toggleOrderedList().run()}
+        active={editor.isActive("orderedList")}
+      >
         <ListOrdered className="h-4 w-4" />
       </Btn>
-      <Btn label="คำพูด" onClick={() => editor.chain().focus().toggleBlockquote().run()} active={editor.isActive("blockquote")}>
+      <Btn
+        label="คำพูด"
+        onClick={() => editor.chain().focus().toggleBlockquote().run()}
+        active={editor.isActive("blockquote")}
+      >
         <Quote className="h-4 w-4" />
       </Btn>
       <div className="w-px h-5 bg-border mx-1" />

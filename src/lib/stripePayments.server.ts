@@ -23,26 +23,21 @@ import {
   type SubscriptionDowngradeState,
   type UpgradeTargetTier,
 } from "@/lib/subscriptionTiers";
-import { assertAllowedPaymentRedirectUrl, paymentApiCorsHeaders } from "@/lib/paymentsApiValidation";
 import {
-  estimateClientPaymentCheckout,
-  thbToStripeCents,
-} from "@/lib/stripeClientPaymentFees";
+  assertAllowedPaymentRedirectUrl,
+  paymentApiCorsHeaders,
+} from "@/lib/paymentsApiValidation";
+import { estimateClientPaymentCheckout, thbToStripeCents } from "@/lib/stripeClientPaymentFees";
 import type Stripe from "stripe";
 
 function getServiceSupabase() {
-  return createClient(
-    process.env.SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  );
+  return createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
 }
 
 function getSharedSupabase() {
-  return createClient(
-    process.env.SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
-    { db: { schema: "shared" } },
-  );
+  return createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!, {
+    db: { schema: "shared" },
+  });
 }
 
 async function resolveOrCreateCustomer(
@@ -281,24 +276,24 @@ export async function createClientJobCheckoutSession(opts: {
     const cardReady = await ensureConnectCardPayments(stripe, accountId);
     if ("error" in cardReady) return cardReady;
 
-    const { jobAmount: roundedJob, feeAmount, totalAmount } =
-      estimateClientPaymentCheckout(jobAmount);
+    const {
+      jobAmount: roundedJob,
+      feeAmount,
+      totalAmount,
+    } = estimateClientPaymentCheckout(jobAmount);
     const jobCents = thbToStripeCents(roundedJob);
     const feeCents = thbToStripeCents(feeAmount);
     const priceId = `client_job_${opts.paymentType}`;
     const brandName = profile?.brand_name || profile?.display_name || "ฟรีแลนซ์";
     const paymentLabel =
-      opts.paymentType === "deposit"
-        ? `มัดจำ — ${job.title}`
-        : `ยอดสุดท้าย — ${job.title}`;
+      opts.paymentType === "deposit" ? `มัดจำ — ${job.title}` : `ยอดสุดท้าย — ${job.title}`;
 
     const origin = resolveSiteOrigin();
     const successUrl = assertAllowedPaymentRedirectUrl(
       opts.successUrl ?? `${origin}/track/${opts.shareToken}?stripe=${opts.paymentType}`,
     );
     const cancelUrl = assertAllowedPaymentRedirectUrl(
-      opts.cancelUrl ??
-        `${origin}/track/${opts.shareToken}/checkout?payment=${opts.paymentType}`,
+      opts.cancelUrl ?? `${origin}/track/${opts.shareToken}/checkout?payment=${opts.paymentType}`,
     );
 
     const session = await stripe.checkout.sessions.create({
@@ -406,7 +401,9 @@ export async function upsertSubscriptionRecordFromStripe(
   const seatQuantity = Math.max(1, Number(item?.quantity) || 1);
   const productId =
     item?.price && typeof item.price !== "string"
-      ? (typeof item.price.product === "string" ? item.price.product : item.price.product?.id)
+      ? typeof item.price.product === "string"
+        ? item.price.product
+        : item.price.product?.id
       : "unknown";
 
   const sb = getServiceSupabase();
@@ -647,14 +644,10 @@ export async function authenticateBearerToken(
   const token = authHeader.replace("Bearer ", "");
   if (!token) return { error: "Unauthorized", status: 401 };
 
-  const supabase = createClient(
-    process.env.SUPABASE_URL!,
-    process.env.SUPABASE_PUBLISHABLE_KEY!,
-    {
-      global: { headers: { Authorization: `Bearer ${token}` } },
-      auth: { persistSession: false, autoRefreshToken: false },
-    },
-  );
+  const supabase = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_PUBLISHABLE_KEY!, {
+    global: { headers: { Authorization: `Bearer ${token}` } },
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
 
   const { data, error } = await supabase.auth.getUser(token);
   if (error || !data.user?.id) {
@@ -929,9 +922,7 @@ export async function upgradeSubscriptionTierForUser(opts: {
 
     const currentQty = Math.max(1, item.quantity ?? record.seat_quantity ?? 1);
     const nextQty =
-      opts.targetTier === "inhouse"
-        ? Math.max(2, Math.min(50, opts.quantity ?? currentQty))
-        : 1;
+      opts.targetTier === "inhouse" ? Math.max(2, Math.min(50, opts.quantity ?? currentQty)) : 1;
 
     const updated = await stripe.subscriptions.update(record.stripe_subscription_id, {
       items: [{ id: item.id, price: targetPrice.id, quantity: nextQty }],

@@ -12,12 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { EmptyState } from "@/components/ui/empty-state";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import {
   Dialog,
   DialogContent,
@@ -97,7 +92,14 @@ type Brand = {
   files: BrandFile[];
   brandVoice?: string;
 };
-type LinkAsset = { id: string; client: string; label: string; url: string; category: string; description?: string };
+type LinkAsset = {
+  id: string;
+  client: string;
+  label: string;
+  url: string;
+  category: string;
+  description?: string;
+};
 type Snippet = { id: string; project: string; title: string; code: string; language: string };
 type CredentialType = "password" | "apiKey" | "wifi" | "other";
 type Credential = {
@@ -111,8 +113,6 @@ type Credential = {
   notes?: string;
   type: CredentialType;
 };
-
-
 
 const LICENSE_COLOR: Record<License, string> = {
   Free: "bg-success/15 text-success",
@@ -148,9 +148,7 @@ function makeAssetOpts<T extends { id: string }>(kind: string, labelOf: (x: T) =
 
 export function AssetsTab() {
   // ใช้ Supabase persist — เก็บถาวรข้ามอุปกรณ์/อัปเดตเว็บ
-  const fontsHook = useSupabaseRecords<Font, AssetRow>(
-    makeAssetOpts<Font>("font", (f) => f.name),
-  );
+  const fontsHook = useSupabaseRecords<Font, AssetRow>(makeAssetOpts<Font>("font", (f) => f.name));
   const brandsHook = useSupabaseRecords<Brand, AssetRow>(
     makeAssetOpts<Brand>("brand", (b) => b.client),
   );
@@ -173,7 +171,12 @@ export function AssetsTab() {
   const setSnippets = snippetsHook.setItems;
   const credentials = credentialsHook.items;
   const setCredentials = credentialsHook.setItems;
-  const isLoading = fontsHook.isLoading || brandsHook.isLoading || linksHook.isLoading || snippetsHook.isLoading || credentialsHook.isLoading;
+  const isLoading =
+    fontsHook.isLoading ||
+    brandsHook.isLoading ||
+    linksHook.isLoading ||
+    snippetsHook.isLoading ||
+    credentialsHook.isLoading;
 
   const [editingFont, setEditingFont] = React.useState<Font | "new" | null>(null);
   const [editingBrand, setEditingBrand] = React.useState<Brand | "new" | null>(null);
@@ -196,7 +199,8 @@ export function AssetsTab() {
   }, [fonts, brands, links, snippets, credentials]);
 
   const matchWs = React.useCallback(
-    (value?: string) => workspace === "__all__" || (value ?? "").toLowerCase() === workspace.toLowerCase(),
+    (value?: string) =>
+      workspace === "__all__" || (value ?? "").toLowerCase() === workspace.toLowerCase(),
     [workspace],
   );
   const q = search.trim().toLowerCase();
@@ -211,11 +215,17 @@ export function AssetsTab() {
     [fonts, matchWs, matchQ],
   );
   const filteredBrands = React.useMemo(
-    () => brands.filter((b) => matchWs(b.client) && matchQ(b.client, b.brandVoice, b.fonts.join(" "), b.colors.join(" "))),
+    () =>
+      brands.filter(
+        (b) =>
+          matchWs(b.client) &&
+          matchQ(b.client, b.brandVoice, b.fonts.join(" "), b.colors.join(" ")),
+      ),
     [brands, matchWs, matchQ],
   );
   const filteredLinks = React.useMemo(
-    () => links.filter((l) => matchWs(l.client) && matchQ(l.label, l.url, l.category, l.description)),
+    () =>
+      links.filter((l) => matchWs(l.client) && matchQ(l.label, l.url, l.category, l.description)),
     [links, matchWs, matchQ],
   );
   const filteredSnippets = React.useMemo(
@@ -223,11 +233,12 @@ export function AssetsTab() {
     [snippets, matchWs, matchQ],
   );
   const filteredCredentials = React.useMemo(
-    () => credentials.filter((c) => matchWs(c.client) && matchQ(c.label, c.username, c.url, c.notes, c.type)),
+    () =>
+      credentials.filter(
+        (c) => matchWs(c.client) && matchQ(c.label, c.username, c.url, c.notes, c.type),
+      ),
     [credentials, matchWs, matchQ],
   );
-
-
 
   function saveFont(f: Font) {
     setFonts((arr) => {
@@ -324,7 +335,6 @@ export function AssetsTab() {
     toast.success("ลบ Credential แล้ว");
   }
 
-
   return (
     <TooltipProvider delayDuration={150}>
       <div className="space-y-5">
@@ -352,7 +362,9 @@ export function AssetsTab() {
             <SelectContent>
               <SelectItem value="__all__">ทั้งหมด ({workspaces.length} workspace)</SelectItem>
               {workspaces.map((w) => (
-                <SelectItem key={w} value={w}>{w}</SelectItem>
+                <SelectItem key={w} value={w}>
+                  {w}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -386,23 +398,33 @@ export function AssetsTab() {
           <TabsList className="grid w-full grid-cols-5 max-w-3xl">
             <TabsTrigger value="fonts" className="gap-1.5 text-xs">
               <Type className="h-3.5 w-3.5" /> Fonts
-              <span className="ml-0.5 text-[10px] text-muted-foreground">{filteredFonts.length}</span>
+              <span className="ml-0.5 text-[10px] text-muted-foreground">
+                {filteredFonts.length}
+              </span>
             </TabsTrigger>
             <TabsTrigger value="brands" className="gap-1.5 text-xs">
               <Palette className="h-3.5 w-3.5" /> Brands
-              <span className="ml-0.5 text-[10px] text-muted-foreground">{filteredBrands.length}</span>
+              <span className="ml-0.5 text-[10px] text-muted-foreground">
+                {filteredBrands.length}
+              </span>
             </TabsTrigger>
             <TabsTrigger value="links" className="gap-1.5 text-xs">
               <LinkIcon className="h-3.5 w-3.5" /> Links
-              <span className="ml-0.5 text-[10px] text-muted-foreground">{filteredLinks.length}</span>
+              <span className="ml-0.5 text-[10px] text-muted-foreground">
+                {filteredLinks.length}
+              </span>
             </TabsTrigger>
             <TabsTrigger value="snippets" className="gap-1.5 text-xs">
               <Code2 className="h-3.5 w-3.5" /> Snippets
-              <span className="ml-0.5 text-[10px] text-muted-foreground">{filteredSnippets.length}</span>
+              <span className="ml-0.5 text-[10px] text-muted-foreground">
+                {filteredSnippets.length}
+              </span>
             </TabsTrigger>
             <TabsTrigger value="credentials" className="gap-1.5 text-xs">
               <KeyRound className="h-3.5 w-3.5" /> Vault
-              <span className="ml-0.5 text-[10px] text-muted-foreground">{filteredCredentials.length}</span>
+              <span className="ml-0.5 text-[10px] text-muted-foreground">
+                {filteredCredentials.length}
+              </span>
             </TabsTrigger>
           </TabsList>
 
@@ -413,7 +435,11 @@ export function AssetsTab() {
                 <CardTitle className="text-base flex items-center gap-2">
                   <Type className="h-4 w-4 text-primary" /> Font Manager
                 </CardTitle>
-                <Button size="sm" onClick={() => setEditingFont("new")} className="gap-1.5 rounded-xl">
+                <Button
+                  size="sm"
+                  onClick={() => setEditingFont("new")}
+                  className="gap-1.5 rounded-xl"
+                >
                   <Plus className="h-3.5 w-3.5" /> เพิ่มฟอนต์
                 </Button>
               </CardHeader>
@@ -424,10 +450,16 @@ export function AssetsTab() {
                       icon={Type}
                       title="ยังไม่มีฟอนต์ในคลัง"
                       description="รวมฟอนต์ที่ใช้บ่อย พร้อมระบุสิทธิ์การใช้งานเพื่อกันปัญหาลิขสิทธิ์ภายหลัง"
-                      action={{ label: "เพิ่มฟอนต์แรกของคุณ", onClick: () => setEditingFont("new"), icon: Plus }}
+                      action={{
+                        label: "เพิ่มฟอนต์แรกของคุณ",
+                        onClick: () => setEditingFont("new"),
+                        icon: Plus,
+                      }}
                     />
                   ) : (
-                    <p className="text-xs text-muted-foreground py-6 text-center">ไม่พบรายการในเงื่อนไขที่กรอง</p>
+                    <p className="text-xs text-muted-foreground py-6 text-center">
+                      ไม่พบรายการในเงื่อนไขที่กรอง
+                    </p>
                   )
                 ) : (
                   <div className="grid gap-2 sm:grid-cols-2">
@@ -452,7 +484,11 @@ export function AssetsTab() {
                 <CardTitle className="text-base flex items-center gap-2">
                   <Palette className="h-4 w-4 text-primary" /> Brand Guidelines
                 </CardTitle>
-                <Button size="sm" onClick={() => setEditingBrand("new")} className="gap-1.5 rounded-xl">
+                <Button
+                  size="sm"
+                  onClick={() => setEditingBrand("new")}
+                  className="gap-1.5 rounded-xl"
+                >
                   <Plus className="h-3.5 w-3.5" /> เพิ่ม Brand
                 </Button>
               </CardHeader>
@@ -463,10 +499,16 @@ export function AssetsTab() {
                       icon={Palette}
                       title="ยังไม่มี Brand"
                       description="คุมโทนแบรนด์ลูกค้า — สี · ฟอนต์ · ข้อควรระวัง · ไฟล์โลโก้ ครบใน Card เดียว"
-                      action={{ label: "เพิ่ม Brand แรกของคุณ", onClick: () => setEditingBrand("new"), icon: Plus }}
+                      action={{
+                        label: "เพิ่ม Brand แรกของคุณ",
+                        onClick: () => setEditingBrand("new"),
+                        icon: Plus,
+                      }}
                     />
                   ) : (
-                    <p className="text-xs text-muted-foreground py-6 text-center">ไม่พบรายการในเงื่อนไขที่กรอง</p>
+                    <p className="text-xs text-muted-foreground py-6 text-center">
+                      ไม่พบรายการในเงื่อนไขที่กรอง
+                    </p>
                   )
                 ) : (
                   <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
@@ -496,7 +538,11 @@ export function AssetsTab() {
                 <CardTitle className="text-base flex items-center gap-2">
                   <LinkIcon className="h-4 w-4 text-primary" /> ลิงก์ไฟล์งาน
                 </CardTitle>
-                <Button size="sm" onClick={() => setEditingLink("new")} className="gap-1.5 rounded-xl">
+                <Button
+                  size="sm"
+                  onClick={() => setEditingLink("new")}
+                  className="gap-1.5 rounded-xl"
+                >
                   <Plus className="h-3.5 w-3.5" /> เพิ่มลิงก์
                 </Button>
               </CardHeader>
@@ -507,10 +553,16 @@ export function AssetsTab() {
                       icon={LinkIcon}
                       title="ยังไม่มีลิงก์"
                       description="รวมลิงก์ Figma · Canva · Drive ของแต่ละโปรเจกต์ ค้นหาง่าย ส่งงานไว"
-                      action={{ label: "เพิ่มลิงก์แรกของคุณ", onClick: () => setEditingLink("new"), icon: Plus }}
+                      action={{
+                        label: "เพิ่มลิงก์แรกของคุณ",
+                        onClick: () => setEditingLink("new"),
+                        icon: Plus,
+                      }}
                     />
                   ) : (
-                    <p className="text-xs text-muted-foreground py-6 text-center">ไม่พบรายการในเงื่อนไขที่กรอง</p>
+                    <p className="text-xs text-muted-foreground py-6 text-center">
+                      ไม่พบรายการในเงื่อนไขที่กรอง
+                    </p>
                   )
                 ) : (
                   <div className="grid gap-2 sm:grid-cols-2">
@@ -535,7 +587,11 @@ export function AssetsTab() {
                 <CardTitle className="text-base flex items-center gap-2">
                   <Code2 className="h-4 w-4 text-primary" /> Quick Snippets
                 </CardTitle>
-                <Button size="sm" onClick={() => setEditingSnippet("new")} className="gap-1.5 rounded-xl">
+                <Button
+                  size="sm"
+                  onClick={() => setEditingSnippet("new")}
+                  className="gap-1.5 rounded-xl"
+                >
                   <Plus className="h-3.5 w-3.5" /> เพิ่ม Snippet
                 </Button>
               </CardHeader>
@@ -546,10 +602,16 @@ export function AssetsTab() {
                       icon={Code2}
                       title="ยังไม่มี Snippet"
                       description="เก็บโค้ด CSS / utility · หรือข้อความตอบลูกค้าที่ใช้บ่อย — ก๊อปไปวางได้ทันที"
-                      action={{ label: "เพิ่ม Snippet แรกของคุณ", onClick: () => setEditingSnippet("new"), icon: Plus }}
+                      action={{
+                        label: "เพิ่ม Snippet แรกของคุณ",
+                        onClick: () => setEditingSnippet("new"),
+                        icon: Plus,
+                      }}
                     />
                   ) : (
-                    <p className="text-xs text-muted-foreground py-6 text-center">ไม่พบรายการในเงื่อนไขที่กรอง</p>
+                    <p className="text-xs text-muted-foreground py-6 text-center">
+                      ไม่พบรายการในเงื่อนไขที่กรอง
+                    </p>
                   )
                 ) : (
                   <div className="grid gap-3 md:grid-cols-2">
@@ -574,7 +636,11 @@ export function AssetsTab() {
                 <CardTitle className="text-base flex items-center gap-2">
                   <KeyRound className="h-4 w-4 text-primary" /> Credentials Vault
                 </CardTitle>
-                <Button size="sm" onClick={() => setEditingCredential("new")} className="gap-1.5 rounded-xl">
+                <Button
+                  size="sm"
+                  onClick={() => setEditingCredential("new")}
+                  className="gap-1.5 rounded-xl"
+                >
                   <Plus className="h-3.5 w-3.5" /> เพิ่ม Credential
                 </Button>
               </CardHeader>
@@ -582,7 +648,8 @@ export function AssetsTab() {
                 <div className="flex items-start gap-2 rounded-lg border border-warning/40 bg-warning/10 px-3 py-2">
                   <AlertTriangle className="h-3.5 w-3.5 text-warning shrink-0 mt-0.5" />
                   <p className="text-[11px] leading-tight text-warning-foreground">
-                    เก็บแบบ user-scoped บนคลาวด์ — เห็นเฉพาะบัญชีคุณเท่านั้น แต่<strong>ไม่ใช่ E2E encryption</strong> ระดับ Password Manager
+                    เก็บแบบ user-scoped บนคลาวด์ — เห็นเฉพาะบัญชีคุณเท่านั้น แต่
+                    <strong>ไม่ใช่ E2E encryption</strong> ระดับ Password Manager
                     ไม่แนะนำให้เก็บรหัสที่สำคัญสุด ๆ
                   </p>
                 </div>
@@ -592,10 +659,16 @@ export function AssetsTab() {
                       icon={KeyRound}
                       title="ยังไม่มี Credential"
                       description="เก็บรหัสผ่าน WordPress · API Key · Wi-Fi ของลูกค้า — ซ่อนเป็นจุดอัตโนมัติ"
-                      action={{ label: "เพิ่ม Credential แรก", onClick: () => setEditingCredential("new"), icon: Plus }}
+                      action={{
+                        label: "เพิ่ม Credential แรก",
+                        onClick: () => setEditingCredential("new"),
+                        icon: Plus,
+                      }}
                     />
                   ) : (
-                    <p className="text-xs text-muted-foreground py-6 text-center">ไม่พบรายการในเงื่อนไขที่กรอง</p>
+                    <p className="text-xs text-muted-foreground py-6 text-center">
+                      ไม่พบรายการในเงื่อนไขที่กรอง
+                    </p>
                   )
                 ) : (
                   <div className="grid gap-2 sm:grid-cols-2">
@@ -615,10 +688,22 @@ export function AssetsTab() {
         </Tabs>
 
         <FontDialog editing={editingFont} onClose={() => setEditingFont(null)} onSave={saveFont} />
-        <BrandDialog editing={editingBrand} onClose={() => setEditingBrand(null)} onSave={saveBrand} />
+        <BrandDialog
+          editing={editingBrand}
+          onClose={() => setEditingBrand(null)}
+          onSave={saveBrand}
+        />
         <LinkDialog editing={editingLink} onClose={() => setEditingLink(null)} onSave={saveLink} />
-        <SnippetDialog editing={editingSnippet} onClose={() => setEditingSnippet(null)} onSave={saveSnippet} />
-        <CredentialDialog editing={editingCredential} onClose={() => setEditingCredential(null)} onSave={saveCredential} />
+        <SnippetDialog
+          editing={editingSnippet}
+          onClose={() => setEditingSnippet(null)}
+          onSave={saveSnippet}
+        />
+        <CredentialDialog
+          editing={editingCredential}
+          onClose={() => setEditingCredential(null)}
+          onSave={saveCredential}
+        />
         <BrandVaultDialog
           brand={vaultBrand}
           onClose={() => setVaultBrand(null)}
@@ -628,7 +713,6 @@ export function AssetsTab() {
           }}
         />
 
-
         <PageFooterActions feature="assets" label="Assets" />
       </div>
     </TooltipProvider>
@@ -636,7 +720,15 @@ export function AssetsTab() {
 }
 
 // ============= Font row with hover preview =============
-function FontRow({ font: f, onEdit, onDelete }: { font: Font; onEdit: () => void; onDelete: () => void }) {
+function FontRow({
+  font: f,
+  onEdit,
+  onDelete,
+}: {
+  font: Font;
+  onEdit: () => void;
+  onDelete: () => void;
+}) {
   const sample = (f.sampleText && f.sampleText.trim()) || "The quick brown fox · ทดสอบฟอนต์ ๑๒๓";
   return (
     <div className="group rounded-xl border border-border/60 bg-card p-3 hover:border-primary/40 transition">
@@ -648,7 +740,9 @@ function FontRow({ font: f, onEdit, onDelete }: { font: Font; onEdit: () => void
           <p className="text-[11px] text-muted-foreground truncate">{f.project || "—"}</p>
         </div>
         <div className="flex items-center gap-1 shrink-0">
-          <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${LICENSE_COLOR[f.license]}`}>
+          <span
+            className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${LICENSE_COLOR[f.license]}`}
+          >
             {f.license}
           </span>
           <Badge variant="secondary" className="text-[10px]">
@@ -666,7 +760,9 @@ function FontRow({ font: f, onEdit, onDelete }: { font: Font; onEdit: () => void
       {f.weights && f.weights.length > 0 && (
         <div className="mt-1.5 flex flex-wrap gap-1">
           {f.weights.map((w) => (
-            <Badge key={w} variant="outline" className="text-[9px] py-0 px-1.5">{w}</Badge>
+            <Badge key={w} variant="outline" className="text-[9px] py-0 px-1.5">
+              {w}
+            </Badge>
           ))}
         </div>
       )}
@@ -684,7 +780,13 @@ function FontRow({ font: f, onEdit, onDelete }: { font: Font; onEdit: () => void
           )}
         </div>
         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition">
-          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={onEdit} aria-label={`แก้ไข ${f.name}`}>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-7 w-7"
+            onClick={onEdit}
+            aria-label={`แก้ไข ${f.name}`}
+          >
             <Pencil className="h-3.5 w-3.5" />
           </Button>
           <Button
@@ -701,7 +803,6 @@ function FontRow({ font: f, onEdit, onDelete }: { font: Font; onEdit: () => void
     </div>
   );
 }
-
 
 // ============= Brand Card =============
 function ColorChip({ hex }: { hex: string }) {
@@ -759,8 +860,8 @@ const BrandCard = React.memo(function BrandCard({
   const [editing, setEditing] = React.useState(false);
   const activeText =
     activeVer === "main"
-      ? b.doDont ?? ""
-      : versions.find((v) => v.id === activeVer)?.text ?? "";
+      ? (b.doDont ?? "")
+      : (versions.find((v) => v.id === activeVer)?.text ?? "");
   const [draft, setDraft] = React.useState(activeText);
 
   React.useEffect(() => {
@@ -897,11 +998,12 @@ const BrandCard = React.memo(function BrandCard({
 
       {b.brandVoice && (
         <div className="rounded-md bg-primary/5 border border-primary/20 px-2 py-1.5">
-          <p className="text-[10px] uppercase tracking-wide text-primary font-semibold mb-0.5">Brand Voice</p>
+          <p className="text-[10px] uppercase tracking-wide text-primary font-semibold mb-0.5">
+            Brand Voice
+          </p>
           <p className="text-[11px] text-foreground/80 leading-tight">{b.brandVoice}</p>
         </div>
       )}
-
 
       {/* Do & Don't (with sub-versions) */}
       <div className="rounded-md bg-muted/60 p-2 space-y-1.5">
@@ -967,7 +1069,15 @@ const BrandCard = React.memo(function BrandCard({
               className="text-[11px]"
             />
             <div className="flex justify-end gap-1">
-              <Button size="sm" variant="ghost" className="h-6 text-[11px]" onClick={() => { setDraft(activeText); setEditing(false); }}>
+              <Button
+                size="sm"
+                variant="ghost"
+                className="h-6 text-[11px]"
+                onClick={() => {
+                  setDraft(activeText);
+                  setEditing(false);
+                }}
+              >
                 ยกเลิก
               </Button>
               <Button size="sm" className="h-6 text-[11px]" onClick={saveDraft}>
@@ -977,7 +1087,11 @@ const BrandCard = React.memo(function BrandCard({
           </div>
         ) : (
           <p className="text-[11px] text-foreground/80 whitespace-pre-wrap min-h-[1rem]">
-            {activeText || <span className="text-muted-foreground italic">ยังไม่มีข้อความ — กดดินสอเพื่อเพิ่ม</span>}
+            {activeText || (
+              <span className="text-muted-foreground italic">
+                ยังไม่มีข้อความ — กดดินสอเพื่อเพิ่ม
+              </span>
+            )}
           </p>
         )}
       </div>
@@ -986,36 +1100,50 @@ const BrandCard = React.memo(function BrandCard({
 });
 
 // ============= Link row =============
-function LinkRow({ link: l, onEdit, onDelete }: { link: LinkAsset; onEdit: () => void; onDelete: () => void }) {
+function LinkRow({
+  link: l,
+  onEdit,
+  onDelete,
+}: {
+  link: LinkAsset;
+  onEdit: () => void;
+  onDelete: () => void;
+}) {
   const favicon = getFaviconUrl(l.url);
   const [faviconBroken, setFaviconBroken] = React.useState(false);
   return (
     <div className="group flex items-center gap-3 rounded-xl border border-border/60 bg-card p-3 hover:border-primary/40">
       <div className="h-9 w-9 shrink-0 rounded-lg bg-muted flex items-center justify-center overflow-hidden">
         {favicon && !faviconBroken ? (
-          <img
-            src={favicon}
-            alt=""
-            className="h-5 w-5"
-            onError={() => setFaviconBroken(true)}
-          />
+          <img src={favicon} alt="" className="h-5 w-5" onError={() => setFaviconBroken(true)} />
         ) : (
           <Globe className="h-4 w-4 text-muted-foreground" />
         )}
       </div>
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
-          <Badge variant="secondary" className="text-[10px]">{l.category}</Badge>
+          <Badge variant="secondary" className="text-[10px]">
+            {l.category}
+          </Badge>
           <p className="text-sm font-medium truncate">{l.label}</p>
         </div>
         {l.description ? (
           <p className="text-[11px] text-muted-foreground truncate">{l.description}</p>
         ) : (
-          <p className="text-[11px] text-muted-foreground truncate">{l.client} · {l.url}</p>
+          <p className="text-[11px] text-muted-foreground truncate">
+            {l.client} · {l.url}
+          </p>
         )}
       </div>
       <div className="flex items-center gap-1 shrink-0">
-        <Button asChild variant="ghost" size="icon" className="h-7 w-7" aria-label="เปิดลิงก์" disabled={!safeHref(l.url)}>
+        <Button
+          asChild
+          variant="ghost"
+          size="icon"
+          className="h-7 w-7"
+          aria-label="เปิดลิงก์"
+          disabled={!safeHref(l.url)}
+        >
           <a href={safeHref(l.url) ?? "#"} target="_blank" rel="noopener noreferrer">
             <ExternalLink className="h-3.5 w-3.5" />
           </a>
@@ -1041,9 +1169,16 @@ function LinkRow({ link: l, onEdit, onDelete }: { link: LinkAsset; onEdit: () =>
   );
 }
 
-
 // ============= Snippet card =============
-const SnippetCard = React.memo(function SnippetCard({ snippet: s, onEdit, onDelete }: { snippet: Snippet; onEdit: () => void; onDelete: () => void }) {
+const SnippetCard = React.memo(function SnippetCard({
+  snippet: s,
+  onEdit,
+  onDelete,
+}: {
+  snippet: Snippet;
+  onEdit: () => void;
+  onDelete: () => void;
+}) {
   const copy = async () => {
     try {
       await navigator.clipboard.writeText(s.code);
@@ -1057,21 +1192,36 @@ const SnippetCard = React.memo(function SnippetCard({ snippet: s, onEdit, onDele
       <div className="flex items-center justify-between gap-2">
         <div className="min-w-0">
           <p className="text-sm font-semibold truncate">{s.title}</p>
-          <p className="text-[11px] text-muted-foreground truncate">{s.project} · {s.language}</p>
+          <p className="text-[11px] text-muted-foreground truncate">
+            {s.project} · {s.language}
+          </p>
         </div>
         <div className="flex items-center gap-1 shrink-0">
-          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={copy} aria-label="คัดลอกโค้ด">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-7 w-7"
+            onClick={copy}
+            aria-label="คัดลอกโค้ด"
+          >
             <Copy className="h-3.5 w-3.5" />
           </Button>
           <Button variant="ghost" size="icon" className="h-7 w-7" onClick={onEdit}>
             <Pencil className="h-3.5 w-3.5" />
           </Button>
-          <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={onDelete}>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-7 w-7 text-destructive"
+            onClick={onDelete}
+          >
             <Trash2 className="h-3.5 w-3.5" />
           </Button>
         </div>
       </div>
-      <pre className="text-[11px] bg-muted rounded-md p-2 overflow-x-auto max-h-32"><code>{s.code}</code></pre>
+      <pre className="text-[11px] bg-muted rounded-md p-2 overflow-x-auto max-h-32">
+        <code>{s.code}</code>
+      </pre>
     </div>
   );
 });
@@ -1121,7 +1271,10 @@ function FontDialog({
       toast.error("กรุณากรอกชื่อฟอนต์");
       return;
     }
-    const weights = weightsText.split(",").map((s) => s.trim()).filter(Boolean);
+    const weights = weightsText
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
     onSave({
       id: !editing || editing === "new" ? uid() : editing.id,
       name: name.trim(),
@@ -1134,7 +1287,6 @@ function FontDialog({
     });
   }
 
-
   return (
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
       <DialogContent className="max-w-md">
@@ -1144,17 +1296,29 @@ function FontDialog({
         <div className="space-y-3">
           <div className="space-y-1.5">
             <Label>ชื่อฟอนต์ *</Label>
-            <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Inter, Sarabun..." maxLength={60} />
+            <Input
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Inter, Sarabun..."
+              maxLength={60}
+            />
           </div>
           <div className="space-y-1.5">
             <Label>โปรเจ็คที่ใช้</Label>
-            <Input value={project} onChange={(e) => setProject(e.target.value)} placeholder="ชื่อโปรเจ็ค / ลูกค้า" maxLength={80} />
+            <Input
+              value={project}
+              onChange={(e) => setProject(e.target.value)}
+              placeholder="ชื่อโปรเจ็ค / ลูกค้า"
+              maxLength={80}
+            />
           </div>
           <div className="grid grid-cols-2 gap-2">
             <div className="space-y-1.5">
               <Label>License</Label>
               <Select value={license} onValueChange={(v) => setLicense(v as License)}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="Free">Free</SelectItem>
                   <SelectItem value="Paid">Paid</SelectItem>
@@ -1165,7 +1329,9 @@ function FontDialog({
             <div className="space-y-1.5">
               <Label>Usage</Label>
               <Select value={usage} onValueChange={(v) => setUsage(v as UsageScope)}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="Personal">Personal</SelectItem>
                   <SelectItem value="Commercial">Commercial</SelectItem>
@@ -1176,19 +1342,35 @@ function FontDialog({
           </div>
           <div className="space-y-1.5">
             <Label>น้ำหนัก (Weights, คั่นด้วย ,)</Label>
-            <Input value={weightsText} onChange={(e) => setWeightsText(e.target.value)} placeholder="Regular, 500, 700, Bold" maxLength={120} />
+            <Input
+              value={weightsText}
+              onChange={(e) => setWeightsText(e.target.value)}
+              placeholder="Regular, 500, 700, Bold"
+              maxLength={120}
+            />
           </div>
           <div className="space-y-1.5">
             <Label>ข้อความตัวอย่าง (Preview)</Label>
-            <Input value={sampleText} onChange={(e) => setSampleText(e.target.value)} placeholder="The quick brown fox · ทดสอบฟอนต์" maxLength={120} />
+            <Input
+              value={sampleText}
+              onChange={(e) => setSampleText(e.target.value)}
+              placeholder="The quick brown fox · ทดสอบฟอนต์"
+              maxLength={120}
+            />
           </div>
           <div className="space-y-1.5">
             <Label>ลิงก์ดาวน์โหลด / แหล่งที่มา</Label>
-            <Input value={downloadUrl} onChange={(e) => setDownloadUrl(e.target.value)} placeholder="https://fonts.google.com/..." />
+            <Input
+              value={downloadUrl}
+              onChange={(e) => setDownloadUrl(e.target.value)}
+              placeholder="https://fonts.google.com/..."
+            />
           </div>
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={onClose}>ยกเลิก</Button>
+          <Button variant="outline" onClick={onClose}>
+            ยกเลิก
+          </Button>
           <Button onClick={submit}>{isNew ? "เพิ่ม" : "บันทึก"}</Button>
         </DialogFooter>
       </DialogContent>
@@ -1246,7 +1428,10 @@ function BrandDialog({
       .map((s) => s.trim())
       .filter((s) => /^#?[0-9a-fA-F]{3,8}$/.test(s))
       .map((s) => (s.startsWith("#") ? s : `#${s}`));
-    const fonts = fontsText.split(",").map((s) => s.trim()).filter(Boolean);
+    const fonts = fontsText
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
     const prev = editing && editing !== "new" ? editing : null;
     onSave({
       id: !editing || editing === "new" ? uid() : editing.id,
@@ -1271,11 +1456,20 @@ function BrandDialog({
         <div className="space-y-3">
           <div className="space-y-1.5">
             <Label>ชื่อลูกค้า / Brand *</Label>
-            <Input value={client} onChange={(e) => setClient(e.target.value)} placeholder="Nimbus Co." maxLength={80} />
+            <Input
+              value={client}
+              onChange={(e) => setClient(e.target.value)}
+              placeholder="Nimbus Co."
+              maxLength={80}
+            />
           </div>
           <div className="space-y-1.5">
             <Label>สี (HEX คั่นด้วย ,)</Label>
-            <Input value={colorsText} onChange={(e) => setColorsText(e.target.value)} placeholder="#0F172A, #3B82F6, #F1F5F9" />
+            <Input
+              value={colorsText}
+              onChange={(e) => setColorsText(e.target.value)}
+              placeholder="#0F172A, #3B82F6, #F1F5F9"
+            />
             <div className="flex gap-1 pt-1">
               {colorsText
                 .split(/[,\s]+/)
@@ -1283,18 +1477,29 @@ function BrandDialog({
                 .filter((s) => /^#?[0-9a-fA-F]{3,8}$/.test(s))
                 .map((s) => (s.startsWith("#") ? s : `#${s}`))
                 .map((c) => (
-                  <div key={c} className="h-6 w-6 rounded border border-border/60" style={{ backgroundColor: c }} title={c} />
+                  <div
+                    key={c}
+                    className="h-6 w-6 rounded border border-border/60"
+                    style={{ backgroundColor: c }}
+                    title={c}
+                  />
                 ))}
             </div>
           </div>
           <div className="space-y-1.5">
             <Label>ฟอนต์ (คั่นด้วย ,)</Label>
-            <Input value={fontsText} onChange={(e) => setFontsText(e.target.value)} placeholder="Inter, Manrope" />
+            <Input
+              value={fontsText}
+              onChange={(e) => setFontsText(e.target.value)}
+              placeholder="Inter, Manrope"
+            />
           </div>
           <div className="space-y-1.5">
             <Label>ขอบเขตการใช้งานโปรเจกต์</Label>
             <Select value={projectScope} onValueChange={(v) => setProjectScope(v as UsageScope)}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
               <SelectContent>
                 <SelectItem value="Personal">Personal — งานส่วนตัว</SelectItem>
                 <SelectItem value="Commercial">Commercial — ใช้เชิงพาณิชย์</SelectItem>
@@ -1307,20 +1512,42 @@ function BrandDialog({
           </div>
           <div className="space-y-1.5">
             <Label>โน้ต Logo / การใช้งาน</Label>
-            <Textarea rows={2} value={logoNote} onChange={(e) => setLogoNote(e.target.value)} placeholder="Min size 24px / ใช้พื้นอ่อนเท่านั้น..." maxLength={200} />
+            <Textarea
+              rows={2}
+              value={logoNote}
+              onChange={(e) => setLogoNote(e.target.value)}
+              placeholder="Min size 24px / ใช้พื้นอ่อนเท่านั้น..."
+              maxLength={200}
+            />
           </div>
           <div className="space-y-1.5">
             <Label>Do & Don't (ข้อควรระวัง)</Label>
-            <Textarea rows={2} value={doDont} onChange={(e) => setDoDont(e.target.value)} placeholder="Do: ใช้บนพื้นขาว · Don't: บีบ/ยืดสัดส่วน" maxLength={200} />
+            <Textarea
+              rows={2}
+              value={doDont}
+              onChange={(e) => setDoDont(e.target.value)}
+              placeholder="Do: ใช้บนพื้นขาว · Don't: บีบ/ยืดสัดส่วน"
+              maxLength={200}
+            />
           </div>
           <div className="space-y-1.5">
             <Label>Brand Voice / โทนการสื่อสาร</Label>
-            <Textarea rows={2} value={brandVoice} onChange={(e) => setBrandVoice(e.target.value)} placeholder="ทางการ · อบอุ่น · พูดกับ Gen Z แบบเพื่อน" maxLength={200} />
-            <p className="text-[10px] text-muted-foreground">ใช้เป็น reference เวลาเขียน copy หรือ caption ให้แบรนด์นี้</p>
+            <Textarea
+              rows={2}
+              value={brandVoice}
+              onChange={(e) => setBrandVoice(e.target.value)}
+              placeholder="ทางการ · อบอุ่น · พูดกับ Gen Z แบบเพื่อน"
+              maxLength={200}
+            />
+            <p className="text-[10px] text-muted-foreground">
+              ใช้เป็น reference เวลาเขียน copy หรือ caption ให้แบรนด์นี้
+            </p>
           </div>
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={onClose}>ยกเลิก</Button>
+          <Button variant="outline" onClick={onClose}>
+            ยกเลิก
+          </Button>
           <Button onClick={submit}>{isNew ? "เพิ่ม" : "บันทึก"}</Button>
         </DialogFooter>
       </DialogContent>
@@ -1392,7 +1619,9 @@ function LinkDialog({
             <div className="space-y-1.5">
               <Label>หมวด</Label>
               <Select value={category} onValueChange={setCategory}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="Figma">Figma</SelectItem>
                   <SelectItem value="Canva">Canva</SelectItem>
@@ -1405,19 +1634,36 @@ function LinkDialog({
           </div>
           <div className="space-y-1.5">
             <Label>ชื่อลิงก์ *</Label>
-            <Input value={label} onChange={(e) => setLabel(e.target.value)} placeholder="Final UI · v3" maxLength={80} />
+            <Input
+              value={label}
+              onChange={(e) => setLabel(e.target.value)}
+              placeholder="Final UI · v3"
+              maxLength={80}
+            />
           </div>
           <div className="space-y-1.5">
             <Label>URL *</Label>
-            <Input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://figma.com/..." />
+            <Input
+              value={url}
+              onChange={(e) => setUrl(e.target.value)}
+              placeholder="https://figma.com/..."
+            />
           </div>
           <div className="space-y-1.5">
             <Label>คำอธิบาย (Description)</Label>
-            <Textarea rows={2} value={description} onChange={(e) => setDescription(e.target.value)} placeholder="เช่น ไฟล์ UI final ของ Sprint 3 — ห้ามแก้โดยตรง" maxLength={160} />
+            <Textarea
+              rows={2}
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="เช่น ไฟล์ UI final ของ Sprint 3 — ห้ามแก้โดยตรง"
+              maxLength={160}
+            />
           </div>
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={onClose}>ยกเลิก</Button>
+          <Button variant="outline" onClick={onClose}>
+            ยกเลิก
+          </Button>
           <Button onClick={submit}>{isNew ? "เพิ่ม" : "บันทึก"}</Button>
         </DialogFooter>
       </DialogContent>
@@ -1485,7 +1731,9 @@ function SnippetDialog({
             <div className="space-y-1.5">
               <Label>ภาษา</Label>
               <Select value={language} onValueChange={setLanguage}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="CSS">CSS</SelectItem>
                   <SelectItem value="HTML">HTML</SelectItem>
@@ -1502,11 +1750,18 @@ function SnippetDialog({
           </div>
           <div className="space-y-1.5">
             <Label>โค้ด *</Label>
-            <Textarea rows={6} value={code} onChange={(e) => setCode(e.target.value)} className="font-mono text-xs" />
+            <Textarea
+              rows={6}
+              value={code}
+              onChange={(e) => setCode(e.target.value)}
+              className="font-mono text-xs"
+            />
           </div>
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={onClose}>ยกเลิก</Button>
+          <Button variant="outline" onClick={onClose}>
+            ยกเลิก
+          </Button>
           <Button onClick={submit}>{isNew ? "เพิ่ม" : "บันทึก"}</Button>
         </DialogFooter>
       </DialogContent>
@@ -1524,11 +1779,17 @@ function detectKind(nameOrUrl: string): BrandFile["kind"] {
   return "other";
 }
 
-const ACCEPTED_UPLOAD = ".svg,.png,.jpg,.jpeg,.webp,.pdf,image/svg+xml,image/png,image/jpeg,image/webp,application/pdf";
+const ACCEPTED_UPLOAD =
+  ".svg,.png,.jpg,.jpeg,.webp,.pdf,image/svg+xml,image/png,image/jpeg,image/webp,application/pdf";
 const MAX_UPLOAD_BYTES = 5 * 1024 * 1024; // 5MB hard cap (compressed to ~200KB for raster images)
 const STORAGE_BUCKET = "brand-logos";
 const ALLOWED_MIME = new Set([
-  "image/svg+xml", "image/png", "image/jpeg", "image/jpg", "image/webp", "application/pdf",
+  "image/svg+xml",
+  "image/png",
+  "image/jpeg",
+  "image/jpg",
+  "image/webp",
+  "application/pdf",
 ]);
 
 function BrandVaultDialog({
@@ -1596,14 +1857,21 @@ function BrandVaultDialog({
           const ALLOWED: readonly AllowedKind[] = ["jpeg", "png", "webp", "svg", "pdf"];
           await assertFileSignature(file, ALLOWED);
         } catch (err) {
-          toast.error(`${file.name}: ${err instanceof Error ? err.message : "ไฟล์ไม่ผ่านการตรวจสอบ"}`);
+          toast.error(
+            `${file.name}: ${err instanceof Error ? err.message : "ไฟล์ไม่ผ่านการตรวจสอบ"}`,
+          );
           continue;
         }
         let blob: Blob = file;
         let uploadType = mime;
         let ext = file.name.includes(".") ? file.name.split(".").pop()!.toLowerCase() : "bin";
         // Compress raster images to ~200KB jpeg
-        if (mime === "image/png" || mime === "image/jpeg" || mime === "image/jpg" || mime === "image/webp") {
+        if (
+          mime === "image/png" ||
+          mime === "image/jpeg" ||
+          mime === "image/jpg" ||
+          mime === "image/webp"
+        ) {
           try {
             const dataUrl = await compressImageFile(file);
             blob = dataUrlToBlob(dataUrl);
@@ -1686,9 +1954,7 @@ function BrandVaultDialog({
               onChange={(e) => handleFiles(e.target.files)}
             />
             <Upload className="h-5 w-5 mx-auto text-muted-foreground" />
-            <p className="text-[11px] text-muted-foreground">
-              SVG · PNG · AI · PDF
-            </p>
+            <p className="text-[11px] text-muted-foreground">SVG · PNG · AI · PDF</p>
             <Button
               type="button"
               size="sm"
@@ -1715,10 +1981,15 @@ function BrandVaultDialog({
           ) : (
             <div className="space-y-1.5 max-h-64 overflow-y-auto">
               {brand.files.map((f) => (
-                <div key={f.id} className="flex items-center justify-between gap-2 rounded-lg border border-border/60 p-2">
+                <div
+                  key={f.id}
+                  className="flex items-center justify-between gap-2 rounded-lg border border-border/60 p-2"
+                >
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
-                      <Badge variant="secondary" className="text-[10px] uppercase">{f.kind}</Badge>
+                      <Badge variant="secondary" className="text-[10px] uppercase">
+                        {f.kind}
+                      </Badge>
                       {f.storagePath && (
                         <Badge variant="outline" className="text-[9px]">
                           uploaded
@@ -1729,15 +2000,39 @@ function BrandVaultDialog({
                     <p className="text-[11px] text-muted-foreground truncate">{f.url}</p>
                   </div>
                   <div className="flex items-center gap-1 shrink-0">
-                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => copyUrl(f.url)} aria-label="คัดลอกลิงก์">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-7 w-7"
+                      onClick={() => copyUrl(f.url)}
+                      aria-label="คัดลอกลิงก์"
+                    >
                       <Copy className="h-3.5 w-3.5" />
                     </Button>
-                    <Button asChild variant="ghost" size="icon" className="h-7 w-7" aria-label="ดาวน์โหลด" disabled={!safeHref(f.url)}>
-                      <a href={safeHref(f.url) ?? "#"} target="_blank" rel="noopener noreferrer" download>
+                    <Button
+                      asChild
+                      variant="ghost"
+                      size="icon"
+                      className="h-7 w-7"
+                      aria-label="ดาวน์โหลด"
+                      disabled={!safeHref(f.url)}
+                    >
+                      <a
+                        href={safeHref(f.url) ?? "#"}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        download
+                      >
                         <Download className="h-3.5 w-3.5" />
                       </a>
                     </Button>
-                    <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => removeFile(f)} aria-label="ลบ">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-7 w-7 text-destructive"
+                      onClick={() => removeFile(f)}
+                      aria-label="ลบ"
+                    >
                       <Trash2 className="h-3.5 w-3.5" />
                     </Button>
                   </div>
@@ -1748,8 +2043,17 @@ function BrandVaultDialog({
 
           <div className="space-y-2 rounded-lg border border-border/60 p-3 bg-muted/30">
             <p className="text-[11px] font-medium text-muted-foreground">หรือฝากลิงก์ภายนอก</p>
-            <Input value={label} onChange={(e) => setLabel(e.target.value)} placeholder="ชื่อไฟล์ (Logo Primary SVG)" maxLength={80} />
-            <Input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://drive.google.com/..." />
+            <Input
+              value={label}
+              onChange={(e) => setLabel(e.target.value)}
+              placeholder="ชื่อไฟล์ (Logo Primary SVG)"
+              maxLength={80}
+            />
+            <Input
+              value={url}
+              onChange={(e) => setUrl(e.target.value)}
+              placeholder="https://drive.google.com/..."
+            />
             <Button onClick={addFile} size="sm" variant="outline" className="w-full gap-1.5">
               <Plus className="h-3.5 w-3.5" /> เพิ่มลิงก์เข้าคลัง
             </Button>
@@ -1757,7 +2061,9 @@ function BrandVaultDialog({
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={onClose}>ปิด</Button>
+          <Button variant="outline" onClick={onClose}>
+            ปิด
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -1800,16 +2106,35 @@ const CredentialCard = React.memo(function CredentialCard({
       <div className="flex items-center justify-between gap-2">
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-1.5">
-            <Badge variant="secondary" className="text-[10px]">{CRED_TYPE_LABEL[c.type]}</Badge>
+            <Badge variant="secondary" className="text-[10px]">
+              {CRED_TYPE_LABEL[c.type]}
+            </Badge>
             <p className="text-sm font-semibold truncate">{c.label}</p>
           </div>
-          {c.client && <p className="text-[11px] text-muted-foreground truncate">{c.client}{c.project ? ` · ${c.project}` : ""}</p>}
+          {c.client && (
+            <p className="text-[11px] text-muted-foreground truncate">
+              {c.client}
+              {c.project ? ` · ${c.project}` : ""}
+            </p>
+          )}
         </div>
         <div className="flex items-center gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition">
-          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={onEdit} aria-label="แก้ไข">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-7 w-7"
+            onClick={onEdit}
+            aria-label="แก้ไข"
+          >
             <Pencil className="h-3.5 w-3.5" />
           </Button>
-          <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={onDelete} aria-label="ลบ">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-7 w-7 text-destructive"
+            onClick={onDelete}
+            aria-label="ลบ"
+          >
             <Trash2 className="h-3.5 w-3.5" />
           </Button>
         </div>
@@ -1865,7 +2190,9 @@ const CredentialCard = React.memo(function CredentialCard({
           <ExternalLink className="h-3 w-3" /> เปิดหน้าเข้าระบบ
         </a>
       )}
-      {c.notes && <p className="text-[11px] text-muted-foreground whitespace-pre-wrap">{c.notes}</p>}
+      {c.notes && (
+        <p className="text-[11px] text-muted-foreground whitespace-pre-wrap">{c.notes}</p>
+      )}
     </div>
   );
 });
@@ -1949,12 +2276,19 @@ function CredentialDialog({
           <div className="grid grid-cols-2 gap-2">
             <div className="space-y-1.5">
               <Label>ลูกค้า</Label>
-              <Input value={client} onChange={(e) => setClient(e.target.value)} maxLength={60} placeholder="บริษัท A" />
+              <Input
+                value={client}
+                onChange={(e) => setClient(e.target.value)}
+                maxLength={60}
+                placeholder="บริษัท A"
+              />
             </div>
             <div className="space-y-1.5">
               <Label>ประเภท</Label>
               <Select value={type} onValueChange={(v) => setType(v as CredentialType)}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="password">รหัสผ่าน</SelectItem>
                   <SelectItem value="apiKey">API Key</SelectItem>
@@ -1970,11 +2304,21 @@ function CredentialDialog({
           </div>
           <div className="space-y-1.5">
             <Label>ชื่อ Credential *</Label>
-            <Input value={label} onChange={(e) => setLabel(e.target.value)} placeholder="WordPress Admin · OpenAI Key..." maxLength={80} />
+            <Input
+              value={label}
+              onChange={(e) => setLabel(e.target.value)}
+              placeholder="WordPress Admin · OpenAI Key..."
+              maxLength={80}
+            />
           </div>
           <div className="space-y-1.5">
             <Label>Username / Email</Label>
-            <Input value={username} onChange={(e) => setUsername(e.target.value)} maxLength={120} autoComplete="off" />
+            <Input
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              maxLength={120}
+              autoComplete="off"
+            />
           </div>
           <div className="space-y-1.5">
             <Label>รหัส / Secret *</Label>
@@ -1998,19 +2342,29 @@ function CredentialDialog({
           </div>
           <div className="space-y-1.5">
             <Label>URL (ถ้ามี)</Label>
-            <Input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://admin.example.com" />
+            <Input
+              value={url}
+              onChange={(e) => setUrl(e.target.value)}
+              placeholder="https://admin.example.com"
+            />
           </div>
           <div className="space-y-1.5">
             <Label>โน้ต</Label>
-            <Textarea rows={2} value={notes} onChange={(e) => setNotes(e.target.value)} maxLength={300} />
+            <Textarea
+              rows={2}
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              maxLength={300}
+            />
           </div>
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={onClose}>ยกเลิก</Button>
+          <Button variant="outline" onClick={onClose}>
+            ยกเลิก
+          </Button>
           <Button onClick={submit}>{isNew ? "เพิ่ม" : "บันทึก"}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
   );
 }
-

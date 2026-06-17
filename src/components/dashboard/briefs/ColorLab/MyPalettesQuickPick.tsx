@@ -2,7 +2,13 @@ import * as React from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Library, Loader2 } from "lucide-react";
 import { useColorPalettes } from "@/hooks/useColorPalettes";
 import { preferWhiteText } from "@/lib/colorUtils";
@@ -22,7 +28,10 @@ export function MyPalettesQuickPick({ onPick }: Props) {
 
   const active = palettes.find((p) => p.id === activeId);
   const colors = (active?.colors ?? []).filter((c) =>
-    filter ? c.hex.toLowerCase().includes(filter.toLowerCase()) || (c.label ?? "").toLowerCase().includes(filter.toLowerCase()) : true,
+    filter
+      ? c.hex.toLowerCase().includes(filter.toLowerCase()) ||
+        (c.label ?? "").toLowerCase().includes(filter.toLowerCase())
+      : true,
   );
 
   return (
@@ -71,7 +80,10 @@ export function MyPalettesQuickPick({ onPick }: Props) {
                   type="button"
                   onClick={() => onPick(c.hex)}
                   className="aspect-square rounded-lg border border-border/40 transition hover:scale-110 flex items-end justify-center pb-0.5"
-                  style={{ backgroundColor: c.hex, color: preferWhiteText(c.hex) ? "#fff" : "#000" }}
+                  style={{
+                    backgroundColor: c.hex,
+                    color: preferWhiteText(c.hex) ? "#fff" : "#000",
+                  }}
                   title={`${c.label ?? ""} ${c.hex}`}
                 >
                   <span className="text-[8px] font-mono font-semibold opacity-80">

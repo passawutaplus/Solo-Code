@@ -32,7 +32,11 @@ export async function runSmoke() {
         const html = await page.content();
         assert.ok(!html.includes("service_role"), `${path} leaks service_role`);
         const headers = res.headers();
-        assert.equal(headers["x-content-type-options"], "nosniff", `${path} X-Content-Type-Options`);
+        assert.equal(
+          headers["x-content-type-options"],
+          "nosniff",
+          `${path} X-Content-Type-Options`,
+        );
         console.log(`OK   ${name}`);
       } catch (err) {
         failures.push({ name, err });

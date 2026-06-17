@@ -17,9 +17,7 @@ describe("assertAllowedPaymentRedirectUrl", () => {
   });
 
   it("blocks external open redirect", () => {
-    expect(() => assertAllowedPaymentRedirectUrl("https://evil.com/phish")).toThrow(
-      /not allowed/i,
-    );
+    expect(() => assertAllowedPaymentRedirectUrl("https://evil.com/phish")).toThrow(/not allowed/i);
   });
 
   it("blocks javascript scheme", () => {

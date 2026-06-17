@@ -17,16 +17,8 @@ import { useSubscription } from "@/hooks/useSubscription";
 import { createPortalSession } from "@/utils/payments.functions";
 import { currentOriginReturnUrl } from "@/lib/paymentRedirect";
 import { getStripeEnvironment } from "@/lib/stripe";
-import {
-  allowedUpgradeTargets,
-  isPaidTier,
-  tierLabel,
-} from "@/lib/subscriptionTiers";
-import {
-  getTierMetrics,
-  getTierTagline,
-  TIER_CARD_STYLES,
-} from "@/lib/tierMembership";
+import { allowedUpgradeTargets, isPaidTier, tierLabel } from "@/lib/subscriptionTiers";
+import { getTierMetrics, getTierTagline, TIER_CARD_STYLES } from "@/lib/tierMembership";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -45,8 +37,7 @@ export function TierMembershipCard({ className }: Props) {
   const tagline = getTierTagline(tier);
   const paidTier = isPaidTier(tier) ? tier : null;
   const upgradeTargets = paidTier ? allowedUpgradeTargets(paidTier) : [];
-  const nextUpgrade: PlanId | null =
-    upgradeTargets[0] ?? (tier === "free" ? "pro" : null);
+  const nextUpgrade: PlanId | null = upgradeTargets[0] ?? (tier === "free" ? "pro" : null);
 
   const renewsAt = subscription?.current_period_end
     ? new Date(subscription.current_period_end).toLocaleDateString("th-TH", {
@@ -93,10 +84,7 @@ export function TierMembershipCard({ className }: Props) {
                 <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
               ) : (
                 <>
-                  <h2
-                    id="tier-membership-heading"
-                    className="text-lg font-bold tracking-tight"
-                  >
+                  <h2 id="tier-membership-heading" className="text-lg font-bold tracking-tight">
                     {tierLabel(tier)} Member
                   </h2>
                   <p className="truncate text-xs text-muted-foreground">{tagline}</p>

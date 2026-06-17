@@ -3,11 +3,7 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { validateWhtThaiText, warnMissingThaiText } from "@/lib/thaiBahtText";
 import { extractWhtWithGemini } from "@/lib/whtGeminiScan";
-import {
-  assertWhtStoragePath,
-  prepareScanBytes,
-  whtStorageBucket,
-} from "@/lib/whtScanAsset";
+import { assertWhtStoragePath, prepareScanBytes, whtStorageBucket } from "@/lib/whtScanAsset";
 import { parseThaiDate } from "@/lib/thaiDate";
 
 const InputSchema = z.object({
@@ -74,8 +70,10 @@ export const scanWhtCertificate = createServerFn({ method: "POST" })
     if (!whtRate && grossAmount > 0 && whtAmount > 0) {
       const raw = (whtAmount / grossAmount) * 100;
       const presets = [0.5, 1, 1.5, 2, 3, 5, 10, 15];
-      whtRate = presets.reduce((best, p) =>
-        Math.abs(p - raw) < Math.abs(best - raw) ? p : best, presets[0]);
+      whtRate = presets.reduce(
+        (best, p) => (Math.abs(p - raw) < Math.abs(best - raw) ? p : best),
+        presets[0],
+      );
     }
 
     const payerTaxId = taxIdDigits(parsed.payerTaxId);

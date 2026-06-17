@@ -88,8 +88,7 @@ export function HqSection() {
   });
 
   const updateMut = useMutation({
-    mutationFn: (patch: Partial<Agent> & { slug: string }) =>
-      patchAgent({ data: patch as any }),
+    mutationFn: (patch: Partial<Agent> & { slug: string }) => patchAgent({ data: patch as any }),
     onSuccess: () => {
       toast.success("บันทึกการตั้งค่าพนักงานเรียบร้อย");
       setEditing(null);
@@ -173,9 +172,7 @@ export function HqSection() {
             <div className="flex items-center gap-2">
               <span className="text-2xl">{activeAgent.emoji}</span>
               <div>
-                <div className="font-semibold text-sm">
-                  คุยกับ {activeAgent.name}
-                </div>
+                <div className="font-semibold text-sm">คุยกับ {activeAgent.name}</div>
                 <div className="text-[10px] text-muted-foreground">
                   {activeAgent.model} · temp {activeAgent.temperature}
                 </div>
@@ -254,9 +251,7 @@ export function HqSection() {
               <Send className="h-4 w-4" />
             </Button>
           </div>
-          <p className="text-[10px] text-muted-foreground mt-1">
-            Cmd/Ctrl + Enter เพื่อส่ง
-          </p>
+          <p className="text-[10px] text-muted-foreground mt-1">Cmd/Ctrl + Enter เพื่อส่ง</p>
         </Card>
       )}
 
@@ -274,16 +269,12 @@ export function HqSection() {
                 <label className="text-xs font-medium">โมเดล</label>
                 <Input
                   value={editing.model}
-                  onChange={(e) =>
-                    setEditing({ ...editing, model: e.target.value })
-                  }
+                  onChange={(e) => setEditing({ ...editing, model: e.target.value })}
                 />
               </div>
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="text-xs font-medium">
-                    Temperature ({editing.temperature})
-                  </label>
+                  <label className="text-xs font-medium">Temperature ({editing.temperature})</label>
                   <Input
                     type="number"
                     step="0.1"
@@ -318,9 +309,7 @@ export function HqSection() {
                 <label className="text-xs font-medium">System Prompt</label>
                 <Textarea
                   value={editing.system_prompt}
-                  onChange={(e) =>
-                    setEditing({ ...editing, system_prompt: e.target.value })
-                  }
+                  onChange={(e) => setEditing({ ...editing, system_prompt: e.target.value })}
                   rows={14}
                   className="font-mono text-xs"
                 />
@@ -344,9 +333,7 @@ export function HqSection() {
               }
               disabled={updateMut.isPending}
             >
-              {updateMut.isPending && (
-                <Loader2 className="h-3 w-3 mr-1 animate-spin" />
-              )}
+              {updateMut.isPending && <Loader2 className="h-3 w-3 mr-1 animate-spin" />}
               บันทึก
             </Button>
           </DialogFooter>

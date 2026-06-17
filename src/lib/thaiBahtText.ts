@@ -60,7 +60,10 @@ export function parseThaiBahtText(text: string): number | null {
   if (baht === null) return null;
 
   let satang = 0;
-  const satangPart = satangPartRaw.replace(/ถ้วน/g, "").replace(/สตางค์/g, "").trim();
+  const satangPart = satangPartRaw
+    .replace(/ถ้วน/g, "")
+    .replace(/สตางค์/g, "")
+    .trim();
   if (satangPart) {
     const parsedSatang = parseThaiInteger(satangPart);
     if (parsedSatang === null) return null;

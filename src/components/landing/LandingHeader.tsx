@@ -116,7 +116,13 @@ export function LandingHeader({ user, isAdmin, theme, onToggleTheme }: Props) {
 
           <Sheet>
             <SheetTrigger asChild>
-              <Button type="button" size="icon" variant="ghost" aria-label="เปิดเมนู" className="lg:hidden h-8 w-8 rounded-full">
+              <Button
+                type="button"
+                size="icon"
+                variant="ghost"
+                aria-label="เปิดเมนู"
+                className="lg:hidden h-8 w-8 rounded-full"
+              >
                 <Menu className="h-4 w-4" />
               </Button>
             </SheetTrigger>
@@ -125,22 +131,40 @@ export function LandingHeader({ user, isAdmin, theme, onToggleTheme }: Props) {
                 <SheetTitle className="text-left text-base">เมนู</SheetTitle>
               </SheetHeader>
               <nav className="mt-6 flex flex-col gap-1 text-sm">
-                <a href="#features" className="px-3 py-2.5 rounded-lg hover:bg-accent transition-colors flex items-center gap-2.5">
+                <a
+                  href="#features"
+                  className="px-3 py-2.5 rounded-lg hover:bg-accent transition-colors flex items-center gap-2.5"
+                >
                   <Sparkles className="h-4 w-4 text-primary" /> ฟีเจอร์
                 </a>
-                <a href="#calculator" className="px-3 py-2.5 rounded-lg hover:bg-accent transition-colors flex items-center gap-2.5">
+                <a
+                  href="#calculator"
+                  className="px-3 py-2.5 rounded-lg hover:bg-accent transition-colors flex items-center gap-2.5"
+                >
                   <Calculator className="h-4 w-4 text-primary" /> คำนวณราคา
                 </a>
-                <Link to="/pricing" className="px-3 py-2.5 rounded-lg hover:bg-accent transition-colors flex items-center gap-2.5">
+                <Link
+                  to="/pricing"
+                  className="px-3 py-2.5 rounded-lg hover:bg-accent transition-colors flex items-center gap-2.5"
+                >
                   <Tag className="h-4 w-4 text-primary" /> ราคา
                 </Link>
-                <Link to="/help" className="px-3 py-2.5 rounded-lg hover:bg-accent transition-colors flex items-center gap-2.5">
+                <Link
+                  to="/help"
+                  className="px-3 py-2.5 rounded-lg hover:bg-accent transition-colors flex items-center gap-2.5"
+                >
                   <HelpCircle className="h-4 w-4 text-primary" /> ช่วยเหลือ
                 </Link>
-                <Link to="/blog" className="px-3 py-2.5 rounded-lg hover:bg-accent transition-colors flex items-center gap-2.5">
+                <Link
+                  to="/blog"
+                  className="px-3 py-2.5 rounded-lg hover:bg-accent transition-colors flex items-center gap-2.5"
+                >
                   <BookOpen className="h-4 w-4 text-primary" /> Blog
                 </Link>
-                <a href="#showcase" className="px-3 py-2.5 rounded-lg hover:bg-accent transition-colors flex items-center gap-2.5">
+                <a
+                  href="#showcase"
+                  className="px-3 py-2.5 rounded-lg hover:bg-accent transition-colors flex items-center gap-2.5"
+                >
                   <LayoutGrid className="h-4 w-4 text-primary" /> โชว์เคส
                 </a>
                 <a
@@ -151,15 +175,25 @@ export function LandingHeader({ user, isAdmin, theme, onToggleTheme }: Props) {
                 >
                   <ExternalLink className="h-4 w-4 text-primary" /> Pixel100 Showcase
                 </a>
-                <a href="#how" className="px-3 py-2.5 rounded-lg hover:bg-accent transition-colors flex items-center gap-2.5">
+                <a
+                  href="#how"
+                  className="px-3 py-2.5 rounded-lg hover:bg-accent transition-colors flex items-center gap-2.5"
+                >
                   <ListChecks className="h-4 w-4 text-primary" /> วิธีใช้
                 </a>
-                <Link to="/creative-partner" className="px-3 py-2.5 rounded-lg hover:bg-accent transition-colors flex items-center gap-2.5">
+                <Link
+                  to="/creative-partner"
+                  className="px-3 py-2.5 rounded-lg hover:bg-accent transition-colors flex items-center gap-2.5"
+                >
                   <Briefcase className="h-4 w-4 text-primary" /> Creative Partner
                 </Link>
                 <div className="my-2 border-t border-border" />
                 {isAdmin && (
-                  <Link to="/admin" search={{ section: undefined }} className="px-3 py-2.5 rounded-lg hover:bg-accent transition-colors flex items-center gap-2.5">
+                  <Link
+                    to="/admin"
+                    search={{ section: undefined }}
+                    className="px-3 py-2.5 rounded-lg hover:bg-accent transition-colors flex items-center gap-2.5"
+                  >
                     <ShieldCheck className="h-4 w-4 text-primary" /> Admin
                   </Link>
                 )}

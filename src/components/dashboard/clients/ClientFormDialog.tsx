@@ -2,16 +2,38 @@ import * as React from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import {
-  UserPlus, Phone, Mail, MapPin, MessageCircle, Hash,
-  Briefcase, Building2, User as UserIcon, Wallet, Tag, Plus,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import {
+  UserPlus,
+  Phone,
+  Mail,
+  MapPin,
+  MessageCircle,
+  Hash,
+  Briefcase,
+  Building2,
+  User as UserIcon,
+  Wallet,
+  Tag,
+  Plus,
 } from "lucide-react";
 import { toast } from "sonner";
 import type { SavedClient } from "@/store/clients";
 import { Field, SectionTitle, INDUSTRY_PRESETS, PAYMENT_TERM_LABELS } from "./shared";
 import { PhoneInput } from "@/components/ui/phone-input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { mergeFieldClass } from "@/lib/formFieldStyles";
 
@@ -35,7 +57,10 @@ const EMPTY_DRAFT: Draft = {
 };
 
 export function ClientFormDialog({
-  editing, onClose, onCreate, onUpdate,
+  editing,
+  onClose,
+  onCreate,
+  onUpdate,
 }: {
   editing: SavedClient | "new" | null;
   onClose: () => void;
@@ -71,8 +96,7 @@ export function ClientFormDialog({
     }
   }, [editing]);
 
-  const upd = <K extends keyof Draft>(k: K, v: Draft[K]) =>
-    setDraft((d) => ({ ...d, [k]: v }));
+  const upd = <K extends keyof Draft>(k: K, v: Draft[K]) => setDraft((d) => ({ ...d, [k]: v }));
 
   const addTag = () => {
     const t = tagInput.trim();
@@ -83,9 +107,7 @@ export function ClientFormDialog({
 
   const nameError = touched && !draft.name.trim() ? "กรุณากรอกชื่อลูกค้า" : "";
   const emailError =
-    touched && draft.email && !/^\S+@\S+\.\S+$/.test(draft.email)
-      ? "รูปแบบอีเมลไม่ถูกต้อง"
-      : "";
+    touched && draft.email && !/^\S+@\S+\.\S+$/.test(draft.email) ? "รูปแบบอีเมลไม่ถูกต้อง" : "";
 
   const submit = () => {
     setTouched(true);
@@ -125,7 +147,9 @@ export function ClientFormDialog({
                     type="button"
                     onClick={() => upd("type", t)}
                     className={`flex items-center justify-center gap-2 p-2.5 rounded-xl border-2 text-xs font-semibold transition-all ${
-                      active ? "border-primary bg-primary/5 text-primary" : "border-border hover:border-border/80"
+                      active
+                        ? "border-primary bg-primary/5 text-primary"
+                        : "border-border hover:border-border/80"
                     }`}
                   >
                     <Icon className="h-4 w-4" />
@@ -149,14 +173,13 @@ export function ClientFormDialog({
                     draft.name,
                   )}
                 />
-                {nameError && (
-                  <p className="text-[11px] text-destructive mt-1">{nameError}</p>
-                )}
+                {nameError && <p className="text-[11px] text-destructive mt-1">{nameError}</p>}
               </Field>
               <Field label="ประเภทธุรกิจ / สายงาน" icon={Briefcase}>
                 <Select
                   value={
-                    draft.industry && INDUSTRY_PRESETS.includes(draft.industry as (typeof INDUSTRY_PRESETS)[number])
+                    draft.industry &&
+                    INDUSTRY_PRESETS.includes(draft.industry as (typeof INDUSTRY_PRESETS)[number])
                       ? draft.industry
                       : draft.industry
                         ? "อื่นๆ"
@@ -176,7 +199,9 @@ export function ClientFormDialog({
                   </SelectTrigger>
                   <SelectContent>
                     {INDUSTRY_PRESETS.map((p) => (
-                      <SelectItem key={p} value={p}>{p}</SelectItem>
+                      <SelectItem key={p} value={p}>
+                        {p}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -230,9 +255,7 @@ export function ClientFormDialog({
                     draft.email,
                   )}
                 />
-                {emailError && (
-                  <p className="text-[11px] text-destructive mt-1">{emailError}</p>
-                )}
+                {emailError && <p className="text-[11px] text-destructive mt-1">{emailError}</p>}
               </Field>
               <Field label="Social (IG / FB / X)" icon={Hash}>
                 <Input
@@ -246,10 +269,19 @@ export function ClientFormDialog({
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold">ช่องทางติดต่อหลัก (ใช้ส่งใบเสนอราคา/ใบแจ้งหนี้)</label>
+              <label className="text-xs font-semibold">
+                ช่องทางติดต่อหลัก (ใช้ส่งใบเสนอราคา/ใบแจ้งหนี้)
+              </label>
               <div className="grid grid-cols-4 gap-2">
                 {(["line", "phone", "email", "social"] as const).map((ch) => {
-                  const Icon = ch === "line" ? MessageCircle : ch === "phone" ? Phone : ch === "email" ? Mail : Hash;
+                  const Icon =
+                    ch === "line"
+                      ? MessageCircle
+                      : ch === "phone"
+                        ? Phone
+                        : ch === "email"
+                          ? Mail
+                          : Hash;
                   const active = draft.preferredChannel === ch;
                   return (
                     <button
@@ -257,7 +289,9 @@ export function ClientFormDialog({
                       type="button"
                       onClick={() => upd("preferredChannel", ch)}
                       className={`flex flex-col items-center gap-1 p-2 rounded-lg border text-[11px] font-semibold transition-all ${
-                        active ? "border-primary bg-primary/5 text-primary" : "border-border text-muted-foreground hover:text-foreground"
+                        active
+                          ? "border-primary bg-primary/5 text-primary"
+                          : "border-border text-muted-foreground hover:text-foreground"
                       }`}
                     >
                       <Icon className="h-3.5 w-3.5" />
@@ -291,7 +325,12 @@ export function ClientFormDialog({
               </Field>
             </div>
             <Field label="ที่อยู่ออกใบกำกับ" icon={MapPin}>
-              <Textarea rows={2} value={draft.address ?? ""} onChange={(e) => upd("address", e.target.value)} placeholder="123/45 ถ.พระราม 9 เขตห้วยขวาง กรุงเทพฯ 10310" />
+              <Textarea
+                rows={2}
+                value={draft.address ?? ""}
+                onChange={(e) => upd("address", e.target.value)}
+                placeholder="123/45 ถ.พระราม 9 เขตห้วยขวาง กรุงเทพฯ 10310"
+              />
             </Field>
             <Field label="เงื่อนไขชำระเงิน" icon={Wallet}>
               <TooltipProvider delayDuration={200}>
@@ -305,7 +344,9 @@ export function ClientFormDialog({
                             type="button"
                             onClick={() => upd("paymentTerms", t)}
                             className={`text-[11px] font-semibold px-3 py-1 rounded-full border transition-all ${
-                              active ? "bg-primary text-primary-foreground border-primary" : "border-border bg-card hover:border-primary"
+                              active
+                                ? "bg-primary text-primary-foreground border-primary"
+                                : "border-border bg-card hover:border-primary"
                             }`}
                           >
                             {t}
@@ -329,7 +370,12 @@ export function ClientFormDialog({
                 <Input
                   value={tagInput}
                   onChange={(e) => setTagInput(e.target.value)}
-                  onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addTag(); } }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      addTag();
+                    }
+                  }}
                   placeholder="พิมพ์แล้วกด Enter"
                 />
                 <Button type="button" variant="outline" onClick={addTag}>
@@ -339,7 +385,10 @@ export function ClientFormDialog({
               {draft.tags && draft.tags.length > 0 && (
                 <div className="flex flex-wrap gap-1.5 pt-2">
                   {draft.tags.map((t) => (
-                    <span key={t} className="inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1 rounded-full bg-primary/10 text-primary">
+                    <span
+                      key={t}
+                      className="inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1 rounded-full bg-primary/10 text-primary"
+                    >
                       #{t}
                       <button
                         type="button"
@@ -366,7 +415,9 @@ export function ClientFormDialog({
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={onClose}>ยกเลิก</Button>
+          <Button variant="outline" onClick={onClose}>
+            ยกเลิก
+          </Button>
           <Button onClick={submit} className="bg-gradient-primary text-primary-foreground">
             {isEditing ? "บันทึกการแก้ไข" : "เพิ่มลูกค้า"}
           </Button>

@@ -3,15 +3,15 @@ import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { type StripeEnv, verifyWebhook, createStripeClient } from "@/lib/stripe.server";
 import { CREDITS_PER_PRICE, PX_PER_PRICE, checkoutKind } from "@/lib/stripe";
 import { syncAnthemFromSo1oUserFull } from "@/lib/ecosystemSync.server";
-import { syncConnectAccountFromStripe, upsertSubscriptionRecordFromStripe } from "@/lib/stripePayments.server";
+import {
+  syncConnectAccountFromStripe,
+  upsertSubscriptionRecordFromStripe,
+} from "@/lib/stripePayments.server";
 
 let _supabase: SupabaseClient | null = null;
 function getSupabase(): SupabaseClient {
   if (!_supabase) {
-    _supabase = createClient(
-      process.env.SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!,
-    );
+    _supabase = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
   }
   return _supabase;
 }
@@ -57,8 +57,7 @@ async function markWebhookEventProcessed(
 
 function parseCheckoutQuantity(metadata: Record<string, unknown> | null | undefined): number {
   const raw = metadata?.quantity;
-  const parsed =
-    typeof raw === "string" ? parseInt(raw, 10) : typeof raw === "number" ? raw : 1;
+  const parsed = typeof raw === "string" ? parseInt(raw, 10) : typeof raw === "number" ? raw : 1;
   if (!Number.isFinite(parsed) || parsed < 1) return 1;
   return Math.min(Math.floor(parsed), 50);
 }
@@ -109,11 +108,15 @@ async function enqueueEmail(opts: {
     } else {
       const bytes = new Uint8Array(32);
       crypto.getRandomValues(bytes);
-      token = Array.from(bytes).map((b) => b.toString(16).padStart(2, "0")).join("");
-      await sb.from("email_unsubscribe_tokens").upsert(
-        { token, email: email.toLowerCase() },
-        { onConflict: "email", ignoreDuplicates: true },
-      );
+      token = Array.from(bytes)
+        .map((b) => b.toString(16).padStart(2, "0"))
+        .join("");
+      await sb
+        .from("email_unsubscribe_tokens")
+        .upsert(
+          { token, email: email.toLowerCase() },
+          { onConflict: "email", ignoreDuplicates: true },
+        );
     }
 
     const messageId = crypto.randomUUID();
@@ -170,16 +173,18 @@ async function logPaymentNotification(opts: {
   message: string;
   metadata?: Record<string, any>;
 }) {
-  await getSupabase().from("payment_notifications").insert({
-    user_id: opts.userId,
-    event_type: opts.eventType,
-    environment: opts.env,
-    amount_cents: opts.amountCents ?? null,
-    currency: opts.currency ?? null,
-    price_id: opts.priceId ?? null,
-    message: opts.message,
-    metadata: opts.metadata ?? {},
-  });
+  await getSupabase()
+    .from("payment_notifications")
+    .insert({
+      user_id: opts.userId,
+      event_type: opts.eventType,
+      environment: opts.env,
+      amount_cents: opts.amountCents ?? null,
+      currency: opts.currency ?? null,
+      price_id: opts.priceId ?? null,
+      message: opts.message,
+      metadata: opts.metadata ?? {},
+    });
 }
 
 async function syncTier(userId: string) {
@@ -188,11 +193,7 @@ async function syncTier(userId: string) {
   await syncAnthemFromSo1oUserFull(sb, userId);
 }
 
-async function handleSubscriptionUpsert(
-  subscription: any,
-  env: StripeEnv,
-  isCreation: boolean,
-) {
+async function handleSubscriptionUpsert(subscription: any, env: StripeEnv, isCreation: boolean) {
   const userId = await upsertSubscriptionRecordFromStripe(subscription, env);
   if (!userId) {
     console.error("[stripe-webhook] No userId on subscription", subscription.id);
@@ -390,7 +391,11 @@ async function handleCheckoutCompleted(session: any, env: StripeEnv) {
     const amountThb =
       typeof amountThbRaw === "string" ? parseFloat(amountThbRaw) : Number(amountThbRaw);
 
-    if (!jobId || (paymentType !== "deposit" && paymentType !== "final") || !Number.isFinite(amountThb)) {
+    if (
+      !jobId ||
+      (paymentType !== "deposit" && paymentType !== "final") ||
+      !Number.isFinite(amountThb)
+    ) {
       throw new Error("client_job checkout missing metadata");
     }
 
@@ -521,7 +526,11 @@ async function handleTransferFailed(transfer: any, env: StripeEnv) {
 }
 
 async function handleWebhook(req: Request, env: StripeEnv) {
-  const event = await verifyWebhook(req, env) as { id?: string; type: string; data: { object: any } };
+  const event = (await verifyWebhook(req, env)) as {
+    id?: string;
+    type: string;
+    data: { object: any };
+  };
 
   if (event.id && (await isWebhookEventProcessed(event.id))) {
     console.log("[stripe-webhook] duplicate event:", event.id);

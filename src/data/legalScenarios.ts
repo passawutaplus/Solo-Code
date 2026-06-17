@@ -64,7 +64,11 @@ export const LEGAL_SCENARIOS: LegalScenario[] = [
 ];
 
 export const PRE_DELIVERY_CHECKLIST: ChecklistItem[] = [
-  { id: "rights-set", label: "ตั้งสิทธิลิขสิทธิ์ในใบเสนอราคาแล้ว", hint: "Usage Rights Builder ใน Pipeline" },
+  {
+    id: "rights-set",
+    label: "ตั้งสิทธิลิขสิทธิ์ในใบเสนอราคาแล้ว",
+    hint: "Usage Rights Builder ใน Pipeline",
+  },
   { id: "contract-signed", label: "ยืนยันสัญญา/เงื่อนไขกับลูกค้าแล้ว" },
   { id: "deposit-received", label: "รับมัดจำแล้ว (ถ้าตกลงไว้)" },
   { id: "fonts-checked", label: "ตรวจสอบ license ฟอนต์/สต็อกที่ใช้ในงาน" },

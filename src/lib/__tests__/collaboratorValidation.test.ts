@@ -7,21 +7,16 @@ describe("validateCollaboratorRevenue", () => {
   });
 
   it("requires total 100%", () => {
-    expect(
-      validateCollaboratorRevenue([
-        { revenuePercent: 60 },
-        { revenuePercent: 30 },
-      ]),
-    ).toEqual({ ok: false, message: expect.stringContaining("100%") });
+    expect(validateCollaboratorRevenue([{ revenuePercent: 60 }, { revenuePercent: 30 }])).toEqual({
+      ok: false,
+      message: expect.stringContaining("100%"),
+    });
   });
 
   it("accepts total 100%", () => {
-    expect(
-      validateCollaboratorRevenue([
-        { revenuePercent: 70 },
-        { revenuePercent: 30 },
-      ]),
-    ).toEqual({ ok: true });
+    expect(validateCollaboratorRevenue([{ revenuePercent: 70 }, { revenuePercent: 30 }])).toEqual({
+      ok: true,
+    });
   });
 });
 

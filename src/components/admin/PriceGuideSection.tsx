@@ -5,11 +5,22 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Save, Trash2, RefreshCw, ThumbsUp, ThumbsDown, Sparkles } from "lucide-react";
-import { JOB_TYPE_OPTIONS, MARKET_PRESETS, type JobType, fmt } from "@/components/price-guide/priceLogic";
+import {
+  JOB_TYPE_OPTIONS,
+  MARKET_PRESETS,
+  type JobType,
+  fmt,
+} from "@/components/price-guide/priceLogic";
 
 interface Override {
   job_type: string;
@@ -59,8 +70,16 @@ export function PriceGuideSection() {
     setLoading(true);
     const [ovRes, evRes, fbRes] = await Promise.all([
       supabase.from("price_guide_overrides").select("*").order("job_type"),
-      supabase.from("price_guide_events").select("*").order("created_at", { ascending: false }).limit(100),
-      supabase.from("price_guide_feedback").select("*").order("created_at", { ascending: false }).limit(100),
+      supabase
+        .from("price_guide_events")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(100),
+      supabase
+        .from("price_guide_feedback")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(100),
     ]);
     setOverrides((ovRes.data as Override[]) ?? []);
     setEvents((evRes.data as EventRow[]) ?? []);
@@ -68,7 +87,9 @@ export function PriceGuideSection() {
     setLoading(false);
   }, []);
 
-  React.useEffect(() => { refresh(); }, [refresh]);
+  React.useEffect(() => {
+    refresh();
+  }, [refresh]);
 
   // load existing override into form when job changes
   React.useEffect(() => {
@@ -92,14 +113,17 @@ export function PriceGuideSection() {
       toast.error("กรอกช่วงราคาให้ถูกต้อง (min < max)");
       return;
     }
-    const { error } = await supabase.from("price_guide_overrides").upsert({
-      job_type: formJob,
-      min_price: min,
-      max_price: max,
-      note: formNote.trim() || null,
-      updated_by: user?.id,
-      updated_at: new Date().toISOString(),
-    }, { onConflict: "job_type" });
+    const { error } = await supabase.from("price_guide_overrides").upsert(
+      {
+        job_type: formJob,
+        min_price: min,
+        max_price: max,
+        note: formNote.trim() || null,
+        updated_by: user?.id,
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: "job_type" },
+    );
     if (error) {
       toast.error("บันทึกไม่สำเร็จ: " + error.message);
       return;
@@ -119,7 +143,8 @@ export function PriceGuideSection() {
     refresh();
   }
 
-  const filteredEvents = filterJob === "all" ? events : events.filter((e) => e.job_type === filterJob);
+  const filteredEvents =
+    filterJob === "all" ? events : events.filter((e) => e.job_type === filterJob);
   const upCount = feedback.filter((f) => f.rating === "up").length;
   const downCount = feedback.filter((f) => f.rating === "down").length;
 
@@ -152,25 +177,44 @@ export function PriceGuideSection() {
             <div>
               <Label className="text-xs">ประเภทงาน</Label>
               <Select value={formJob} onValueChange={(v) => setFormJob(v as JobType)}>
-                <SelectTrigger className="h-9 mt-1"><SelectValue /></SelectTrigger>
+                <SelectTrigger className="h-9 mt-1">
+                  <SelectValue />
+                </SelectTrigger>
                 <SelectContent>
                   {JOB_TYPE_OPTIONS.map((o) => (
-                    <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+                    <SelectItem key={o.value} value={o.value}>
+                      {o.label}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
             <div>
               <Label className="text-xs">ราคาต่ำสุด (฿)</Label>
-              <Input type="number" value={formMin} onChange={(e) => setFormMin(e.target.value)} className="h-9 mt-1 num" />
+              <Input
+                type="number"
+                value={formMin}
+                onChange={(e) => setFormMin(e.target.value)}
+                className="h-9 mt-1 num"
+              />
             </div>
             <div>
               <Label className="text-xs">ราคาสูงสุด (฿)</Label>
-              <Input type="number" value={formMax} onChange={(e) => setFormMax(e.target.value)} className="h-9 mt-1 num" />
+              <Input
+                type="number"
+                value={formMax}
+                onChange={(e) => setFormMax(e.target.value)}
+                className="h-9 mt-1 num"
+              />
             </div>
             <div>
               <Label className="text-xs">หมายเหตุ</Label>
-              <Input value={formNote} onChange={(e) => setFormNote(e.target.value)} className="h-9 mt-1" placeholder="เช่น ปรับตามตลาด Q1/26" />
+              <Input
+                value={formNote}
+                onChange={(e) => setFormNote(e.target.value)}
+                className="h-9 mt-1"
+                placeholder="เช่น ปรับตามตลาด Q1/26"
+              />
             </div>
           </div>
           <Button onClick={saveOverride} size="sm" className="bg-gradient-primary">
@@ -182,9 +226,16 @@ export function PriceGuideSection() {
               <p className="text-xs font-medium mb-2">Override ที่ตั้งไว้ ({overrides.length})</p>
               <div className="space-y-1.5">
                 {overrides.map((o) => (
-                  <div key={o.job_type} className="flex items-center gap-2 text-xs p-2 rounded-lg bg-muted/40">
-                    <Badge variant="secondary" className="shrink-0">{o.job_type}</Badge>
-                    <span className="num">฿{fmt(Number(o.min_price))} – ฿{fmt(Number(o.max_price))}</span>
+                  <div
+                    key={o.job_type}
+                    className="flex items-center gap-2 text-xs p-2 rounded-lg bg-muted/40"
+                  >
+                    <Badge variant="secondary" className="shrink-0">
+                      {o.job_type}
+                    </Badge>
+                    <span className="num">
+                      ฿{fmt(Number(o.min_price))} – ฿{fmt(Number(o.max_price))}
+                    </span>
                     {o.note && <span className="text-muted-foreground truncate">— {o.note}</span>}
                     <div className="flex-1" />
                     <button
@@ -226,16 +277,23 @@ export function PriceGuideSection() {
                 )}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <Badge variant="outline" className="text-[10px]">{f.job_type ?? "—"}</Badge>
+                    <Badge variant="outline" className="text-[10px]">
+                      {f.job_type ?? "—"}
+                    </Badge>
                     <span className="text-muted-foreground text-[10px]">
-                      {new Date(f.created_at).toLocaleString("th-TH", { dateStyle: "short", timeStyle: "short" })}
+                      {new Date(f.created_at).toLocaleString("th-TH", {
+                        dateStyle: "short",
+                        timeStyle: "short",
+                      })}
                     </span>
                   </div>
                   {f.reason && <p className="mt-1 text-foreground/80">{f.reason}</p>}
                 </div>
               </div>
             ))}
-            {feedback.length === 0 && <p className="text-xs text-muted-foreground text-center py-4">ยังไม่มีฟีดแบ็ก</p>}
+            {feedback.length === 0 && (
+              <p className="text-xs text-muted-foreground text-center py-4">ยังไม่มีฟีดแบ็ก</p>
+            )}
           </div>
         </CardContent>
       </Card>
@@ -245,11 +303,15 @@ export function PriceGuideSection() {
         <CardHeader className="pb-3 flex flex-row items-center justify-between gap-2">
           <CardTitle className="text-base">Event Log ({filteredEvents.length})</CardTitle>
           <Select value={filterJob} onValueChange={setFilterJob}>
-            <SelectTrigger className="h-8 w-[180px] text-xs"><SelectValue /></SelectTrigger>
+            <SelectTrigger className="h-8 w-[180px] text-xs">
+              <SelectValue />
+            </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">ทั้งหมด</SelectItem>
               {JOB_TYPE_OPTIONS.map((o) => (
-                <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+                <SelectItem key={o.value} value={o.value}>
+                  {o.label}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -257,17 +319,28 @@ export function PriceGuideSection() {
         <CardContent>
           <div className="space-y-1.5 max-h-96 overflow-y-auto">
             {filteredEvents.map((e) => (
-              <div key={e.id} className="text-xs p-2 rounded-lg bg-muted/30 grid grid-cols-12 gap-2 items-center">
-                <Badge variant="outline" className="col-span-2 justify-center">{e.job_type}</Badge>
-                <span className="col-span-2 num text-muted-foreground">{e.days}วัน × {e.quantity}</span>
+              <div
+                key={e.id}
+                className="text-xs p-2 rounded-lg bg-muted/30 grid grid-cols-12 gap-2 items-center"
+              >
+                <Badge variant="outline" className="col-span-2 justify-center">
+                  {e.job_type}
+                </Badge>
+                <span className="col-span-2 num text-muted-foreground">
+                  {e.days}วัน × {e.quantity}
+                </span>
                 <span className="col-span-2 text-muted-foreground">{e.complexity}</span>
-                <span className="col-span-3 num font-semibold text-primary">฿{fmt(Number(e.recommended_price))}</span>
+                <span className="col-span-3 num font-semibold text-primary">
+                  ฿{fmt(Number(e.recommended_price))}
+                </span>
                 <span className="col-span-3 text-muted-foreground text-[10px] text-right">
                   {new Date(e.created_at).toLocaleDateString("th-TH")}
                 </span>
               </div>
             ))}
-            {filteredEvents.length === 0 && <p className="text-xs text-muted-foreground text-center py-4">ไม่มีข้อมูล</p>}
+            {filteredEvents.length === 0 && (
+              <p className="text-xs text-muted-foreground text-center py-4">ไม่มีข้อมูล</p>
+            )}
           </div>
         </CardContent>
       </Card>

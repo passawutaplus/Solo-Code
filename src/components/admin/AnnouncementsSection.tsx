@@ -7,12 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { Megaphone, Loader2, Trash2, Plus, Upload, Eye, X } from "lucide-react";
 import { uploadCompressedImage } from "@/lib/imageCompress";
@@ -141,10 +136,7 @@ export function AnnouncementsSection() {
 
   const toggleActive = async (id: string, next: boolean) => {
     setBusyId(id);
-    const { error } = await supabase
-      .from("announcements")
-      .update({ is_active: next })
-      .eq("id", id);
+    const { error } = await supabase.from("announcements").update({ is_active: next }).eq("id", id);
     setBusyId(null);
     if (error) {
       toast.error(error.message);
@@ -217,7 +209,11 @@ export function AnnouncementsSection() {
                 disabled={uploading}
                 onClick={() => fileInputRef.current?.click()}
               >
-                {uploading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Upload className="h-3.5 w-3.5" />}
+                {uploading ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <Upload className="h-3.5 w-3.5" />
+                )}
                 อัปโหลด
               </Button>
             </div>
@@ -242,7 +238,9 @@ export function AnnouncementsSection() {
           </div>
 
           <div>
-            <label className="text-xs font-medium mb-1 block">ลิงก์ปลายทางเมื่อคลิก (ไม่บังคับ)</label>
+            <label className="text-xs font-medium mb-1 block">
+              ลิงก์ปลายทางเมื่อคลิก (ไม่บังคับ)
+            </label>
             <Input
               value={linkUrl}
               onChange={(e) => setLinkUrl(e.target.value)}
@@ -253,7 +251,9 @@ export function AnnouncementsSection() {
 
           <div className="grid sm:grid-cols-2 gap-3">
             <div>
-              <label className="text-xs font-medium mb-1 block">เริ่มแสดง (ไม่บังคับ — ว่าง = ทันที)</label>
+              <label className="text-xs font-medium mb-1 block">
+                เริ่มแสดง (ไม่บังคับ — ว่าง = ทันที)
+              </label>
               <Input
                 type="datetime-local"
                 value={startAt}
@@ -262,7 +262,9 @@ export function AnnouncementsSection() {
               />
             </div>
             <div>
-              <label className="text-xs font-medium mb-1 block">หมดอายุ (ไม่บังคับ — ว่าง = ไม่หมด)</label>
+              <label className="text-xs font-medium mb-1 block">
+                หมดอายุ (ไม่บังคับ — ว่าง = ไม่หมด)
+              </label>
               <Input
                 type="datetime-local"
                 value={endAt}
@@ -284,7 +286,11 @@ export function AnnouncementsSection() {
               <Eye className="h-3.5 w-3.5" /> ทดสอบแสดงผล
             </Button>
             <Button onClick={handleCreate} disabled={saving} size="sm" className="gap-1.5">
-              {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Plus className="h-3.5 w-3.5" />}
+              {saving ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <Plus className="h-3.5 w-3.5" />
+              )}
               เผยแพร่ประกาศ
             </Button>
           </div>
@@ -302,7 +308,8 @@ export function AnnouncementsSection() {
             <div className="space-y-2">
               {items.map((it) => {
                 const live = isLive(it);
-                const scheduled = it.is_active && it.start_at && new Date(it.start_at).getTime() > Date.now();
+                const scheduled =
+                  it.is_active && it.start_at && new Date(it.start_at).getTime() > Date.now();
                 const expired = it.end_at && new Date(it.end_at).getTime() < Date.now();
                 return (
                   <div
@@ -312,25 +319,43 @@ export function AnnouncementsSection() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1 flex-wrap">
                         {live ? (
-                          <Badge className="bg-success text-success-foreground text-[10px]">กำลังแสดง</Badge>
+                          <Badge className="bg-success text-success-foreground text-[10px]">
+                            กำลังแสดง
+                          </Badge>
                         ) : scheduled ? (
                           <Badge className="bg-primary/15 text-primary text-[10px]">รอเวลา</Badge>
                         ) : expired ? (
-                          <Badge variant="secondary" className="text-[10px]">หมดอายุ</Badge>
+                          <Badge variant="secondary" className="text-[10px]">
+                            หมดอายุ
+                          </Badge>
                         ) : (
-                          <Badge variant="secondary" className="text-[10px]">ปิดอยู่</Badge>
+                          <Badge variant="secondary" className="text-[10px]">
+                            ปิดอยู่
+                          </Badge>
                         )}
                         <span className="text-[10px] text-muted-foreground">
-                          สร้าง {new Date(it.created_at).toLocaleString("th-TH", { dateStyle: "medium", timeStyle: "short" })}
+                          สร้าง{" "}
+                          {new Date(it.created_at).toLocaleString("th-TH", {
+                            dateStyle: "medium",
+                            timeStyle: "short",
+                          })}
                         </span>
                         {it.start_at && (
                           <span className="text-[10px] text-muted-foreground">
-                            · เริ่ม {new Date(it.start_at).toLocaleString("th-TH", { dateStyle: "short", timeStyle: "short" })}
+                            · เริ่ม{" "}
+                            {new Date(it.start_at).toLocaleString("th-TH", {
+                              dateStyle: "short",
+                              timeStyle: "short",
+                            })}
                           </span>
                         )}
                         {it.end_at && (
                           <span className="text-[10px] text-muted-foreground">
-                            · ถึง {new Date(it.end_at).toLocaleString("th-TH", { dateStyle: "short", timeStyle: "short" })}
+                            · ถึง{" "}
+                            {new Date(it.end_at).toLocaleString("th-TH", {
+                              dateStyle: "short",
+                              timeStyle: "short",
+                            })}
                           </span>
                         )}
                       </div>
@@ -348,7 +373,9 @@ export function AnnouncementsSection() {
                         </p>
                       )}
                       {it.link_url && (
-                        <div className="text-[10px] text-primary truncate mt-0.5">→ {it.link_url}</div>
+                        <div className="text-[10px] text-primary truncate mt-0.5">
+                          → {it.link_url}
+                        </div>
                       )}
                     </div>
                     <div className="flex items-center gap-2 shrink-0">

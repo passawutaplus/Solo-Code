@@ -66,9 +66,24 @@ export function AiUsageSection() {
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
-        <StatCard label="วันนี้" value={String(todayTotal)} sub="ครั้งถาม AI" icon={<Sparkles className="h-4 w-4" />} />
-        <StatCard label="7 วัน" value={String(weekTotal)} sub="รวมทุกผู้ใช้" icon={<Sparkles className="h-4 w-4" />} />
-        <StatCard label="ผู้ใช้ AI" value={String(activeUsers)} sub="30 วัน" icon={<Sparkles className="h-4 w-4" />} />
+        <StatCard
+          label="วันนี้"
+          value={String(todayTotal)}
+          sub="ครั้งถาม AI"
+          icon={<Sparkles className="h-4 w-4" />}
+        />
+        <StatCard
+          label="7 วัน"
+          value={String(weekTotal)}
+          sub="รวมทุกผู้ใช้"
+          icon={<Sparkles className="h-4 w-4" />}
+        />
+        <StatCard
+          label="ผู้ใช้ AI"
+          value={String(activeUsers)}
+          sub="30 วัน"
+          icon={<Sparkles className="h-4 w-4" />}
+        />
       </div>
 
       <Card>
@@ -80,7 +95,10 @@ export function AiUsageSection() {
             <p className="text-sm text-muted-foreground py-4 text-center">ยังไม่มีข้อมูล</p>
           ) : (
             topUsers.map(([uid, count], i) => (
-              <div key={uid} className="flex items-center justify-between text-sm border-b border-border/40 pb-2 last:border-0">
+              <div
+                key={uid}
+                className="flex items-center justify-between text-sm border-b border-border/40 pb-2 last:border-0"
+              >
                 <span className="text-muted-foreground">
                   #{i + 1} <span className="font-mono text-xs">{uid.slice(0, 8)}</span>
                 </span>

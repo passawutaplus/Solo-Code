@@ -4,7 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/auth/AuthProvider";
 import type { InhouseWorkspace } from "@/lib/inhouse/types";
 
-const inhouseFrom = (table: string) => (supabase as unknown as { from: (t: string) => ReturnType<typeof supabase.from> }).from(table);
+const inhouseFrom = (table: string) =>
+  (supabase as unknown as { from: (t: string) => ReturnType<typeof supabase.from> }).from(table);
 
 export function useInhouseWorkspaces(orgId: string | undefined) {
   const queryClient = useQueryClient();
@@ -41,7 +42,10 @@ export function useInhouseWorkspaces(orgId: string | undefined) {
   return query;
 }
 
-export function useInhouseWorkspace(orgSlug: string | undefined, workspaceSlug: string | undefined) {
+export function useInhouseWorkspace(
+  orgSlug: string | undefined,
+  workspaceSlug: string | undefined,
+) {
   return useQuery({
     queryKey: ["inhouse-workspace", orgSlug, workspaceSlug],
     enabled: !!orgSlug && !!workspaceSlug,
@@ -71,10 +75,11 @@ export function useCreateInhouseWorkspace() {
 
   return useMutation({
     mutationFn: async (opts: { orgId: string; name: string; description?: string }) => {
-      const slug = opts.name
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, "-")
-        .replace(/^-|-$/g, "") || "workspace";
+      const slug =
+        opts.name
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, "-")
+          .replace(/^-|-$/g, "") || "workspace";
 
       const { data: ws, error } = await inhouseFrom("inhouse_workspaces")
         .insert({

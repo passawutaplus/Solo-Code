@@ -31,13 +31,7 @@ import { useSubscription } from "@/hooks/useSubscription";
 import { useMyInhouseOrgs } from "@/hooks/inhouse/useInhouseOrg";
 import { LineNotificationPrefsPanel } from "@/components/line/LineNotificationPrefsPanel";
 
-type Phase =
-  | "boot"
-  | "need_auth"
-  | "ready"
-  | "linking"
-  | "success"
-  | "error";
+type Phase = "boot" | "need_auth" | "ready" | "linking" | "success" | "error";
 
 type LineMeta = {
   displayName?: string;
@@ -90,27 +84,30 @@ export function LineLinkScreen() {
 
   const alreadyLinked = Boolean(profile?.line_messaging_user_id);
 
-  const connectWithCode = React.useCallback(async (code: string) => {
-    setPhase("linking");
-    setMessage("");
-    try {
-      const result = await callLineConnect({
-        mode: "oauth_code",
-        code,
-        redirect_uri: lineOAuthRedirectUri(),
-      });
-      setLineMeta({
-        displayName: result.display_name,
-        pictureUrl: result.picture_url,
-      });
-      await refreshProfile();
-      setPhase("success");
-      window.history.replaceState({}, "", "/line-link");
-    } catch (e) {
-      setPhase("error");
-      setMessage(e instanceof Error ? e.message : "เชื่อม LINE ไม่สำเร็จ");
-    }
-  }, [refreshProfile]);
+  const connectWithCode = React.useCallback(
+    async (code: string) => {
+      setPhase("linking");
+      setMessage("");
+      try {
+        const result = await callLineConnect({
+          mode: "oauth_code",
+          code,
+          redirect_uri: lineOAuthRedirectUri(),
+        });
+        setLineMeta({
+          displayName: result.display_name,
+          pictureUrl: result.picture_url,
+        });
+        await refreshProfile();
+        setPhase("success");
+        window.history.replaceState({}, "", "/line-link");
+      } catch (e) {
+        setPhase("error");
+        setMessage(e instanceof Error ? e.message : "เชื่อม LINE ไม่สำเร็จ");
+      }
+    },
+    [refreshProfile],
+  );
 
   const connectWithLiff = React.useCallback(async () => {
     setPhase("linking");
@@ -226,7 +223,8 @@ export function LineLinkScreen() {
     }
   }
 
-  const stepDone = phase === "success" ? 3 : phase === "linking" || phase === "ready" ? 2 : user ? 2 : 1;
+  const stepDone =
+    phase === "success" ? 3 : phase === "linking" || phase === "ready" ? 2 : user ? 2 : 1;
 
   return (
     <div className="min-h-screen relative overflow-hidden bg-[#0b1410] text-white">
@@ -254,7 +252,8 @@ export function LineLinkScreen() {
           </div>
           <h1 className="text-2xl font-bold tracking-tight">เชื่อม LINE</h1>
           <p className="text-sm text-white/60 mt-2 leading-relaxed max-w-sm mx-auto">
-            รับ Push ทันทีเมื่อมีคำขอจ้างจาก Anthem ลูกค้าอัปสลิป หรือยืนยันบรีฟ — บัญชีเดียวกับ So1o Pro
+            รับ Push ทันทีเมื่อมีคำขอจ้างจาก Anthem ลูกค้าอัปสลิป หรือยืนยันบรีฟ — บัญชีเดียวกับ
+            So1o Pro
           </p>
         </div>
 
@@ -271,7 +270,12 @@ export function LineLinkScreen() {
               >
                 {stepDone > s.id ? <CheckCircle2 className="h-4 w-4" /> : s.id}
               </div>
-              <span className={cn("text-[11px] hidden sm:inline", stepDone >= s.id ? "text-white/80" : "text-white/35")}>
+              <span
+                className={cn(
+                  "text-[11px] hidden sm:inline",
+                  stepDone >= s.id ? "text-white/80" : "text-white/35",
+                )}
+              >
                 {s.label}
               </span>
               {s.id < STEPS.length && <div className="w-6 h-px bg-white/15 hidden sm:block" />}
@@ -290,7 +294,9 @@ export function LineLinkScreen() {
           {phase === "need_auth" && (
             <div className="text-center space-y-4 py-4">
               <Shield className="h-10 w-10 text-[#06C755] mx-auto opacity-80" />
-              <p className="text-sm text-white/70">เข้าสู่ระบบ So1o หรือ Anthem ก่อน แล้วกลับมาเชื่อม LINE</p>
+              <p className="text-sm text-white/70">
+                เข้าสู่ระบบ So1o หรือ Anthem ก่อน แล้วกลับมาเชื่อม LINE
+              </p>
               <Button asChild className="w-full bg-[#06C755] hover:bg-[#05b34c] text-white h-11">
                 <Link to="/auth" search={{ redirect: "/line-link" }}>
                   เข้าสู่ระบบ
@@ -318,7 +324,8 @@ export function LineLinkScreen() {
 
               <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-3.5 space-y-2 text-left">
                 <p className="text-xs font-medium text-amber-200">
-                  ถ้าเจอ 400 Bad Request — ลงทะเบียน Callback URL นี้ใน LINE Console (ช่อง Login {LINE_CHANNEL_ID})
+                  ถ้าเจอ 400 Bad Request — ลงทะเบียน Callback URL นี้ใน LINE Console (ช่อง Login{" "}
+                  {LINE_CHANNEL_ID})
                 </p>
                 <code className="block text-[11px] text-white/90 break-all rounded-lg bg-black/30 px-2.5 py-2 font-mono">
                   {lineOAuthRedirectUri()}
@@ -339,14 +346,20 @@ export function LineLinkScreen() {
 
               <Button
                 type="button"
-                onClick={() => (liffConfigured() && isLineInAppBrowser() ? void connectWithLiff() : startOAuth())}
+                onClick={() =>
+                  liffConfigured() && isLineInAppBrowser() ? void connectWithLiff() : startOAuth()
+                }
                 className="w-full h-12 bg-[#06C755] hover:bg-[#05b34c] text-white font-semibold text-base gap-2 shadow-lg shadow-[#06C755]/25"
               >
                 <LineGlyph className="h-5 w-5" />
                 เชื่อมด้วย LINE
               </Button>
 
-              <Button asChild variant="outline" className="w-full border-white/15 bg-transparent text-white hover:bg-white/5 h-10">
+              <Button
+                asChild
+                variant="outline"
+                className="w-full border-white/15 bg-transparent text-white hover:bg-white/5 h-10"
+              >
                 <a href={LINE_URL} target="_blank" rel="noopener noreferrer">
                   เพิ่มเพื่อน {LINE_ID}
                   <ExternalLink className="h-3.5 w-3.5 ml-2 opacity-60" />
@@ -399,7 +412,10 @@ export function LineLinkScreen() {
                   <p className="text-sm text-amber-100/90">
                     เชื่อมบัญชีแล้ว — อัปเกรด Pro เพื่อรับ Push แจ้งเตือน
                   </p>
-                  <Button asChild className="w-full bg-[#06C755] hover:bg-[#05b34c] text-white h-10 gap-2">
+                  <Button
+                    asChild
+                    className="w-full bg-[#06C755] hover:bg-[#05b34c] text-white h-10 gap-2"
+                  >
                     <Link to="/pricing">
                       <Crown className="h-4 w-4" />
                       อัปเกรดเป็น Pro
@@ -409,7 +425,11 @@ export function LineLinkScreen() {
               )}
 
               <div className="flex flex-col gap-2 pt-1">
-                <Button asChild variant="outline" className="w-full border-white/15 text-white hover:bg-white/5 h-10 gap-2">
+                <Button
+                  asChild
+                  variant="outline"
+                  className="w-full border-white/15 text-white hover:bg-white/5 h-10 gap-2"
+                >
                   <a href={LINE_URL} target="_blank" rel="noopener noreferrer">
                     <Sparkles className="h-4 w-4 text-[#06C755]" />
                     เปิดแชท {LINE_ID}
@@ -422,7 +442,11 @@ export function LineLinkScreen() {
                   disabled={unlinking}
                   onClick={() => void unlink()}
                 >
-                  {unlinking ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <LogOut className="h-3.5 w-3.5" />}
+                  {unlinking ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  ) : (
+                    <LogOut className="h-3.5 w-3.5" />
+                  )}
                   ยกเลิกการเชื่อม
                 </Button>
               </div>
@@ -438,10 +462,14 @@ export function LineLinkScreen() {
                 <div className="text-left text-[11px] text-white/55 rounded-lg border border-white/10 bg-black/20 p-3 space-y-1.5">
                   <p className="font-medium text-white/75">หา Callback URL ไม่เจอ?</p>
                   <p>
-                    ช่อง Messaging API (@solofreelancer) <strong>ไม่มี</strong> ช่องใส่ Callback — ต้องสร้างช่อง
-                    <strong> LINE Login</strong> แยก (Provider เดียวกัน) แล้วใส่ Callback ที่แท็บ LINE Login
+                    ช่อง Messaging API (@solofreelancer) <strong>ไม่มี</strong> ช่องใส่ Callback —
+                    ต้องสร้างช่อง
+                    <strong> LINE Login</strong> แยก (Provider เดียวกัน) แล้วใส่ Callback ที่แท็บ
+                    LINE Login
                   </p>
-                  <p className="text-white/40">ดูขั้นตอน: docs/setup-line.md → 「ทำไมหา Callback ไม่เจอ」</p>
+                  <p className="text-white/40">
+                    ดูขั้นตอน: docs/setup-line.md → 「ทำไมหา Callback ไม่เจอ」
+                  </p>
                 </div>
               )}
               <Button

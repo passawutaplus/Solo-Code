@@ -54,7 +54,9 @@ export function LiveChatNotePanel({ initialNote = "", disabled, onApply }: Props
         </div>
         <div className="flex items-center gap-2">
           {items.length > 0 && (
-            <Badge variant="secondary" className="text-[10px]">{items.length} รายการ</Badge>
+            <Badge variant="secondary" className="text-[10px]">
+              {items.length} รายการ
+            </Badge>
           )}
           {open ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
         </div>
@@ -83,7 +85,8 @@ export function LiveChatNotePanel({ initialNote = "", disabled, onApply }: Props
                 className="text-xs leading-relaxed font-mono resize-y"
               />
               <p className="text-[10px] text-muted-foreground">
-                เคล็ดลับ: ขึ้นต้นบรรทัดด้วย <code className="bg-muted px-1 rounded">-</code> หรือ <code className="bg-muted px-1 rounded">•</code> ระบบจะจับเป็น scope item อัตโนมัติ
+                เคล็ดลับ: ขึ้นต้นบรรทัดด้วย <code className="bg-muted px-1 rounded">-</code> หรือ{" "}
+                <code className="bg-muted px-1 rounded">•</code> ระบบจะจับเป็น scope item อัตโนมัติ
               </p>
             </div>
 

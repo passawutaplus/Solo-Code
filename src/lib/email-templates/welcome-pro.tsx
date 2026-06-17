@@ -1,22 +1,27 @@
-import * as React from 'react'
-import type { TemplateEntry } from './registry'
-import { EmailLayout, EmailCard, EmailButton, EmailText } from './layout'
-import { EmailFeatureItem } from './icons'
+import * as React from "react";
+import type { TemplateEntry } from "./registry";
+import { EmailLayout, EmailCard, EmailButton, EmailText } from "./layout";
+import { EmailFeatureItem } from "./icons";
 
 interface WelcomeProProps {
-  priceId?: string
-  environment?: string
+  priceId?: string;
+  environment?: string;
 }
 
 const planLabel = (priceId?: string) => {
   switch (priceId) {
-    case 'pro_monthly': return 'Pro (รายเดือน)'
-    case 'pro_yearly': return 'Pro (รายปี)'
-    case 'inhouse_monthly': return 'In-House (รายเดือน)'
-    case 'inhouse_yearly': return 'In-House (รายปี)'
-    default: return 'Pro'
+    case "pro_monthly":
+      return "Pro (รายเดือน)";
+    case "pro_yearly":
+      return "Pro (รายปี)";
+    case "inhouse_monthly":
+      return "In-House (รายเดือน)";
+    case "inhouse_yearly":
+      return "In-House (รายปี)";
+    default:
+      return "Pro";
   }
-}
+};
 
 const WelcomeProEmail = ({ priceId }: WelcomeProProps) => (
   <EmailLayout
@@ -40,13 +45,13 @@ const WelcomeProEmail = ({ priceId }: WelcomeProProps) => (
     </EmailCard>
     <EmailButton href="https://solofreelancer.com/dashboard">เปิด Dashboard</EmailButton>
   </EmailLayout>
-)
+);
 
 export const template = {
   component: WelcomeProEmail,
   subject: (data: Record<string, any>) => `[So1o] ยินดีต้อนรับสู่ ${planLabel(data?.priceId)}`,
-  displayName: 'Welcome Pro',
-  previewData: { priceId: 'pro_yearly', environment: 'live' },
-} satisfies TemplateEntry
+  displayName: "Welcome Pro",
+  previewData: { priceId: "pro_yearly", environment: "live" },
+} satisfies TemplateEntry;
 
-export default WelcomeProEmail
+export default WelcomeProEmail;

@@ -16,11 +16,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { deleteOwnAccount, exportUserData } from "@/server/account.functions";
 import { toast } from "sonner";
 
@@ -122,8 +118,8 @@ export function AccountPrivacySection({ onSignOut }: Props) {
           </CollapsibleTrigger>
           <CollapsibleContent className="pt-3 space-y-2">
             <p className="text-[11px] text-muted-foreground leading-relaxed">
-              การลบบัญชีจะปิดการใช้งานทันที และลบข้อมูลถาวรภายใน 30 วัน
-              หากมีแผน Pro ที่ active กรุณายกเลิก subscription ในหน้าจัดการการชำระเงินก่อน
+              การลบบัญชีจะปิดการใช้งานทันที และลบข้อมูลถาวรภายใน 30 วัน หากมีแผน Pro ที่ active
+              กรุณายกเลิก subscription ในหน้าจัดการการชำระเงินก่อน
             </p>
             <AlertDialog>
               <AlertDialogTrigger asChild>
@@ -142,10 +138,12 @@ export function AccountPrivacySection({ onSignOut }: Props) {
                   <AlertDialogDescription asChild>
                     <div className="space-y-3 text-sm">
                       <p>
-                        การกระทำนี้ไม่สามารถย้อนกลับได้ ข้อมูลงาน ลูกค้า และใบเสนอราคาจะถูกลบตามนโยบาย
+                        การกระทำนี้ไม่สามารถย้อนกลับได้ ข้อมูลงาน ลูกค้า
+                        และใบเสนอราคาจะถูกลบตามนโยบาย
                       </p>
                       <p>
-                        พิมพ์ <strong className="font-mono text-foreground">DELETE</strong> เพื่อยืนยัน
+                        พิมพ์ <strong className="font-mono text-foreground">DELETE</strong>{" "}
+                        เพื่อยืนยัน
                       </p>
                       <Input
                         value={confirmText}

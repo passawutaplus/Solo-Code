@@ -3,7 +3,12 @@ import { sanitizeText } from "./security";
 
 /** Reusable primitives */
 const text = (max: number, label = "ข้อความ") =>
-  z.string().trim().min(1, `${label}ห้ามว่าง`).max(max, `${label}ยาวเกิน ${max} ตัวอักษร`).transform((v) => sanitizeText(v, max));
+  z
+    .string()
+    .trim()
+    .min(1, `${label}ห้ามว่าง`)
+    .max(max, `${label}ยาวเกิน ${max} ตัวอักษร`)
+    .transform((v) => sanitizeText(v, max));
 
 const money = z
   .union([z.string(), z.number()])
@@ -24,9 +29,18 @@ export const subSchema = z.object({
   paymentMethodId: z.string().min(1, "เลือกช่องทางจ่าย").max(40),
   status: z.enum(["active", "paused", "cancelled"]).optional().default("active"),
   priceMode: z.enum(["monthly", "installment"]).optional().default("monthly"),
-  fullPrice: z.union([z.string(), z.number()]).optional().transform((v) => v === undefined || v === "" ? undefined : Number(v)),
-  installmentMonths: z.union([z.string(), z.number()]).optional().transform((v) => v === undefined || v === "" ? undefined : Number(v)),
-  installmentsPaid: z.union([z.string(), z.number()]).optional().transform((v) => v === undefined || v === "" ? 0 : Number(v)),
+  fullPrice: z
+    .union([z.string(), z.number()])
+    .optional()
+    .transform((v) => (v === undefined || v === "" ? undefined : Number(v))),
+  installmentMonths: z
+    .union([z.string(), z.number()])
+    .optional()
+    .transform((v) => (v === undefined || v === "" ? undefined : Number(v))),
+  installmentsPaid: z
+    .union([z.string(), z.number()])
+    .optional()
+    .transform((v) => (v === undefined || v === "" ? 0 : Number(v))),
 });
 
 /** Income form */

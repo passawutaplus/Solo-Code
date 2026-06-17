@@ -15,10 +15,18 @@ export function PostPreviewMockup({ imageUrl, caption, authorName = "your_brand"
     <div className="space-y-3">
       <Tabs value={tab} onValueChange={setTab}>
         <TabsList className="grid grid-cols-4 h-9 rounded-xl">
-          <TabsTrigger value="ig_feed" className="text-xs rounded-lg">IG Feed</TabsTrigger>
-          <TabsTrigger value="ig_story" className="text-xs rounded-lg">IG Story</TabsTrigger>
-          <TabsTrigger value="tiktok" className="text-xs rounded-lg">TikTok</TabsTrigger>
-          <TabsTrigger value="facebook" className="text-xs rounded-lg">Facebook</TabsTrigger>
+          <TabsTrigger value="ig_feed" className="text-xs rounded-lg">
+            IG Feed
+          </TabsTrigger>
+          <TabsTrigger value="ig_story" className="text-xs rounded-lg">
+            IG Story
+          </TabsTrigger>
+          <TabsTrigger value="tiktok" className="text-xs rounded-lg">
+            TikTok
+          </TabsTrigger>
+          <TabsTrigger value="facebook" className="text-xs rounded-lg">
+            Facebook
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="ig_feed" className="mt-3 flex justify-center">
@@ -55,9 +63,7 @@ function PhoneFrame({ children }: { children: React.ReactNode }) {
     <div className="w-[280px] h-[560px] rounded-[28px] bg-black p-2 shadow-elevated">
       <div className="w-full h-full rounded-[22px] bg-background overflow-hidden relative">
         <StatusBar />
-        <div className="absolute inset-x-0 top-[18px] bottom-0 overflow-hidden">
-          {children}
-        </div>
+        <div className="absolute inset-x-0 top-[18px] bottom-0 overflow-hidden">{children}</div>
       </div>
     </div>
   );
@@ -80,13 +86,19 @@ function StatusBar() {
 
 function PlaceholderImg({ className = "" }: { className?: string }) {
   return (
-    <div className={`bg-gradient-to-br from-muted via-muted/60 to-muted-foreground/10 flex items-center justify-center text-xs text-muted-foreground ${className}`}>
+    <div
+      className={`bg-gradient-to-br from-muted via-muted/60 to-muted-foreground/10 flex items-center justify-center text-xs text-muted-foreground ${className}`}
+    >
       ไม่มีรูป
     </div>
   );
 }
 
-function SafeZone({ insets }: { insets: { top?: number; bottom?: number; right?: number; left?: number } }) {
+function SafeZone({
+  insets,
+}: {
+  insets: { top?: number; bottom?: number; right?: number; left?: number };
+}) {
   return (
     <div
       className="absolute inset-0 pointer-events-none border-2 border-dashed border-yellow-400/70 rounded-md"
@@ -100,7 +112,15 @@ function SafeZone({ insets }: { insets: { top?: number; bottom?: number; right?:
   );
 }
 
-function IgFeed({ imageUrl, caption, authorName }: { imageUrl?: string; caption?: string; authorName: string }) {
+function IgFeed({
+  imageUrl,
+  caption,
+  authorName,
+}: {
+  imageUrl?: string;
+  caption?: string;
+  authorName: string;
+}) {
   return (
     <div className="h-full flex flex-col text-[10px]">
       <div className="flex items-center gap-2 p-2 border-b">
@@ -148,7 +168,15 @@ function IgStory({ imageUrl, authorName }: { imageUrl?: string; authorName: stri
   );
 }
 
-function TikTokView({ imageUrl, caption, authorName }: { imageUrl?: string; caption?: string; authorName: string }) {
+function TikTokView({
+  imageUrl,
+  caption,
+  authorName,
+}: {
+  imageUrl?: string;
+  caption?: string;
+  authorName: string;
+}) {
   return (
     <div className="relative h-full bg-black text-white">
       {imageUrl ? (
@@ -173,7 +201,15 @@ function TikTokView({ imageUrl, caption, authorName }: { imageUrl?: string; capt
   );
 }
 
-function FacebookView({ imageUrl, caption, authorName }: { imageUrl?: string; caption?: string; authorName: string }) {
+function FacebookView({
+  imageUrl,
+  caption,
+  authorName,
+}: {
+  imageUrl?: string;
+  caption?: string;
+  authorName: string;
+}) {
   return (
     <div className="h-full flex flex-col text-[10px] bg-background">
       <div className="flex items-center gap-2 p-2 border-b">

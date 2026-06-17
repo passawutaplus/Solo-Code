@@ -19,7 +19,7 @@ export function PrintDigitalToggle({ hex }: Props) {
   const drift = Math.round(
     Math.abs(c.toRgb().r - colord(printSim).toRgb().r) +
       Math.abs(c.toRgb().g - colord(printSim).toRgb().g) +
-      Math.abs(c.toRgb().b - colord(printSim).toRgb().b)
+      Math.abs(c.toRgb().b - colord(printSim).toRgb().b),
   );
   const driftWarn = drift > 20;
 
@@ -73,7 +73,9 @@ export function PrintDigitalToggle({ hex }: Props) {
       {driftWarn && (
         <div className="flex items-start gap-1.5 text-[10px] text-amber-600 bg-amber-500/10 rounded-md p-2">
           <AlertTriangle className="h-3 w-3 mt-0.5 shrink-0" />
-          <span>สีอาจเพี้ยนเมื่อพิมพ์จริง — ค่าต่างจากจอ ~{drift} หน่วย ควรขอ proof จากโรงพิมพ์ก่อน</span>
+          <span>
+            สีอาจเพี้ยนเมื่อพิมพ์จริง — ค่าต่างจากจอ ~{drift} หน่วย ควรขอ proof จากโรงพิมพ์ก่อน
+          </span>
         </div>
       )}
     </div>

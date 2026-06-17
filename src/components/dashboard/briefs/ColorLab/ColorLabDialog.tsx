@@ -1,5 +1,11 @@
 import * as React from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { FlaskConical } from "lucide-react";
 import { normalizeHex } from "@/lib/colorUtils";
 import { ColorLabInline } from "./ColorLabInline";
@@ -12,7 +18,13 @@ interface Props {
   applyLabel?: string;
 }
 
-export function ColorLabDialog({ open, onOpenChange, initialHex = "#FF6B00", onApply, applyLabel = "+ เพิ่มเข้าบรีฟ" }: Props) {
+export function ColorLabDialog({
+  open,
+  onOpenChange,
+  initialHex = "#FF6B00",
+  onApply,
+  applyLabel = "+ เพิ่มเข้าบรีฟ",
+}: Props) {
   const [hex, setHex] = React.useState<string>(normalizeHex(initialHex) ?? "#FF6B00");
 
   React.useEffect(() => {
@@ -32,7 +44,12 @@ export function ColorLabDialog({ open, onOpenChange, initialHex = "#FF6B00", onA
           </DialogDescription>
         </DialogHeader>
         <div className="px-5 pb-5">
-          <ColorLabInline hex={hex} onHexChange={setHex} onApply={onApply} applyLabel={applyLabel} />
+          <ColorLabInline
+            hex={hex}
+            onHexChange={setHex}
+            onApply={onApply}
+            applyLabel={applyLabel}
+          />
         </div>
       </DialogContent>
     </Dialog>

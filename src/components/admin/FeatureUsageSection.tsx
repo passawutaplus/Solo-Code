@@ -2,7 +2,13 @@ import * as React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Loader2, RefreshCw, BarChart3, Trophy, TrendingUp } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -58,13 +64,12 @@ export function FeatureUsageSection() {
     try {
       const [{ data, error }, { data: tData, error: tErr }] = await Promise.all([
         supabase.rpc("get_feature_usage_stats", { _days: Number(days) }),
-        (supabase.rpc as unknown as (
-          fn: string,
-          args: Record<string, unknown>,
-        ) => Promise<{ data: TrendRow[] | null; error: Error | null }>)(
-          "get_feature_usage_trend",
-          { _days: Number(days) },
-        ),
+        (
+          supabase.rpc as unknown as (
+            fn: string,
+            args: Record<string, unknown>,
+          ) => Promise<{ data: TrendRow[] | null; error: Error | null }>
+        )("get_feature_usage_trend", { _days: Number(days) }),
       ]);
       if (error) throw error;
       if (tErr) throw tErr;
@@ -85,10 +90,7 @@ export function FeatureUsageSection() {
   const totalEvents = rows.reduce((s, r) => s + Number(r.total_events), 0);
 
   // Top 5 features for the chart legend (avoid clutter)
-  const topFeatures = React.useMemo(
-    () => rows.slice(0, 5).map((r) => r.feature),
-    [rows],
-  );
+  const topFeatures = React.useMemo(() => rows.slice(0, 5).map((r) => r.feature), [rows]);
 
   // Build chart data: pivot trend rows -> [{ bucket, [feature]: events, ... }]
   const chartData = React.useMemo(() => {
@@ -125,7 +127,9 @@ export function FeatureUsageSection() {
     <div className="space-y-5">
       <div className="flex items-end justify-between gap-3 flex-wrap">
         <div>
-          <h2 className="text-lg sm:text-xl font-semibold tracking-tight">ฟีเจอร์ที่ใช้บ่อยที่สุด</h2>
+          <h2 className="text-lg sm:text-xl font-semibold tracking-tight">
+            ฟีเจอร์ที่ใช้บ่อยที่สุด
+          </h2>
           <p className="text-xs text-muted-foreground mt-0.5">
             จัดอันดับฟีเจอร์ตามการเปิดใช้งานของผู้ใช้ทั้งหมด
           </p>
@@ -144,7 +148,11 @@ export function FeatureUsageSection() {
             </SelectContent>
           </Select>
           <Button size="sm" variant="outline" onClick={load} disabled={loading}>
-            {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RefreshCw className="h-3.5 w-3.5" />}
+            {loading ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            ) : (
+              <RefreshCw className="h-3.5 w-3.5" />
+            )}
           </Button>
         </div>
       </div>
@@ -238,10 +246,7 @@ export function FeatureUsageSection() {
                     }
                     formatter={(value, name) => [value, labelFor(String(name))]}
                   />
-                  <Legend
-                    wrapperStyle={{ fontSize: 11 }}
-                    formatter={(v) => labelFor(String(v))}
-                  />
+                  <Legend wrapperStyle={{ fontSize: 11 }} formatter={(v) => labelFor(String(v))} />
                   {topFeatures.map((feat, i) => (
                     <Line
                       key={feat}
@@ -309,9 +314,7 @@ export function FeatureUsageSection() {
                         <p className="text-sm font-semibold tabular-nums">
                           {Number(r.total_events).toLocaleString()}
                         </p>
-                        <p className="text-[10px] text-muted-foreground">
-                          {r.unique_users} คน
-                        </p>
+                        <p className="text-[10px] text-muted-foreground">{r.unique_users} คน</p>
                       </div>
                     </div>
                   </div>

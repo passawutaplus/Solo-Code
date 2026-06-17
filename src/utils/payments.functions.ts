@@ -22,14 +22,21 @@ type ConnectResult = { url: string } | { error: string };
 type CashoutResult = { transferId: string } | { error: string };
 type DowngradeStateResult = SubscriptionDowngradeState | { error: string };
 type DowngradeOkResult = { ok: true; effectiveAt?: string } | { error: string };
-type SyncSubscriptionResult = { synced: true; tier: string } | { synced: false } | { error: string };
+type SyncSubscriptionResult =
+  | { synced: true; tier: string }
+  | { synced: false }
+  | { error: string };
 type UpgradeTierResult = { ok: true; tier: string } | { error: string };
 
 const envSchema = z.enum(["sandbox", "live"]);
 const envOnlyInput = z.object({ environment: envSchema });
 
 const checkoutInput = z.object({
-  priceId: z.string().min(1).max(64).regex(/^[a-z0-9_]+$/),
+  priceId: z
+    .string()
+    .min(1)
+    .max(64)
+    .regex(/^[a-z0-9_]+$/),
   environment: envSchema,
   successUrl: z.string().url().max(500),
   cancelUrl: z.string().url().max(500),

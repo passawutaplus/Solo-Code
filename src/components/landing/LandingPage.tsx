@@ -36,12 +36,7 @@ export function LandingPage({ stats }: { stats: LandingStats | null | undefined 
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-background">
-      <LandingHeader
-        user={!!user}
-        isAdmin={!!isAdmin}
-        theme={theme}
-        onToggleTheme={toggle}
-      />
+      <LandingHeader user={!!user} isAdmin={!!isAdmin} theme={theme} onToggleTheme={toggle} />
 
       <main className="relative z-10 pb-16 sm:pb-0">
         <LandingHero
@@ -55,7 +50,9 @@ export function LandingPage({ stats }: { stats: LandingStats | null | undefined 
         <LandingWorkflow />
         <LandingCalculatorSection remaining={remaining} />
         <React.Suspense
-          fallback={<div className="mx-auto max-w-5xl px-4 rounded-3xl border border-border bg-card/60 h-[600px] animate-pulse" />}
+          fallback={
+            <div className="mx-auto max-w-5xl px-4 rounded-3xl border border-border bg-card/60 h-[600px] animate-pulse" />
+          }
         >
           <LandingMentorChat />
         </React.Suspense>

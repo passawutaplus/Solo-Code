@@ -40,16 +40,22 @@ const EarlyAccessSection = React.lazy(() =>
   import("@/components/admin/EarlyAccessSection").then((m) => ({ default: m.EarlyAccessSection })),
 );
 const FeatureUsageSection = React.lazy(() =>
-  import("@/components/admin/FeatureUsageSection").then((m) => ({ default: m.FeatureUsageSection })),
+  import("@/components/admin/FeatureUsageSection").then((m) => ({
+    default: m.FeatureUsageSection,
+  })),
 );
 const AnnouncementsSection = React.lazy(() =>
-  import("@/components/admin/AnnouncementsSection").then((m) => ({ default: m.AnnouncementsSection })),
+  import("@/components/admin/AnnouncementsSection").then((m) => ({
+    default: m.AnnouncementsSection,
+  })),
 );
 const AdminChatSection = React.lazy(() =>
   import("@/components/admin/AdminChatSection").then((m) => ({ default: m.AdminChatSection })),
 );
 const AdminTicketsSection = React.lazy(() =>
-  import("@/components/admin/AdminTicketsSection").then((m) => ({ default: m.AdminTicketsSection })),
+  import("@/components/admin/AdminTicketsSection").then((m) => ({
+    default: m.AdminTicketsSection,
+  })),
 );
 const ActivityAnalyticsSection = React.lazy(() =>
   import("@/components/admin/ActivityAnalyticsSection").then((m) => ({
@@ -76,7 +82,9 @@ const AiHubSection = React.lazy(() =>
   import("@/components/admin/AiHubSection").then((m) => ({ default: m.AiHubSection })),
 );
 const ActivityFeedSection = React.lazy(() =>
-  import("@/components/admin/ActivityFeedSection").then((m) => ({ default: m.ActivityFeedSection })),
+  import("@/components/admin/ActivityFeedSection").then((m) => ({
+    default: m.ActivityFeedSection,
+  })),
 );
 const AiUsageSection = React.lazy(() =>
   import("@/components/admin/AiMonitorSection").then((m) => ({ default: m.AiMonitorSection })),
@@ -96,7 +104,6 @@ function SectionFallback() {
     </div>
   );
 }
-
 
 export const Route = createFileRoute("/admin")({
   validateSearch: (search: Record<string, unknown>) => {
@@ -189,7 +196,8 @@ function AdminPage() {
                     Mission Control
                   </h1>
                   <p className="text-[10px] sm:text-xs text-muted-foreground mt-0.5 truncate">
-                    {profile?.email} · {m.lastFetched
+                    {profile?.email} ·{" "}
+                    {m.lastFetched
                       ? `อัปเดตล่าสุด ${m.lastFetched.toLocaleTimeString("th-TH", { hour: "2-digit", minute: "2-digit", second: "2-digit" })}`
                       : "กำลังเตรียมข้อมูล..."}
                   </p>

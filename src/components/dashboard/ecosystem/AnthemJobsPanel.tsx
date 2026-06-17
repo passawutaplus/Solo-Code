@@ -32,7 +32,9 @@ export function AnthemJobsPanel({ onOpenQuotations }: { onOpenQuotations?: () =>
     queryFn: async () => {
       const { data, error } = await supabase
         .from("hiring_requests")
-        .select("id, project_title, client_name, email, phone, message, deadline, status, created_at")
+        .select(
+          "id, project_title, client_name, email, phone, message, deadline, status, created_at",
+        )
         .eq("freelancer_id", user!.id)
         .order("created_at", { ascending: false })
         .limit(12);
@@ -60,7 +62,9 @@ export function AnthemJobsPanel({ onOpenQuotations }: { onOpenQuotations?: () =>
   if (isLoading) {
     return (
       <Card className="glass border-border shadow-soft">
-        <CardContent className="p-4 text-sm text-muted-foreground">กำลังโหลดงานจาก Pixel100…</CardContent>
+        <CardContent className="p-4 text-sm text-muted-foreground">
+          กำลังโหลดงานจาก Pixel100…
+        </CardContent>
       </Card>
     );
   }
@@ -80,7 +84,12 @@ export function AnthemJobsPanel({ onOpenQuotations }: { onOpenQuotations?: () =>
         {hires.length === 0 ? (
           <p className="text-xs text-muted-foreground py-2">
             ยังไม่มีคำขอจ้าง — ลงผลงานบน{" "}
-            <a href={ANTHEM_APP_URL} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+            <a
+              href={ANTHEM_APP_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-primary hover:underline"
+            >
               Pixel100
             </a>{" "}
             เพื่อรับงาน
@@ -107,11 +116,21 @@ export function AnthemJobsPanel({ onOpenQuotations }: { onOpenQuotations?: () =>
                 </div>
               </div>
               <div className="flex flex-col gap-1 shrink-0">
-                <Button type="button" size="sm" variant="outline" className="h-7 text-xs" onClick={() => openQuote(hire)}>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  className="h-7 text-xs"
+                  onClick={() => openQuote(hire)}
+                >
                   สร้าง Quote
                 </Button>
                 <Button type="button" size="sm" variant="ghost" className="h-7 text-xs" asChild>
-                  <a href={`${ANTHEM_APP_URL}/portfolio/manage`} target="_blank" rel="noopener noreferrer">
+                  <a
+                    href={`${ANTHEM_APP_URL}/portfolio/manage`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
                     <ExternalLink className="h-3 w-3 mr-1" />
                     Pixel100
                   </a>

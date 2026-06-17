@@ -42,16 +42,41 @@ import { subSchema, parseOrToast } from "@/lib/validation";
 import { CATEGORY_LABELS } from "./shared";
 
 const ALL_CATEGORIES: SubCategory[] = [
-  "Design", "AI", "Dev", "Cloud", "Streaming", "Music",
-  "Productivity", "Internet", "Housing", "Utilities",
-  "Health", "Beauty", "Insurance", "Investments", "CardFees",
-  "Family", "Donations", "Pets", "Learning", "Operations",
+  "Design",
+  "AI",
+  "Dev",
+  "Cloud",
+  "Streaming",
+  "Music",
+  "Productivity",
+  "Internet",
+  "Housing",
+  "Utilities",
+  "Health",
+  "Beauty",
+  "Insurance",
+  "Investments",
+  "CardFees",
+  "Family",
+  "Donations",
+  "Pets",
+  "Learning",
+  "Operations",
 ];
 
 const STATUS_META: Record<SubStatus, { label: string; cls: string }> = {
-  active: { label: "Active", cls: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/30" },
-  paused: { label: "Paused", cls: "bg-amber-500/15 text-amber-700 dark:text-amber-400 border-amber-500/30" },
-  cancelled: { label: "Cancelled", cls: "bg-muted text-muted-foreground border-border line-through" },
+  active: {
+    label: "Active",
+    cls: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/30",
+  },
+  paused: {
+    label: "Paused",
+    cls: "bg-amber-500/15 text-amber-700 dark:text-amber-400 border-amber-500/30",
+  },
+  cancelled: {
+    label: "Cancelled",
+    cls: "bg-muted text-muted-foreground border-border line-through",
+  },
 };
 
 export function SubsList() {
@@ -97,7 +122,9 @@ export function SubsList() {
         )}
         {grouped.map(([cat, items]) => {
           const isCollapsed = collapsed[cat];
-          const total = items.filter((x) => (x.status ?? "active") === "active").reduce((a, b) => a + b.amount, 0);
+          const total = items
+            .filter((x) => (x.status ?? "active") === "active")
+            .reduce((a, b) => a + b.amount, 0);
           return (
             <div key={cat} className="rounded-xl border border-border/60 bg-card/50">
               <button
@@ -105,10 +132,18 @@ export function SubsList() {
                 onClick={() => setCollapsed((c) => ({ ...c, [cat]: !c[cat] }))}
                 className="w-full flex items-center gap-2 px-3 py-2 text-left hover:bg-muted/40 rounded-t-xl"
               >
-                {isCollapsed ? <ChevronRight className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
+                {isCollapsed ? (
+                  <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                ) : (
+                  <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                )}
                 <span className="text-sm font-semibold">{CATEGORY_LABELS[cat] ?? cat}</span>
-                <Badge variant="secondary" className="h-5 text-[10px]">{items.length}</Badge>
-                <span className="ml-auto text-xs num text-muted-foreground">฿{formatTHB(total)}/ด.</span>
+                <Badge variant="secondary" className="h-5 text-[10px]">
+                  {items.length}
+                </Badge>
+                <span className="ml-auto text-xs num text-muted-foreground">
+                  ฿{formatTHB(total)}/ด.
+                </span>
               </button>
               {!isCollapsed && (
                 <div className="grid gap-2 sm:grid-cols-2 p-2 pt-0">
@@ -137,20 +172,27 @@ export function SubsList() {
                           <p className="text-[11px] text-muted-foreground">
                             ตัดทุกวันที่ {s.billingDay}
                             {isInstall && (
-                              <> · ผ่อน {s.installmentsPaid ?? 0}/{s.installmentMonths} งวด</>
+                              <>
+                                {" "}
+                                · ผ่อน {s.installmentsPaid ?? 0}/{s.installmentMonths} งวด
+                              </>
                             )}
                           </p>
                         </div>
                         <div className="text-right shrink-0">
                           <p className="num text-sm font-semibold">฿{formatTHB(s.amount)}</p>
                           {isInstall && s.fullPrice && (
-                            <p className="text-[10px] text-muted-foreground num">เต็ม ฿{formatTHB(s.fullPrice)}</p>
+                            <p className="text-[10px] text-muted-foreground num">
+                              เต็ม ฿{formatTHB(s.fullPrice)}
+                            </p>
                           )}
                         </div>
                         <div className="flex items-center gap-0.5 shrink-0">
                           {status === "active" ? (
                             <Button
-                              variant="ghost" size="icon" className="h-7 w-7"
+                              variant="ghost"
+                              size="icon"
+                              className="h-7 w-7"
                               onClick={() => setStatus(s, "paused")}
                               aria-label="พัก"
                               title="พักรายการ"
@@ -159,7 +201,9 @@ export function SubsList() {
                             </Button>
                           ) : status === "paused" ? (
                             <Button
-                              variant="ghost" size="icon" className="h-7 w-7 text-emerald-600"
+                              variant="ghost"
+                              size="icon"
+                              className="h-7 w-7 text-emerald-600"
                               onClick={() => setStatus(s, "active")}
                               aria-label="เปิดใช้"
                               title="เปิดใช้งาน"
@@ -168,7 +212,9 @@ export function SubsList() {
                             </Button>
                           ) : (
                             <Button
-                              variant="ghost" size="icon" className="h-7 w-7 text-emerald-600"
+                              variant="ghost"
+                              size="icon"
+                              className="h-7 w-7 text-emerald-600"
                               onClick={() => setStatus(s, "active")}
                               aria-label="เปิดใช้"
                             >
@@ -177,7 +223,9 @@ export function SubsList() {
                           )}
                           {status !== "cancelled" && (
                             <Button
-                              variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground"
+                              variant="ghost"
+                              size="icon"
+                              className="h-7 w-7 text-muted-foreground"
                               onClick={() => setStatus(s, "cancelled")}
                               aria-label="ยกเลิก"
                               title="ยกเลิกบริการ"
@@ -186,14 +234,18 @@ export function SubsList() {
                             </Button>
                           )}
                           <Button
-                            variant="ghost" size="icon" className="h-7 w-7"
+                            variant="ghost"
+                            size="icon"
+                            className="h-7 w-7"
                             onClick={() => setEditing(s)}
                             aria-label={`แก้ไข ${s.name}`}
                           >
                             <Pencil className="h-3.5 w-3.5" />
                           </Button>
                           <Button
-                            variant="ghost" size="icon" className="h-7 w-7 text-destructive"
+                            variant="ghost"
+                            size="icon"
+                            className="h-7 w-7 text-destructive"
                             onClick={() => setConfirmDelete(s)}
                             aria-label={`ลบ ${s.name}`}
                           >
@@ -222,7 +274,8 @@ export function SubsList() {
           <AlertDialogHeader>
             <AlertDialogTitle>ลบรายการนี้?</AlertDialogTitle>
             <AlertDialogDescription>
-              ต้องการลบ <span className="font-medium text-foreground">{confirmDelete?.name}</span> ออกจากรายการสมาชิกหรือไม่? การกระทำนี้ไม่สามารถย้อนกลับได้
+              ต้องการลบ <span className="font-medium text-foreground">{confirmDelete?.name}</span>{" "}
+              ออกจากรายการสมาชิกหรือไม่? การกระทำนี้ไม่สามารถย้อนกลับได้
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -294,8 +347,13 @@ function EditSubDialog({
   function submit() {
     if (!sub) return;
     const parsed = parseOrToast(subSchema, {
-      name, amount: String(computedMonthly), category, billingDay, paymentMethodId: pmId,
-      status, priceMode,
+      name,
+      amount: String(computedMonthly),
+      category,
+      billingDay,
+      paymentMethodId: pmId,
+      status,
+      priceMode,
       fullPrice: priceMode === "installment" ? fullPrice : undefined,
       installmentMonths: priceMode === "installment" ? installmentMonths : undefined,
       installmentsPaid: priceMode === "installment" ? installmentsPaid : undefined,
@@ -335,7 +393,9 @@ function EditSubDialog({
                 type="button"
                 onClick={() => setPriceMode("monthly")}
                 className={`text-xs rounded-lg border px-3 py-2 transition ${
-                  priceMode === "monthly" ? "bg-primary text-primary-foreground border-primary" : "bg-card border-border hover:border-primary"
+                  priceMode === "monthly"
+                    ? "bg-primary text-primary-foreground border-primary"
+                    : "bg-card border-border hover:border-primary"
                 }`}
               >
                 จ่ายต่อเดือน
@@ -344,7 +404,9 @@ function EditSubDialog({
                 type="button"
                 onClick={() => setPriceMode("installment")}
                 className={`text-xs rounded-lg border px-3 py-2 transition ${
-                  priceMode === "installment" ? "bg-primary text-primary-foreground border-primary" : "bg-card border-border hover:border-primary"
+                  priceMode === "installment"
+                    ? "bg-primary text-primary-foreground border-primary"
+                    : "bg-card border-border hover:border-primary"
                 }`}
               >
                 ราคาเต็ม + ผ่อน
@@ -356,11 +418,24 @@ function EditSubDialog({
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <Label>ราคา (บาท/เดือน)</Label>
-                <Input className="num" type="number" min={0} value={amount} onChange={(e) => setAmount(e.target.value)} />
+                <Input
+                  className="num"
+                  type="number"
+                  min={0}
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value)}
+                />
               </div>
               <div className="space-y-1.5">
                 <Label>วันตัดบิล</Label>
-                <Input className="num" type="number" min={1} max={31} value={billingDay} onChange={(e) => setBillingDay(e.target.value)} />
+                <Input
+                  className="num"
+                  type="number"
+                  min={1}
+                  max={31}
+                  value={billingDay}
+                  onChange={(e) => setBillingDay(e.target.value)}
+                />
               </div>
             </div>
           ) : (
@@ -368,21 +443,49 @@ function EditSubDialog({
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
                   <Label>ราคาเต็ม (บาท)</Label>
-                  <Input className="num" type="number" min={0} value={fullPrice} onChange={(e) => setFullPrice(e.target.value)} placeholder="เช่น 1850" />
+                  <Input
+                    className="num"
+                    type="number"
+                    min={0}
+                    value={fullPrice}
+                    onChange={(e) => setFullPrice(e.target.value)}
+                    placeholder="เช่น 1850"
+                  />
                 </div>
                 <div className="space-y-1.5">
                   <Label>จำนวนงวด (เดือน)</Label>
-                  <Input className="num" type="number" min={1} max={120} value={installmentMonths} onChange={(e) => setInstallmentMonths(e.target.value)} placeholder="10" />
+                  <Input
+                    className="num"
+                    type="number"
+                    min={1}
+                    max={120}
+                    value={installmentMonths}
+                    onChange={(e) => setInstallmentMonths(e.target.value)}
+                    placeholder="10"
+                  />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
                   <Label>วันตัดบิล</Label>
-                  <Input className="num" type="number" min={1} max={31} value={billingDay} onChange={(e) => setBillingDay(e.target.value)} />
+                  <Input
+                    className="num"
+                    type="number"
+                    min={1}
+                    max={31}
+                    value={billingDay}
+                    onChange={(e) => setBillingDay(e.target.value)}
+                  />
                 </div>
                 <div className="space-y-1.5">
                   <Label>จ่ายไปแล้ว (งวด)</Label>
-                  <Input className="num" type="number" min={0} value={installmentsPaid} onChange={(e) => setInstallmentsPaid(e.target.value)} />
+                  <Input
+                    className="num"
+                    type="number"
+                    min={0}
+                    value={installmentsPaid}
+                    onChange={(e) => setInstallmentsPaid(e.target.value)}
+                  />
                 </div>
               </div>
               <div className="rounded-lg border border-border bg-muted/40 p-2.5 flex items-center gap-2 text-xs">
@@ -397,16 +500,24 @@ function EditSubDialog({
             <div className="space-y-1.5">
               <Label>หมวด</Label>
               <Select value={category} onValueChange={(v) => setCategory(v as SubCategory)}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
                 <SelectContent>
-                  {ALL_CATEGORIES.map((c) => <SelectItem key={c} value={c}>{CATEGORY_LABELS[c] ?? c}</SelectItem>)}
+                  {ALL_CATEGORIES.map((c) => (
+                    <SelectItem key={c} value={c}>
+                      {CATEGORY_LABELS[c] ?? c}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-1.5">
               <Label>สถานะ</Label>
               <Select value={status} onValueChange={(v) => setStatus(v as SubStatus)}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="active">Active</SelectItem>
                   <SelectItem value="paused">Paused</SelectItem>
@@ -419,7 +530,9 @@ function EditSubDialog({
           <div className="space-y-1.5">
             <Label>ช่องทางจ่าย</Label>
             <Select value={pmId} onValueChange={setPmId}>
-              <SelectTrigger><SelectValue placeholder="เลือก..." /></SelectTrigger>
+              <SelectTrigger>
+                <SelectValue placeholder="เลือก..." />
+              </SelectTrigger>
               <SelectContent>
                 {paymentMethods.map((p) => (
                   <SelectItem key={p.id} value={p.id}>
@@ -431,7 +544,9 @@ function EditSubDialog({
           </div>
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={onClose}>ยกเลิก</Button>
+          <Button variant="outline" onClick={onClose}>
+            ยกเลิก
+          </Button>
           <Button onClick={submit}>บันทึก</Button>
         </DialogFooter>
       </DialogContent>

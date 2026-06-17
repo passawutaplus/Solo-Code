@@ -78,11 +78,7 @@ function UpgradeCell({
         onClick={() => onUpgrade?.(tier)}
         disabled={!onUpgrade || loadingTier === tier}
       >
-        {loadingTier === tier ? (
-          <Loader2 className="h-3.5 w-3.5 animate-spin" />
-        ) : (
-          "เลือกแพ็ก"
-        )}
+        {loadingTier === tier ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : "เลือกแพ็ก"}
       </Button>
     );
   }
@@ -111,11 +107,7 @@ function UpgradeCell({
       onClick={() => onUpgrade?.(tier)}
       disabled={!onUpgrade || loadingTier === tier}
     >
-      {loadingTier === tier ? (
-        <Loader2 className="h-3.5 w-3.5 animate-spin" />
-      ) : (
-        "อัพเกรด"
-      )}
+      {loadingTier === tier ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : "อัพเกรด"}
     </Button>
   );
 }

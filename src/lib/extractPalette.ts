@@ -1,23 +1,43 @@
 import { rgbToHex, type RGB } from "./colorVariations";
 
-interface Pixel { r: number; g: number; b: number }
+interface Pixel {
+  r: number;
+  g: number;
+  b: number;
+}
 
 function getRange(pixels: Pixel[]): { channel: "r" | "g" | "b"; range: number } {
-  let rMin = 255, rMax = 0, gMin = 255, gMax = 0, bMin = 255, bMax = 0;
+  let rMin = 255,
+    rMax = 0,
+    gMin = 255,
+    gMax = 0,
+    bMin = 255,
+    bMax = 0;
   for (const p of pixels) {
-    if (p.r < rMin) rMin = p.r; if (p.r > rMax) rMax = p.r;
-    if (p.g < gMin) gMin = p.g; if (p.g > gMax) gMax = p.g;
-    if (p.b < bMin) bMin = p.b; if (p.b > bMax) bMax = p.b;
+    if (p.r < rMin) rMin = p.r;
+    if (p.r > rMax) rMax = p.r;
+    if (p.g < gMin) gMin = p.g;
+    if (p.g > gMax) gMax = p.g;
+    if (p.b < bMin) bMin = p.b;
+    if (p.b > bMax) bMax = p.b;
   }
-  const rR = rMax - rMin, gR = gMax - gMin, bR = bMax - bMin;
+  const rR = rMax - rMin,
+    gR = gMax - gMin,
+    bR = bMax - bMin;
   if (rR >= gR && rR >= bR) return { channel: "r", range: rR };
   if (gR >= bR) return { channel: "g", range: gR };
   return { channel: "b", range: bR };
 }
 
 function average(pixels: Pixel[]): RGB {
-  let r = 0, g = 0, b = 0;
-  for (const p of pixels) { r += p.r; g += p.g; b += p.b; }
+  let r = 0,
+    g = 0,
+    b = 0;
+  for (const p of pixels) {
+    r += p.r;
+    g += p.g;
+    b += p.b;
+  }
   const n = pixels.length || 1;
   return { r: r / n, g: g / n, b: b / n };
 }
@@ -34,10 +54,7 @@ function medianCut(pixels: Pixel[], depth: number): RGB[] {
 }
 
 /** Extract `count` dominant colors via median-cut quantization. */
-export async function extractPaletteFromImage(
-  file: File,
-  count = 6,
-): Promise<string[]> {
+export async function extractPaletteFromImage(file: File, count = 6): Promise<string[]> {
   const url = URL.createObjectURL(file);
   try {
     const img = await new Promise<HTMLImageElement>((resolve, reject) => {
@@ -51,7 +68,8 @@ export async function extractPaletteFromImage(
     const w = Math.max(1, Math.round(img.width * scale));
     const h = Math.max(1, Math.round(img.height * scale));
     const canvas = document.createElement("canvas");
-    canvas.width = w; canvas.height = h;
+    canvas.width = w;
+    canvas.height = h;
     const ctx = canvas.getContext("2d");
     if (!ctx) throw new Error("ไม่สามารถใช้ canvas");
     ctx.drawImage(img, 0, 0, w, h);

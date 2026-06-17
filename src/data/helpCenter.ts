@@ -141,16 +141,43 @@ export const HELP_JOURNEYS: HelpJourney[] = [
 ];
 
 export const HELP_QUICK_TOPICS: HelpLink[] = [
-  { to: "/help/getting-started", label: "เริ่มต้นใช้งานครั้งแรก", description: "ตั้งโปรไฟล์ร้าน ลูกค้า ใบเสนอราคาแรก" },
-  { to: "/help/quotations", label: "สร้างและส่งใบเสนอราคา", description: "QT / INV / RC และส่งอีเมลลูกค้า" },
+  {
+    to: "/help/getting-started",
+    label: "เริ่มต้นใช้งานครั้งแรก",
+    description: "ตั้งโปรไฟล์ร้าน ลูกค้า ใบเสนอราคาแรก",
+  },
+  {
+    to: "/help/quotations",
+    label: "สร้างและส่งใบเสนอราคา",
+    description: "QT / INV / RC และส่งอีเมลลูกค้า",
+  },
   { to: "/help/brief", label: "ส่งบรีฟและติดตามงาน", description: "Smart Brief + Job Tracker" },
-  { to: "/help/payments", hash: "qr", label: "ตั้ง QR PromptPay / โอนเงิน", description: "Settings → การเงิน" },
-  { to: "/help/payments", hash: "online", label: "รับชำระออนไลน์ (บัตร)", description: "Stripe Connect บนหน้า Track" },
+  {
+    to: "/help/payments",
+    hash: "qr",
+    label: "ตั้ง QR PromptPay / โอนเงิน",
+    description: "Settings → การเงิน",
+  },
+  {
+    to: "/help/payments",
+    hash: "online",
+    label: "รับชำระออนไลน์ (บัตร)",
+    description: "Stripe Connect บนหน้า Track",
+  },
   { to: "/help/tax", label: "บันทึกรายได้และภาษี", description: "50ทวิ ประมาณการ ส่งนักบัญชี" },
-  { to: "/help/branding", label: "ปรับสีเอกสาร & Portal", description: "White-label Pro ธีมลูกค้า" },
+  {
+    to: "/help/branding",
+    label: "ปรับสีเอกสาร & Portal",
+    description: "White-label Pro ธีมลูกค้า",
+  },
   { to: "/help/plans", label: "แพ็กเกจ Pro และเครดิต AI", description: "Free vs Pro โควต้า AI" },
   { to: "/help/line", label: "แจ้งเตือน LINE", description: "เชื่อม LINE OA รับแจ้งเตือนงาน" },
-  { to: "/help/plans", hash: "ecosystem", label: "So1o + Pixel100 คืออะไร", description: "บัญชีเดียว สมัครครั้งเดียว" },
+  {
+    to: "/help/plans",
+    hash: "ecosystem",
+    label: "So1o + Pixel100 คืออะไร",
+    description: "บัญชีเดียว สมัครครั้งเดียว",
+  },
 ];
 
 export const HELP_CATEGORIES: HelpCategory[] = [
@@ -160,9 +187,22 @@ export const HELP_CATEGORIES: HelpCategory[] = [
     description: "My Desk, ecosystem และแพ็กเกจ",
     icon: LayoutDashboard,
     topics: [
-      { to: "/help/getting-started", label: "3 ขั้นแรกหลังสมัคร", description: "โปรไฟล์ · ลูกค้า · Pipeline" },
-      { to: "/help/plans", hash: "ecosystem", label: "So1o กับ Pixel100", description: "หลังบ้าน + โชว์เคส" },
-      { to: "/help/plans", label: "แพ็กเกจ Free / Pro / Pro+ / In-House", description: "ราคา โควต้า AI storage" },
+      {
+        to: "/help/getting-started",
+        label: "3 ขั้นแรกหลังสมัคร",
+        description: "โปรไฟล์ · ลูกค้า · Pipeline",
+      },
+      {
+        to: "/help/plans",
+        hash: "ecosystem",
+        label: "So1o กับ Pixel100",
+        description: "หลังบ้าน + โชว์เคส",
+      },
+      {
+        to: "/help/plans",
+        label: "แพ็กเกจ Free / Pro / Pro+ / In-House",
+        description: "ราคา โควต้า AI storage",
+      },
       { to: "/pricing", label: "ตารางเปรียบเทียบแพ็ก", description: "ดูราคาเต็มทุกฟีเจอร์" },
     ],
   },
@@ -172,9 +212,21 @@ export const HELP_CATEGORIES: HelpCategory[] = [
     description: "บรีฟ ติดตาม Portal และสื่อสาร",
     icon: Users,
     topics: [
-      { to: "/help/brief", label: "Smart Brief", description: "ลิงก์ `/brief/:token` ให้ลูกค้ากรอกบรีฟ" },
-      { to: "/help/brief", label: "Job Tracker & Portal", description: "ลิงก์ `/track/:token` ติดตามงาน" },
-      { to: "/help/quotations", label: "ใบเสนอราคา & ส่งอีเมล", description: "ลูกค้ายอมรับ QT จากลิงก์" },
+      {
+        to: "/help/brief",
+        label: "Smart Brief",
+        description: "ลิงก์ `/brief/:token` ให้ลูกค้ากรอกบรีฟ",
+      },
+      {
+        to: "/help/brief",
+        label: "Job Tracker & Portal",
+        description: "ลิงก์ `/track/:token` ติดตามงาน",
+      },
+      {
+        to: "/help/quotations",
+        label: "ใบเสนอราคา & ส่งอีเมล",
+        description: "ลูกค้ายอมรับ QT จากลิงก์",
+      },
       { to: "/help/line", label: "แจ้งเตือน LINE", description: "งานใหม่ ชำระเงิน ครบกำหนด" },
     ],
   },
@@ -184,9 +236,24 @@ export const HELP_CATEGORIES: HelpCategory[] = [
     description: "รับชำระ บันทึกรายได้ เอกสารภาษี",
     icon: Wallet,
     topics: [
-      { to: "/help/payments", hash: "qr", label: "QR / โอน + อัปสลิป", description: "Settings → การเงิน" },
-      { to: "/help/payments", hash: "online", label: "ชำระออนไลน์ Stripe", description: "มัดจำ/งวดสุดท้ายอัตโนมัติ" },
-      { to: "/help/quotations", hash: "invoice", label: "INV / RC", description: "ใบแจ้งหนี้ & ใบเสร็จ" },
+      {
+        to: "/help/payments",
+        hash: "qr",
+        label: "QR / โอน + อัปสลิป",
+        description: "Settings → การเงิน",
+      },
+      {
+        to: "/help/payments",
+        hash: "online",
+        label: "ชำระออนไลน์ Stripe",
+        description: "มัดจำ/งวดสุดท้ายอัตโนมัติ",
+      },
+      {
+        to: "/help/quotations",
+        hash: "invoice",
+        label: "INV / RC",
+        description: "ใบแจ้งหนี้ & ใบเสร็จ",
+      },
       { to: "/help/tax", label: "ภาษีฟรีแลนซ์", description: "รายได้ · 50ทวิ · ส่งนักบัญชี" },
     ],
   },
@@ -196,9 +263,17 @@ export const HELP_CATEGORIES: HelpCategory[] = [
     description: "PDF QT/INV/RC และหน้า Portal",
     icon: Palette,
     topics: [
-      { to: "/help/branding", label: "ธีมเอกสาร & Portal", description: "สี badge white-label (Pro)" },
+      {
+        to: "/help/branding",
+        label: "ธีมเอกสาร & Portal",
+        description: "สี badge white-label (Pro)",
+      },
       { to: "/help/quotations", label: "โครงสร้างใบเสนอราคา", description: "รายการ มัดจำ VAT/WHT" },
-      { to: "/help/getting-started", label: "โลโก้ & ข้อมูลร้าน", description: "Settings → โปรไฟล์ร้าน" },
+      {
+        to: "/help/getting-started",
+        label: "โลโก้ & ข้อมูลร้าน",
+        description: "Settings → โปรไฟล์ร้าน",
+      },
     ],
   },
   {
@@ -208,22 +283,87 @@ export const HELP_CATEGORIES: HelpCategory[] = [
     icon: Settings,
     topics: [
       { to: "/help/payments", label: "หมวด «การเงิน»", description: "QR, โอน, Stripe Connect" },
-      { to: "/help/branding", label: "ธีมเอกสาร & Portal", description: "section หุบได้ใน Settings" },
-      { to: "/help/plans", hash: "ai", label: "เครดิต AI & Storage", description: "ยอดคงเหลือรอบบิล" },
+      {
+        to: "/help/branding",
+        label: "ธีมเอกสาร & Portal",
+        description: "section หุบได้ใน Settings",
+      },
+      {
+        to: "/help/plans",
+        hash: "ai",
+        label: "เครดิต AI & Storage",
+        description: "ยอดคงเหลือรอบบิล",
+      },
       { to: "/help/line", label: "LINE OAuth", description: "แจ้งเตือนส่วนตัว (ไม่ใช่ลูกค้า)" },
     ],
   },
 ];
 
 export const HELP_GUIDES: HelpGuideCard[] = [
-  { to: "/help/getting-started", icon: Rocket, title: "เริ่มต้นใช้งาน", description: "3 ขั้นแรก — ตั้งแบรนด์ เพิ่มลูกค้า สร้างใบเสนอราคา", tag: "แนะนำ", minutes: 5 },
-  { to: "/help/quotations", icon: FileText, title: "ใบเสนอราคา & เอกสาร", description: "QT/INV/RC ส่งอีเมล ลูกค้ายอมรับ ออกใบแจ้งหนี้", tag: "เอกสาร", minutes: 8 },
-  { to: "/help/brief", icon: MessageCircle, title: "Smart Brief & Job Tracker", description: "ส่งบรีฟ ติดตามงาน feedback ชำระมัดจำ", tag: "ลูกค้า", minutes: 10 },
-  { to: "/help/payments", icon: CreditCard, title: "รับชำระจากลูกค้า", description: "QR PromptPay / โอน vs Stripe บนหน้า Track", tag: "การเงิน", minutes: 7 },
-  { to: "/help/tax", icon: Coins, title: "คู่มือภาษีฟรีแลนซ์", description: "บันทึกรายได้ 50ทวิ ประมาณการ ส่งนักบัญชี", tag: "ภาษี", minutes: 12 },
-  { to: "/help/branding", icon: Palette, title: "ธีมเอกสาร & Portal", description: "ปรับสี PDF white-label และ Track/Brief", tag: "แบรนด์", minutes: 6 },
-  { to: "/help/plans", icon: Sparkles, title: "แพ็กเกจ & เครดิต AI", description: "Free vs Pro โควต้า storage ecosystem", tag: "แพ็กเกจ", minutes: 5 },
-  { to: "/help/line", icon: Bell, title: "แจ้งเตือน LINE", description: "เชื่อม LINE OA รับแจ้งเหตุการณ์สำคัญ", tag: "การแจ้งเตือน", minutes: 4 },
+  {
+    to: "/help/getting-started",
+    icon: Rocket,
+    title: "เริ่มต้นใช้งาน",
+    description: "3 ขั้นแรก — ตั้งแบรนด์ เพิ่มลูกค้า สร้างใบเสนอราคา",
+    tag: "แนะนำ",
+    minutes: 5,
+  },
+  {
+    to: "/help/quotations",
+    icon: FileText,
+    title: "ใบเสนอราคา & เอกสาร",
+    description: "QT/INV/RC ส่งอีเมล ลูกค้ายอมรับ ออกใบแจ้งหนี้",
+    tag: "เอกสาร",
+    minutes: 8,
+  },
+  {
+    to: "/help/brief",
+    icon: MessageCircle,
+    title: "Smart Brief & Job Tracker",
+    description: "ส่งบรีฟ ติดตามงาน feedback ชำระมัดจำ",
+    tag: "ลูกค้า",
+    minutes: 10,
+  },
+  {
+    to: "/help/payments",
+    icon: CreditCard,
+    title: "รับชำระจากลูกค้า",
+    description: "QR PromptPay / โอน vs Stripe บนหน้า Track",
+    tag: "การเงิน",
+    minutes: 7,
+  },
+  {
+    to: "/help/tax",
+    icon: Coins,
+    title: "คู่มือภาษีฟรีแลนซ์",
+    description: "บันทึกรายได้ 50ทวิ ประมาณการ ส่งนักบัญชี",
+    tag: "ภาษี",
+    minutes: 12,
+  },
+  {
+    to: "/help/branding",
+    icon: Palette,
+    title: "ธีมเอกสาร & Portal",
+    description: "ปรับสี PDF white-label และ Track/Brief",
+    tag: "แบรนด์",
+    minutes: 6,
+  },
+  {
+    to: "/help/plans",
+    icon: Sparkles,
+    title: "แพ็กเกจ & เครดิต AI",
+    description: "Free vs Pro โควต้า storage ecosystem",
+    tag: "แพ็กเกจ",
+    minutes: 5,
+  },
+  {
+    to: "/help/line",
+    icon: Bell,
+    title: "แจ้งเตือน LINE",
+    description: "เชื่อม LINE OA รับแจ้งเหตุการณ์สำคัญ",
+    tag: "การแจ้งเตือน",
+    minutes: 4,
+  },
 ];
 
 export const HELP_FAQ: HelpFaqItem[] = [
@@ -269,7 +409,8 @@ export const HELP_FAQ: HelpFaqItem[] = [
     id: "both-pay",
     category: "money",
     question: "ใช้ QR และชำระบัตรพร้อมกันได้ไหม?",
-    answer: "ได้ — ลูกค้าเห็นทั้งสองช่องทางบนหน้า Track ปิด Stripe ชั่วคราวได้ใน Settings โดย QR ยังใช้ได้",
+    answer:
+      "ได้ — ลูกค้าเห็นทั้งสองช่องทางบนหน้า Track ปิด Stripe ชั่วคราวได้ใน Settings โดย QR ยังใช้ได้",
     link: { to: "/help/payments", label: "รับชำระจากลูกค้า" },
   },
   {
@@ -318,30 +459,95 @@ export const HELP_FAQ: HelpFaqItem[] = [
     id: "support",
     category: "general",
     question: "แจ้งบั๊กหรือขอความช่วยเหลือที่ไหน?",
-    answer: "เปิด Support Hub มุมขวาล่างใน Dashboard — แจ้งปัญหา (ได้เลข TKT) แชททีม หรือดู FAQ ในแอป",
+    answer:
+      "เปิด Support Hub มุมขวาล่างใน Dashboard — แจ้งปัญหา (ได้เลข TKT) แชททีม หรือดู FAQ ในแอป",
   },
 ];
 
 export const HELP_SETTINGS_MAP: HelpSettingsRow[] = [
-  { task: "ใส่ QR PromptPay / บัญชีโอน", settingsPath: "Settings → การเงิน", link: { to: "/help/payments", hash: "qr", label: "QR" } },
-  { task: "เปิดรับชำระบัตร (Stripe Connect)", settingsPath: "Settings → การเงิน", link: { to: "/help/payments", hash: "online", label: "Stripe" } },
-  { task: "ปรับสี PDF & Portal", settingsPath: "Settings → ธีมเอกสาร & Portal", link: { to: "/help/branding", label: "ธีม" } },
-  { task: "โลโก้ / ชื่อร้าน / ที่อยู่", settingsPath: "Settings → โปรไฟล์ร้าน", link: { to: "/help/getting-started", label: "เริ่มต้น" } },
-  { task: "เชื่อม LINE แจ้งเตือน", settingsPath: "Settings → LINE", link: { to: "/help/line", label: "LINE" } },
-  { task: "ดูแพ็ก / อัพเกรด Pro", settingsPath: "Settings → แพ็กเกจ", link: { to: "/help/plans", label: "แพ็ก" } },
-  { task: "เครดิต AI & Storage", settingsPath: "Settings → AI & Storage", link: { to: "/help/plans", hash: "ai", label: "AI" } },
+  {
+    task: "ใส่ QR PromptPay / บัญชีโอน",
+    settingsPath: "Settings → การเงิน",
+    link: { to: "/help/payments", hash: "qr", label: "QR" },
+  },
+  {
+    task: "เปิดรับชำระบัตร (Stripe Connect)",
+    settingsPath: "Settings → การเงิน",
+    link: { to: "/help/payments", hash: "online", label: "Stripe" },
+  },
+  {
+    task: "ปรับสี PDF & Portal",
+    settingsPath: "Settings → ธีมเอกสาร & Portal",
+    link: { to: "/help/branding", label: "ธีม" },
+  },
+  {
+    task: "โลโก้ / ชื่อร้าน / ที่อยู่",
+    settingsPath: "Settings → โปรไฟล์ร้าน",
+    link: { to: "/help/getting-started", label: "เริ่มต้น" },
+  },
+  {
+    task: "เชื่อม LINE แจ้งเตือน",
+    settingsPath: "Settings → LINE",
+    link: { to: "/help/line", label: "LINE" },
+  },
+  {
+    task: "ดูแพ็ก / อัพเกรด Pro",
+    settingsPath: "Settings → แพ็กเกจ",
+    link: { to: "/help/plans", label: "แพ็ก" },
+  },
+  {
+    task: "เครดิต AI & Storage",
+    settingsPath: "Settings → AI & Storage",
+    link: { to: "/help/plans", hash: "ai", label: "AI" },
+  },
 ];
 
 export const HELP_GLOSSARY: HelpGlossaryTerm[] = [
-  { term: "QT", definition: "ใบเสนอราคา (Quotation) — ส่งให้ลูกค้าก่อนเริ่มงาน", link: { to: "/help/quotations", label: "เอกสาร" } },
-  { term: "INV", definition: "ใบแจ้งหนี้ — ออกหลังลูกค้ายอมรับ QT หรือถึงรอบเก็บเงิน", link: { to: "/help/quotations", hash: "invoice", label: "INV/RC" } },
-  { term: "RC", definition: "ใบเสร็จรับเงิน — หลังบันทึกว่ารับชำระครบแล้ว", link: { to: "/help/quotations", hash: "invoice", label: "INV/RC" } },
-  { term: "Track", definition: "หน้าติดตามงานลูกค้า `/track/:token` — QT ชำระเงิน feedback", link: { to: "/help/brief", label: "Job Tracker" } },
-  { term: "Brief", definition: "หน้ารับบรีฟ `/brief/:token` — ลูกค้ากรอกรายละเอียดงาน", link: { to: "/help/brief", label: "Smart Brief" } },
-  { term: "Portal", definition: "หน้าลูกค้า Track/Brief ที่ใช้สีแบรนด์ของคุณ (Pro)", link: { to: "/help/branding", label: "ธีม Portal" } },
-  { term: "Connect", definition: "Stripe Connect — รับชำระบัตรเข้าบัญชีของคุณ", link: { to: "/help/payments", hash: "online", label: "Stripe" } },
-  { term: "50ทวิ", definition: "ใบหัก ณ ที่จ่าย — บันทึกใน My Desk / สแกนด้วย AI", link: { to: "/help/tax", label: "ภาษี" } },
-  { term: "Pixel100", definition: "โชว์เคสผลงาน — ecosystem คู่กับ So1o บัญชีเดียว", link: { to: "/help/plans", hash: "ecosystem", label: "Ecosystem" } },
+  {
+    term: "QT",
+    definition: "ใบเสนอราคา (Quotation) — ส่งให้ลูกค้าก่อนเริ่มงาน",
+    link: { to: "/help/quotations", label: "เอกสาร" },
+  },
+  {
+    term: "INV",
+    definition: "ใบแจ้งหนี้ — ออกหลังลูกค้ายอมรับ QT หรือถึงรอบเก็บเงิน",
+    link: { to: "/help/quotations", hash: "invoice", label: "INV/RC" },
+  },
+  {
+    term: "RC",
+    definition: "ใบเสร็จรับเงิน — หลังบันทึกว่ารับชำระครบแล้ว",
+    link: { to: "/help/quotations", hash: "invoice", label: "INV/RC" },
+  },
+  {
+    term: "Track",
+    definition: "หน้าติดตามงานลูกค้า `/track/:token` — QT ชำระเงิน feedback",
+    link: { to: "/help/brief", label: "Job Tracker" },
+  },
+  {
+    term: "Brief",
+    definition: "หน้ารับบรีฟ `/brief/:token` — ลูกค้ากรอกรายละเอียดงาน",
+    link: { to: "/help/brief", label: "Smart Brief" },
+  },
+  {
+    term: "Portal",
+    definition: "หน้าลูกค้า Track/Brief ที่ใช้สีแบรนด์ของคุณ (Pro)",
+    link: { to: "/help/branding", label: "ธีม Portal" },
+  },
+  {
+    term: "Connect",
+    definition: "Stripe Connect — รับชำระบัตรเข้าบัญชีของคุณ",
+    link: { to: "/help/payments", hash: "online", label: "Stripe" },
+  },
+  {
+    term: "50ทวิ",
+    definition: "ใบหัก ณ ที่จ่าย — บันทึกใน My Desk / สแกนด้วย AI",
+    link: { to: "/help/tax", label: "ภาษี" },
+  },
+  {
+    term: "Pixel100",
+    definition: "โชว์เคสผลงาน — ecosystem คู่กับ So1o บัญชีเดียว",
+    link: { to: "/help/plans", hash: "ecosystem", label: "Ecosystem" },
+  },
 ];
 
 export const HELP_POLICY_LINKS: HelpLink[] = [

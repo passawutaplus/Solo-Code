@@ -24,9 +24,15 @@ export function SupportChat() {
   // Mark admin messages as read
   React.useEffect(() => {
     if (!user) return;
-    const unreadIds = messages.filter((m) => m.sender_role === "admin" && !m.is_read).map((m) => m.id);
+    const unreadIds = messages
+      .filter((m) => m.sender_role === "admin" && !m.is_read)
+      .map((m) => m.id);
     if (unreadIds.length === 0) return;
-    supabase.from("chat_messages").update({ is_read: true }).in("id", unreadIds).then(() => {});
+    supabase
+      .from("chat_messages")
+      .update({ is_read: true })
+      .in("id", unreadIds)
+      .then(() => {});
   }, [messages, user]);
 
   if (!user) {
@@ -36,7 +42,9 @@ export function SupportChat() {
           <LogIn className="h-6 w-6 text-[#FF5F05]" />
         </div>
         <h3 className="font-semibold text-gray-900 mb-1">เข้าสู่ระบบเพื่อแชท</h3>
-        <p className="text-sm text-gray-500 mb-4">ล็อกอินก่อนเพื่อคุยกับทีมงาน So1o ได้แบบเรียลไทม์</p>
+        <p className="text-sm text-gray-500 mb-4">
+          ล็อกอินก่อนเพื่อคุยกับทีมงาน So1o ได้แบบเรียลไทม์
+        </p>
         <Link to="/login">
           <Button style={{ background: "#FF5F05" }} className="text-white hover:opacity-90">
             เข้าสู่ระบบ
@@ -108,7 +116,10 @@ export function SupportChat() {
           </div>
         ) : (
           messages.map((m) => (
-            <div key={m.id} className={`flex ${m.sender_role === "user" ? "justify-end" : "justify-start"}`}>
+            <div
+              key={m.id}
+              className={`flex ${m.sender_role === "user" ? "justify-end" : "justify-start"}`}
+            >
               <div
                 className={`max-w-[80%] rounded-2xl px-3 py-2 ${
                   m.sender_role === "user"
@@ -121,8 +132,13 @@ export function SupportChat() {
                   <img src={m.image_url} alt="แนบรูป" className="rounded-lg mb-1 max-w-full" />
                 )}
                 <div className="text-sm whitespace-pre-wrap break-words">{m.body}</div>
-                <div className={`text-[10px] mt-1 ${m.sender_role === "user" ? "text-white/70" : "text-gray-400"}`}>
-                  {new Date(m.created_at).toLocaleTimeString("th-TH", { hour: "2-digit", minute: "2-digit" })}
+                <div
+                  className={`text-[10px] mt-1 ${m.sender_role === "user" ? "text-white/70" : "text-gray-400"}`}
+                >
+                  {new Date(m.created_at).toLocaleTimeString("th-TH", {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
                 </div>
               </div>
             </div>
@@ -152,7 +168,11 @@ export function SupportChat() {
             disabled={uploading || sending}
             aria-label="แนบรูป"
           >
-            {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ImagePlus className="h-4 w-4" />}
+            {uploading ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <ImagePlus className="h-4 w-4" />
+            )}
           </Button>
           <Textarea
             value={body}

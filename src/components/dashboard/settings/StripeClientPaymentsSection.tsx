@@ -18,11 +18,7 @@ type ConnectProfile = {
 
 export type StripeConnectPreviewState = "disconnected" | "pending" | "ready";
 
-export function StripeClientPaymentsSection({
-  preview,
-}: {
-  preview?: StripeConnectPreviewState;
-}) {
+export function StripeClientPaymentsSection({ preview }: { preview?: StripeConnectPreviewState }) {
   const { profile, refreshProfile } = useAuth();
   const p = profile as (typeof profile & ConnectProfile) | null;
   const isPreview = preview != null;

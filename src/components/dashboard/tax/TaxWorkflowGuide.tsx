@@ -82,7 +82,12 @@ export function TaxWorkflowGuide({ onNavigate, onExport, done = {} }: TaxWorkflo
             {completed}/{STEPS.length} ขั้นที่ทำแล้ว · อ่านง่าย ไม่ต้องเป็นนักบัญชีก็เริ่มได้
           </p>
         </div>
-        <ChevronRight className={cn("h-4 w-4 text-muted-foreground shrink-0 transition-transform", expanded && "rotate-90")} />
+        <ChevronRight
+          className={cn(
+            "h-4 w-4 text-muted-foreground shrink-0 transition-transform",
+            expanded && "rotate-90",
+          )}
+        />
       </button>
 
       {expanded && (
@@ -99,7 +104,10 @@ export function TaxWorkflowGuide({ onNavigate, onExport, done = {} }: TaxWorkflo
                 )}
               >
                 {i < STEPS.length - 1 && (
-                  <span className="absolute left-[1.65rem] top-full h-2 w-px bg-border" aria-hidden />
+                  <span
+                    className="absolute left-[1.65rem] top-full h-2 w-px bg-border"
+                    aria-hidden
+                  />
                 )}
                 <div
                   className={cn(
@@ -111,7 +119,9 @@ export function TaxWorkflowGuide({ onNavigate, onExport, done = {} }: TaxWorkflo
                 </div>
                 <div className="min-w-0 flex-1">
                   <p className="text-xs font-semibold">{step.title}</p>
-                  <p className="text-[11px] text-muted-foreground leading-relaxed mt-0.5">{step.desc}</p>
+                  <p className="text-[11px] text-muted-foreground leading-relaxed mt-0.5">
+                    {step.desc}
+                  </p>
                   <p className="text-[10px] text-primary/80 mt-1">💡 {step.tip}</p>
                   <div className="mt-2 flex flex-wrap gap-2">
                     {step.action && (

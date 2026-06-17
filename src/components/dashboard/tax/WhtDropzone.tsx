@@ -48,11 +48,7 @@ export function WhtDropzone({ onFiles, busy, progress }: Props) {
       )}
     >
       <div className="rounded-xl bg-primary/15 text-primary p-3 shrink-0">
-        {busy ? (
-          <Loader2 className="h-6 w-6 animate-spin" />
-        ) : (
-          <UploadCloud className="h-6 w-6" />
-        )}
+        {busy ? <Loader2 className="h-6 w-6 animate-spin" /> : <UploadCloud className="h-6 w-6" />}
       </div>
       <div className="flex-1 min-w-0">
         <p className="text-sm font-semibold flex items-center gap-1.5">

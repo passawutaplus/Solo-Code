@@ -28,8 +28,8 @@ function CookiesPage() {
     >
       <LegalSectionBlock id="what" title="1. คุกกี้คืออะไร">
         <p>
-          คุกกี้ (Cookies) คือไฟล์ข้อมูลขนาดเล็กที่เว็บไซต์เก็บในเบราว์เซอร์
-          นอกจากนี้เรายังใช้ <strong>Local Storage</strong> และ <strong>Session Storage</strong>
+          คุกกี้ (Cookies) คือไฟล์ข้อมูลขนาดเล็กที่เว็บไซต์เก็บในเบราว์เซอร์ นอกจากนี้เรายังใช้{" "}
+          <strong>Local Storage</strong> และ <strong>Session Storage</strong>
           ซึ่งทำหน้าที่คล้ายคุกกี้ในการจดจำการตั้งค่าและสถานะการใช้งาน
         </p>
       </LegalSectionBlock>
@@ -37,16 +37,16 @@ function CookiesPage() {
       <LegalSectionBlock id="categories" title="2. ประเภทคุกกี้ที่เราใช้">
         <ul className="list-disc pl-5 space-y-2">
           <li>
-            <span className="font-medium">คุกกี้ที่จำเป็น (Essential):</span>{" "}
-            ล็อกอิน ความปลอดภัย และบันทึกการยินยอม — ปิดไม่ได้เพราะระบบใช้งานไม่ได้
+            <span className="font-medium">คุกกี้ที่จำเป็น (Essential):</span> ล็อกอิน ความปลอดภัย
+            และบันทึกการยินยอม — ปิดไม่ได้เพราะระบบใช้งานไม่ได้
           </li>
           <li>
-            <span className="font-medium">คุกกี้การตั้งค่า (Preferences):</span>{" "}
-            ธีม, ตำแหน่ง UI, Draft งาน, ประกาศที่ปิดแล้ว — ใช้เมื่อคุณยินยอม
+            <span className="font-medium">คุกกี้การตั้งค่า (Preferences):</span> ธีม, ตำแหน่ง UI,
+            Draft งาน, ประกาศที่ปิดแล้ว — ใช้เมื่อคุณยินยอม
           </li>
           <li>
-            <span className="font-medium">คุกกี้วิเคราะห์ (Analytics):</span>{" "}
-            สถิติการใช้งาน ประเภทอุปกรณ์, ความถี่ใช้ฟีเจอร์ — ไม่ขายข้อมูล ใช้เมื่อคุณยินยอม
+            <span className="font-medium">คุกกี้วิเคราะห์ (Analytics):</span> สถิติการใช้งาน
+            ประเภทอุปกรณ์, ความถี่ใช้ฟีเจอร์ — ไม่ขายข้อมูล ใช้เมื่อคุณยินยอม
           </li>
         </ul>
         <p className="text-muted-foreground text-xs">
@@ -90,7 +90,8 @@ function CookiesPage() {
             <strong>Google OAuth</strong> — อาจตั้งคุกกี้ระหว่างการล็อกอิน (จำเป็น)
           </li>
           <li>
-            <strong>Stripe</strong> — Checkout แผน Pro/Pro+/In-House และ Stripe Connect (จำเป็นเมื่อชำระ/เชื่อมบัญชี)
+            <strong>Stripe</strong> — Checkout แผน Pro/Pro+/In-House และ Stripe Connect
+            (จำเป็นเมื่อชำระ/เชื่อมบัญชี)
           </li>
           <li>
             <strong>Google Fonts</strong> — อาจบันทึก log การโหลดฟอนต์ (ไม่ใช่คุกกี้โดยตรงจาก So1o)
@@ -108,9 +109,7 @@ function CookiesPage() {
           นอกจากนี้ คุณสามารถลบหรือบล็อกคุกกี้ในเบราว์เซอร์ (Chrome, Safari, Firefox, Edge)
           แต่หากปิดคุกกี้ที่จำเป็น ระบบล็อกอินอาจใช้งานไม่ได้
         </p>
-        <p>
-          การยินยอมจะหมดอายุใน 180 วัน หลังจากนั้นกล่องยินยอมจะแสดงอีกครั้ง
-        </p>
+        <p>การยินยอมจะหมดอายุใน 180 วัน หลังจากนั้นกล่องยินยอมจะแสดงอีกครั้ง</p>
         <p>
           ดูนโยบายความเป็นส่วนตัวเพิ่มเติมที่{" "}
           <Link to="/privacy" className="text-primary hover:underline">

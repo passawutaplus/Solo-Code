@@ -2,7 +2,7 @@
  * Re-exports 1PX auth email templates from the Anthem-Code package (monorepo sibling).
  * Used by the shared Supabase auth email webhook.
  */
-import type { ComponentType } from 'react'
+import type { ComponentType } from "react";
 import {
   SignupEmail as AnthemSignupEmail,
   InviteEmail as AnthemInviteEmail,
@@ -13,7 +13,7 @@ import {
   ANTHEM_AUTH_SUBJECTS,
   SITE_NAME as ANTHEM_SITE_NAME,
   SITE_URL as ANTHEM_SITE_URL,
-} from './anthem-vendor/templates/index.ts'
+} from "./anthem-vendor/templates/index.ts";
 
 export const ANTHEM_EMAIL_TEMPLATES: Record<string, ComponentType<any>> = {
   signup: AnthemSignupEmail,
@@ -22,10 +22,6 @@ export const ANTHEM_EMAIL_TEMPLATES: Record<string, ComponentType<any>> = {
   recovery: AnthemRecoveryEmail,
   email_change: AnthemEmailChangeEmail,
   reauthentication: AnthemReauthenticationEmail,
-}
+};
 
-export {
-  ANTHEM_AUTH_SUBJECTS,
-  ANTHEM_SITE_NAME,
-  ANTHEM_SITE_URL,
-}
+export { ANTHEM_AUTH_SUBJECTS, ANTHEM_SITE_NAME, ANTHEM_SITE_URL };

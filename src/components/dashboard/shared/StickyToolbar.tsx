@@ -80,7 +80,9 @@ export function StickyToolbar({
             >
               {a.icon}
               <span className="hidden xl:inline">{a.label}</span>
-              <span className="xl:hidden">{a.label.length > 8 ? a.label.slice(0, 8) + "…" : a.label}</span>
+              <span className="xl:hidden">
+                {a.label.length > 8 ? a.label.slice(0, 8) + "…" : a.label}
+              </span>
             </Button>
           ))}
         </div>
@@ -128,7 +130,9 @@ export function StickyToolbar({
           >
             {a.icon}
             <span className="hidden sm:inline">{a.label}</span>
-            <span className="sm:hidden">{a.label.length > 10 ? a.label.slice(0, 10) + "…" : a.label}</span>
+            <span className="sm:hidden">
+              {a.label.length > 10 ? a.label.slice(0, 10) + "…" : a.label}
+            </span>
           </Button>
         ))}
       </div>

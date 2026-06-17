@@ -11,9 +11,7 @@ type Account = { email: string; password: string };
 function envOrSkip(key: string): string {
   const v = process.env[key];
   if (!v) {
-    throw new Error(
-      `[e2e] Missing env ${key} — set it in .env.local (see docs/test-accounts.md)`,
-    );
+    throw new Error(`[e2e] Missing env ${key} — set it in .env.local (see docs/test-accounts.md)`);
   }
   return v;
 }

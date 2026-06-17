@@ -135,10 +135,20 @@ export function AiFeedbackBar({ feature, prompt, response, model, metadata, comp
             className="text-xs"
           />
           <div className="flex justify-end gap-1.5">
-            <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={() => setEditing(false)}>
+            <Button
+              size="sm"
+              variant="ghost"
+              className="h-7 text-xs"
+              onClick={() => setEditing(false)}
+            >
               ยกเลิก
             </Button>
-            <Button size="sm" className="h-7 text-xs" disabled={saving || !correction.trim()} onClick={saveCorrection}>
+            <Button
+              size="sm"
+              className="h-7 text-xs"
+              disabled={saving || !correction.trim()}
+              onClick={saveCorrection}
+            >
               บันทึกเป็นตัวอย่าง
             </Button>
           </div>

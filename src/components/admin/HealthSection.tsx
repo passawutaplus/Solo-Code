@@ -67,9 +67,7 @@ export function HealthSection({ m }: { m: AdminMetrics }) {
     <div className="space-y-5">
       <div>
         <h2 className="text-lg font-semibold tracking-tight">สุขภาพระบบ</h2>
-        <p className="text-xs text-muted-foreground">
-          สถานะตารางหลักและการเชื่อมต่อฐานข้อมูล
-        </p>
+        <p className="text-xs text-muted-foreground">สถานะตารางหลักและการเชื่อมต่อฐานข้อมูล</p>
       </div>
 
       {m.error && (
@@ -92,7 +90,9 @@ export function HealthSection({ m }: { m: AdminMetrics }) {
                 className="rounded-lg border border-border bg-card/50 p-3 flex items-center justify-between gap-2"
               >
                 <div className="min-w-0">
-                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider truncate">{t.name}</p>
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider truncate">
+                    {t.name}
+                  </p>
                   <p className="text-sm font-semibold num">
                     {t.count == null ? "—" : t.count.toLocaleString()}
                   </p>

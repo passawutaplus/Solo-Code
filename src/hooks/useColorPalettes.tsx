@@ -84,9 +84,9 @@ export function useColorPalettes() {
   const instanceIdRef = React.useRef<string>("");
   if (!instanceIdRef.current) {
     instanceIdRef.current =
-      (typeof crypto !== "undefined" && "randomUUID" in crypto
+      typeof crypto !== "undefined" && "randomUUID" in crypto
         ? crypto.randomUUID()
-        : Math.random().toString(36).slice(2));
+        : Math.random().toString(36).slice(2);
   }
 
   React.useEffect(() => {
@@ -102,12 +102,22 @@ export function useColorPalettes() {
       .channel(`palettes-${userId}-${instanceIdRef.current}`)
       .on(
         "postgres_changes",
-        { event: "*", schema: "public", table: "user_color_palettes", filter: `user_id=eq.${userId}` },
+        {
+          event: "*",
+          schema: "public",
+          table: "user_color_palettes",
+          filter: `user_id=eq.${userId}`,
+        },
         scheduleReload,
       )
       .on(
         "postgres_changes",
-        { event: "*", schema: "public", table: "user_saved_colors", filter: `user_id=eq.${userId}` },
+        {
+          event: "*",
+          schema: "public",
+          table: "user_saved_colors",
+          filter: `user_id=eq.${userId}`,
+        },
         scheduleReload,
       )
       .subscribe();

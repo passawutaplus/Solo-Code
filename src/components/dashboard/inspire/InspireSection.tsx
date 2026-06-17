@@ -15,8 +15,7 @@ export function InspireSection({ previewLimit }: Props) {
   const [expanded, setExpanded] = React.useState(!isPreview);
   const [active, setActive] = React.useState<CategoryMeta["id"]>("all");
 
-  const filtered =
-    active === "all" ? RESOURCES : RESOURCES.filter((r) => r.category === active);
+  const filtered = active === "all" ? RESOURCES : RESOURCES.filter((r) => r.category === active);
 
   const visibleItems = isPreview && !expanded ? filtered.slice(0, previewLimit) : filtered;
 
@@ -110,12 +109,7 @@ export function InspireSection({ previewLimit }: Props) {
 
       {isPreview && !expanded && filtered.length > previewLimit! && (
         <div className="flex justify-center pt-2">
-          <Button
-            variant="outline"
-            size="sm"
-            className="gap-1.5"
-            onClick={() => setExpanded(true)}
-          >
+          <Button variant="outline" size="sm" className="gap-1.5" onClick={() => setExpanded(true)}>
             ดู Inspire ทั้งหมด ({RESOURCES.length})
             <ChevronDown className="h-3.5 w-3.5" />
           </Button>

@@ -25,10 +25,14 @@ export async function uploadBriefReference(opts: {
   try {
     if (file.type === "image/svg+xml") {
       if (file.size > HARD_MAX) throw new Error("ไฟล์ SVG ใหญ่เกิน 4MB");
-      blob = file; ext = "svg"; contentType = "image/svg+xml";
+      blob = file;
+      ext = "svg";
+      contentType = "image/svg+xml";
     } else if (file.type === "image/gif") {
       if (file.size > HARD_MAX) throw new Error("ไฟล์ GIF ใหญ่เกิน 4MB");
-      blob = file; ext = "gif"; contentType = "image/gif";
+      blob = file;
+      ext = "gif";
+      contentType = "image/gif";
     } else {
       // Raster — compress to ~200KB JPEG
       const dataUrl = await compressImageFile(file);

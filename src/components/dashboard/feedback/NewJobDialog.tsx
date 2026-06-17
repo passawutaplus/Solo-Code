@@ -258,7 +258,9 @@ export function NewJobDialog({
               min={0}
               max={99}
               value={revisionQuota}
-              onChange={(e) => setRevisionQuota(Math.max(0, Math.min(99, Number(e.target.value) || 0)))}
+              onChange={(e) =>
+                setRevisionQuota(Math.max(0, Math.min(99, Number(e.target.value) || 0)))
+              }
               className="rounded-xl w-32"
             />
             <p className="text-[10px] text-muted-foreground">

@@ -3,7 +3,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { AlertTriangle, Send, TrendingUp } from "lucide-react";
 import { useQuotations, computeTotals, type Quotation } from "@/store/quotations";
-import { isOverdue, daysOverdue, outstandingAmount, FollowUpDialog } from "./quotations/FollowUpDialog";
+import {
+  isOverdue,
+  daysOverdue,
+  outstandingAmount,
+  FollowUpDialog,
+} from "./quotations/FollowUpDialog";
 
 export function DebtWidget({ onGo }: { onGo: (tab: string, sub?: string) => void }) {
   const { list } = useQuotations();
@@ -11,12 +16,16 @@ export function DebtWidget({ onGo }: { onGo: (tab: string, sub?: string) => void
 
   const overdue = React.useMemo(
     () => list.filter(isOverdue).sort((a, b) => daysOverdue(b) - daysOverdue(a)),
-    [list]
+    [list],
   );
-  const pending = list.filter((q) => q.status === "pending_payment" || q.status === "pending_receipt");
+  const pending = list.filter(
+    (q) => q.status === "pending_payment" || q.status === "pending_receipt",
+  );
   const totalReceivable = pending.reduce((s, q) => s + outstandingAmount(q), 0);
   const totalOverdue = overdue.reduce((s, q) => s + outstandingAmount(q), 0);
-  const totalPaid = list.filter((q) => q.status === "completed").reduce((s, q) => s + computeTotals(q).grandTotal, 0);
+  const totalPaid = list
+    .filter((q) => q.status === "completed")
+    .reduce((s, q) => s + computeTotals(q).grandTotal, 0);
 
   const total = totalPaid + totalReceivable;
   const paidPct = total > 0 ? (totalPaid / total) * 100 : 0;
@@ -30,15 +39,28 @@ export function DebtWidget({ onGo }: { onGo: (tab: string, sub?: string) => void
       <Card className="border-border/60 shadow-card overflow-hidden h-full flex flex-col">
         <CardHeader className="flex-row items-center justify-between pb-3">
           <CardTitle className="text-base flex items-center gap-2">
-            <AlertTriangle className={`h-4 w-4 ${overdue.length > 0 ? "text-destructive" : "text-muted-foreground"}`} />
+            <AlertTriangle
+              className={`h-4 w-4 ${overdue.length > 0 ? "text-destructive" : "text-muted-foreground"}`}
+            />
             สถานะการเก็บเงิน
           </CardTitle>
-          <Button size="sm" variant="ghost" onClick={() => onGo("finance", "quotations")} className="h-7 text-xs">ดูใบเสนอราคา</Button>
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={() => onGo("finance", "quotations")}
+            className="h-7 text-xs"
+          >
+            ดูใบเสนอราคา
+          </Button>
         </CardHeader>
         <CardContent className="space-y-4 flex-1">
           <div className="grid grid-cols-3 gap-2">
             <Stat label="รวมรอเก็บ" value={`฿${fmt(totalReceivable)}`} tone="text-foreground" />
-            <Stat label="เกินกำหนด" value={`฿${fmt(totalOverdue)}`} tone={totalOverdue > 0 ? "text-destructive" : "text-muted-foreground"} />
+            <Stat
+              label="เกินกำหนด"
+              value={`฿${fmt(totalOverdue)}`}
+              tone={totalOverdue > 0 ? "text-destructive" : "text-muted-foreground"}
+            />
             <Stat label="ได้รับแล้ว" value={`฿${fmt(totalPaid)}`} tone="text-success" />
           </div>
 
@@ -48,12 +70,24 @@ export function DebtWidget({ onGo }: { onGo: (tab: string, sub?: string) => void
               <div className="flex h-3 rounded-full overflow-hidden bg-muted">
                 <div className="bg-success transition-all" style={{ width: `${paidPct}%` }} />
                 <div className="bg-amber-400 transition-all" style={{ width: `${waitPct}%` }} />
-                <div className="bg-destructive transition-all" style={{ width: `${overduePct}%` }} />
+                <div
+                  className="bg-destructive transition-all"
+                  style={{ width: `${overduePct}%` }}
+                />
               </div>
               <div className="flex items-center justify-between text-[10px] text-muted-foreground mt-1.5">
-                <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-success" />ได้รับ {Math.round(paidPct)}%</span>
-                <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-amber-400" />รอ {Math.round(waitPct)}%</span>
-                <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-destructive" />เกิน {Math.round(overduePct)}%</span>
+                <span className="flex items-center gap-1">
+                  <span className="h-2 w-2 rounded-full bg-success" />
+                  ได้รับ {Math.round(paidPct)}%
+                </span>
+                <span className="flex items-center gap-1">
+                  <span className="h-2 w-2 rounded-full bg-amber-400" />
+                  รอ {Math.round(waitPct)}%
+                </span>
+                <span className="flex items-center gap-1">
+                  <span className="h-2 w-2 rounded-full bg-destructive" />
+                  เกิน {Math.round(overduePct)}%
+                </span>
               </div>
             </div>
           )}
@@ -65,16 +99,30 @@ export function DebtWidget({ onGo }: { onGo: (tab: string, sub?: string) => void
             </p>
           ) : (
             <div className="space-y-1.5">
-              <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">เกินกำหนด ({overdue.length})</p>
+              <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">
+                เกินกำหนด ({overdue.length})
+              </p>
               {overdue.slice(0, 4).map((q) => (
-                <div key={q.id} className="flex items-center justify-between gap-2 rounded-lg border border-destructive/30 bg-destructive/5 p-2.5">
+                <div
+                  key={q.id}
+                  className="flex items-center justify-between gap-2 rounded-lg border border-destructive/30 bg-destructive/5 p-2.5"
+                >
                   <div className="min-w-0 flex-1">
-                    <p className="text-xs font-medium truncate">{q.invoiceNumber ?? q.number} — {q.clientName}</p>
-                    <p className="text-[10px] text-destructive font-semibold">เกิน {daysOverdue(q)} วัน · ฿{fmt(outstandingAmount(q))}</p>
+                    <p className="text-xs font-medium truncate">
+                      {q.invoiceNumber ?? q.number} — {q.clientName}
+                    </p>
+                    <p className="text-[10px] text-destructive font-semibold">
+                      เกิน {daysOverdue(q)} วัน · ฿{fmt(outstandingAmount(q))}
+                    </p>
                   </div>
-                  <Button size="sm" variant="outline" className="h-7 text-xs gap-1 border-destructive/40 text-destructive hover:bg-destructive/10"
-                    onClick={() => setFollowup(q)}>
-                    <Send className="h-3 w-3" />ทวง
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="h-7 text-xs gap-1 border-destructive/40 text-destructive hover:bg-destructive/10"
+                    onClick={() => setFollowup(q)}
+                  >
+                    <Send className="h-3 w-3" />
+                    ทวง
                   </Button>
                 </div>
               ))}

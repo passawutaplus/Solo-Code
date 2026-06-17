@@ -104,7 +104,9 @@ function buildVercelUpgradeAdvice(
   }
 
   if (billingTotal != null && billingTotal > 15) {
-    reasons.push(`ค่าใช้จ่าย billing period นี้ ~$${billingTotal.toFixed(2)} — พิจารณา Pro ($20 credit)`);
+    reasons.push(
+      `ค่าใช้จ่าย billing period นี้ ~$${billingTotal.toFixed(2)} — พิจารณา Pro ($20 credit)`,
+    );
     verdict = "upgrade_recommended";
   }
 
@@ -270,11 +272,7 @@ export async function fetchVercelUsage(): Promise<VercelUsageSnapshot> {
     }
   }
 
-  const upgradeAdvice = buildVercelUpgradeAdvice(
-    projects,
-    accountType,
-    billing?.totalCost ?? null,
-  );
+  const upgradeAdvice = buildVercelUpgradeAdvice(projects, accountType, billing?.totalCost ?? null);
 
   return {
     configured: true,

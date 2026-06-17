@@ -4,17 +4,23 @@ import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Badge } from "@/components/ui/badge";
 import { useFinance } from "@/store/finance";
 import { formatTHB } from "@/data/mockData";
 import {
-  ChevronDown, Info, ShieldCheck, HeartPulse, ShoppingBag, Users,
-  Landmark, Stethoscope, Baby, GraduationCap, Home as HomeIcon, HandCoins,
+  ChevronDown,
+  Info,
+  ShieldCheck,
+  HeartPulse,
+  ShoppingBag,
+  Users,
+  Landmark,
+  Stethoscope,
+  Baby,
+  GraduationCap,
+  Home as HomeIcon,
+  HandCoins,
   type LucideIcon,
 } from "lucide-react";
 import { FundEntryList, parseFundItems, serializeFundItems, type FundItem } from "./FundEntryList";
@@ -44,52 +50,141 @@ const GROUPS: Record<GroupKey, { label: string; emoji: string }> = {
 };
 
 const DEDUCTIONS: Deduction[] = [
-  { key: "sso", label: "ประกันสังคม (ม.40)", cap: 9000, icon: ShieldCheck, group: "personal",
+  {
+    key: "sso",
+    label: "ประกันสังคม (ม.40)",
+    cap: 9000,
+    icon: ShieldCheck,
+    group: "personal",
     short: "ฟรีแลนซ์ ม.40 จ่ายเอง",
-    detail: "ผู้ประกันตน ม.40 ลดหย่อนตามจริง สูงสุด ฿9,000/ปี", notePlaceholder: "ทางเลือก 1/2/3" },
-  { key: "parents", label: "ค่าเลี้ยงดูบิดามารดา", cap: 60000, icon: Users, group: "personal",
+    detail: "ผู้ประกันตน ม.40 ลดหย่อนตามจริง สูงสุด ฿9,000/ปี",
+    notePlaceholder: "ทางเลือก 1/2/3",
+  },
+  {
+    key: "parents",
+    label: "ค่าเลี้ยงดูบิดามารดา",
+    cap: 60000,
+    icon: Users,
+    group: "personal",
     short: "คนละ ฿30,000 (ตน + คู่สมรส)",
-    detail: "บิดามารดาอายุ ≥60 ปี รายได้ไม่เกิน ฿30,000/ปี ลดหย่อนคนละ ฿30,000", notePlaceholder: "พ่อ + แม่" },
-  { key: "child", label: "บุตร", cap: 30000, icon: Baby, group: "personal",
+    detail: "บิดามารดาอายุ ≥60 ปี รายได้ไม่เกิน ฿30,000/ปี ลดหย่อนคนละ ฿30,000",
+    notePlaceholder: "พ่อ + แม่",
+  },
+  {
+    key: "child",
+    label: "บุตร",
+    cap: 30000,
+    icon: Baby,
+    group: "personal",
     short: "คนละ ฿30k (คนที่ 2 ปี 61+ = ฿60k)",
-    detail: "บุตรชอบด้วยกฎหมาย อายุไม่เกิน 25 ปี คนละ ฿30,000", notePlaceholder: "ระบุจำนวนบุตร" },
-  { key: "homeLoan", label: "ดอกเบี้ยบ้าน", cap: 100000, icon: HomeIcon, group: "personal",
+    detail: "บุตรชอบด้วยกฎหมาย อายุไม่เกิน 25 ปี คนละ ฿30,000",
+    notePlaceholder: "ระบุจำนวนบุตร",
+  },
+  {
+    key: "homeLoan",
+    label: "ดอกเบี้ยบ้าน",
+    cap: 100000,
+    icon: HomeIcon,
+    group: "personal",
     short: "ดอกเบี้ยกู้ซื้อ/สร้างบ้าน",
-    detail: "ดอกเบี้ยเงินกู้ที่อยู่อาศัย ลดหย่อนตามจริง สูงสุด ฿100,000", notePlaceholder: "ธนาคาร / เลขสัญญา" },
+    detail: "ดอกเบี้ยเงินกู้ที่อยู่อาศัย ลดหย่อนตามจริง สูงสุด ฿100,000",
+    notePlaceholder: "ธนาคาร / เลขสัญญา",
+  },
 
-  { key: "lifeInsurance", label: "ประกันชีวิต", cap: 100000, icon: HeartPulse, group: "insurance",
+  {
+    key: "lifeInsurance",
+    label: "ประกันชีวิต",
+    cap: 100000,
+    icon: HeartPulse,
+    group: "insurance",
     short: "กรมธรรม์ ≥10 ปี",
-    detail: "เบี้ยประกันชีวิตของตนเอง กรมธรรม์ ≥10 ปี ลดหย่อนตามจริง สูงสุด ฿100,000", notePlaceholder: "เลขกรมธรรม์ / บริษัท" },
-  { key: "healthInsurance", label: "ประกันสุขภาพตนเอง", cap: 25000, icon: Stethoscope, group: "insurance",
+    detail: "เบี้ยประกันชีวิตของตนเอง กรมธรรม์ ≥10 ปี ลดหย่อนตามจริง สูงสุด ฿100,000",
+    notePlaceholder: "เลขกรมธรรม์ / บริษัท",
+  },
+  {
+    key: "healthInsurance",
+    label: "ประกันสุขภาพตนเอง",
+    cap: 25000,
+    icon: Stethoscope,
+    group: "insurance",
     short: "รวมกับประกันชีวิต ≤ 100k",
-    detail: "เบี้ยประกันสุขภาพของตนเอง ลดหย่อนตามจริง สูงสุด ฿25,000", notePlaceholder: "เลขกรมธรรม์" },
-  { key: "parentsHealth", label: "ประกันสุขภาพบิดามารดา", cap: 15000, icon: HeartPulse, group: "insurance",
+    detail: "เบี้ยประกันสุขภาพของตนเอง ลดหย่อนตามจริง สูงสุด ฿25,000",
+    notePlaceholder: "เลขกรมธรรม์",
+  },
+  {
+    key: "parentsHealth",
+    label: "ประกันสุขภาพบิดามารดา",
+    cap: 15000,
+    icon: HeartPulse,
+    group: "insurance",
     short: "พ่อ-แม่ รายได้ <30k/ปี",
-    detail: "เบี้ยประกันสุขภาพบิดามารดา ลดหย่อนตามจริง สูงสุด ฿15,000" },
+    detail: "เบี้ยประกันสุขภาพบิดามารดา ลดหย่อนตามจริง สูงสุด ฿15,000",
+  },
 
-  { key: "rmf", label: "RMF / SSF / กบข. / กอช.", cap: 500000, icon: Landmark, group: "investment",
-    short: "≤ 30% รายได้, รวม ≤ 500k", multi: true, pctCap: 0.3,
-    detail: "RMF/SSF/PVD/กบข./กอช. + ประกันบำนาญ — แต่ละประเภทเพดาน 30% ของเงินได้ รวมทุกประเภท ≤ ฿500,000", notePlaceholder: "ชื่อกองทุน / บลจ." },
-  { key: "thaiESG", label: "Thai ESG", cap: 300000, icon: Landmark, group: "investment",
-    short: "ถือ 5 ปี, ≤ 30% รายได้", multi: true, pctCap: 0.3,
-    detail: "Thai ESG ลดหย่อนตามที่ซื้อจริง ≤ 30% ของเงินได้ ไม่เกิน ฿300,000 ต้องถือ 5 ปี" },
+  {
+    key: "rmf",
+    label: "RMF / SSF / กบข. / กอช.",
+    cap: 500000,
+    icon: Landmark,
+    group: "investment",
+    short: "≤ 30% รายได้, รวม ≤ 500k",
+    multi: true,
+    pctCap: 0.3,
+    detail:
+      "RMF/SSF/PVD/กบข./กอช. + ประกันบำนาญ — แต่ละประเภทเพดาน 30% ของเงินได้ รวมทุกประเภท ≤ ฿500,000",
+    notePlaceholder: "ชื่อกองทุน / บลจ.",
+  },
+  {
+    key: "thaiESG",
+    label: "Thai ESG",
+    cap: 300000,
+    icon: Landmark,
+    group: "investment",
+    short: "ถือ 5 ปี, ≤ 30% รายได้",
+    multi: true,
+    pctCap: 0.3,
+    detail: "Thai ESG ลดหย่อนตามที่ซื้อจริง ≤ 30% ของเงินได้ ไม่เกิน ฿300,000 ต้องถือ 5 ปี",
+  },
 
-  { key: "shopping", label: "Easy E-Receipt 2025", cap: 50000, icon: ShoppingBag, group: "economy",
+  {
+    key: "shopping",
+    label: "Easy E-Receipt 2025",
+    cap: 50000,
+    icon: ShoppingBag,
+    group: "economy",
     short: "ใบกำกับภาษี e-Tax",
-    detail: "ค่าซื้อสินค้า/บริการ ที่ได้รับ e-Tax Invoice/e-Receipt ลดหย่อนตามจริงสูงสุด ฿50,000", notePlaceholder: "ร้านที่ซื้อ / สินค้า" },
-  { key: "education", label: "เงินบริจาคเพื่อการศึกษา", cap: 0, icon: GraduationCap, group: "economy",
+    detail: "ค่าซื้อสินค้า/บริการ ที่ได้รับ e-Tax Invoice/e-Receipt ลดหย่อนตามจริงสูงสุด ฿50,000",
+    notePlaceholder: "ร้านที่ซื้อ / สินค้า",
+  },
+  {
+    key: "education",
+    label: "เงินบริจาคเพื่อการศึกษา",
+    cap: 0,
+    icon: GraduationCap,
+    group: "economy",
     short: "ลดหย่อนได้ 2 เท่า",
-    detail: "เงินบริจาคสถานศึกษา/รพ.รัฐ ลดหย่อน 2 เท่า รวมกับลดหย่อนหมวดอื่นไม่เกิน 10% ของเงินได้หลังหักลดหย่อน" },
-  { key: "donation", label: "เงินบริจาคทั่วไป", cap: 0, icon: HandCoins, group: "economy",
+    detail:
+      "เงินบริจาคสถานศึกษา/รพ.รัฐ ลดหย่อน 2 เท่า รวมกับลดหย่อนหมวดอื่นไม่เกิน 10% ของเงินได้หลังหักลดหย่อน",
+  },
+  {
+    key: "donation",
+    label: "เงินบริจาคทั่วไป",
+    cap: 0,
+    icon: HandCoins,
+    group: "economy",
     short: "ตามจริง ≤ 10% เงินได้",
-    detail: "เงินบริจาคองค์กรสาธารณกุศล ลดหย่อนตามจริง ≤ 10% ของเงินได้หลังหักค่าใช้จ่าย/ลดหย่อน" },
+    detail: "เงินบริจาคองค์กรสาธารณกุศล ลดหย่อนตามจริง ≤ 10% ของเงินได้หลังหักค่าใช้จ่าย/ลดหย่อน",
+  },
 ];
 
 export function DeductionsPanel({ totalIncome = 0 }: { totalIncome?: number } = {}) {
   const {
-    deductions, toggleDeduction,
-    deductionAmounts, setDeductionAmount,
-    deductionNotes, setDeductionNote,
+    deductions,
+    toggleDeduction,
+    deductionAmounts,
+    setDeductionAmount,
+    deductionNotes,
+    setDeductionNote,
   } = useFinance();
 
   const personalDeduction = 60000;
@@ -114,8 +209,12 @@ export function DeductionsPanel({ totalIncome = 0 }: { totalIncome?: number } = 
       <CardContent className="space-y-3">
         <Tabs value={tab} onValueChange={(v) => setTab(v as GroupKey)}>
           <TabsList className="grid grid-cols-2 sm:grid-cols-4 h-auto p-1 gap-1 w-full">
-            {(Object.entries(GROUPS) as [GroupKey, typeof GROUPS[GroupKey]][]).map(([k, g]) => (
-              <TabsTrigger key={k} value={k} className="text-xs h-auto py-1.5 gap-1 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+            {(Object.entries(GROUPS) as [GroupKey, (typeof GROUPS)[GroupKey]][]).map(([k, g]) => (
+              <TabsTrigger
+                key={k}
+                value={k}
+                className="text-xs h-auto py-1.5 gap-1 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+              >
                 <span>{g.emoji}</span>
                 <span className="truncate">{g.label}</span>
               </TabsTrigger>
@@ -156,7 +255,9 @@ export function DeductionsPanel({ totalIncome = 0 }: { totalIncome?: number } = 
               <p className="text-xs text-primary/80">รวมลดหย่อนทั้งหมด</p>
               <p className="text-sm font-medium text-primary">รวมส่วนตัว ฿60,000</p>
             </div>
-            <span className="num text-lg font-bold text-primary">฿{formatTHB(totalActive + personalDeduction)}</span>
+            <span className="num text-lg font-bold text-primary">
+              ฿{formatTHB(totalActive + personalDeduction)}
+            </span>
           </div>
         </div>
       </CardContent>
@@ -165,10 +266,20 @@ export function DeductionsPanel({ totalIncome = 0 }: { totalIncome?: number } = 
 }
 
 function DeductionItem({
-  d, income, checked, amount, note, onToggle, onAmount, onNote,
+  d,
+  income,
+  checked,
+  amount,
+  note,
+  onToggle,
+  onAmount,
+  onNote,
 }: {
-  d: Deduction; income: number;
-  checked: boolean; amount: number; note: string;
+  d: Deduction;
+  income: number;
+  checked: boolean;
+  amount: number;
+  note: string;
   onToggle: () => void;
   onAmount: (v: number) => void;
   onNote: (v: string) => void;
@@ -196,14 +307,21 @@ function DeductionItem({
       }`}
     >
       <div className="flex items-start gap-3 p-3">
-        <div className={`rounded-lg p-2 shrink-0 ${checked ? "bg-primary/15 text-primary" : "bg-muted text-muted-foreground"}`}>
+        <div
+          className={`rounded-lg p-2 shrink-0 ${checked ? "bg-primary/15 text-primary" : "bg-muted text-muted-foreground"}`}
+        >
           <Icon className="h-4 w-4" />
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-sm font-medium">{d.label}</p>
           <p className="text-[11px] text-muted-foreground mt-0.5">
             {d.short}
-            {d.cap > 0 && <> · เพดาน <span className="num">฿{formatTHB(d.cap)}</span></>}
+            {d.cap > 0 && (
+              <>
+                {" "}
+                · เพดาน <span className="num">฿{formatTHB(d.cap)}</span>
+              </>
+            )}
           </p>
         </div>
         <Switch checked={checked} onCheckedChange={onToggle} />
@@ -224,7 +342,9 @@ function DeductionItem({
             <>
               <div className="grid grid-cols-[1fr_auto] gap-2 items-end">
                 <div>
-                  <label className="text-[11px] text-muted-foreground">จำนวนเงินที่ใช้สิทธิ (บาท)</label>
+                  <label className="text-[11px] text-muted-foreground">
+                    จำนวนเงินที่ใช้สิทธิ (บาท)
+                  </label>
                   <Input
                     type="number"
                     min={0}
@@ -239,7 +359,9 @@ function DeductionItem({
                   <p className="text-[10px] text-muted-foreground">ลดหย่อนได้</p>
                   <p className="num text-sm font-semibold text-success">
                     ฿{formatTHB(fin)}
-                    {d.key === "education" && <span className="text-[9px] text-muted-foreground ml-1">×2</span>}
+                    {d.key === "education" && (
+                      <span className="text-[9px] text-muted-foreground ml-1">×2</span>
+                    )}
                   </p>
                 </div>
               </div>

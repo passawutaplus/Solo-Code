@@ -142,7 +142,9 @@ export function SubscriptionDowngradeBlock({
           throw new Error(paymentFnError(res, fallbackError));
         }
         toast.success(
-          locale === "en" ? "Downgrade canceled — subscription continues" : "ยกเลิกการ downgrade แล้ว",
+          locale === "en"
+            ? "Downgrade canceled — subscription continues"
+            : "ยกเลิกการ downgrade แล้ว",
         );
       }
       await refetch();
@@ -185,8 +187,7 @@ export function SubscriptionDowngradeBlock({
     };
   })();
 
-  const showTierButtons =
-    !cancelAtPeriodEnd && !pendingTierChange && downgradeTargets.length > 0;
+  const showTierButtons = !cancelAtPeriodEnd && !pendingTierChange && downgradeTargets.length > 0;
 
   const showCancelFree = !cancelAtPeriodEnd && !pendingTierChange;
 
@@ -208,7 +209,11 @@ export function SubscriptionDowngradeBlock({
             </p>
             <p className="text-[11px] text-muted-foreground">
               {subLoading || loadingState ? (
-                locale === "en" ? "Loading…" : "กำลังโหลด…"
+                locale === "en" ? (
+                  "Loading…"
+                ) : (
+                  "กำลังโหลด…"
+                )
               ) : (
                 <>
                   <Crown className="inline h-3 w-3 mr-0.5 text-primary" />
@@ -314,7 +319,11 @@ export function SubscriptionDowngradeBlock({
               {busy ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : confirm?.kind === "resume" ? (
-                locale === "en" ? "Confirm" : "ยืนยัน"
+                locale === "en" ? (
+                  "Confirm"
+                ) : (
+                  "ยืนยัน"
+                )
               ) : locale === "en" ? (
                 "Confirm downgrade"
               ) : (

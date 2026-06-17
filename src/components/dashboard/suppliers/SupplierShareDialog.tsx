@@ -1,7 +1,5 @@
 import * as React from "react";
-import {
-  Dialog, DialogContent, DialogHeader, DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
@@ -20,7 +18,14 @@ interface Props {
   onUpdate: (id: string, patch: Partial<Supplier>) => Promise<void>;
 }
 
-export function SupplierShareDialog({ open, supplier, onClose, onEnable, onDisable, onUpdate }: Props) {
+export function SupplierShareDialog({
+  open,
+  supplier,
+  onClose,
+  onEnable,
+  onDisable,
+  onUpdate,
+}: Props) {
   const [working, setWorking] = React.useState(false);
   const [current, setCurrent] = React.useState<Supplier | null>(supplier);
   const [hidden, setHidden] = React.useState<string[]>(supplier?.shareHiddenFields ?? []);
@@ -32,9 +37,10 @@ export function SupplierShareDialog({ open, supplier, onClose, onEnable, onDisab
   }, [supplier]);
 
   const isShared = current?.isShared && current?.shareToken;
-  const url = isShared && typeof window !== "undefined"
-    ? `${window.location.origin}/supplier/${current!.shareToken}`
-    : "";
+  const url =
+    isShared && typeof window !== "undefined"
+      ? `${window.location.origin}/supplier/${current!.shareToken}`
+      : "";
 
   const toggleShare = async (next: boolean) => {
     if (!current) return;
@@ -51,7 +57,9 @@ export function SupplierShareDialog({ open, supplier, onClose, onEnable, onDisab
       }
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "ดำเนินการไม่สำเร็จ");
-    } finally { setWorking(false); }
+    } finally {
+      setWorking(false);
+    }
   };
 
   const persistHidden = async (next: string[]) => {
@@ -62,7 +70,9 @@ export function SupplierShareDialog({ open, supplier, onClose, onEnable, onDisab
       await onUpdate(current.id, { shareHiddenFields: next });
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "บันทึกไม่สำเร็จ");
-    } finally { setSavingFields(false); }
+    } finally {
+      setSavingFields(false);
+    }
   };
 
   const toggleField = (key: string, show: boolean) => {
@@ -134,12 +144,22 @@ export function SupplierShareDialog({ open, supplier, onClose, onEnable, onDisab
                 </div>
 
                 <div className="flex gap-1.5">
-                  <Button type="button" size="sm" variant="ghost" className="h-7 text-[11px] gap-1 px-2"
-                    onClick={showAll}>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="ghost"
+                    className="h-7 text-[11px] gap-1 px-2"
+                    onClick={showAll}
+                  >
                     <Eye className="h-3 w-3" /> แสดงทั้งหมด
                   </Button>
-                  <Button type="button" size="sm" variant="ghost" className="h-7 text-[11px] gap-1 px-2"
-                    onClick={hideAll}>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="ghost"
+                    className="h-7 text-[11px] gap-1 px-2"
+                    onClick={hideAll}
+                  >
                     <EyeOff className="h-3 w-3" /> ซ่อนทั้งหมด
                   </Button>
                 </div>
@@ -148,10 +168,14 @@ export function SupplierShareDialog({ open, supplier, onClose, onEnable, onDisab
                   {SHAREABLE_FIELDS.map((f) => {
                     const checked = !hidden.includes(f.key);
                     return (
-                      <label key={f.key}
-                        className="flex items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-muted/50 cursor-pointer">
-                        <Checkbox checked={checked}
-                          onCheckedChange={(v) => toggleField(f.key, Boolean(v))} />
+                      <label
+                        key={f.key}
+                        className="flex items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-muted/50 cursor-pointer"
+                      >
+                        <Checkbox
+                          checked={checked}
+                          onCheckedChange={(v) => toggleField(f.key, Boolean(v))}
+                        />
                         <span className="text-[12px]">{f.label}</span>
                       </label>
                     );

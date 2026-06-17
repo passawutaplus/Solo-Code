@@ -18,7 +18,11 @@ export const Route = createFileRoute("/sitemap.xml")({
         try {
           const { articles } = await listArticleSitemap();
           articleUrls = (
-            articles as Array<{ slug: string; published_at?: string | null; updated_at?: string | null }>
+            articles as Array<{
+              slug: string;
+              published_at?: string | null;
+              updated_at?: string | null;
+            }>
           ).map((a) => {
             const lastmod = (a.updated_at || a.published_at || today).slice(0, 10);
             return `  <url>\n    <loc>${SITE_URL}/blog/${xmlEscape(a.slug)}</loc>\n    <lastmod>${lastmod}</lastmod>\n    <changefreq>monthly</changefreq>\n    <priority>0.7</priority>\n  </url>`;

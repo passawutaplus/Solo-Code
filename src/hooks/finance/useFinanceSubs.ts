@@ -26,7 +26,8 @@ export function useFinanceSubs(userId: string | undefined) {
     (next) => {
       if (!userId) return;
       const prevList = subs;
-      const newList = typeof next === "function" ? (next as (p: Subscription[]) => Subscription[])(subs) : next;
+      const newList =
+        typeof next === "function" ? (next as (p: Subscription[]) => Subscription[])(subs) : next;
       qc.setQueryData(subsKey(userId), newList);
       const { added, updated, removed } = diffById(subs, newList);
       (async () => {
@@ -34,26 +35,46 @@ export function useFinanceSubs(userId: string | undefined) {
           const ops: Promise<unknown>[] = [];
           if (removed.length) {
             ops.push(
-              Promise.resolve(supabase.from("finance_subscriptions").delete().in("id", removed.map((x) => x.id)))
-                .then(({ error }) => { if (error) throw error; }),
+              Promise.resolve(
+                supabase
+                  .from("finance_subscriptions")
+                  .delete()
+                  .in(
+                    "id",
+                    removed.map((x) => x.id),
+                  ),
+              ).then(({ error }) => {
+                if (error) throw error;
+              }),
             );
           }
           if (added.length) {
             ops.push(
-              Promise.resolve(supabase.from("finance_subscriptions").insert(added.map((a) => subToRow(a, userId))))
-                .then(({ error }) => { if (error) throw error; }),
+              Promise.resolve(
+                supabase
+                  .from("finance_subscriptions")
+                  .insert(added.map((a) => subToRow(a, userId))),
+              ).then(({ error }) => {
+                if (error) throw error;
+              }),
             );
           }
           for (const u of updated) {
             ops.push(
-              Promise.resolve(supabase.from("finance_subscriptions").update(subToRow(u, userId)).eq("id", u.id))
-                .then(({ error }) => { if (error) throw error; }),
+              Promise.resolve(
+                supabase.from("finance_subscriptions").update(subToRow(u, userId)).eq("id", u.id),
+              ).then(({ error }) => {
+                if (error) throw error;
+              }),
             );
           }
           await Promise.all(ops);
         } catch (e) {
           qc.setQueryData(subsKey(userId), prevList);
-          toast.error("บันทึก Subscription ไม่สำเร็จ: " + (e instanceof Error ? e.message : "ลองใหม่อีกครั้ง"));
+          toast.error(
+            "บันทึก Subscription ไม่สำเร็จ: " +
+              (e instanceof Error ? e.message : "ลองใหม่อีกครั้ง"),
+          );
         } finally {
           qc.invalidateQueries({ queryKey: subsKey(userId) });
         }

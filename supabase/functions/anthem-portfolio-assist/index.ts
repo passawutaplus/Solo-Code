@@ -65,7 +65,9 @@ function normalizeCategory(raw: string, hint?: string): string {
 
 function normalizePermutation(order: unknown, n: number): number[] {
   if (!Array.isArray(order)) return Array.from({ length: n }, (_, i) => i);
-  const nums = order.filter((x): x is number => typeof x === "number" && Number.isInteger(x) && x >= 0 && x < n);
+  const nums = order.filter(
+    (x): x is number => typeof x === "number" && Number.isInteger(x) && x >= 0 && x < n,
+  );
   if (nums.length !== n || new Set(nums).size !== n) {
     return Array.from({ length: n }, (_, i) => i);
   }
@@ -121,7 +123,8 @@ Deno.serve(async (req) => {
   try {
     const userParts: Array<{ text?: string; inlineData?: { mimeType: string; data: string } }> = [
       {
-        text: `วิเคราะห์รูป portfolio ${n} ภาพ (index 0 ถึง ${n - 1}) และสรุปเป็น JSON` +
+        text:
+          `วิเคราะห์รูป portfolio ${n} ภาพ (index 0 ถึง ${n - 1}) และสรุปเป็น JSON` +
           (body.hint ? `\nบริบทจากผู้ใช้: ${body.hint}` : "") +
           (body.categoryHint ? `\nหมวดที่ผู้ใช้เลือกไว้: ${body.categoryHint}` : ""),
       },
@@ -152,14 +155,28 @@ Deno.serve(async (req) => {
       image_order: imageOrder,
       cover_index: coverIndex,
       category: normalizeCategory(String(parsed.category ?? ""), body.categoryHint),
-      title: String(parsed.title ?? "").trim().slice(0, 120),
-      subtitle: String(parsed.subtitle ?? "").trim().slice(0, 180),
-      description: String(parsed.description ?? "").trim().slice(0, 5000),
+      title: String(parsed.title ?? "")
+        .trim()
+        .slice(0, 120),
+      subtitle: String(parsed.subtitle ?? "")
+        .trim()
+        .slice(0, 180),
+      description: String(parsed.description ?? "")
+        .trim()
+        .slice(0, 5000),
       tags: Array.isArray(parsed.tags)
-        ? parsed.tags.filter((x): x is string => typeof x === "string").map((t) => t.trim()).filter(Boolean).slice(0, 15)
+        ? parsed.tags
+            .filter((x): x is string => typeof x === "string")
+            .map((t) => t.trim())
+            .filter(Boolean)
+            .slice(0, 15)
         : [],
       tools: Array.isArray(parsed.tools)
-        ? parsed.tools.filter((x): x is string => typeof x === "string").map((t) => t.trim()).filter(Boolean).slice(0, 20)
+        ? parsed.tools
+            .filter((x): x is string => typeof x === "string")
+            .map((t) => t.trim())
+            .filter(Boolean)
+            .slice(0, 20)
         : [],
       quota,
     };

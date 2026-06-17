@@ -39,7 +39,9 @@ const configPath = path.join(root, "supabase", "config.toml");
 let verifyJwt = true;
 if (fs.existsSync(configPath)) {
   const cfg = fs.readFileSync(configPath, "utf8");
-  const m = cfg.match(new RegExp(`\\[functions\\.${fnName}\\][\\s\\S]*?verify_jwt\\s*=\\s*(true|false)`));
+  const m = cfg.match(
+    new RegExp(`\\[functions\\.${fnName}\\][\\s\\S]*?verify_jwt\\s*=\\s*(true|false)`),
+  );
   if (m) verifyJwt = m[1] === "true";
 }
 

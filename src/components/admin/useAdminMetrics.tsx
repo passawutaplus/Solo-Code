@@ -65,7 +65,6 @@ export interface SubscriptionRow {
   created_at: string;
 }
 
-
 export interface SavedClientRow {
   id: string;
   user_id: string;
@@ -138,8 +137,8 @@ export function useAdminMetrics(): AdminMetrics {
         ).then((res) => ({
           ...res,
           data: res.data
-            ? [...(res.data as Array<{ created_at: string | null }>)].sort(
-                (a, b) => (b.created_at ?? "").localeCompare(a.created_at ?? ""),
+            ? [...(res.data as Array<{ created_at: string | null }>)].sort((a, b) =>
+                (b.created_at ?? "").localeCompare(a.created_at ?? ""),
               )
             : res.data,
         })),
@@ -174,10 +173,7 @@ export function useAdminMetrics(): AdminMetrics {
           .select("user_id,created_at")
           .order("created_at", { ascending: false })
           .limit(2000),
-        supabase
-          .from("ai_chat_usage")
-          .select("user_id,usage_date,count,total_count")
-          .limit(2000),
+        supabase.from("ai_chat_usage").select("user_id,usage_date,count,total_count").limit(2000),
       ]);
 
       const queryError = pickError(
@@ -210,11 +206,13 @@ export function useAdminMetrics(): AdminMetrics {
       const today = new Date().toISOString().slice(0, 10);
       const aiUsageToday = new Map<string, number>();
       const aiUsageTotal = new Map<string, number>();
-      (aiUsage ?? []).forEach((r: { user_id: string; usage_date: string; count: number; total_count: number }) => {
-        if (r.usage_date === today) aiUsageToday.set(r.user_id, r.count);
-        const cur = aiUsageTotal.get(r.user_id) ?? 0;
-        aiUsageTotal.set(r.user_id, Math.max(cur, r.total_count ?? 0));
-      });
+      (aiUsage ?? []).forEach(
+        (r: { user_id: string; usage_date: string; count: number; total_count: number }) => {
+          if (r.usage_date === today) aiUsageToday.set(r.user_id, r.count);
+          const cur = aiUsageTotal.get(r.user_id) ?? 0;
+          aiUsageTotal.set(r.user_id, Math.max(cur, r.total_count ?? 0));
+        },
+      );
 
       setState({
         profiles: (profilesRes.data as AdminProfileRow[]) ?? [],

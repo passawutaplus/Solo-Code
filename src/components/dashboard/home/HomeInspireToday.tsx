@@ -7,10 +7,7 @@ import { safeHref } from "@/lib/security";
 const DAILY_COUNT = 3;
 
 export function HomeInspireToday() {
-  const picks = React.useMemo(
-    () => pickDailyItems(RESOURCES, DAILY_COUNT, "inspire-today"),
-    [],
-  );
+  const picks = React.useMemo(() => pickDailyItems(RESOURCES, DAILY_COUNT, "inspire-today"), []);
 
   return (
     <div className="rounded-2xl border border-border bg-card p-5 shadow-soft space-y-4 h-full">
@@ -20,7 +17,9 @@ export function HomeInspireToday() {
         </span>
         <div>
           <h3 className="text-sm font-bold tracking-tight">Inspire วันนี้</h3>
-          <p className="text-[11px] text-muted-foreground">แหล่งไอเดียสุ่มรายวัน {DAILY_COUNT} ลิงก์</p>
+          <p className="text-[11px] text-muted-foreground">
+            แหล่งไอเดียสุ่มรายวัน {DAILY_COUNT} ลิงก์
+          </p>
         </div>
       </div>
 

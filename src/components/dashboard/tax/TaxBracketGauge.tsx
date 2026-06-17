@@ -16,9 +16,7 @@ export function TaxBracketGauge({ netIncome, estimatedTax }: Props) {
   }
   const cur = TAX_BRACKETS[currentIdx];
   const remainToNext = isFinite(cur.to) ? Math.max(0, cur.to - netIncome) : 0;
-  const fillPct = isFinite(cur.to)
-    ? ((netIncome - cur.from) / (cur.to - cur.from)) * 100
-    : 100;
+  const fillPct = isFinite(cur.to) ? ((netIncome - cur.from) / (cur.to - cur.from)) * 100 : 100;
 
   // Visible brackets (skip 0% and 35% edge cases for compactness, but keep them)
   const visible = TAX_BRACKETS;
@@ -34,9 +32,7 @@ export function TaxBracketGauge({ netIncome, estimatedTax }: Props) {
         </div>
         <div className="text-right">
           <p className="text-[10px] text-muted-foreground">ฐานภาษีปัจจุบัน</p>
-          <p className="num text-lg font-semibold">
-            {(cur.rate * 100).toFixed(0)}%
-          </p>
+          <p className="num text-lg font-semibold">{(cur.rate * 100).toFixed(0)}%</p>
         </div>
       </div>
 
@@ -49,11 +45,7 @@ export function TaxBracketGauge({ netIncome, estimatedTax }: Props) {
               key={i}
               className={
                 "relative flex-1 transition-colors " +
-                (active
-                  ? "bg-primary"
-                  : passed
-                    ? "bg-primary/40"
-                    : "bg-muted")
+                (active ? "bg-primary" : passed ? "bg-primary/40" : "bg-muted")
               }
               title={`${(b.rate * 100).toFixed(0)}% · ${formatTHB(b.from)}-${isFinite(b.to) ? formatTHB(b.to) : "∞"}`}
             >
@@ -131,14 +123,17 @@ export function AiTaxInsight({ netIncome, estimatedTax, rmfSsfUsed, rmfSsfCap }:
               <span className="num font-bold text-success">฿{formatTHB(suggestion.add)}</span> (เช่น
               SSF/RMF/ประกันบำนาญ) จะลดฐานเหลือ {(suggestion.nextRate * 100).toFixed(0)}% —
               ประหยัดภาษีประมาณ{" "}
-              <span className="num font-bold text-success">฿{formatTHB(Math.round(suggestion.saveTax))}</span>
+              <span className="num font-bold text-success">
+                ฿{formatTHB(Math.round(suggestion.saveTax))}
+              </span>
             </span>
           </p>
         </div>
       )}
       {overQuota && (
         <div className="rounded-lg bg-warning/15 border border-warning/30 p-2.5 text-xs text-warning-foreground">
-          ⚠ ใช้สิทธิ์กองทุน RMF/SSF เกินเพดาน — ส่วนเกิน ฿{formatTHB(rmfSsfUsed - rmfSsfCap)} จะถูกตัดออก
+          ⚠ ใช้สิทธิ์กองทุน RMF/SSF เกินเพดาน — ส่วนเกิน ฿{formatTHB(rmfSsfUsed - rmfSsfCap)}{" "}
+          จะถูกตัดออก
         </div>
       )}
       <p className="text-[10px] text-muted-foreground italic">

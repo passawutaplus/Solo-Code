@@ -29,7 +29,9 @@ const CSP_DIRECTIVES = [
   `style-src 'self' 'unsafe-inline' ${GOOGLE_FONTS_CSS}`,
   `font-src 'self' data: ${GOOGLE_FONTS_FILES}`,
   `img-src 'self' data: blob: https:`,
-  `connect-src 'self' ${SUPABASE_HOST} ${SUPABASE_WS} ${EXTRA_CONNECT} ${GA_HOSTS} https://accounts.google.com`.replace(/\s+/g, " ").trim(),
+  `connect-src 'self' ${SUPABASE_HOST} ${SUPABASE_WS} ${EXTRA_CONNECT} ${GA_HOSTS} https://accounts.google.com`
+    .replace(/\s+/g, " ")
+    .trim(),
   `media-src 'self' blob: ${SUPABASE_HOST}`,
   `object-src 'none'`,
   `base-uri 'self'`,

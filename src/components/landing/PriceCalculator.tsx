@@ -13,9 +13,9 @@ function getOrCreateSessionId(): string {
     let v = sessionStorage.getItem(k);
     if (!v) {
       v =
-        (typeof crypto !== "undefined" && "randomUUID" in crypto
+        typeof crypto !== "undefined" && "randomUUID" in crypto
           ? crypto.randomUUID()
-          : `s_${Date.now()}_${Math.random().toString(36).slice(2)}`);
+          : `s_${Date.now()}_${Math.random().toString(36).slice(2)}`;
       sessionStorage.setItem(k, v);
     }
     return v;
@@ -159,20 +159,33 @@ export function PriceCalculator({ remaining }: { remaining: number }) {
       interactedRef.current = true;
       void logCalculatorUsageOnce();
     }
-  }, [jobName, startPrice, estDays, hoursPerDay, difficulty, freeRevisions, clientLevel, paymentTerm, discount, withholdTax, startDate, endDate]);
+  }, [
+    jobName,
+    startPrice,
+    estDays,
+    hoursPerDay,
+    difficulty,
+    freeRevisions,
+    clientLevel,
+    paymentTerm,
+    discount,
+    withholdTax,
+    startDate,
+    endDate,
+  ]);
 
   const totalDays = diffDays(startDate, endDate);
   const segments = freeRevisions + 1;
-  const reviseDays = freeRevisions > 0 && totalDays > 0
-    ? Math.max(1, Math.round(totalDays / segments))
-    : 0;
-  const revisionMarkers = freeRevisions > 0 && totalDays > 0
-    ? Array.from({ length: freeRevisions }, (_, i) => ({
-        pct: ((i + 1) / segments) * 100,
-        day: Math.round(((i + 1) / segments) * totalDays),
-        label: `แก้ครั้งที่ ${i + 1}`,
-      }))
-    : [];
+  const reviseDays =
+    freeRevisions > 0 && totalDays > 0 ? Math.max(1, Math.round(totalDays / segments)) : 0;
+  const revisionMarkers =
+    freeRevisions > 0 && totalDays > 0
+      ? Array.from({ length: freeRevisions }, (_, i) => ({
+          pct: ((i + 1) / segments) * 100,
+          day: Math.round(((i + 1) / segments) * totalDays),
+          label: `แก้ครั้งที่ ${i + 1}`,
+        }))
+      : [];
 
   const safeHours = Math.max(1, hoursPerDay);
   const totalHours = estDays * safeHours;
@@ -191,7 +204,9 @@ export function PriceCalculator({ remaining }: { remaining: number }) {
 
         <div className="grid grid-cols-1 sm:grid-cols-[1fr,140px] gap-3">
           <div className="space-y-1">
-            <Label htmlFor="pc-job-name" className="text-[11px] font-semibold">ชื่องาน</Label>
+            <Label htmlFor="pc-job-name" className="text-[11px] font-semibold">
+              ชื่องาน
+            </Label>
             <Input
               id="pc-job-name"
               placeholder="เช่น ออกแบบโลโก้ร้านกาแฟ"
@@ -201,9 +216,13 @@ export function PriceCalculator({ remaining }: { remaining: number }) {
             />
           </div>
           <div className="space-y-1">
-            <Label htmlFor="pc-start-price" className="text-[11px] font-semibold">ราคาเริ่มต้น</Label>
+            <Label htmlFor="pc-start-price" className="text-[11px] font-semibold">
+              ราคาเริ่มต้น
+            </Label>
             <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">฿</span>
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
+                ฿
+              </span>
               <Input
                 id="pc-start-price"
                 type="number"
@@ -228,7 +247,9 @@ export function PriceCalculator({ remaining }: { remaining: number }) {
           </div>
           <div className="grid grid-cols-2 gap-2">
             <div className="space-y-1">
-              <Label htmlFor="pc-est-days" className="text-[11px] font-semibold">วันทำงาน</Label>
+              <Label htmlFor="pc-est-days" className="text-[11px] font-semibold">
+                วันทำงาน
+              </Label>
               <Input
                 id="pc-est-days"
                 type="number"
@@ -239,7 +260,9 @@ export function PriceCalculator({ remaining }: { remaining: number }) {
               />
             </div>
             <div className="space-y-1">
-              <Label htmlFor="pc-hours-per-day" className="text-[11px] font-semibold">ชม./วัน</Label>
+              <Label htmlFor="pc-hours-per-day" className="text-[11px] font-semibold">
+                ชม./วัน
+              </Label>
               <Input
                 id="pc-hours-per-day"
                 type="number"
@@ -269,7 +292,12 @@ export function PriceCalculator({ remaining }: { remaining: number }) {
           <Label className="text-[11px] font-semibold">ไทม์ไลน์</Label>
           <div className="grid grid-cols-2 gap-2">
             <div>
-              <Label htmlFor="pc-start-date" className="text-[10px] text-muted-foreground font-normal">เริ่มงาน</Label>
+              <Label
+                htmlFor="pc-start-date"
+                className="text-[10px] text-muted-foreground font-normal"
+              >
+                เริ่มงาน
+              </Label>
               <Input
                 id="pc-start-date"
                 type="date"
@@ -279,7 +307,12 @@ export function PriceCalculator({ remaining }: { remaining: number }) {
               />
             </div>
             <div>
-              <Label htmlFor="pc-end-date" className="text-[10px] text-muted-foreground font-normal">ส่งงานสุดท้าย</Label>
+              <Label
+                htmlFor="pc-end-date"
+                className="text-[10px] text-muted-foreground font-normal"
+              >
+                ส่งงานสุดท้าย
+              </Label>
               <Input
                 id="pc-end-date"
                 type="date"
@@ -338,9 +371,13 @@ export function PriceCalculator({ remaining }: { remaining: number }) {
             </div>
           </div>
           <div className="space-y-1">
-            <Label htmlFor="pc-discount" className="text-[11px] font-semibold">ส่วนลด (บาท)</Label>
+            <Label htmlFor="pc-discount" className="text-[11px] font-semibold">
+              ส่วนลด (บาท)
+            </Label>
             <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">฿</span>
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
+                ฿
+              </span>
               <Input
                 id="pc-discount"
                 type="number"
@@ -396,15 +433,16 @@ export function PriceCalculator({ remaining }: { remaining: number }) {
             </div>
             {withholdTax && (
               <div className="mt-1 text-[11px] opacity-90">
-                หลังหัก 3% ลูกค้าโอนจริง <span className="font-bold">฿{total.toLocaleString("th-TH")}</span>
+                หลังหัก 3% ลูกค้าโอนจริง{" "}
+                <span className="font-bold">฿{total.toLocaleString("th-TH")}</span>
               </div>
             )}
-            {jobName && (
-              <div className="mt-1.5 text-xs opacity-90 truncate">งาน: {jobName}</div>
-            )}
+            {jobName && <div className="mt-1.5 text-xs opacity-90 truncate">งาน: {jobName}</div>}
             <div className="mt-4 grid grid-cols-2 gap-2.5">
               <div className="rounded-xl bg-white/15 backdrop-blur px-3 py-2.5">
-                <div className="text-[10px] uppercase tracking-wider opacity-80">เฉลี่ย/ชั่วโมง</div>
+                <div className="text-[10px] uppercase tracking-wider opacity-80">
+                  เฉลี่ย/ชั่วโมง
+                </div>
                 <div className="mt-0.5 text-sm font-bold tabular-nums">
                   ฿{hourlyRate.toLocaleString("th-TH")}
                 </div>
@@ -417,13 +455,21 @@ export function PriceCalculator({ remaining }: { remaining: number }) {
                 <div className="mt-0.5 text-sm font-bold tabular-nums">{freeRevisions} ครั้ง</div>
               </div>
               <div className="rounded-xl bg-white/15 backdrop-blur px-3 py-2.5">
-                <div className="text-[10px] uppercase tracking-wider opacity-80">{paymentTerm === "deposit50" ? "มัดจำ 50%" : "ชำระเต็ม"}</div>
-                <div className="mt-0.5 text-sm font-bold tabular-nums">฿{deposit.toLocaleString("th-TH")}</div>
+                <div className="text-[10px] uppercase tracking-wider opacity-80">
+                  {paymentTerm === "deposit50" ? "มัดจำ 50%" : "ชำระเต็ม"}
+                </div>
+                <div className="mt-0.5 text-sm font-bold tabular-nums">
+                  ฿{deposit.toLocaleString("th-TH")}
+                </div>
               </div>
               {withholdTax && (
                 <div className="rounded-xl bg-white/15 backdrop-blur px-3 py-2.5">
-                  <div className="text-[10px] uppercase tracking-wider opacity-80">หัก ณ ที่จ่าย 3%</div>
-                  <div className="mt-0.5 text-sm font-bold tabular-nums">-฿{whtAmount.toLocaleString("th-TH")}</div>
+                  <div className="text-[10px] uppercase tracking-wider opacity-80">
+                    หัก ณ ที่จ่าย 3%
+                  </div>
+                  <div className="mt-0.5 text-sm font-bold tabular-nums">
+                    -฿{whtAmount.toLocaleString("th-TH")}
+                  </div>
                 </div>
               )}
             </div>
@@ -431,34 +477,50 @@ export function PriceCalculator({ remaining }: { remaining: number }) {
         </div>
 
         <div className="rounded-3xl border border-border bg-card p-5 shadow-soft">
-          <h4 className="text-xs font-bold tracking-tight uppercase text-muted-foreground">รายละเอียด</h4>
+          <h4 className="text-xs font-bold tracking-tight uppercase text-muted-foreground">
+            รายละเอียด
+          </h4>
           <div className="mt-3 space-y-2 text-sm">
             <div className="flex justify-between">
               <span className="text-muted-foreground">ราคาเริ่มต้น</span>
-              <span className="font-semibold tabular-nums">฿{startPrice.toLocaleString("th-TH")}</span>
+              <span className="font-semibold tabular-nums">
+                ฿{startPrice.toLocaleString("th-TH")}
+              </span>
             </div>
             {difficulty !== 1 && (
               <div className="flex justify-between">
-                <span className="text-muted-foreground">× ความยากงาน (×{difficulty.toFixed(2)})</span>
-                <span className="font-semibold tabular-nums text-primary">฿{afterDifficulty.toLocaleString("th-TH")}</span>
+                <span className="text-muted-foreground">
+                  × ความยากงาน (×{difficulty.toFixed(2)})
+                </span>
+                <span className="font-semibold tabular-nums text-primary">
+                  ฿{afterDifficulty.toLocaleString("th-TH")}
+                </span>
               </div>
             )}
             {clientMult !== 1 && (
               <div className="flex justify-between">
                 <span className="text-muted-foreground">× ความยากลูกค้า (×{clientMult})</span>
-                <span className="font-semibold tabular-nums">฿{afterClient.toLocaleString("th-TH")}</span>
+                <span className="font-semibold tabular-nums">
+                  ฿{afterClient.toLocaleString("th-TH")}
+                </span>
               </div>
             )}
             {discountAmount > 0 && (
               <div className="flex justify-between">
                 <span className="text-muted-foreground">ส่วนลด</span>
-                <span className="font-semibold tabular-nums">-฿{discountAmount.toLocaleString("th-TH")}</span>
+                <span className="font-semibold tabular-nums">
+                  -฿{discountAmount.toLocaleString("th-TH")}
+                </span>
               </div>
             )}
             {withholdTax && (
               <div className="flex justify-between">
-                <span className="text-muted-foreground">หัก ณ ที่จ่าย 3% (จาก ฿{afterDiscount.toLocaleString("th-TH")})</span>
-                <span className="font-semibold tabular-nums">-฿{whtAmount.toLocaleString("th-TH")}</span>
+                <span className="text-muted-foreground">
+                  หัก ณ ที่จ่าย 3% (จาก ฿{afterDiscount.toLocaleString("th-TH")})
+                </span>
+                <span className="font-semibold tabular-nums">
+                  -฿{whtAmount.toLocaleString("th-TH")}
+                </span>
               </div>
             )}
             <div className="flex justify-between pt-2 mt-1 border-t border-border">
@@ -467,7 +529,9 @@ export function PriceCalculator({ remaining }: { remaining: number }) {
             </div>
             <div className="flex justify-between text-xs">
               <span className="text-muted-foreground">เฉลี่ย/ชั่วโมง ({totalHours} ชม.)</span>
-              <span className="font-semibold tabular-nums text-primary">฿{hourlyRate.toLocaleString("th-TH")}/ชม.</span>
+              <span className="font-semibold tabular-nums text-primary">
+                ฿{hourlyRate.toLocaleString("th-TH")}/ชม.
+              </span>
             </div>
           </div>
 
@@ -505,8 +569,8 @@ export function PriceCalculator({ remaining }: { remaining: number }) {
               {totalDays > 0 && freeRevisions > 0 && reviseDays > 0 && (
                 <div className="mt-2.5 rounded-lg bg-card border border-amber-200/60 dark:border-amber-500/30 px-2.5 py-1.5 text-[11px] leading-relaxed text-foreground">
                   <span className="inline-block h-2 w-2 rounded-full bg-amber-400 mr-1.5 align-middle" />
-                  เฉลี่ยส่งแก้ทุก <b>{reviseDays} วัน</b> รวม <b>{freeRevisions} ครั้ง</b>
-                  {" "}— จุดสีเหลืองคือกำหนดส่งแก้แต่ละรอบ
+                  เฉลี่ยส่งแก้ทุก <b>{reviseDays} วัน</b> รวม <b>{freeRevisions} ครั้ง</b> —
+                  จุดสีเหลืองคือกำหนดส่งแก้แต่ละรอบ
                 </div>
               )}
               {totalDays > 0 && freeRevisions === 0 && (
@@ -522,9 +586,7 @@ export function PriceCalculator({ remaining }: { remaining: number }) {
             className="mt-4 block w-full text-center rounded-xl bg-gradient-primary text-primary-foreground px-5 py-3 text-sm font-bold shadow-soft hover:opacity-90 transition-opacity"
           >
             สนใจเป็นผู้ทดลอง 100 คนแรก
-            {remaining > 0 && (
-              <span className="ml-1 opacity-90">(เหลืออีก {remaining} ที่)</span>
-            )}
+            {remaining > 0 && <span className="ml-1 opacity-90">(เหลืออีก {remaining} ที่)</span>}
           </Link>
           <p className="mt-1.5 text-center text-[10px] text-muted-foreground">
             จำกัดจำนวนสิทธิ์ เพื่อการดูแลอย่างทั่วถึง

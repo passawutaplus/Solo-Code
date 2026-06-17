@@ -4,7 +4,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useInhouseChannels, useInhouseMessages, useSendInhouseMessage } from "@/hooks/inhouse/useInhouseChat";
+import {
+  useInhouseChannels,
+  useInhouseMessages,
+  useSendInhouseMessage,
+} from "@/hooks/inhouse/useInhouseChat";
 import { useAuth } from "@/auth/AuthProvider";
 import type { InhouseOrg, InhouseWorkspace } from "@/lib/inhouse/types";
 import { cn } from "@/lib/utils";
@@ -96,7 +100,10 @@ export function InhouseChatTab({ org, workspace }: Props) {
                   <div className={cn("max-w-[75%]", mine && "text-right")}>
                     <p className="text-xs text-muted-foreground">
                       {msg.sender?.display_name ?? "Member"} ·{" "}
-                      {new Date(msg.created_at).toLocaleTimeString("th-TH", { hour: "2-digit", minute: "2-digit" })}
+                      {new Date(msg.created_at).toLocaleTimeString("th-TH", {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
                     </p>
                     <div
                       className={cn(

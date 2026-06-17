@@ -1,13 +1,22 @@
 import { Badge } from "@/components/ui/badge";
 import {
-  Phone, Mail, MessageCircle, Hash, Edit3, Trash2,
-  Building2, User as UserIcon, Wallet,
+  Phone,
+  Mail,
+  MessageCircle,
+  Hash,
+  Edit3,
+  Trash2,
+  Building2,
+  User as UserIcon,
+  Wallet,
 } from "lucide-react";
 import { formatTHB } from "@/data/mockData";
 import type { SavedClient } from "@/store/clients";
 
 export function SavedClientCard({
-  client, onEdit, onDelete,
+  client,
+  onEdit,
+  onDelete,
 }: {
   client: SavedClient;
   onEdit: () => void;
@@ -48,16 +57,32 @@ export function SavedClientCard({
       </div>
 
       <div className="flex flex-wrap gap-1.5 text-[11px] text-muted-foreground">
-        {client.phone && <span className="inline-flex items-center gap-1"><Phone className="h-3 w-3" />{client.phone}</span>}
-        {client.lineId && <span className="inline-flex items-center gap-1"><MessageCircle className="h-3 w-3" />LINE: {client.lineId}</span>}
-        {client.email && <span className="inline-flex items-center gap-1 truncate"><Mail className="h-3 w-3" />{client.email}</span>}
+        {client.phone && (
+          <span className="inline-flex items-center gap-1">
+            <Phone className="h-3 w-3" />
+            {client.phone}
+          </span>
+        )}
+        {client.lineId && (
+          <span className="inline-flex items-center gap-1">
+            <MessageCircle className="h-3 w-3" />
+            LINE: {client.lineId}
+          </span>
+        )}
+        {client.email && (
+          <span className="inline-flex items-center gap-1 truncate">
+            <Mail className="h-3 w-3" />
+            {client.email}
+          </span>
+        )}
       </div>
 
       {(client.paymentTerms || client.rate) && (
         <div className="flex flex-wrap gap-1.5 pt-1 border-t border-border/40">
           {client.paymentTerms && (
             <Badge variant="secondary" className="text-[10px] rounded-full">
-              <Wallet className="h-2.5 w-2.5 mr-1" />{client.paymentTerms}
+              <Wallet className="h-2.5 w-2.5 mr-1" />
+              {client.paymentTerms}
             </Badge>
           )}
           {client.rate && (
@@ -71,7 +96,9 @@ export function SavedClientCard({
       {client.tags && client.tags.length > 0 && (
         <div className="flex flex-wrap gap-1">
           {client.tags.map((t) => (
-            <span key={t} className="text-[10px] px-1.5 py-0.5 rounded bg-primary/10 text-primary">#{t}</span>
+            <span key={t} className="text-[10px] px-1.5 py-0.5 rounded bg-primary/10 text-primary">
+              #{t}
+            </span>
           ))}
         </div>
       )}

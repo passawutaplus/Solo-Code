@@ -78,7 +78,9 @@ Deno.serve(async (req) => {
 
   const types = (collab.collab_types as string[] | null) ?? [];
   const collabTypes = types
-    .map((t) => (t === "other" && collab.other_type_note ? collab.other_type_note : (COLLAB_LABELS[t] ?? t)))
+    .map((t) =>
+      t === "other" && collab.other_type_note ? collab.other_type_note : (COLLAB_LABELS[t] ?? t),
+    )
     .join(" · ");
 
   const siteUrl = anthemSiteUrl();

@@ -78,9 +78,7 @@ export function estimateActionsFromCredits(
 }
 
 /** ตารางสำหรับหน้า pricing — เรียงจากถูกไปแพง */
-export const AI_CREDIT_TABLE = (
-  Object.entries(AI_FEATURE_CREDITS) as [AiFeatureKey, number][]
-)
+export const AI_CREDIT_TABLE = (Object.entries(AI_FEATURE_CREDITS) as [AiFeatureKey, number][])
   .filter(([k]) => k !== "ai_design_chat")
   .sort((a, b) => a[1] - b[1])
   .map(([feature, credits]) => ({

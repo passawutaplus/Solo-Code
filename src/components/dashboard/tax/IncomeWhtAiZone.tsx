@@ -91,7 +91,9 @@ export function IncomeWhtAiZone({ onApply, className }: Props) {
         .filter(Boolean)
         .join(" · ");
 
-      const noteParts = [scan.notes, scan.issueDate && `วันที่ออก ${scan.issueDate}`].filter(Boolean);
+      const noteParts = [scan.notes, scan.issueDate && `วันที่ออก ${scan.issueDate}`].filter(
+        Boolean,
+      );
       const result: IncomeWhtAiResult = {
         certificateNo: scan.certificateNo,
         client,
@@ -134,20 +136,28 @@ export function IncomeWhtAiZone({ onApply, className }: Props) {
         onClick={() => !busy && inputRef.current?.click()}
         className={cn(
           "cursor-pointer rounded-xl border border-dashed p-3 transition-colors",
-          drag ? "border-primary bg-primary/10" : "border-border/70 bg-muted/30 hover:border-primary/50 hover:bg-primary/5",
+          drag
+            ? "border-primary bg-primary/10"
+            : "border-border/70 bg-muted/30 hover:border-primary/50 hover:bg-primary/5",
           busy && "pointer-events-none opacity-70",
         )}
       >
         <div className="flex items-center gap-2.5">
           <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/15 text-primary">
-            {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <UploadCloud className="h-4 w-4" />}
+            {busy ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <UploadCloud className="h-4 w-4" />
+            )}
           </div>
           <div className="min-w-0 flex-1">
             <p className="text-xs font-semibold flex items-center gap-1">
               <Sparkles className="h-3 w-3 text-primary shrink-0" />
               {busy ? "AI กำลังอ่านใบ 50 ทวิ..." : "โยนไฟล์ใบ 50 ทวิ — AI สรุปให้"}
             </p>
-            <p className="text-[10px] text-muted-foreground mt-0.5">PDF / JPG / PNG · ลากวางหรือคลิกเลือก</p>
+            <p className="text-[10px] text-muted-foreground mt-0.5">
+              PDF / JPG / PNG · ลากวางหรือคลิกเลือก
+            </p>
           </div>
         </div>
         {lastSummary && !busy && (

@@ -17,10 +17,7 @@ const json = (body: unknown, status = 200) =>
   });
 
 function adminClient() {
-  return createClient(
-    Deno.env.get("SUPABASE_URL")!,
-    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
-  );
+  return createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
 }
 
 async function resolveLinkedProfile(lineUserId: string) {
@@ -88,8 +85,8 @@ async function handleTextEvent(event: Record<string, unknown>) {
     const userMsg = msg.includes("GEMINI_API_KEY")
       ? "ระบบ AI ยังไม่พร้อมชั่วคราว ลองใหม่ภายหลังหรือพิมพ์「ทีมงาน」"
       : e instanceof GeminiError && e.status === 429
-      ? "AI ยุ่งอยู่ รอสักครู่แล้วลองใหม่นะ หรือพิมพ์「ทีมงาน」"
-      : "ระบบขัดข้องชั่วคราว ลองใหม่อีกครั้งนะ หรือพิมพ์「ทีมงาน」";
+        ? "AI ยุ่งอยู่ รอสักครู่แล้วลองใหม่นะ หรือพิมพ์「ทีมงาน」"
+        : "ระบบขัดข้องชั่วคราว ลองใหม่อีกครั้งนะ หรือพิมพ์「ทีมงาน」";
     await replyLineText(replyToken, userMsg);
   }
 }

@@ -46,7 +46,8 @@ function CheckoutPage() {
   const [loading, setLoading] = React.useState(true);
   const [notFound, setNotFound] = React.useState(false);
   const [job, setJob] = React.useState<Job | null>(null);
-  const [quotation, setQuotation] = React.useState<Parameters<typeof ClientCheckoutView>[0]["quotation"]>(null);
+  const [quotation, setQuotation] =
+    React.useState<Parameters<typeof ClientCheckoutView>[0]["quotation"]>(null);
   const [portal, setPortal] = React.useState<PortalBranding | null>(null);
   const [estimate, setEstimate] = React.useState<ClientPaymentEstimate | null>(null);
 

@@ -94,123 +94,117 @@ export function GiveFeedbackButton({
   };
 
   const popover = (
-      <Popover
-        open={open}
-        onOpenChange={(o) => {
-          setOpen(o);
-          if (!o) reset();
-        }}
-      >
-        <PopoverTrigger asChild>
-          <button
-            type="button"
-            aria-label={`Give Feedback — ${label}`}
-            className={cn(
-              "inline-flex items-center gap-1.5 rounded-full",
-              "bg-primary/15 backdrop-blur-md border border-primary/30 text-primary",
-              "px-3 py-1.5 text-xs font-medium shadow-soft",
-              "hover:bg-primary/25 hover:shadow-elevated transition-all",
-              className,
-            )}
-          >
-            <MessageSquareHeart className="h-3.5 w-3.5" />
-            <span>Give Feedback</span>
-          </button>
-        </PopoverTrigger>
-
-        <PopoverContent
-          side="top"
-          align="end"
-          sideOffset={8}
-          className="give-feedback-popover w-80 p-0 border-border/60 shadow-elevated max-h-[min(560px,75vh)] overflow-y-auto"
+    <Popover
+      open={open}
+      onOpenChange={(o) => {
+        setOpen(o);
+        if (!o) reset();
+      }}
+    >
+      <PopoverTrigger asChild>
+        <button
+          type="button"
+          aria-label={`Give Feedback — ${label}`}
+          className={cn(
+            "inline-flex items-center gap-1.5 rounded-full",
+            "bg-primary/15 backdrop-blur-md border border-primary/30 text-primary",
+            "px-3 py-1.5 text-xs font-medium shadow-soft",
+            "hover:bg-primary/25 hover:shadow-elevated transition-all",
+            className,
+          )}
         >
-          {submitted ? (
-            <div className="p-5 flex flex-col items-center text-center">
-              <div className="h-12 w-12 rounded-full bg-emerald-500/10 flex items-center justify-center mb-2">
-                <CheckCircle2 className="h-6 w-6 text-emerald-600" />
-              </div>
-              <p className="text-sm font-semibold text-foreground">ขอบคุณสำหรับฟีดแบ็ก!</p>
-              <p className="text-[11px] text-muted-foreground mt-1.5 max-w-[240px] leading-relaxed">
-                เราได้รับความคิดเห็นของคุณแล้ว ติดตามได้ที่ Support Hub → ตั๋วของฉัน
-              </p>
-              <Heart className="h-4 w-4 text-primary mt-3 opacity-70" />
-            </div>
-          ) : (
-            <div className="p-4 space-y-3">
-              <div>
-                <p className="text-sm font-semibold leading-tight">ให้คะแนน {label}</p>
-                <p className="text-[11px] text-muted-foreground mt-0.5">
-                  แชร์ประสบการณ์ของคุณกับเรา
-                </p>
-              </div>
+          <MessageSquareHeart className="h-3.5 w-3.5" />
+          <span>Give Feedback</span>
+        </button>
+      </PopoverTrigger>
 
-              <div className="space-y-1">
-                {RATINGS.map((r) => {
-                  const selected = rating === r.value;
-                  return (
-                    <button
-                      key={r.value}
-                      type="button"
-                      onClick={() => setRating(r.value)}
+      <PopoverContent
+        side="top"
+        align="end"
+        sideOffset={8}
+        className="give-feedback-popover w-80 p-0 border-border/60 shadow-elevated max-h-[min(560px,75vh)] overflow-y-auto"
+      >
+        {submitted ? (
+          <div className="p-5 flex flex-col items-center text-center">
+            <div className="h-12 w-12 rounded-full bg-emerald-500/10 flex items-center justify-center mb-2">
+              <CheckCircle2 className="h-6 w-6 text-emerald-600" />
+            </div>
+            <p className="text-sm font-semibold text-foreground">ขอบคุณสำหรับฟีดแบ็ก!</p>
+            <p className="text-[11px] text-muted-foreground mt-1.5 max-w-[240px] leading-relaxed">
+              เราได้รับความคิดเห็นของคุณแล้ว ติดตามได้ที่ Support Hub → ตั๋วของฉัน
+            </p>
+            <Heart className="h-4 w-4 text-primary mt-3 opacity-70" />
+          </div>
+        ) : (
+          <div className="p-4 space-y-3">
+            <div>
+              <p className="text-sm font-semibold leading-tight">ให้คะแนน {label}</p>
+              <p className="text-[11px] text-muted-foreground mt-0.5">แชร์ประสบการณ์ของคุณกับเรา</p>
+            </div>
+
+            <div className="space-y-1">
+              {RATINGS.map((r) => {
+                const selected = rating === r.value;
+                return (
+                  <button
+                    key={r.value}
+                    type="button"
+                    onClick={() => setRating(r.value)}
+                    className={cn(
+                      "w-full flex items-center gap-3 rounded-lg border px-3 py-2 text-left text-sm transition-colors",
+                      selected
+                        ? "border-primary bg-primary/10 text-foreground"
+                        : "border-border/60 bg-background hover:bg-muted/60",
+                    )}
+                  >
+                    <span
                       className={cn(
-                        "w-full flex items-center gap-3 rounded-lg border px-3 py-2 text-left text-sm transition-colors",
+                        "inline-flex h-6 w-6 items-center justify-center rounded-md text-xs font-semibold shrink-0",
                         selected
-                          ? "border-primary bg-primary/10 text-foreground"
-                          : "border-border/60 bg-background hover:bg-muted/60",
+                          ? "bg-primary text-primary-foreground"
+                          : "bg-muted text-muted-foreground",
                       )}
                     >
-                      <span
-                        className={cn(
-                          "inline-flex h-6 w-6 items-center justify-center rounded-md text-xs font-semibold shrink-0",
-                          selected
-                            ? "bg-primary text-primary-foreground"
-                            : "bg-muted text-muted-foreground",
-                        )}
-                      >
-                        {r.value}
-                      </span>
-                      <span className="text-xs">{r.label}</span>
-                    </button>
-                  );
-                })}
-              </div>
-
-              {rating !== null && (
-                <div className="space-y-2.5 animate-fade-in">
-                  <Textarea
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
-                    placeholder="อธิบายปัญหาหรือข้อเสนอแนะ (ไม่ระบุก็ได้)"
-                    rows={2}
-                    maxLength={500}
-                    className="resize-none text-xs bg-background"
-                  />
-                  <TicketImagePicker files={files} onChange={setFiles} compact />
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="text-[10px] text-muted-foreground">{message.length}/500</span>
-                    <Button
-                      size="sm"
-                      onClick={submitFeedback}
-                      disabled={sending}
-                      className="h-7 gap-1.5"
-                    >
-                      {sending ? <Loader2 className="h-3 w-3 animate-spin" /> : null}
-                      Send Feedback
-                    </Button>
-                  </div>
-                </div>
-              )}
+                      {r.value}
+                    </span>
+                    <span className="text-xs">{r.label}</span>
+                  </button>
+                );
+              })}
             </div>
-          )}
-        </PopoverContent>
-      </Popover>
+
+            {rating !== null && (
+              <div className="space-y-2.5 animate-fade-in">
+                <Textarea
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  placeholder="อธิบายปัญหาหรือข้อเสนอแนะ (ไม่ระบุก็ได้)"
+                  rows={2}
+                  maxLength={500}
+                  className="resize-none text-xs bg-background"
+                />
+                <TicketImagePicker files={files} onChange={setFiles} compact />
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-[10px] text-muted-foreground">{message.length}/500</span>
+                  <Button
+                    size="sm"
+                    onClick={submitFeedback}
+                    disabled={sending}
+                    className="h-7 gap-1.5"
+                  >
+                    {sending ? <Loader2 className="h-3 w-3 animate-spin" /> : null}
+                    Send Feedback
+                  </Button>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+      </PopoverContent>
+    </Popover>
   );
 
   if (inline) return popover;
 
-  return (
-    <div className={cn("mt-8 flex justify-end pr-1", className)}>
-      {popover}
-    </div>
-  );
+  return <div className={cn("mt-8 flex justify-end pr-1", className)}>{popover}</div>;
 }

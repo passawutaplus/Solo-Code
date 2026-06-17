@@ -70,7 +70,10 @@ export function waitForPrintRoot(
     const started = Date.now();
     const tick = () => {
       const el = document.querySelector(selector);
-      if (el instanceof HTMLElement && (el.getBoundingClientRect().height > 0 || el.childElementCount > 0)) {
+      if (
+        el instanceof HTMLElement &&
+        (el.getBoundingClientRect().height > 0 || el.childElementCount > 0)
+      ) {
         resolve(el);
         return;
       }
@@ -162,10 +165,7 @@ export function runPrintToPdf({
 }
 
 /** Multi-page A4 PDF via html2canvas + jsPDF (for long reports). */
-export async function exportElementToPdfA4(
-  element: HTMLElement,
-  filename: string,
-): Promise<void> {
+export async function exportElementToPdfA4(element: HTMLElement, filename: string): Promise<void> {
   const [{ default: html2canvas }, { default: jsPDF }] = await Promise.all([
     import("html2canvas"),
     import("jspdf"),

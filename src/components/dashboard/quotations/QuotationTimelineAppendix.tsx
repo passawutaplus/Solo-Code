@@ -40,7 +40,8 @@ export function QuotationTimelineAppendix({ q }: Props) {
   const totals = computeTotals(q);
   const revisionDates = computeRevisionDates(q.startDate, q.endDate, q.revisionsCount);
 
-  const events: { date?: string; label: string; type: "deposit" | "start" | "revision" | "end" }[] = [];
+  const events: { date?: string; label: string; type: "deposit" | "start" | "revision" | "end" }[] =
+    [];
   if (q.depositDueDate) {
     events.push({
       date: q.depositDueDate,
@@ -74,12 +75,18 @@ export function QuotationTimelineAppendix({ q }: Props) {
           marginBottom: 18,
         }}
       >
-        <p style={{ fontSize: 9, letterSpacing: "0.18em", color: accent, margin: 0, fontWeight: 600 }}>
+        <p
+          style={{
+            fontSize: 9,
+            letterSpacing: "0.18em",
+            color: accent,
+            margin: 0,
+            fontWeight: 600,
+          }}
+        >
           APPENDIX · TIMELINE
         </p>
-        <h1 style={{ fontSize: 22, margin: "4px 0 2px", fontWeight: 600 }}>
-          ไทม์ไลน์โครงการ
-        </h1>
+        <h1 style={{ fontSize: 22, margin: "4px 0 2px", fontWeight: 600 }}>ไทม์ไลน์โครงการ</h1>
         <p style={{ fontSize: 10, color: "#666", margin: 0 }}>
           {q.projectName || "—"} · {q.clientName || "ลูกค้า"} · {q.number}
         </p>
@@ -182,7 +189,13 @@ const td_: React.CSSProperties = {
   borderBottom: "1px solid #f0f0f0",
 };
 
-function SectionTitle({ children, color = "#F37021" }: { children: React.ReactNode; color?: string }) {
+function SectionTitle({
+  children,
+  color = "#F37021",
+}: {
+  children: React.ReactNode;
+  color?: string;
+}) {
   return (
     <h2
       style={{

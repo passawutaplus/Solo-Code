@@ -10,13 +10,7 @@ import { toast } from "sonner";
  * Floating-style suggestion box that lives inside each feature.
  * Early-access testers can leave per-feature feedback that the admin can review.
  */
-export function FeatureFeedbackBox({
-  feature,
-  label,
-}: {
-  feature: string;
-  label?: string;
-}) {
+export function FeatureFeedbackBox({ feature, label }: { feature: string; label?: string }) {
   const { items, isLoading, submit, remove } = useMyBetaFeedback(feature);
   const [open, setOpen] = React.useState(false);
   const [msg, setMsg] = React.useState("");
@@ -82,7 +76,11 @@ export function FeatureFeedbackBox({
               </p>
             </div>
           </div>
-          {open ? <ChevronUp className="h-4 w-4 shrink-0" /> : <ChevronDown className="h-4 w-4 shrink-0" />}
+          {open ? (
+            <ChevronUp className="h-4 w-4 shrink-0" />
+          ) : (
+            <ChevronDown className="h-4 w-4 shrink-0" />
+          )}
         </button>
 
         {open && (
@@ -98,7 +96,11 @@ export function FeatureFeedbackBox({
             <div className="flex items-center justify-between gap-2">
               <span className="text-[10px] text-muted-foreground">{msg.length}/1000</span>
               <Button size="sm" onClick={send} disabled={sending} className="gap-1.5 h-8">
-                {sending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Send className="h-3.5 w-3.5" />}
+                {sending ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <Send className="h-3.5 w-3.5" />
+                )}
                 ส่ง
               </Button>
             </div>

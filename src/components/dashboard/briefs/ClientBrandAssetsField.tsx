@@ -33,7 +33,10 @@ export function ClientBrandAssetsField({
   const [ciBusy, setCiBusy] = React.useState(false);
 
   const handleLogo = async (file: File) => {
-    if (!userId) { toast.error("กรุณาเข้าสู่ระบบ"); return; }
+    if (!userId) {
+      toast.error("กรุณาเข้าสู่ระบบ");
+      return;
+    }
     setLogoBusy(true);
     try {
       const r = await uploadBriefReference({ file, userId });
@@ -47,16 +50,17 @@ export function ClientBrandAssetsField({
   };
 
   const handleCi = async (file: File) => {
-    if (!userId) { toast.error("กรุณาเข้าสู่ระบบ"); return; }
+    if (!userId) {
+      toast.error("กรุณาเข้าสู่ระบบ");
+      return;
+    }
     setCiBusy(true);
     try {
       const [r, palette] = await Promise.all([
         uploadBriefReference({ file, userId }),
         extractPaletteFromImage(file, 6).catch(() => [] as string[]),
       ]);
-      const cleanPalette = palette
-        .map((c) => normalizeHex(c))
-        .filter((c): c is string => !!c);
+      const cleanPalette = palette.map((c) => normalizeHex(c)).filter((c): c is string => !!c);
       onChange({ ci_image_url: r.url, ci_palette: cleanPalette });
       toast.success(
         cleanPalette.length
@@ -133,7 +137,8 @@ export function ClientBrandAssetsField({
             ))}
           </div>
           <p className="text-[10px] text-muted-foreground">
-            พาเลตต์นี้จะถูกฝังในหน้า "Brand CI Reference" ของ PDF เพื่อเป็นเข็มทิศกันงานหลุด CI ของลูกค้า
+            พาเลตต์นี้จะถูกฝังในหน้า "Brand CI Reference" ของ PDF เพื่อเป็นเข็มทิศกันงานหลุด CI
+            ของลูกค้า
           </p>
         </div>
       )}
@@ -142,7 +147,14 @@ export function ClientBrandAssetsField({
 }
 
 function UploadSlot({
-  label, hint, icon, busy, disabled, previewUrl, onFile, onRemove,
+  label,
+  hint,
+  icon,
+  busy,
+  disabled,
+  previewUrl,
+  onFile,
+  onRemove,
 }: {
   label: string;
   hint: string;
@@ -165,7 +177,9 @@ function UploadSlot({
         </div>
         {previewUrl && !disabled && (
           <Button
-            type="button" size="icon" variant="ghost"
+            type="button"
+            size="icon"
+            variant="ghost"
             className="h-7 w-7 text-muted-foreground hover:text-destructive"
             onClick={onRemove}
             title="ลบ"
@@ -183,11 +197,7 @@ function UploadSlot({
           className="block w-full rounded-lg border border-border bg-background overflow-hidden hover:opacity-90 transition disabled:cursor-not-allowed"
           title="คลิกเพื่อเปลี่ยนรูป"
         >
-          <img
-            src={previewUrl}
-            alt={label}
-            className="w-full h-32 object-contain bg-white"
-          />
+          <img src={previewUrl} alt={label} className="w-full h-32 object-contain bg-white" />
         </button>
       ) : (
         <button

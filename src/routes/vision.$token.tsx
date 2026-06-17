@@ -7,7 +7,16 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Heart, MessageCircle, Send, Sparkles, MessageSquare, ThumbsUp, X } from "lucide-react";
+import {
+  Loader2,
+  Heart,
+  MessageCircle,
+  Send,
+  Sparkles,
+  MessageSquare,
+  ThumbsUp,
+  X,
+} from "lucide-react";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
 
@@ -47,40 +56,73 @@ function PublicVisionPage() {
   const [canvas, setCanvas] = React.useState<Canvas | null>(null);
   const [loading, setLoading] = React.useState(true);
   const [likes, setLikes] = React.useState(0);
-  const [comments, setComments] = React.useState<{ id: string; guest_name: string | null; message: string | null; created_at: string }[]>([]);
+  const [comments, setComments] = React.useState<
+    { id: string; guest_name: string | null; message: string | null; created_at: string }[]
+  >([]);
   const [pins, setPins] = React.useState<Pin[]>([]);
   const [votes, setVotes] = React.useState<Record<string, number>>({});
   const [name, setName] = React.useState("");
   const [msg, setMsg] = React.useState("");
   const [sending, setSending] = React.useState(false);
   // Pin draft: { block_id, x, y } when user clicked an image
-  const [pinDraft, setPinDraft] = React.useState<{ block_id: string; x: number; y: number } | null>(null);
+  const [pinDraft, setPinDraft] = React.useState<{ block_id: string; x: number; y: number } | null>(
+    null,
+  );
   const [pinText, setPinText] = React.useState("");
 
   React.useEffect(() => {
     (async () => {
       const { data, error } = await supabase
         .from("vision_canvases")
-        .select("id, title, blocks, palette, font, keywords, designer_note, share_token, voting_enabled")
+        .select(
+          "id, title, blocks, palette, font, keywords, designer_note, share_token, voting_enabled",
+        )
         .eq("share_token", token)
         .eq("is_public", true)
         .maybeSingle();
-      if (error || !data) { setLoading(false); return; }
+      if (error || !data) {
+        setLoading(false);
+        return;
+      }
       setCanvas({ ...data, blocks: (data.blocks as unknown as Block[]) ?? [] } as Canvas);
       const { data: r } = await supabase
         .from("vision_canvas_reactions")
         .select("id, kind, guest_name, message, created_at, pin_x, pin_y, target_block_id")
         .eq("canvas_id", data.id)
         .order("created_at", { ascending: false });
-      const rows = (r ?? []) as Array<{ id: string; kind: string; guest_name: string | null; message: string | null; created_at: string; pin_x: number | null; pin_y: number | null; target_block_id: string | null }>;
+      const rows = (r ?? []) as Array<{
+        id: string;
+        kind: string;
+        guest_name: string | null;
+        message: string | null;
+        created_at: string;
+        pin_x: number | null;
+        pin_y: number | null;
+        target_block_id: string | null;
+      }>;
       setLikes(rows.filter((x) => x.kind === "like").length);
       setComments(rows.filter((x) => x.kind === "comment"));
-      setPins(rows.filter((r) => r.kind === "pin_comment" && r.pin_x != null && r.pin_y != null && r.target_block_id)
-        .map((r) => ({ id: r.id, x: Number(r.pin_x), y: Number(r.pin_y), block_id: r.target_block_id!, name: r.guest_name || "ลูกค้า", message: r.message || "" })));
+      setPins(
+        rows
+          .filter(
+            (r) =>
+              r.kind === "pin_comment" && r.pin_x != null && r.pin_y != null && r.target_block_id,
+          )
+          .map((r) => ({
+            id: r.id,
+            x: Number(r.pin_x),
+            y: Number(r.pin_y),
+            block_id: r.target_block_id!,
+            name: r.guest_name || "ลูกค้า",
+            message: r.message || "",
+          })),
+      );
       const v: Record<string, number> = {};
-      rows.filter((r) => r.kind === "vote" && r.target_block_id).forEach((r) => {
-        v[r.target_block_id!] = (v[r.target_block_id!] || 0) + 1;
-      });
+      rows
+        .filter((r) => r.kind === "vote" && r.target_block_id)
+        .forEach((r) => {
+          v[r.target_block_id!] = (v[r.target_block_id!] || 0) + 1;
+        });
       setVotes(v);
       setLoading(false);
     })();
@@ -89,20 +131,35 @@ function PublicVisionPage() {
   const sendLike = async () => {
     if (!canvas) return;
     const { error } = await supabase.from("vision_canvas_reactions").insert({
-      canvas_id: canvas.id, kind: "like", guest_name: name || "ลูกค้า",
+      canvas_id: canvas.id,
+      kind: "like",
+      guest_name: name || "ลูกค้า",
     });
     if (error) toast.error(error.message);
-    else { setLikes((n) => n + 1); toast.success("ส่งหัวใจแล้ว 💛"); }
+    else {
+      setLikes((n) => n + 1);
+      toast.success("ส่งหัวใจแล้ว 💛");
+    }
   };
 
   const sendComment = async () => {
     if (!canvas || !msg.trim()) return;
     setSending(true);
-    const { data, error } = await supabase.from("vision_canvas_reactions").insert({
-      canvas_id: canvas.id, kind: "comment", guest_name: name || "ลูกค้า", message: msg.trim(),
-    }).select("id, guest_name, message, created_at").single();
+    const { data, error } = await supabase
+      .from("vision_canvas_reactions")
+      .insert({
+        canvas_id: canvas.id,
+        kind: "comment",
+        guest_name: name || "ลูกค้า",
+        message: msg.trim(),
+      })
+      .select("id, guest_name, message, created_at")
+      .single();
     setSending(false);
-    if (error) { toast.error(error.message); return; }
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
     setComments((p) => [data, ...p]);
     setMsg("");
     toast.success("ส่งคอมเมนต์แล้ว");
@@ -118,17 +175,34 @@ function PublicVisionPage() {
 
   const sendPin = async () => {
     if (!canvas || !pinDraft || !pinText.trim()) return;
-    const { data, error } = await supabase.from("vision_canvas_reactions").insert({
-      canvas_id: canvas.id,
-      kind: "pin_comment",
-      guest_name: name || "ลูกค้า",
-      message: pinText.trim(),
-      pin_x: pinDraft.x,
-      pin_y: pinDraft.y,
-      target_block_id: pinDraft.block_id,
-    }).select("id, guest_name, message, pin_x, pin_y, target_block_id").single();
-    if (error) { toast.error(error.message); return; }
-    setPins((p) => [...p, { id: data.id, x: Number(data.pin_x), y: Number(data.pin_y), block_id: data.target_block_id!, name: data.guest_name || "ลูกค้า", message: data.message || "" }]);
+    const { data, error } = await supabase
+      .from("vision_canvas_reactions")
+      .insert({
+        canvas_id: canvas.id,
+        kind: "pin_comment",
+        guest_name: name || "ลูกค้า",
+        message: pinText.trim(),
+        pin_x: pinDraft.x,
+        pin_y: pinDraft.y,
+        target_block_id: pinDraft.block_id,
+      })
+      .select("id, guest_name, message, pin_x, pin_y, target_block_id")
+      .single();
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    setPins((p) => [
+      ...p,
+      {
+        id: data.id,
+        x: Number(data.pin_x),
+        y: Number(data.pin_y),
+        block_id: data.target_block_id!,
+        name: data.guest_name || "ลูกค้า",
+        message: data.message || "",
+      },
+    ]);
     setPinDraft(null);
     setPinText("");
     toast.success("ปักหมุดแล้ว 📍");
@@ -142,18 +216,27 @@ function PublicVisionPage() {
       guest_name: name || "ลูกค้า",
       target_block_id: blockId,
     });
-    if (error) { toast.error(error.message); return; }
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
     setVotes((p) => ({ ...p, [blockId]: (p[blockId] || 0) + 1 }));
     toast.success("ขอบคุณสำหรับโหวต 👍");
   };
 
-  if (loading) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="h-6 w-6 animate-spin" /></div>;
-  if (!canvas) return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-6 text-center">
-      <p className="text-lg font-semibold">ไม่พบ Vision Canvas นี้</p>
-      <p className="text-sm text-muted-foreground mt-1">เจ้าของอาจปิดการแชร์แล้ว</p>
-    </div>
-  );
+  if (loading)
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="h-6 w-6 animate-spin" />
+      </div>
+    );
+  if (!canvas)
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center p-6 text-center">
+        <p className="text-lg font-semibold">ไม่พบ Vision Canvas นี้</p>
+        <p className="text-sm text-muted-foreground mt-1">เจ้าของอาจปิดการแชร์แล้ว</p>
+      </div>
+    );
 
   return (
     <div className="min-h-screen bg-background">
@@ -163,7 +246,9 @@ function PublicVisionPage() {
             <Sparkles className="h-4 w-4 text-primary" />
             <span className="text-sm font-semibold">{canvas.title}</span>
           </div>
-          <Badge variant="outline" className="text-[10px]">So1o Vision</Badge>
+          <Badge variant="outline" className="text-[10px]">
+            So1o Vision
+          </Badge>
         </div>
       </header>
 
@@ -171,14 +256,21 @@ function PublicVisionPage() {
         <Card className="p-3">
           <div className="text-[11px] text-muted-foreground mb-2 flex items-center gap-1.5">
             <MessageSquare className="h-3 w-3" /> คลิกบนรูปเพื่อปักหมุดแสดงความเห็นเฉพาะจุด
-            {canvas.voting_enabled && <span className="ml-2 flex items-center gap-1"><ThumbsUp className="h-3 w-3" /> โหมดโหวตเปิดอยู่</span>}
+            {canvas.voting_enabled && (
+              <span className="ml-2 flex items-center gap-1">
+                <ThumbsUp className="h-3 w-3" /> โหมดโหวตเปิดอยู่
+              </span>
+            )}
           </div>
           <div className="columns-2 sm:columns-3 gap-2 [column-fill:_balance]">
             {canvas.blocks.map((b) => {
               const blockPins = pins.filter((p) => p.block_id === b.id);
               const voteCount = votes[b.id] || 0;
               return (
-                <div key={b.id} className="mb-2 break-inside-avoid rounded-xl overflow-hidden border border-border relative">
+                <div
+                  key={b.id}
+                  className="mb-2 break-inside-avoid rounded-xl overflow-hidden border border-border relative"
+                >
                   {b.kind === "image" && (
                     <div
                       className="relative cursor-crosshair"
@@ -213,13 +305,18 @@ function PublicVisionPage() {
                     </div>
                   )}
                   {b.kind === "color" && (
-                    <div className="aspect-square flex items-center justify-center text-white text-xs font-mono" style={{ backgroundColor: b.hex }}>
+                    <div
+                      className="aspect-square flex items-center justify-center text-white text-xs font-mono"
+                      style={{ backgroundColor: b.hex }}
+                    >
                       <span className="bg-black/30 rounded px-1.5 py-0.5">{b.hex}</span>
                     </div>
                   )}
                   {b.kind === "type" && (
                     <div className="aspect-[4/3] bg-muted/40 p-4 flex flex-col justify-center">
-                      <div className="text-[10px] uppercase text-muted-foreground tracking-wider">{b.font}</div>
+                      <div className="text-[10px] uppercase text-muted-foreground tracking-wider">
+                        {b.font}
+                      </div>
                       <div className="text-2xl font-bold mt-1 leading-tight">{b.sample}</div>
                     </div>
                   )}
@@ -254,15 +351,27 @@ function PublicVisionPage() {
               </Button>
             </div>
             <div className="grid gap-2 sm:grid-cols-[140px_1fr_auto]">
-              <Input placeholder="ชื่อ" value={name} onChange={(e) => setName(e.target.value)} className="h-9 text-xs" />
+              <Input
+                placeholder="ชื่อ"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="h-9 text-xs"
+              />
               <Input
                 placeholder="เช่น 'ตรงนี้สีจัดไป'"
                 value={pinText}
                 onChange={(e) => setPinText(e.target.value)}
-                onKeyDown={(e) => { if (e.key === "Enter") sendPin(); }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") sendPin();
+                }}
                 className="h-9 text-xs"
               />
-              <Button size="sm" className="rounded-full" onClick={sendPin} disabled={!pinText.trim()}>
+              <Button
+                size="sm"
+                className="rounded-full"
+                onClick={sendPin}
+                disabled={!pinText.trim()}
+              >
                 <Send className="h-3.5 w-3.5" />
               </Button>
             </div>
@@ -276,7 +385,10 @@ function PublicVisionPage() {
             <div className="flex flex-wrap gap-1.5">
               {canvas.palette.map((h) => (
                 <div key={h} className="flex flex-col items-center">
-                  <span className="h-9 w-9 rounded-lg border-2 border-white shadow-soft ring-1 ring-border" style={{ backgroundColor: h }} />
+                  <span
+                    className="h-9 w-9 rounded-lg border-2 border-white shadow-soft ring-1 ring-border"
+                    style={{ backgroundColor: h }}
+                  />
                   <span className="text-[9px] font-mono text-muted-foreground mt-0.5">{h}</span>
                 </div>
               ))}
@@ -286,7 +398,11 @@ function PublicVisionPage() {
             <div className="text-xs font-semibold">Type & Mood</div>
             <div className="text-xs">{canvas.font || "(ไม่ระบุ)"}</div>
             <div className="flex flex-wrap gap-1">
-              {canvas.keywords.map((k) => <Badge key={k} variant="secondary" className="rounded-full text-[10px]">#{k}</Badge>)}
+              {canvas.keywords.map((k) => (
+                <Badge key={k} variant="secondary" className="rounded-full text-[10px]">
+                  #{k}
+                </Badge>
+              ))}
             </div>
           </Card>
         </div>
@@ -309,26 +425,50 @@ function PublicVisionPage() {
             </Button>
           </div>
           <div className="grid gap-2 sm:grid-cols-[140px_1fr_auto]">
-            <Input placeholder="ชื่อของคุณ" value={name} onChange={(e) => setName(e.target.value)} className="h-9 text-xs" />
-            <Textarea placeholder="คอมเมนต์ถึงดีไซเนอร์…" value={msg} onChange={(e) => setMsg(e.target.value)} className="min-h-[40px] text-xs" />
-            <Button size="sm" className="rounded-full gap-1.5" onClick={sendComment} disabled={sending || !msg.trim()}>
-              {sending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Send className="h-3.5 w-3.5" />} ส่ง
+            <Input
+              placeholder="ชื่อของคุณ"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="h-9 text-xs"
+            />
+            <Textarea
+              placeholder="คอมเมนต์ถึงดีไซเนอร์…"
+              value={msg}
+              onChange={(e) => setMsg(e.target.value)}
+              className="min-h-[40px] text-xs"
+            />
+            <Button
+              size="sm"
+              className="rounded-full gap-1.5"
+              onClick={sendComment}
+              disabled={sending || !msg.trim()}
+            >
+              {sending ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <Send className="h-3.5 w-3.5" />
+              )}{" "}
+              ส่ง
             </Button>
           </div>
 
           <div className="space-y-2 pt-2 border-t border-border">
             {comments.length === 0 ? (
               <p className="text-[11px] text-muted-foreground text-center py-2">ยังไม่มีคอมเมนต์</p>
-            ) : comments.map((c) => (
-              <div key={c.id} className="flex gap-2 items-start">
-                <MessageCircle className="h-3.5 w-3.5 text-muted-foreground mt-0.5" />
-                <div className="flex-1 min-w-0">
-                  <div className="text-[11px] font-semibold">{c.guest_name || "ลูกค้า"}</div>
-                  <div className="text-xs">{c.message}</div>
-                  <div className="text-[9px] text-muted-foreground">{new Date(c.created_at).toLocaleString("th-TH")}</div>
+            ) : (
+              comments.map((c) => (
+                <div key={c.id} className="flex gap-2 items-start">
+                  <MessageCircle className="h-3.5 w-3.5 text-muted-foreground mt-0.5" />
+                  <div className="flex-1 min-w-0">
+                    <div className="text-[11px] font-semibold">{c.guest_name || "ลูกค้า"}</div>
+                    <div className="text-xs">{c.message}</div>
+                    <div className="text-[9px] text-muted-foreground">
+                      {new Date(c.created_at).toLocaleString("th-TH")}
+                    </div>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
         </Card>
       </main>

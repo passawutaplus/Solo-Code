@@ -5,9 +5,7 @@ import { useAuth } from "@/auth/AuthProvider";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import {
-  User, Briefcase, ArrowRight, ArrowLeft, Check, Loader2,
-} from "lucide-react";
+import { User, Briefcase, ArrowRight, ArrowLeft, Check, Loader2 } from "lucide-react";
 import { FREELANCER_QS, CLIENT_QS, type Persona } from "./surveyShared";
 
 export function OnboardingFlow() {
@@ -20,7 +18,8 @@ export function OnboardingFlow() {
   const [direction, setDirection] = React.useState(1);
 
   const open = !!user && !loading && profile && !profile.onboarding_completed;
-  const questions = persona === "freelancer" ? FREELANCER_QS : persona === "client" ? CLIENT_QS : [];
+  const questions =
+    persona === "freelancer" ? FREELANCER_QS : persona === "client" ? CLIENT_QS : [];
   const totalSteps = 1 + questions.length;
   const progress = Math.round(((step + 1) / Math.max(1, totalSteps)) * 100);
 
@@ -28,11 +27,12 @@ export function OnboardingFlow() {
 
   const currentQ = step > 0 ? questions[step - 1] : null;
   const currentVal = currentQ ? answers[currentQ.key] : null;
-  const canNext = step === 0
-    ? !!persona
-    : currentQ?.multi
-      ? Array.isArray(currentVal) && currentVal.length > 0
-      : !!currentVal;
+  const canNext =
+    step === 0
+      ? !!persona
+      : currentQ?.multi
+        ? Array.isArray(currentVal) && currentVal.length > 0
+        : !!currentVal;
 
   const next = () => {
     if (!canNext) return;
@@ -71,7 +71,8 @@ export function OnboardingFlow() {
     if (currentQ.multi) {
       const arr = Array.isArray(currentVal) ? [...currentVal] : [];
       const idx = arr.indexOf(val);
-      if (idx >= 0) arr.splice(idx, 1); else arr.push(val);
+      if (idx >= 0) arr.splice(idx, 1);
+      else arr.push(val);
       setAnswers((a) => ({ ...a, [currentQ.key]: arr }));
     } else {
       setAnswers((a) => ({ ...a, [currentQ.key]: val }));
@@ -89,14 +90,20 @@ export function OnboardingFlow() {
   return (
     <div className="fixed inset-0 z-[100] bg-background overflow-y-auto">
       <div className="ambient-blobs" aria-hidden="true" />
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-[420px]" aria-hidden="true" style={{ backgroundImage: "var(--gradient-mesh)" }} />
+      <div
+        className="pointer-events-none absolute inset-x-0 top-0 h-[420px]"
+        aria-hidden="true"
+        style={{ backgroundImage: "var(--gradient-mesh)" }}
+      />
 
       {/* Progress bar */}
       <div className="sticky top-0 z-10 glass border-b border-white/40">
         <div className="mx-auto max-w-2xl px-4 py-3">
           <div className="flex items-center justify-between mb-2">
             <p className="text-xs font-medium text-muted-foreground">เริ่มต้นใช้งาน</p>
-            <p className="text-xs font-semibold text-primary">{step + 1} / {totalSteps}</p>
+            <p className="text-xs font-semibold text-primary">
+              {step + 1} / {totalSteps}
+            </p>
           </div>
           <div className="h-1.5 rounded-full bg-muted overflow-hidden">
             <motion.div
@@ -121,8 +128,12 @@ export function OnboardingFlow() {
           >
             {step === 0 ? (
               <div>
-                <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">คุณคือใครในแพลตฟอร์มนี้?</h1>
-                <p className="mt-2 text-sm text-muted-foreground">เลือกสิ่งที่ใกล้เคียงคุณที่สุด เราจะปรับแต่งประสบการณ์ให้</p>
+                <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
+                  คุณคือใครในแพลตฟอร์มนี้?
+                </h1>
+                <p className="mt-2 text-sm text-muted-foreground">
+                  เลือกสิ่งที่ใกล้เคียงคุณที่สุด เราจะปรับแต่งประสบการณ์ให้
+                </p>
 
                 <div className="mt-6 grid sm:grid-cols-2 gap-3">
                   <PersonaCard
@@ -161,8 +172,14 @@ export function OnboardingFlow() {
                             : "border-border bg-white/60 hover:bg-white hover:border-primary/40 hover:scale-[1.02] hover:shadow-soft"
                         }`}
                       >
-                        <Icon className={`h-6 w-6 ${picked ? "text-primary" : "text-muted-foreground group-hover:text-foreground"}`} />
-                        <span className={`text-xs font-medium ${picked ? "text-primary" : "text-foreground"}`}>{opt.label}</span>
+                        <Icon
+                          className={`h-6 w-6 ${picked ? "text-primary" : "text-muted-foreground group-hover:text-foreground"}`}
+                        />
+                        <span
+                          className={`text-xs font-medium ${picked ? "text-primary" : "text-foreground"}`}
+                        >
+                          {opt.label}
+                        </span>
                         {picked && (
                           <span className="absolute top-1.5 right-1.5 h-4 w-4 rounded-full bg-primary text-primary-foreground grid place-items-center">
                             <Check className="h-2.5 w-2.5" />
@@ -179,16 +196,33 @@ export function OnboardingFlow() {
 
         {/* Nav */}
         <div className="mt-8 flex items-center justify-between gap-3">
-          <Button variant="ghost" onClick={back} disabled={step === 0 || saving} className="gap-1.5">
+          <Button
+            variant="ghost"
+            onClick={back}
+            disabled={step === 0 || saving}
+            className="gap-1.5"
+          >
             <ArrowLeft className="h-4 w-4" /> ย้อนกลับ
           </Button>
           {isLast ? (
-            <Button onClick={finish} disabled={!canNext || saving} className="gap-1.5 bg-gradient-primary text-primary-foreground shadow-elevated min-w-[140px]">
-              {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
+            <Button
+              onClick={finish}
+              disabled={!canNext || saving}
+              className="gap-1.5 bg-gradient-primary text-primary-foreground shadow-elevated min-w-[140px]"
+            >
+              {saving ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Check className="h-4 w-4" />
+              )}
               เริ่มใช้งาน
             </Button>
           ) : (
-            <Button onClick={next} disabled={!canNext} className="gap-1.5 bg-gradient-primary text-primary-foreground shadow-elevated min-w-[120px]">
+            <Button
+              onClick={next}
+              disabled={!canNext}
+              className="gap-1.5 bg-gradient-primary text-primary-foreground shadow-elevated min-w-[120px]"
+            >
               ถัดไป <ArrowRight className="h-4 w-4" />
             </Button>
           )}
@@ -203,10 +237,17 @@ export function OnboardingFlow() {
 }
 
 function PersonaCard({
-  icon: Icon, title, desc, active, onClick,
+  icon: Icon,
+  title,
+  desc,
+  active,
+  onClick,
 }: {
   icon: React.ComponentType<{ className?: string }>;
-  title: string; desc: string; active: boolean; onClick: () => void;
+  title: string;
+  desc: string;
+  active: boolean;
+  onClick: () => void;
 }) {
   return (
     <button
@@ -218,7 +259,9 @@ function PersonaCard({
           : "border-border bg-white/60 hover:bg-white hover:border-primary/40 hover:scale-[1.01] hover:shadow-soft"
       }`}
     >
-      <div className={`h-10 w-10 rounded-xl grid place-items-center ${active ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary"}`}>
+      <div
+        className={`h-10 w-10 rounded-xl grid place-items-center ${active ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary"}`}
+      >
         <Icon className="h-5 w-5" />
       </div>
       <h3 className="text-base font-semibold">{title}</h3>

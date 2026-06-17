@@ -59,7 +59,11 @@ function ForgotPage() {
 
       <div className="relative z-10 w-full max-w-md">
         <div className="flex flex-col items-center mb-6">
-          <img src={logoUrl} alt="So1o" className="h-14 w-14 rounded-2xl object-cover shadow-elevated" />
+          <img
+            src={logoUrl}
+            alt="So1o"
+            className="h-14 w-14 rounded-2xl object-cover shadow-elevated"
+          />
           <h1 className="mt-3 text-xl font-semibold tracking-tight">ลืมรหัสผ่าน</h1>
           <p className="text-xs text-muted-foreground mt-1">เราจะส่งลิงก์ตั้งรหัสใหม่ไปทางอีเมล</p>
         </div>
@@ -68,8 +72,12 @@ function ForgotPage() {
           <CardContent className="p-6">
             {sent ? (
               <div className="space-y-3 text-center">
-                <p className="text-sm">📨 ส่งลิงก์รีเซ็ตไปที่ <span className="font-medium">{email}</span> แล้ว</p>
-                <p className="text-xs text-muted-foreground">หากไม่เห็นในกล่องจดหมาย ลองดูในโฟลเดอร์ Spam นะครับ</p>
+                <p className="text-sm">
+                  📨 ส่งลิงก์รีเซ็ตไปที่ <span className="font-medium">{email}</span> แล้ว
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  หากไม่เห็นในกล่องจดหมาย ลองดูในโฟลเดอร์ Spam นะครับ
+                </p>
                 <Button asChild variant="outline" className="w-full mt-3">
                   <Link to="/auth">กลับไปเข้าสู่ระบบ</Link>
                 </Button>
@@ -77,7 +85,9 @@ function ForgotPage() {
             ) : (
               <form onSubmit={onSubmit} className="space-y-4">
                 <div className="space-y-1.5">
-                  <Label htmlFor="forgot-email" className="text-xs">อีเมลที่ลงทะเบียน</Label>
+                  <Label htmlFor="forgot-email" className="text-xs">
+                    อีเมลที่ลงทะเบียน
+                  </Label>
                   <div className="relative">
                     <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input
@@ -92,7 +102,11 @@ function ForgotPage() {
                     />
                   </div>
                 </div>
-                <Button type="submit" disabled={busy} className="w-full h-11 bg-primary hover:bg-primary/90 rounded-lg">
+                <Button
+                  type="submit"
+                  disabled={busy}
+                  className="w-full h-11 bg-primary hover:bg-primary/90 rounded-lg"
+                >
                   {busy && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
                   ส่งลิงก์รีเซ็ตรหัสผ่าน
                 </Button>

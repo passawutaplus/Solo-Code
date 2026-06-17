@@ -1,7 +1,5 @@
 import * as React from "react";
-import {
-  Dialog, DialogContent, DialogHeader, DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Eye } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { SupplierPaper, type PaperLink } from "./SupplierPaper";
@@ -20,8 +18,10 @@ export function SupplierPreviewDialog({ open, supplier, onClose, useHiddenFields
   React.useEffect(() => {
     if (!open || !supplier) return;
     (async () => {
-      const { data } = await supabase.from("supplier_links")
-        .select("id,label,url").eq("supplier_id", supplier.id);
+      const { data } = await supabase
+        .from("supplier_links")
+        .select("id,label,url")
+        .eq("supplier_id", supplier.id);
       setLinks((data ?? []) as PaperLink[]);
     })();
   }, [open, supplier]);

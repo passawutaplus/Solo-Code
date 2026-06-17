@@ -68,7 +68,11 @@ export function JobCard({
   }, [job.closed]);
 
   const addRevision = (rev: Omit<Revision, "id" | "createdAt">) => {
-    const newRev: Revision = { ...rev, id: crypto.randomUUID(), createdAt: new Date().toISOString() };
+    const newRev: Revision = {
+      ...rev,
+      id: crypto.randomUUID(),
+      createdAt: new Date().toISOString(),
+    };
     const closed = rev.status === "final" ? true : job.closed;
     onUpdate({ ...job, revisions: [...job.revisions, newRev], closed });
   };
@@ -183,7 +187,9 @@ export function JobCard({
                       />
                       <div
                         className={`rounded-2xl border p-4 space-y-3 ${
-                          over ? "border-destructive/40 bg-destructive/5" : "border-border/60 bg-card"
+                          over
+                            ? "border-destructive/40 bg-destructive/5"
+                            : "border-border/60 bg-card"
                         }`}
                       >
                         <div className="flex items-center justify-between gap-2 flex-wrap">
@@ -229,7 +235,8 @@ export function JobCard({
                             <p className="text-xs text-destructive font-medium flex items-start gap-2">
                               <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />
                               <span>
-                                เกินโควต้าการแก้ไข ({quota} ครั้ง) — แนะนำแจ้งลูกค้าเพื่อคิดค่าใช้จ่ายเพิ่ม
+                                เกินโควต้าการแก้ไข ({quota} ครั้ง) —
+                                แนะนำแจ้งลูกค้าเพื่อคิดค่าใช้จ่ายเพิ่ม
                               </span>
                             </p>
                             <Button

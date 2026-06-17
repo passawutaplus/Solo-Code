@@ -5,13 +5,27 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
-  Dialog, DialogContent, DialogHeader, DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  Plus, Trash2, ExternalLink, FileText, Upload, Link as LinkIcon,
-  Phone, X, Download, Image as ImageIcon, Loader2, ChevronDown,
-  Mail, Globe, MapPin, Tag, StickyNote, MessageSquare, Sparkles,
+  Plus,
+  Trash2,
+  ExternalLink,
+  FileText,
+  Upload,
+  Link as LinkIcon,
+  Phone,
+  X,
+  Download,
+  Image as ImageIcon,
+  Loader2,
+  ChevronDown,
+  Mail,
+  Globe,
+  MapPin,
+  Tag,
+  StickyNote,
+  MessageSquare,
+  Sparkles,
 } from "lucide-react";
 import { toast } from "sonner";
 import { uploadCompressedImage } from "@/lib/imageCompress";
@@ -39,13 +53,34 @@ interface Props {
 }
 
 const EMPTY: Partial<Supplier> & { name: string } = {
-  name: "", category: "", contactName: "", phone: "", email: "", lineId: "",
-  website: "", address: "", mapUrl: "", rateNote: "", rating: 0, tags: [], notes: "", isShared: false,
+  name: "",
+  category: "",
+  contactName: "",
+  phone: "",
+  email: "",
+  lineId: "",
+  website: "",
+  address: "",
+  mapUrl: "",
+  rateNote: "",
+  rating: 0,
+  tags: [],
+  notes: "",
+  isShared: false,
 };
 
 export function SupplierFormDialog({
-  open, supplier, onClose, onSubmit, files, linksList,
-  onUpload, onDeleteFile, onAddLink, onRemoveLink, getSignedUrl,
+  open,
+  supplier,
+  onClose,
+  onSubmit,
+  files,
+  linksList,
+  onUpload,
+  onDeleteFile,
+  onAddLink,
+  onRemoveLink,
+  getSignedUrl,
 }: Props) {
   const { user } = useAuth();
   const [form, setForm] = React.useState<Partial<Supplier> & { name: string }>(EMPTY);
@@ -68,9 +103,15 @@ export function SupplierFormDialog({
       setForm({ ...supplier });
       // auto-expand advanced if any advanced field has data
       const hasAdvanced = Boolean(
-        supplier.contactName || supplier.email || supplier.website ||
-        supplier.address || supplier.rating > 0 || supplier.tags.length > 0 ||
-        supplier.notes || linksList.length > 0 || files.length > 0,
+        supplier.contactName ||
+        supplier.email ||
+        supplier.website ||
+        supplier.address ||
+        supplier.rating > 0 ||
+        supplier.tags.length > 0 ||
+        supplier.notes ||
+        linksList.length > 0 ||
+        files.length > 0,
       );
       setAdvancedOpen(hasAdvanced);
     } else if (open) {
@@ -80,7 +121,9 @@ export function SupplierFormDialog({
     if (open) {
       setStagedLinks([]);
       setStagedFiles([]);
-      setLinkLabel(""); setLinkUrl(""); setTagInput("");
+      setLinkLabel("");
+      setLinkUrl("");
+      setTagInput("");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [supplier, open]);
@@ -103,11 +146,17 @@ export function SupplierFormDialog({
   }, [form, stagedLinks, stagedFiles, linksList, files]);
 
   const handleCoverPick = async (file: File) => {
-    if (!user) { toast.error("ต้องเข้าสู่ระบบ"); return; }
+    if (!user) {
+      toast.error("ต้องเข้าสู่ระบบ");
+      return;
+    }
     setUploadingCover(true);
     try {
       const url = await uploadCompressedImage({
-        file, bucket: "supplier-covers", userId: user.id, prefix: "cover",
+        file,
+        bucket: "supplier-covers",
+        userId: user.id,
+        prefix: "cover",
       });
       set("coverImageUrl", url);
       toast.success("อัปโหลดรูปปกแล้ว");
@@ -119,7 +168,10 @@ export function SupplierFormDialog({
   };
 
   const validateAndAddFile = async (f: File) => {
-    if (f.size > 5 * 1024 * 1024) { toast.error("ไฟล์ใหญ่เกิน 5MB"); return; }
+    if (f.size > 5 * 1024 * 1024) {
+      toast.error("ไฟล์ใหญ่เกิน 5MB");
+      return;
+    }
     try {
       await assertFileSignature(f, ["jpeg", "png", "webp", "pdf"] as readonly AllowedKind[]);
     } catch (err) {
@@ -127,15 +179,20 @@ export function SupplierFormDialog({
       return;
     }
     if (supplier) {
-      try { await onUpload(f); toast.success("อัปโหลดสำเร็จ"); }
-      catch (e) { toast.error(e instanceof Error ? e.message : "อัปโหลดไม่สำเร็จ"); }
+      try {
+        await onUpload(f);
+        toast.success("อัปโหลดสำเร็จ");
+      } catch (e) {
+        toast.error(e instanceof Error ? e.message : "อัปโหลดไม่สำเร็จ");
+      }
     } else {
       setStagedFiles((prev) => [...prev, f]);
     }
   };
 
   const handleDrop = async (e: React.DragEvent) => {
-    e.preventDefault(); setDragging(false);
+    e.preventDefault();
+    setDragging(false);
     const files = Array.from(e.dataTransfer.files);
     for (const f of files) await validateAndAddFile(f);
   };
@@ -149,11 +206,16 @@ export function SupplierFormDialog({
   };
 
   const submit = async () => {
-    if (!form.name.trim()) { toast.error("กรุณาระบุชื่อ Supplier"); return; }
+    if (!form.name.trim()) {
+      toast.error("กรุณาระบุชื่อ Supplier");
+      return;
+    }
     setSubmitting(true);
     try {
       await onSubmit(form, { links: stagedLinks, files: stagedFiles });
-    } finally { setSubmitting(false); }
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -176,33 +238,64 @@ export function SupplierFormDialog({
               <div className="flex items-center gap-3">
                 <div className="h-16 w-24 rounded-xl border border-border/60 bg-muted/40 overflow-hidden flex items-center justify-center shrink-0">
                   {form.coverImageUrl ? (
-                    <img src={form.coverImageUrl} alt="Cover" className="w-full h-full object-cover" loading="lazy" />
+                    <img
+                      src={form.coverImageUrl}
+                      alt="Cover"
+                      className="w-full h-full object-cover"
+                      loading="lazy"
+                    />
                   ) : (
                     <ImageIcon className="h-5 w-5 text-muted-foreground/60" />
                   )}
                 </div>
                 <div className="flex flex-col gap-1.5">
-                  <Button type="button" size="sm" variant="outline" className="h-8 gap-1.5"
-                    disabled={uploadingCover} onClick={() => coverInputRef.current?.click()}>
-                    {uploadingCover ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Upload className="h-3.5 w-3.5" />}
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    className="h-8 gap-1.5"
+                    disabled={uploadingCover}
+                    onClick={() => coverInputRef.current?.click()}
+                  >
+                    {uploadingCover ? (
+                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    ) : (
+                      <Upload className="h-3.5 w-3.5" />
+                    )}
                     {form.coverImageUrl ? "เปลี่ยนรูป" : "อัปโหลดรูปปก"}
                   </Button>
                   {form.coverImageUrl && (
-                    <button type="button" onClick={() => set("coverImageUrl", "")}
-                      className="text-[11px] text-destructive hover:underline inline-flex items-center gap-0.5">
+                    <button
+                      type="button"
+                      onClick={() => set("coverImageUrl", "")}
+                      className="text-[11px] text-destructive hover:underline inline-flex items-center gap-0.5"
+                    >
                       <X className="h-3 w-3" /> ลบรูป
                     </button>
                   )}
-                  <input ref={coverInputRef} type="file" className="hidden" accept="image/*"
-                    onChange={(e) => { const f = e.target.files?.[0]; if (f) handleCoverPick(f); e.target.value = ""; }} />
+                  <input
+                    ref={coverInputRef}
+                    type="file"
+                    className="hidden"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const f = e.target.files?.[0];
+                      if (f) handleCoverPick(f);
+                      e.target.value = "";
+                    }}
+                  />
                 </div>
               </div>
             </Field>
 
             <Field label="ชื่อ Supplier" required>
-              <Input value={form.name} onChange={(e) => set("name", e.target.value)}
+              <Input
+                value={form.name}
+                onChange={(e) => set("name", e.target.value)}
                 placeholder="เช่น โรงพิมพ์พี่หมู, Studio ทอม"
-                maxLength={120} className="h-11" />
+                maxLength={120}
+                className="h-11"
+              />
             </Field>
 
             <Field label="หมวดหมู่" required>
@@ -213,26 +306,42 @@ export function SupplierFormDialog({
               >
                 <option value="">— เลือกหมวดหมู่ —</option>
                 {SUPPLIER_CATEGORIES.map((c) => (
-                  <option key={c.key} value={c.label}>{c.label}</option>
+                  <option key={c.key} value={c.label}>
+                    {c.label}
+                  </option>
                 ))}
               </select>
             </Field>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <Field label="เบอร์โทร" icon={<Phone className="h-3.5 w-3.5" />}>
-                <Input value={form.phone ?? ""} onChange={(e) => set("phone", e.target.value)}
-                  placeholder="08x-xxx-xxxx" maxLength={30} className="h-11" />
+                <Input
+                  value={form.phone ?? ""}
+                  onChange={(e) => set("phone", e.target.value)}
+                  placeholder="08x-xxx-xxxx"
+                  maxLength={30}
+                  className="h-11"
+                />
               </Field>
               <Field label="LINE ID" icon={<MessageSquare className="h-3.5 w-3.5" />}>
-                <Input value={form.lineId ?? ""} onChange={(e) => set("lineId", e.target.value)}
-                  placeholder="@yourshop" maxLength={50} className="h-11" />
+                <Input
+                  value={form.lineId ?? ""}
+                  onChange={(e) => set("lineId", e.target.value)}
+                  placeholder="@yourshop"
+                  maxLength={50}
+                  className="h-11"
+                />
               </Field>
             </div>
 
             <Field label="เรท / บริการหลัก" icon={<Sparkles className="h-3.5 w-3.5" />}>
-              <Input placeholder="เช่น พิมพ์ A4 5 บาท/แผ่น, ขั้นต่ำ 100 ใบ"
-                value={form.rateNote ?? ""} onChange={(e) => set("rateNote", e.target.value)}
-                maxLength={200} className="h-11" />
+              <Input
+                placeholder="เช่น พิมพ์ A4 5 บาท/แผ่น, ขั้นต่ำ 100 ใบ"
+                value={form.rateNote ?? ""}
+                onChange={(e) => set("rateNote", e.target.value)}
+                maxLength={200}
+                className="h-11"
+              />
             </Field>
           </section>
 
@@ -252,44 +361,74 @@ export function SupplierFormDialog({
                   {advancedCount}
                 </span>
               )}
-              <ChevronDown className={cn("h-4 w-4 transition-transform text-primary", advancedOpen && "rotate-180")} />
+              <ChevronDown
+                className={cn(
+                  "h-4 w-4 transition-transform text-primary",
+                  advancedOpen && "rotate-180",
+                )}
+              />
             </span>
           </button>
 
           {/* ────────── ADVANCED ────────── */}
-          <div className={cn(
-            "grid transition-all duration-300 ease-out",
-            advancedOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0",
-          )}>
+          <div
+            className={cn(
+              "grid transition-all duration-300 ease-out",
+              advancedOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0",
+            )}
+          >
             <div className="overflow-hidden">
               <div className="space-y-4 pt-1">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <Field label="ผู้ติดต่อ (Contact Person)">
-                    <Input value={form.contactName ?? ""} onChange={(e) => set("contactName", e.target.value)}
-                      placeholder="เช่น พี่สมชาย ฝ่ายขาย" maxLength={80} />
+                    <Input
+                      value={form.contactName ?? ""}
+                      onChange={(e) => set("contactName", e.target.value)}
+                      placeholder="เช่น พี่สมชาย ฝ่ายขาย"
+                      maxLength={80}
+                    />
                   </Field>
                   <Field label="อีเมล" icon={<Mail className="h-3.5 w-3.5" />}>
-                    <Input type="email" value={form.email ?? ""} onChange={(e) => set("email", e.target.value)}
-                      placeholder="contact@shop.com" maxLength={120} />
+                    <Input
+                      type="email"
+                      value={form.email ?? ""}
+                      onChange={(e) => set("email", e.target.value)}
+                      placeholder="contact@shop.com"
+                      maxLength={120}
+                    />
                   </Field>
                 </div>
 
                 <Field label="เว็บไซต์" icon={<Globe className="h-3.5 w-3.5" />}>
-                  <Input placeholder="https://..." value={form.website ?? ""}
-                    onChange={(e) => set("website", e.target.value)} maxLength={200} />
+                  <Input
+                    placeholder="https://..."
+                    value={form.website ?? ""}
+                    onChange={(e) => set("website", e.target.value)}
+                    maxLength={200}
+                  />
                 </Field>
 
                 <Field label="ที่อยู่" icon={<MapPin className="h-3.5 w-3.5" />}>
-                  <Textarea rows={2} value={form.address ?? ""}
+                  <Textarea
+                    rows={2}
+                    value={form.address ?? ""}
                     onChange={(e) => set("address", e.target.value)}
-                    placeholder="สำหรับก็อปแปะตอนส่งของ" maxLength={300} />
+                    placeholder="สำหรับก็อปแปะตอนส่งของ"
+                    maxLength={300}
+                  />
                 </Field>
 
-                <Field label="Google Maps URL" icon={<MapPin className="h-3.5 w-3.5" />}
-                  hint="วางลิงก์จากปุ่ม 'แชร์' บน Google Maps">
-                  <Input placeholder="https://maps.app.goo.gl/... หรือ https://www.google.com/maps/..."
-                    value={form.mapUrl ?? ""} onChange={(e) => set("mapUrl", e.target.value)}
-                    maxLength={500} />
+                <Field
+                  label="Google Maps URL"
+                  icon={<MapPin className="h-3.5 w-3.5" />}
+                  hint="วางลิงก์จากปุ่ม 'แชร์' บน Google Maps"
+                >
+                  <Input
+                    placeholder="https://maps.app.goo.gl/... หรือ https://www.google.com/maps/..."
+                    value={form.mapUrl ?? ""}
+                    onChange={(e) => set("mapUrl", e.target.value)}
+                    maxLength={500}
+                  />
                 </Field>
 
                 <Field label="คะแนน (Rating)">
@@ -297,16 +436,35 @@ export function SupplierFormDialog({
                 </Field>
 
                 <Field label="แท็ก (Tags)" icon={<Tag className="h-3.5 w-3.5" />}>
-                  <Input placeholder="พิมพ์แท็กแล้วกด Enter (เช่น งานด่วนได้, ราคาถูก)"
-                    value={tagInput} onChange={(e) => setTagInput(e.target.value)}
-                    onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addTag(); } }} />
+                  <Input
+                    placeholder="พิมพ์แท็กแล้วกด Enter (เช่น งานด่วนได้, ราคาถูก)"
+                    value={tagInput}
+                    onChange={(e) => setTagInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        addTag();
+                      }
+                    }}
+                  />
                   {(form.tags ?? []).length > 0 && (
                     <div className="flex flex-wrap gap-1.5 mt-2">
                       {(form.tags ?? []).map((t) => (
-                        <span key={t} className="text-[11px] rounded-full bg-primary-soft text-primary px-2.5 py-1 inline-flex items-center gap-1">
+                        <span
+                          key={t}
+                          className="text-[11px] rounded-full bg-primary-soft text-primary px-2.5 py-1 inline-flex items-center gap-1"
+                        >
                           #{t}
-                          <button type="button" onClick={() => set("tags", (form.tags ?? []).filter((x) => x !== t))}
-                            className="hover:text-destructive">
+                          <button
+                            type="button"
+                            onClick={() =>
+                              set(
+                                "tags",
+                                (form.tags ?? []).filter((x) => x !== t),
+                              )
+                            }
+                            className="hover:text-destructive"
+                          >
                             <X className="h-3 w-3" />
                           </button>
                         </span>
@@ -315,10 +473,17 @@ export function SupplierFormDialog({
                   )}
                 </Field>
 
-                <Field label="โน้ตภายใน (Private Notes)" icon={<StickyNote className="h-3.5 w-3.5" />}
-                  hint="เห็นเฉพาะคุณ — เก็บเลขบัญชีร้าน, ทริคการคุย ฯลฯ">
-                  <Textarea rows={3} value={form.notes ?? ""}
-                    onChange={(e) => set("notes", e.target.value)} maxLength={1000} />
+                <Field
+                  label="โน้ตภายใน (Private Notes)"
+                  icon={<StickyNote className="h-3.5 w-3.5" />}
+                  hint="เห็นเฉพาะคุณ — เก็บเลขบัญชีร้าน, ทริคการคุย ฯลฯ"
+                >
+                  <Textarea
+                    rows={3}
+                    value={form.notes ?? ""}
+                    onChange={(e) => set("notes", e.target.value)}
+                    maxLength={1000}
+                  />
                 </Field>
 
                 {/* Links */}
@@ -328,54 +493,103 @@ export function SupplierFormDialog({
                     <h4 className="text-xs font-semibold">ลิงก์ผลงาน / Catalog / เพจ</h4>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-[1fr_2fr_auto] gap-2">
-                    <Input placeholder="ชื่อ (เช่น Catalog)" value={linkLabel}
-                      onChange={(e) => setLinkLabel(e.target.value)} className="h-9 text-xs" />
-                    <Input placeholder="https://..." value={linkUrl}
-                      onChange={(e) => setLinkUrl(e.target.value)} className="h-9 text-xs" />
-                    <Button type="button" size="sm" className="h-9 px-3" disabled={!linkUrl.trim()}
+                    <Input
+                      placeholder="ชื่อ (เช่น Catalog)"
+                      value={linkLabel}
+                      onChange={(e) => setLinkLabel(e.target.value)}
+                      className="h-9 text-xs"
+                    />
+                    <Input
+                      placeholder="https://..."
+                      value={linkUrl}
+                      onChange={(e) => setLinkUrl(e.target.value)}
+                      className="h-9 text-xs"
+                    />
+                    <Button
+                      type="button"
+                      size="sm"
+                      className="h-9 px-3"
+                      disabled={!linkUrl.trim()}
                       onClick={async () => {
                         if (supplier) {
                           await onAddLink(linkLabel.trim(), linkUrl.trim());
                           toast.success("เพิ่มลิงก์แล้ว");
                         } else {
-                          setStagedLinks((prev) => [...prev, { label: linkLabel.trim(), url: linkUrl.trim() }]);
+                          setStagedLinks((prev) => [
+                            ...prev,
+                            { label: linkLabel.trim(), url: linkUrl.trim() },
+                          ]);
                         }
-                        setLinkLabel(""); setLinkUrl("");
-                      }}>
+                        setLinkLabel("");
+                        setLinkUrl("");
+                      }}
+                    >
                       <Plus className="h-3.5 w-3.5" />
                     </Button>
                   </div>
-                  {[...(supplier ? linksList : []), ...stagedLinks.map((l, i) => ({ id: `__staged-${i}`, ...l }))].length === 0 ? (
-                    <p className="text-[11px] text-muted-foreground text-center py-1">ยังไม่มีลิงก์</p>
+                  {[
+                    ...(supplier ? linksList : []),
+                    ...stagedLinks.map((l, i) => ({ id: `__staged-${i}`, ...l })),
+                  ].length === 0 ? (
+                    <p className="text-[11px] text-muted-foreground text-center py-1">
+                      ยังไม่มีลิงก์
+                    </p>
                   ) : (
                     <div className="space-y-1.5">
                       {(supplier ? linksList : []).map((l) => {
                         const safe = safeHref(l.url);
                         return (
-                          <div key={l.id} className="flex items-center justify-between gap-2 rounded-lg bg-muted/30 px-2.5 py-1.5">
+                          <div
+                            key={l.id}
+                            className="flex items-center justify-between gap-2 rounded-lg bg-muted/30 px-2.5 py-1.5"
+                          >
                             {safe ? (
-                              <a href={safe} target="_blank" rel="noopener" className="flex items-center gap-1.5 text-xs text-primary hover:underline truncate">
-                                <ExternalLink className="h-3 w-3 shrink-0" />{l.label || l.url}
+                              <a
+                                href={safe}
+                                target="_blank"
+                                rel="noopener"
+                                className="flex items-center gap-1.5 text-xs text-primary hover:underline truncate"
+                              >
+                                <ExternalLink className="h-3 w-3 shrink-0" />
+                                {l.label || l.url}
                               </a>
                             ) : (
                               <span className="flex items-center gap-1.5 text-xs text-muted-foreground truncate">
-                                <ExternalLink className="h-3 w-3 shrink-0" />{l.label || l.url}
+                                <ExternalLink className="h-3 w-3 shrink-0" />
+                                {l.label || l.url}
                               </span>
                             )}
-                            <Button size="sm" variant="ghost" className="h-7 w-7 p-0"
-                              onClick={async () => { await onRemoveLink(l.id); toast.success("ลบลิงก์แล้ว"); }}>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="h-7 w-7 p-0"
+                              onClick={async () => {
+                                await onRemoveLink(l.id);
+                                toast.success("ลบลิงก์แล้ว");
+                              }}
+                            >
                               <X className="h-3.5 w-3.5" />
                             </Button>
                           </div>
                         );
                       })}
                       {stagedLinks.map((l, i) => (
-                        <div key={i} className="flex items-center justify-between gap-2 rounded-lg bg-muted/30 px-2.5 py-1.5">
+                        <div
+                          key={i}
+                          className="flex items-center justify-between gap-2 rounded-lg bg-muted/30 px-2.5 py-1.5"
+                        >
                           <span className="flex items-center gap-1.5 text-xs truncate">
-                            <ExternalLink className="h-3 w-3 shrink-0" />{l.label || l.url}
+                            <ExternalLink className="h-3 w-3 shrink-0" />
+                            {l.label || l.url}
                           </span>
-                          <Button size="sm" variant="ghost" className="h-7 w-7 p-0"
-                            onClick={() => setStagedLinks((prev) => prev.filter((_, idx) => idx !== i))}>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="h-7 w-7 p-0"
+                            onClick={() =>
+                              setStagedLinks((prev) => prev.filter((_, idx) => idx !== i))
+                            }
+                          >
                             <X className="h-3.5 w-3.5" />
                           </Button>
                         </div>
@@ -391,7 +605,10 @@ export function SupplierFormDialog({
                     <h4 className="text-xs font-semibold">ไฟล์แนบ (Company Profile / Quotation)</h4>
                   </div>
                   <div
-                    onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
+                    onDragOver={(e) => {
+                      e.preventDefault();
+                      setDragging(true);
+                    }}
                     onDragLeave={() => setDragging(false)}
                     onDrop={handleDrop}
                     onClick={() => fileInputRef.current?.click()}
@@ -402,7 +619,12 @@ export function SupplierFormDialog({
                         : "border-border/60 bg-muted/20 hover:border-primary/50 hover:bg-primary-soft/30",
                     )}
                   >
-                    <Upload className={cn("h-6 w-6 mx-auto mb-1.5", dragging ? "text-primary" : "text-muted-foreground")} />
+                    <Upload
+                      className={cn(
+                        "h-6 w-6 mx-auto mb-1.5",
+                        dragging ? "text-primary" : "text-muted-foreground",
+                      )}
+                    />
                     <p className="text-xs font-medium">
                       ลากไฟล์มาวาง หรือ <span className="text-primary">คลิกเพื่อเลือก</span>
                     </p>
@@ -410,42 +632,83 @@ export function SupplierFormDialog({
                       PDF / รูป (JPG, PNG, WEBP) · ไม่เกิน 5MB
                     </p>
                   </div>
-                  <input ref={fileInputRef} type="file" className="hidden" accept=".pdf,image/*"
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    className="hidden"
+                    accept=".pdf,image/*"
                     onChange={async (e) => {
-                      const f = e.target.files?.[0]; if (f) await validateAndAddFile(f);
+                      const f = e.target.files?.[0];
+                      if (f) await validateAndAddFile(f);
                       e.target.value = "";
-                    }} />
+                    }}
+                  />
 
                   {(supplier ? files.length > 0 : stagedFiles.length > 0) && (
                     <div className="space-y-1.5">
                       {(supplier ? files : []).map((f) => (
-                        <div key={f.id} className="flex items-center justify-between gap-2 rounded-lg bg-muted/30 px-2.5 py-1.5">
-                          <button type="button"
-                            onClick={async () => window.open(await getSignedUrl(f.storagePath), "_blank")}
-                            className="flex items-center gap-1.5 text-xs hover:text-primary truncate flex-1 text-left">
+                        <div
+                          key={f.id}
+                          className="flex items-center justify-between gap-2 rounded-lg bg-muted/30 px-2.5 py-1.5"
+                        >
+                          <button
+                            type="button"
+                            onClick={async () =>
+                              window.open(await getSignedUrl(f.storagePath), "_blank")
+                            }
+                            className="flex items-center gap-1.5 text-xs hover:text-primary truncate flex-1 text-left"
+                          >
                             <FileText className="h-3 w-3 shrink-0" />
                             <span className="truncate">{f.fileName}</span>
-                            {f.sizeBytes && <span className="text-muted-foreground text-[10px]">({Math.ceil(f.sizeBytes / 1024)} KB)</span>}
+                            {f.sizeBytes && (
+                              <span className="text-muted-foreground text-[10px]">
+                                ({Math.ceil(f.sizeBytes / 1024)} KB)
+                              </span>
+                            )}
                           </button>
-                          <Button size="sm" variant="ghost" className="h-7 w-7 p-0"
-                            onClick={async () => window.open(await getSignedUrl(f.storagePath), "_blank")}>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="h-7 w-7 p-0"
+                            onClick={async () =>
+                              window.open(await getSignedUrl(f.storagePath), "_blank")
+                            }
+                          >
                             <Download className="h-3.5 w-3.5" />
                           </Button>
-                          <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-destructive"
-                            onClick={async () => { await onDeleteFile(f); toast.success("ลบไฟล์แล้ว"); }}>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="h-7 w-7 p-0 text-destructive"
+                            onClick={async () => {
+                              await onDeleteFile(f);
+                              toast.success("ลบไฟล์แล้ว");
+                            }}
+                          >
                             <Trash2 className="h-3.5 w-3.5" />
                           </Button>
                         </div>
                       ))}
                       {stagedFiles.map((f, i) => (
-                        <div key={i} className="flex items-center justify-between gap-2 rounded-lg bg-muted/30 px-2.5 py-1.5">
+                        <div
+                          key={i}
+                          className="flex items-center justify-between gap-2 rounded-lg bg-muted/30 px-2.5 py-1.5"
+                        >
                           <span className="flex items-center gap-1.5 text-xs truncate">
                             <FileText className="h-3 w-3 shrink-0" />
                             <span className="truncate">{f.name}</span>
-                            <span className="text-muted-foreground text-[10px]">({Math.ceil(f.size / 1024)} KB)</span>
+                            <span className="text-muted-foreground text-[10px]">
+                              ({Math.ceil(f.size / 1024)} KB)
+                            </span>
                           </span>
-                          <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-destructive"
-                            onClick={() => setStagedFiles((prev) => prev.filter((_, idx) => idx !== i))}>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="h-7 w-7 p-0 text-destructive"
+                            onClick={() =>
+                              setStagedFiles((prev) => prev.filter((_, idx) => idx !== i))
+                            }
+                          >
                             <Trash2 className="h-3.5 w-3.5" />
                           </Button>
                         </div>
@@ -467,13 +730,23 @@ export function SupplierFormDialog({
         <div className="border-t border-border/60 bg-card px-6 py-4 flex items-center justify-between gap-3">
           <p className="text-[11px] text-muted-foreground">
             {advancedCount > 0 ? (
-              <>มีรายละเอียดเพิ่มเติม <span className="font-semibold text-primary">{advancedCount}</span> ฟิลด์</>
-            ) : "Basic — กรอกเพิ่มภายหลังได้"}
+              <>
+                มีรายละเอียดเพิ่มเติม{" "}
+                <span className="font-semibold text-primary">{advancedCount}</span> ฟิลด์
+              </>
+            ) : (
+              "Basic — กรอกเพิ่มภายหลังได้"
+            )}
           </p>
           <div className="flex gap-2">
-            <Button variant="outline" onClick={onClose} disabled={submitting}>ยกเลิก</Button>
-            <Button onClick={submit} disabled={submitting}
-              className="bg-gradient-to-r from-primary to-primary-glow text-primary-foreground hover:opacity-95 shadow-soft min-w-[100px]">
+            <Button variant="outline" onClick={onClose} disabled={submitting}>
+              ยกเลิก
+            </Button>
+            <Button
+              onClick={submit}
+              disabled={submitting}
+              className="bg-gradient-to-r from-primary to-primary-glow text-primary-foreground hover:opacity-95 shadow-soft min-w-[100px]"
+            >
               {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : "บันทึก"}
             </Button>
           </div>
@@ -484,7 +757,11 @@ export function SupplierFormDialog({
 }
 
 function Field({
-  label, children, required, hint, icon,
+  label,
+  children,
+  required,
+  hint,
+  icon,
 }: {
   label: string;
   children: React.ReactNode;
@@ -498,7 +775,9 @@ function Field({
         {icon && <span className="text-muted-foreground">{icon}</span>}
         {label}
         {required && <span className="text-destructive">*</span>}
-        {hint && <span className="text-[10px] text-muted-foreground font-normal ml-1">— {hint}</span>}
+        {hint && (
+          <span className="text-[10px] text-muted-foreground font-normal ml-1">— {hint}</span>
+        )}
       </Label>
       {children}
     </div>

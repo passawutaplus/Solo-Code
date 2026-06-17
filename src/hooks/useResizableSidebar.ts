@@ -24,38 +24,47 @@ export function useResizableSidebar(
 ) {
   const drag = React.useRef<{ startX: number; startW: number } | null>(null);
 
-  const onResizePointerDown = React.useCallback((e: React.PointerEvent) => {
-    e.preventDefault();
-    drag.current = { startX: e.clientX, startW: width };
-    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
-  }, [width]);
+  const onResizePointerDown = React.useCallback(
+    (e: React.PointerEvent) => {
+      e.preventDefault();
+      drag.current = { startX: e.clientX, startW: width };
+      (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+    },
+    [width],
+  );
 
-  const onResizePointerMove = React.useCallback((e: React.PointerEvent) => {
-    if (!drag.current) return;
-    const delta = drag.current.startX - e.clientX;
-    const next = Math.max(120, Math.min(SIDEBAR_MAX_WIDTH, drag.current.startW + delta));
-    setWidth(next);
-  }, [setWidth]);
+  const onResizePointerMove = React.useCallback(
+    (e: React.PointerEvent) => {
+      if (!drag.current) return;
+      const delta = drag.current.startX - e.clientX;
+      const next = Math.max(120, Math.min(SIDEBAR_MAX_WIDTH, drag.current.startW + delta));
+      setWidth(next);
+    },
+    [setWidth],
+  );
 
-  const onResizePointerUp = React.useCallback((e: React.PointerEvent) => {
-    if (!drag.current) return;
-    (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
-    const delta = drag.current.startX - e.clientX;
-    const finalW = Math.max(120, Math.min(SIDEBAR_MAX_WIDTH, drag.current.startW + delta));
-    drag.current = null;
-    if (finalW < SIDEBAR_CLOSE_WIDTH) {
-      onClose();
-      setWidth(loadSidebarWidth());
-      return;
-    }
-    const clamped = Math.max(SIDEBAR_MIN_WIDTH, Math.min(SIDEBAR_MAX_WIDTH, finalW));
-    setWidth(clamped);
-    try {
-      localStorage.setItem(STORAGE_KEY, String(clamped));
-    } catch {
-      /* noop */
-    }
-  }, [onClose, setWidth]);
+  const onResizePointerUp = React.useCallback(
+    (e: React.PointerEvent) => {
+      if (!drag.current) return;
+      (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
+      const delta = drag.current.startX - e.clientX;
+      const finalW = Math.max(120, Math.min(SIDEBAR_MAX_WIDTH, drag.current.startW + delta));
+      drag.current = null;
+      if (finalW < SIDEBAR_CLOSE_WIDTH) {
+        onClose();
+        setWidth(loadSidebarWidth());
+        return;
+      }
+      const clamped = Math.max(SIDEBAR_MIN_WIDTH, Math.min(SIDEBAR_MAX_WIDTH, finalW));
+      setWidth(clamped);
+      try {
+        localStorage.setItem(STORAGE_KEY, String(clamped));
+      } catch {
+        /* noop */
+      }
+    },
+    [onClose, setWidth],
+  );
 
   return {
     width,

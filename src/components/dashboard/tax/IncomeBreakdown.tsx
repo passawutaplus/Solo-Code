@@ -23,7 +23,12 @@ export function IncomeBreakdown() {
       map.set(t, (map.get(t) ?? 0) + i.gross);
     }
     return Array.from(map.entries())
-      .map(([type, value]) => ({ type, value, label: INCOME_TYPE_META[type].label, section: INCOME_TYPE_META[type].section }))
+      .map(([type, value]) => ({
+        type,
+        value,
+        label: INCOME_TYPE_META[type].label,
+        section: INCOME_TYPE_META[type].section,
+      }))
       .sort((a, b) => b.value - a.value);
   }, [incomes]);
 
@@ -42,13 +47,24 @@ export function IncomeBreakdown() {
             <div className="h-[180px]">
               <ResponsiveContainer>
                 <PieChart>
-                  <Pie data={data} dataKey="value" nameKey="label" innerRadius={45} outerRadius={75} paddingAngle={2}>
+                  <Pie
+                    data={data}
+                    dataKey="value"
+                    nameKey="label"
+                    innerRadius={45}
+                    outerRadius={75}
+                    paddingAngle={2}
+                  >
                     {data.map((_, idx) => (
                       <Cell key={idx} fill={COLORS[idx % COLORS.length]} />
                     ))}
                   </Pie>
                   <Tooltip
-                    contentStyle={{ borderRadius: 12, border: "1px solid var(--color-border)", background: "var(--color-card)" }}
+                    contentStyle={{
+                      borderRadius: 12,
+                      border: "1px solid var(--color-border)",
+                      background: "var(--color-card)",
+                    }}
                     formatter={(v: number) => `฿${formatTHB(v)}`}
                   />
                   <Legend wrapperStyle={{ display: "none" }} />
@@ -60,8 +76,14 @@ export function IncomeBreakdown() {
                 const pct = (d.value / total) * 100;
                 return (
                   <div key={d.type} className="flex items-center gap-2 text-xs">
-                    <span className="h-2.5 w-2.5 rounded-sm shrink-0" style={{ background: COLORS[idx % COLORS.length] }} />
-                    <span className="flex-1 truncate">{d.label}<span className="text-muted-foreground ml-1">{d.section}</span></span>
+                    <span
+                      className="h-2.5 w-2.5 rounded-sm shrink-0"
+                      style={{ background: COLORS[idx % COLORS.length] }}
+                    />
+                    <span className="flex-1 truncate">
+                      {d.label}
+                      <span className="text-muted-foreground ml-1">{d.section}</span>
+                    </span>
                     <span className="num text-muted-foreground">{pct.toFixed(0)}%</span>
                     <span className="num font-medium">฿{formatTHB(d.value)}</span>
                   </div>

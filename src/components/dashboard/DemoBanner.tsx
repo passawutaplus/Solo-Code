@@ -30,11 +30,7 @@ export function DemoBanner({
         <p className="text-sm font-semibold text-foreground">{title}</p>
         <p className="text-xs text-muted-foreground mt-0.5">{description}</p>
         {ctaLabel && onCta && (
-          <Button
-            size="sm"
-            onClick={onCta}
-            className="mt-2 h-8 text-xs gap-1.5"
-          >
+          <Button size="sm" onClick={onCta} className="mt-2 h-8 text-xs gap-1.5">
             <Sparkles className="h-3.5 w-3.5" />
             {ctaLabel}
           </Button>

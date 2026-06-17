@@ -4,15 +4,26 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
 import { FileText, Plus, History, Trash2, Loader2 } from "lucide-react";
 import { formatTHB } from "@/data/mockData";
 import {
-  useClientInvoices, type ClientInvoiceInput, type InvoiceStatus,
+  useClientInvoices,
+  type ClientInvoiceInput,
+  type InvoiceStatus,
 } from "@/store/clientInvoices";
 import { InvoiceStatusMenu, StatusBadge } from "./InvoiceStatusMenu";
 import { InvoiceStatusHistoryDialog } from "./InvoiceStatusHistoryDialog";
@@ -28,13 +39,23 @@ function NewInvoiceDialog({ onCreate }: { onCreate: (i: ClientInvoiceInput) => P
   const [busy, setBusy] = React.useState(false);
 
   function reset() {
-    setName(""); setProject(""); setAmount(""); setDueDate(""); setStatus("ontime");
+    setName("");
+    setProject("");
+    setAmount("");
+    setDueDate("");
+    setStatus("ontime");
   }
 
   async function submit() {
-    if (!name.trim()) { toast.error("กรอกชื่อลูกค้า"); return; }
+    if (!name.trim()) {
+      toast.error("กรอกชื่อลูกค้า");
+      return;
+    }
     const amt = Number(amount);
-    if (!Number.isFinite(amt) || amt <= 0) { toast.error("กรอกยอดเงิน"); return; }
+    if (!Number.isFinite(amt) || amt <= 0) {
+      toast.error("กรอกยอดเงิน");
+      return;
+    }
     setBusy(true);
     try {
       await onCreate({
@@ -57,7 +78,10 @@ function NewInvoiceDialog({ onCreate }: { onCreate: (i: ClientInvoiceInput) => P
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button size="sm" className="bg-gradient-primary text-primary-foreground rounded-full gap-1.5">
+        <Button
+          size="sm"
+          className="bg-gradient-primary text-primary-foreground rounded-full gap-1.5"
+        >
           <Plus className="h-3.5 w-3.5" /> เพิ่มใบแจ้งหนี้
         </Button>
       </DialogTrigger>
@@ -68,16 +92,29 @@ function NewInvoiceDialog({ onCreate }: { onCreate: (i: ClientInvoiceInput) => P
         <div className="space-y-3">
           <div className="space-y-1.5">
             <Label className="text-xs">ชื่อลูกค้า *</Label>
-            <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="เช่น Studio Mango" />
+            <Input
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="เช่น Studio Mango"
+            />
           </div>
           <div className="space-y-1.5">
             <Label className="text-xs">โปรเจกต์</Label>
-            <Input value={project} onChange={(e) => setProject(e.target.value)} placeholder="Brand Identity" />
+            <Input
+              value={project}
+              onChange={(e) => setProject(e.target.value)}
+              placeholder="Brand Identity"
+            />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <Label className="text-xs">ยอดเงิน (฿) *</Label>
-              <Input type="number" inputMode="numeric" value={amount} onChange={(e) => setAmount(e.target.value)} />
+              <Input
+                type="number"
+                inputMode="numeric"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+              />
             </div>
             <div className="space-y-1.5">
               <Label className="text-xs">วันครบกำหนด</Label>
@@ -87,7 +124,9 @@ function NewInvoiceDialog({ onCreate }: { onCreate: (i: ClientInvoiceInput) => P
           <div className="space-y-1.5">
             <Label className="text-xs">สถานะเริ่มต้น</Label>
             <Select value={status} onValueChange={(v) => setStatus(v as InvoiceStatus)}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
               <SelectContent>
                 <SelectItem value="ontime">ตรงเวลา</SelectItem>
                 <SelectItem value="paid">จ่ายแล้ว</SelectItem>
@@ -98,7 +137,9 @@ function NewInvoiceDialog({ onCreate }: { onCreate: (i: ClientInvoiceInput) => P
           </div>
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={() => setOpen(false)} disabled={busy}>ยกเลิก</Button>
+          <Button variant="outline" onClick={() => setOpen(false)} disabled={busy}>
+            ยกเลิก
+          </Button>
           <Button onClick={submit} disabled={busy}>
             {busy && <Loader2 className="h-3.5 w-3.5 animate-spin" />} บันทึก
           </Button>
@@ -129,7 +170,9 @@ export function ClientInvoicesSection() {
           </div>
         ) : list.length === 0 ? (
           <div className="text-center py-8 border border-dashed border-border rounded-xl">
-            <p className="text-sm text-muted-foreground">ยังไม่มีใบแจ้งหนี้ — เพิ่มเพื่อติดตามวันครบกำหนดและสถานะการจ่าย</p>
+            <p className="text-sm text-muted-foreground">
+              ยังไม่มีใบแจ้งหนี้ — เพิ่มเพื่อติดตามวันครบกำหนดและสถานะการจ่าย
+            </p>
           </div>
         ) : (
           <div className="space-y-2">
@@ -138,12 +181,21 @@ export function ClientInvoicesSection() {
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0 flex-1">
                     <p className="text-sm font-semibold truncate">{inv.name}</p>
-                    {inv.project && <p className="text-[11px] text-muted-foreground truncate">{inv.project}</p>}
+                    {inv.project && (
+                      <p className="text-[11px] text-muted-foreground truncate">{inv.project}</p>
+                    )}
                     <div className="flex flex-wrap items-center gap-2 mt-1.5">
-                      <p className="num text-sm font-semibold text-primary">฿{formatTHB(inv.amount)}</p>
+                      <p className="num text-sm font-semibold text-primary">
+                        ฿{formatTHB(inv.amount)}
+                      </p>
                       {inv.dueDate && (
                         <p className="text-[10px] text-muted-foreground num">
-                          ครบกำหนด {new Date(inv.dueDate + "T00:00:00").toLocaleDateString("th-TH", { day: "2-digit", month: "short", year: "2-digit" })}
+                          ครบกำหนด{" "}
+                          {new Date(inv.dueDate + "T00:00:00").toLocaleDateString("th-TH", {
+                            day: "2-digit",
+                            month: "short",
+                            year: "2-digit",
+                          })}
                         </p>
                       )}
                       <StatusBadge status={inv.status} />
@@ -160,7 +212,10 @@ export function ClientInvoicesSection() {
                         variant="ghost"
                         className="h-7 w-7"
                         aria-label="ประวัติสถานะ"
-                        onClick={() => { setHistoryId(inv.id); setHistoryName(inv.name); }}
+                        onClick={() => {
+                          setHistoryId(inv.id);
+                          setHistoryName(inv.name);
+                        }}
                       >
                         <History className="h-3.5 w-3.5" />
                       </Button>
@@ -189,7 +244,9 @@ export function ClientInvoicesSection() {
           invoiceId={historyId}
           invoiceName={historyName}
           open={!!historyId}
-          onOpenChange={(o) => { if (!o) setHistoryId(null); }}
+          onOpenChange={(o) => {
+            if (!o) setHistoryId(null);
+          }}
         />
       </CardContent>
     </Card>

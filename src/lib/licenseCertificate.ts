@@ -8,7 +8,8 @@ export async function createLicenseVerifyToken(input: {
   rights: UsageRightsInput;
   brandName?: string;
 }) {
-  const origin = typeof window !== "undefined" ? window.location.origin : "https://solofreelancer.com";
+  const origin =
+    typeof window !== "undefined" ? window.location.origin : "https://solofreelancer.com";
   const summary = {
     quotation: {
       id: input.quotation.id,

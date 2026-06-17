@@ -5,11 +5,7 @@ import { usePipelineDeals } from "@/store/pipeline";
 import { PIPELINE_LABELS } from "@/lib/pipelineStatus";
 import { formatBaht } from "@/store/quotations";
 
-export function PipelineMiniWidget({
-  onGo,
-}: {
-  onGo: (tab: string, sub?: string) => void;
-}) {
+export function PipelineMiniWidget({ onGo }: { onGo: (tab: string, sub?: string) => void }) {
   const { deals, isLoading, byColumn } = usePipelineDeals();
   const active = deals.filter((d) => d.column !== "done").slice(0, 3);
 
@@ -60,7 +56,13 @@ export function PipelineMiniWidget({
         )}
         {!isLoading && deals.length > 0 && (
           <p className="text-[10px] text-muted-foreground text-center pt-1">
-            เปิดอยู่ {byColumn("working").length + byColumn("contract").length + byColumn("proposal").length + byColumn("lead").length + byColumn("billing").length} ดีล
+            เปิดอยู่{" "}
+            {byColumn("working").length +
+              byColumn("contract").length +
+              byColumn("proposal").length +
+              byColumn("lead").length +
+              byColumn("billing").length}{" "}
+            ดีล
           </p>
         )}
       </CardContent>

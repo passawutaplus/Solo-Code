@@ -21,7 +21,8 @@ export function ImageLightbox({
   React.useEffect(() => {
     if (!open) return;
     const handler = (e: KeyboardEvent) => {
-      if (e.key === "ArrowLeft" && index !== null) onIndexChange((index - 1 + images.length) % images.length);
+      if (e.key === "ArrowLeft" && index !== null)
+        onIndexChange((index - 1 + images.length) % images.length);
       if (e.key === "ArrowRight" && index !== null) onIndexChange((index + 1) % images.length);
     };
     window.addEventListener("keydown", handler);

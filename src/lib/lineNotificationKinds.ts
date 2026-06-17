@@ -235,9 +235,7 @@ export const LINE_NOTIFY_GROUPS: LineNotifyGroup[] = [
   },
 ];
 
-export function mergeLineNotifyPrefs(
-  raw: unknown,
-): Record<LineNotifyKind, boolean> {
+export function mergeLineNotifyPrefs(raw: unknown): Record<LineNotifyKind, boolean> {
   const base = { ...DEFAULT_LINE_NOTIFY_PREFS };
   if (!raw || typeof raw !== "object") return base;
   for (const key of Object.keys(base) as LineNotifyKind[]) {

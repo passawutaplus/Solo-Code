@@ -1,15 +1,41 @@
 import * as React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { StatCard } from "@/components/dashboard/StatCard";
-import { Users, Wallet, FileText, Layers, TrendingUp, Activity, ShieldCheck, Sparkles, Smartphone, Tablet, Monitor, Ticket, MessageSquareHeart } from "lucide-react";
+import {
+  Users,
+  Wallet,
+  FileText,
+  Layers,
+  TrendingUp,
+  Activity,
+  ShieldCheck,
+  Sparkles,
+  Smartphone,
+  Tablet,
+  Monitor,
+  Ticket,
+  MessageSquareHeart,
+} from "lucide-react";
 import { useAllTickets } from "@/store/supportTickets";
 import { useAllBetaFeedback } from "@/store/betaFeedback";
-import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RTooltip } from "recharts";
+import {
+  ResponsiveContainer,
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip as RTooltip,
+} from "recharts";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { type AdminMetrics, fmtTHB, groupByDay, activeUserIds } from "./useAdminMetrics";
 
-interface DeviceRow { device_type: string; sessions: number; pct: number }
+interface DeviceRow {
+  device_type: string;
+  sessions: number;
+  pct: number;
+}
 
 export function OverviewSection({ m }: { m: AdminMetrics }) {
   const { tickets, newCount } = useAllTickets();
@@ -23,11 +49,12 @@ export function OverviewSection({ m }: { m: AdminMetrics }) {
   React.useEffect(() => {
     (async () => {
       try {
-        const { data, error } = await (supabase.rpc as unknown as (
-          fn: string, args?: Record<string, unknown>,
-        ) => Promise<{ data: DeviceRow[] | null; error: { message: string } | null }>).call(
-          supabase, "get_device_usage_stats", { _days: 30 },
-        );
+        const { data, error } = await (
+          supabase.rpc as unknown as (
+            fn: string,
+            args?: Record<string, unknown>,
+          ) => Promise<{ data: DeviceRow[] | null; error: { message: string } | null }>
+        ).call(supabase, "get_device_usage_stats", { _days: 30 });
         if (error) throw new Error(error.message);
         setDevices(data ?? []);
         setDeviceError(null);
@@ -41,19 +68,14 @@ export function OverviewSection({ m }: { m: AdminMetrics }) {
   const dev = (k: string) => devices.find((d) => d.device_type === k);
   const totalGross = m.incomes.reduce((s, r) => s + Number(r.gross || 0), 0);
   const totalExp = m.expenses.reduce((s, r) => s + Number(r.amount || 0), 0);
-  const active7 = activeUserIds(
-    [...m.quotations, ...m.incomes, ...m.expenses],
-    7,
-  ).size;
+  const active7 = activeUserIds([...m.quotations, ...m.incomes, ...m.expenses], 7).size;
   const newUsers7 = m.profiles.filter(
     (p) => Date.now() - new Date(p.created_at).getTime() < 7 * 86_400_000,
   ).length;
 
   const signupSeries = groupByDay(m.profiles, 14);
-  const incomeSeries = groupByDay(
-    m.incomes,
-    14,
-    (rs) => rs.reduce((s, r) => s + Number(r.gross || 0), 0),
+  const incomeSeries = groupByDay(m.incomes, 14, (rs) =>
+    rs.reduce((s, r) => s + Number(r.gross || 0), 0),
   );
   const quoteSeries = groupByDay(m.quotations, 14);
 
@@ -114,27 +136,72 @@ export function OverviewSection({ m }: { m: AdminMetrics }) {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <ChartCard title="ยอดสมัครสมาชิก" sub="14 วัน" data={signupSeries} color="hsl(var(--primary))" />
+        <ChartCard
+          title="ยอดสมัครสมาชิก"
+          sub="14 วัน"
+          data={signupSeries}
+          color="hsl(var(--primary))"
+        />
         <ChartCard
           title="รายได้ในระบบ (฿)"
           sub="รวมทุก user · 14 วัน"
           data={incomeSeries}
           color="hsl(var(--success, 142 70% 45%))"
         />
-        <ChartCard title="ใบเสนอราคาที่สร้าง" sub="14 วัน" data={quoteSeries} color="hsl(var(--accent, 30 80% 60%))" />
+        <ChartCard
+          title="ใบเสนอราคาที่สร้าง"
+          sub="14 วัน"
+          data={quoteSeries}
+          color="hsl(var(--accent, 30 80% 60%))"
+        />
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <MiniStat icon={Layers} label="Subscriptions" value={m.subscriptions.length} sub={`${m.subscriptions.filter((s) => s.is_active).length} active`} />
-        <MiniStat icon={TrendingUp} label="ค่าใช้จ่ายในระบบ" value={`฿${fmtTHB(totalExp)}`} sub={`${m.expenses.length} รายการ`} />
-        <MiniStat icon={ShieldCheck} label="Admin" value={m.adminIds.size} sub={`/ ${m.profiles.length} คน`} />
-        <MiniStat icon={Sparkles} label="ลูกค้าที่บันทึก" value={m.savedClients.length} sub="ฐานลูกค้ารวม" />
+        <MiniStat
+          icon={Layers}
+          label="Subscriptions"
+          value={m.subscriptions.length}
+          sub={`${m.subscriptions.filter((s) => s.is_active).length} active`}
+        />
+        <MiniStat
+          icon={TrendingUp}
+          label="ค่าใช้จ่ายในระบบ"
+          value={`฿${fmtTHB(totalExp)}`}
+          sub={`${m.expenses.length} รายการ`}
+        />
+        <MiniStat
+          icon={ShieldCheck}
+          label="Admin"
+          value={m.adminIds.size}
+          sub={`/ ${m.profiles.length} คน`}
+        />
+        <MiniStat
+          icon={Sparkles}
+          label="ลูกค้าที่บันทึก"
+          value={m.savedClients.length}
+          sub="ฐานลูกค้ารวม"
+        />
       </div>
 
       <div className="grid grid-cols-3 gap-3">
-        <MiniStat icon={Monitor} label="Desktop" value={deviceError ? "—" : dev("desktop") ? `${dev("desktop")!.pct}%` : "—"} sub={deviceError ? "โหลดไม่สำเร็จ" : `${dev("desktop")?.sessions ?? 0} sessions`} />
-        <MiniStat icon={Tablet} label="Tablet" value={deviceError ? "—" : dev("tablet") ? `${dev("tablet")!.pct}%` : "—"} sub={deviceError ? "โหลดไม่สำเร็จ" : `${dev("tablet")?.sessions ?? 0} sessions`} />
-        <MiniStat icon={Smartphone} label="Mobile" value={deviceError ? "—" : dev("mobile") ? `${dev("mobile")!.pct}%` : "—"} sub={deviceError ? "โหลดไม่สำเร็จ" : `${dev("mobile")?.sessions ?? 0} sessions`} />
+        <MiniStat
+          icon={Monitor}
+          label="Desktop"
+          value={deviceError ? "—" : dev("desktop") ? `${dev("desktop")!.pct}%` : "—"}
+          sub={deviceError ? "โหลดไม่สำเร็จ" : `${dev("desktop")?.sessions ?? 0} sessions`}
+        />
+        <MiniStat
+          icon={Tablet}
+          label="Tablet"
+          value={deviceError ? "—" : dev("tablet") ? `${dev("tablet")!.pct}%` : "—"}
+          sub={deviceError ? "โหลดไม่สำเร็จ" : `${dev("tablet")?.sessions ?? 0} sessions`}
+        />
+        <MiniStat
+          icon={Smartphone}
+          label="Mobile"
+          value={deviceError ? "—" : dev("mobile") ? `${dev("mobile")!.pct}%` : "—"}
+          sub={deviceError ? "โหลดไม่สำเร็จ" : `${dev("mobile")?.sessions ?? 0} sessions`}
+        />
       </div>
     </div>
   );
@@ -155,7 +222,9 @@ function MiniStat({
     <Card className="border-border">
       <CardContent className="p-3.5">
         <div className="flex items-center justify-between mb-1.5">
-          <span className="text-[10px] uppercase tracking-wider text-muted-foreground">{label}</span>
+          <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
+            {label}
+          </span>
           <Icon className="h-3.5 w-3.5 text-primary" />
         </div>
         <div className="text-lg font-semibold tracking-tight">{value}</div>
@@ -196,9 +265,19 @@ function ChartCard({
               <XAxis dataKey="day" tick={{ fontSize: 9 }} />
               <YAxis allowDecimals={false} tick={{ fontSize: 9 }} width={40} />
               <RTooltip
-                contentStyle={{ borderRadius: 8, fontSize: 11, border: "1px solid hsl(var(--border))" }}
+                contentStyle={{
+                  borderRadius: 8,
+                  fontSize: 11,
+                  border: "1px solid hsl(var(--border))",
+                }}
               />
-              <Area type="monotone" dataKey="value" stroke={color} fill={`url(#g-${title})`} strokeWidth={2} />
+              <Area
+                type="monotone"
+                dataKey="value"
+                stroke={color}
+                fill={`url(#g-${title})`}
+                strokeWidth={2}
+              />
             </AreaChart>
           </ResponsiveContainer>
         </div>

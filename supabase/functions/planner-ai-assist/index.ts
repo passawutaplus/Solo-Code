@@ -1,7 +1,12 @@
 // Google Gemini — caption + hashtag generation for Content Planner 2.0
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 import { checkAiQuota, isProUser } from "../_shared/ai-quota.ts";
-import { defaultFastModel, geminiGenerateText, getGeminiApiKey, GeminiError } from "../_shared/gemini.ts";
+import {
+  defaultFastModel,
+  geminiGenerateText,
+  getGeminiApiKey,
+  GeminiError,
+} from "../_shared/gemini.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -70,12 +75,14 @@ Deno.serve(async (req) => {
     let userPrompt = "";
 
     if (body.mode === "caption") {
-      systemPrompt = lang === "th"
-        ? "คุณคือ So1o Mentor ผู้ช่วยเขียนแคปชันโซเชียลให้ฟรีแลนซ์ไทย เขียนกระชับ ดึงดูด ใช้สูตร AIDA หรือ PAS ตอบเป็น JSON เท่านั้น"
-        : "You are So1o Mentor, a social caption writer. Write punchy captions using AIDA or PAS. Respond JSON only.";
+      systemPrompt =
+        lang === "th"
+          ? "คุณคือ So1o Mentor ผู้ช่วยเขียนแคปชันโซเชียลให้ฟรีแลนซ์ไทย เขียนกระชับ ดึงดูด ใช้สูตร AIDA หรือ PAS ตอบเป็น JSON เท่านั้น"
+          : "You are So1o Mentor, a social caption writer. Write punchy captions using AIDA or PAS. Respond JSON only.";
       userPrompt = `หัวข้อ: ${body.topic}\nMood: ${mood}\nแพลตฟอร์ม: ${platformList}\n\nสร้างแคปชัน 3 แบบ (สั้น/กลาง/ยาว) ตอบเป็น JSON: {"variations":[{"length":"short|medium|long","text":"..."}]}`;
     } else {
-      systemPrompt = "You generate trending Thai+English hashtags for 2026 freelancer content. Respond JSON only.";
+      systemPrompt =
+        "You generate trending Thai+English hashtags for 2026 freelancer content. Respond JSON only.";
       userPrompt = `Topic: ${body.topic}\nMood: ${mood}\nPlatforms: ${platformList}\n\nReturn 10-12 mixed TH/EN hashtags as JSON: {"hashtags":["#tag1","#tag2",...]}`;
     }
 

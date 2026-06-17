@@ -55,17 +55,22 @@ Deno.serve(async (req) => {
   if (!conv) return json(req, { error: "not_found" }, 404);
 
   const recipientId = callerId === conv.client_id ? conv.freelancer_id : conv.client_id;
-  if (!recipientId || recipientId === callerId) return json(req, { skipped: true, reason: "no_recipient" });
+  if (!recipientId || recipientId === callerId)
+    return json(req, { skipped: true, reason: "no_recipient" });
 
   const { data: msgRow } = body.message_id
-    ? await admin.from("messages").select("id, content, sender_id").eq("id", body.message_id).maybeSingle()
+    ? await admin
+        .from("messages")
+        .select("id, content, sender_id")
+        .eq("id", body.message_id)
+        .maybeSingle()
     : await admin
-      .from("messages")
-      .select("id, content, sender_id")
-      .eq("conversation_id", body.conversation_id)
-      .order("created_at", { ascending: false })
-      .limit(1)
-      .maybeSingle();
+        .from("messages")
+        .select("id, content, sender_id")
+        .eq("conversation_id", body.conversation_id)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
 
   if (!msgRow || msgRow.sender_id !== callerId) return json(req, { error: "forbidden" }, 403);
 
@@ -82,7 +87,7 @@ Deno.serve(async (req) => {
 
   const senderName = senderProfile?.display_name ?? "มีข้อความใหม่";
   const raw = msgRow.content ?? "";
-  const preview = raw.length > 120 ? `${raw.slice(0, 120)}…` : (raw || "(ไฟล์แนบ)");
+  const preview = raw.length > 120 ? `${raw.slice(0, 120)}…` : raw || "(ไฟล์แนบ)";
 
   const siteUrl = anthemSiteUrl();
   const emailResult = await enqueueAnthemNotificationEmail(admin, {

@@ -20,8 +20,9 @@ export function LandingShowcase({ user }: Props) {
                 <span className="text-muted-foreground font-semibold"> สไตล์ Pinterest</span>
               </h3>
               <p className="mt-3 text-sm sm:text-base text-muted-foreground leading-relaxed max-w-xl">
-                <strong className="text-foreground font-medium">Pixel100</strong> คือแพลตฟอร์มโชว์เคสและค้นพบผลงานของครีเอทีฟ —
-                ไม่ได้อยู่ใน My Desk แต่เชื่อมกับ ecosystem เดียวกัน
+                <strong className="text-foreground font-medium">Pixel100</strong>{" "}
+                คือแพลตฟอร์มโชว์เคสและค้นพบผลงานของครีเอทีฟ — ไม่ได้อยู่ใน My Desk แต่เชื่อมกับ
+                ecosystem เดียวกัน
               </p>
               <p className="mt-2 text-xs text-muted-foreground">
                 So1o Freelancer = หลังบ้านงาน · Pixel100 = หน้าร้านโชว์ผลงาน

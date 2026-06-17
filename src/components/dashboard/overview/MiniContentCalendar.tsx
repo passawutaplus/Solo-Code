@@ -2,12 +2,7 @@ import * as React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import {
-  Calendar as CalendarIcon,
-  ChevronLeft,
-  ChevronRight,
-  ArrowRight,
-} from "lucide-react";
+import { Calendar as CalendarIcon, ChevronLeft, ChevronRight, ArrowRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/auth/AuthProvider";
 import { useDashboardJobs } from "@/store/dashboardJobs";
@@ -111,7 +106,10 @@ export function MiniContentCalendar({ onGo }: { onGo: (tab: string) => void }) {
     const d = new Date(iso);
     const tom = new Date();
     tom.setDate(tom.getDate() + 1);
-    if (iso === `${tom.getFullYear()}-${String(tom.getMonth() + 1).padStart(2, "0")}-${String(tom.getDate()).padStart(2, "0")}`)
+    if (
+      iso ===
+      `${tom.getFullYear()}-${String(tom.getMonth() + 1).padStart(2, "0")}-${String(tom.getDate()).padStart(2, "0")}`
+    )
       return "พรุ่งนี้";
     return d.toLocaleDateString("th-TH", { day: "numeric", month: "short" });
   };
@@ -125,7 +123,12 @@ export function MiniContentCalendar({ onGo }: { onGo: (tab: string) => void }) {
           </span>
           ปฏิทิน
         </CardTitle>
-        <Button size="sm" variant="outline" className="h-7 text-xs gap-1" onClick={() => onGo("planner")}>
+        <Button
+          size="sm"
+          variant="outline"
+          className="h-7 text-xs gap-1"
+          onClick={() => onGo("planner")}
+        >
           Planner <ArrowRight className="h-3 w-3" />
         </Button>
       </CardHeader>
@@ -154,7 +157,10 @@ export function MiniContentCalendar({ onGo }: { onGo: (tab: string) => void }) {
         {/* Day headers */}
         <div className="grid grid-cols-7 gap-0.5">
           {["อา", "จ", "อ", "พ", "พฤ", "ศ", "ส"].map((d) => (
-            <div key={d} className="text-center text-[10px] font-medium text-muted-foreground py-0.5">
+            <div
+              key={d}
+              className="text-center text-[10px] font-medium text-muted-foreground py-0.5"
+            >
               {d}
             </div>
           ))}
@@ -177,14 +183,12 @@ export function MiniContentCalendar({ onGo }: { onGo: (tab: string) => void }) {
                   isToday
                     ? "bg-primary-soft text-primary font-semibold"
                     : hasDot
-                    ? "hover:bg-muted/60 cursor-pointer"
-                    : "text-foreground/80"
+                      ? "hover:bg-muted/60 cursor-pointer"
+                      : "text-foreground/80"
                 }`}
               >
                 <span className="leading-none">{day}</span>
-                {hasDot && (
-                  <span className={`h-1 w-1 rounded-full ${dotClass(dayPosts[0])}`} />
-                )}
+                {hasDot && <span className={`h-1 w-1 rounded-full ${dotClass(dayPosts[0])}`} />}
               </button>
             );
           })}

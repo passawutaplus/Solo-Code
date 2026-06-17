@@ -171,11 +171,7 @@ export type LinePersonalization = {
 export function formatPersonalLine(opts?: LinePersonalization): string | null {
   const brand = opts?.brandName?.trim();
   const rawName = opts?.displayName?.trim();
-  const name = rawName
-    ? rawName.startsWith("คุณ")
-      ? rawName
-      : `คุณ${rawName}`
-    : null;
+  const name = rawName ? (rawName.startsWith("คุณ") ? rawName : `คุณ${rawName}`) : null;
 
   if (brand && name) return `${brand} (${name})`;
   if (brand) return brand;

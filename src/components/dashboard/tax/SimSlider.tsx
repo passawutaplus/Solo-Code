@@ -23,9 +23,7 @@ export function SimSlider({ label, hint, value, max, step = 1000, onChange, icon
           {icon}
           <span>{label}</span>
         </div>
-        <span className="num text-sm font-bold text-primary">
-          ฿{formatTHB(clamped)}
-        </span>
+        <span className="num text-sm font-bold text-primary">฿{formatTHB(clamped)}</span>
       </div>
       <Slider
         value={[clamped]}

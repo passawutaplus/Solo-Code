@@ -51,8 +51,7 @@ export function ThemedQuotationPrintBody({
   const brandName = branding && "brandName" in branding ? branding.brandName : undefined;
   const logoUrl = branding && "logoUrl" in branding ? branding.logoUrl : null;
   const showPoweredBy = branding && "showPoweredBy" in branding ? branding.showPoweredBy : true;
-  const showLogo =
-    branding && "showLogo" in branding ? branding.showLogo !== false : true;
+  const showLogo = branding && "showLogo" in branding ? branding.showLogo !== false : true;
 
   const docLabels = {
     quotation: { th: "ใบเสนอราคา", en: "QUOTATION" },
@@ -109,7 +108,10 @@ export function ThemedQuotationPrintBody({
       <table className="w-full text-sm border-collapse mb-5">
         <thead>
           <tr className="text-xs" style={{ background: accentSoft, color: accent }}>
-            <th className="text-left font-semibold py-2 px-3 border" style={{ borderColor: accentBorder }}>
+            <th
+              className="text-left font-semibold py-2 px-3 border"
+              style={{ borderColor: accentBorder }}
+            >
               รายการ
             </th>
             <th
@@ -135,7 +137,9 @@ export function ThemedQuotationPrintBody({
         <tbody>
           {q.items.map((it, i) => (
             <tr key={i}>
-              <td className="py-2 px-3 border border-neutral-100">{it.name || `รายการ ${i + 1}`}</td>
+              <td className="py-2 px-3 border border-neutral-100">
+                {it.name || `รายการ ${i + 1}`}
+              </td>
               <td className="py-2 px-3 border border-neutral-100 text-center font-mono">
                 {it.quantity} {it.unit || ""}
               </td>
@@ -181,7 +185,10 @@ export function ThemedQuotationPrintBody({
       </div>
 
       {(q.payment_terms || q.notes) && (
-        <div className="mt-6 pt-4 text-xs space-y-2" style={{ borderTop: `1px solid ${accentSoft}` }}>
+        <div
+          className="mt-6 pt-4 text-xs space-y-2"
+          style={{ borderTop: `1px solid ${accentSoft}` }}
+        >
           {q.payment_terms && (
             <div>
               <p className="font-semibold mb-1" style={{ color: accent }}>
@@ -235,7 +242,10 @@ export function ThemedQuotationMiniPreview({
         style={{ borderBottom: `1px solid ${accentSoft}` }}
       >
         <div>
-          <p className="text-[9px] uppercase tracking-widest font-semibold" style={{ color: accent }}>
+          <p
+            className="text-[9px] uppercase tracking-widest font-semibold"
+            style={{ color: accent }}
+          >
             Quotation
           </p>
           <p className="font-mono text-[11px] mt-0.5">{q.number}</p>

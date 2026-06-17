@@ -53,7 +53,12 @@ export function useDashboardJobTasks() {
       .channel(channelName)
       .on(
         "postgres_changes",
-        { event: "*", schema: "public", table: "dashboard_job_tasks", filter: `user_id=eq.${userId}` },
+        {
+          event: "*",
+          schema: "public",
+          table: "dashboard_job_tasks",
+          filter: `user_id=eq.${userId}`,
+        },
         () => qc.invalidateQueries({ queryKey: key(userId) }),
       )
       .subscribe();

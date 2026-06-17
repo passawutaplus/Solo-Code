@@ -185,7 +185,8 @@ export function rowToQuotation(r: QuotationRow): Quotation {
     clientTaxId: r.client_tax_id ?? "",
     startDate: r.start_date ?? undefined,
     endDate: r.end_date ?? undefined,
-    depositDueDate: (r as QuotationRow & { deposit_due_date?: string | null }).deposit_due_date ?? undefined,
+    depositDueDate:
+      (r as QuotationRow & { deposit_due_date?: string | null }).deposit_due_date ?? undefined,
     items: (Array.isArray(r.items) ? r.items : []) as QuotationItem[],
     addons: (Array.isArray(r.addons) ? r.addons : []) as QuotationAddon[],
     difficulties: (Array.isArray(r.difficulties) ? r.difficulties : []) as QuotationDifficulty[],
@@ -221,7 +222,8 @@ export function rowToQuotation(r: QuotationRow): Quotation {
     usageRightsId: r.usage_rights_id ?? undefined,
     licenseCertificatePath: r.license_certificate_path ?? undefined,
     timelineEnabled: (r as unknown as { timeline_enabled?: boolean }).timeline_enabled ?? true,
-    headerImageUrl: (r as unknown as { header_image_url?: string | null }).header_image_url ?? undefined,
+    headerImageUrl:
+      (r as unknown as { header_image_url?: string | null }).header_image_url ?? undefined,
     quotationKind: (r.quotation_kind as QuotationKind) || "solo",
     orgId: r.org_id ?? undefined,
     orgSnapshot: (r.org_snapshot as IssuerSnapshot | null) ?? undefined,
@@ -307,7 +309,12 @@ export function makeBlankQuotation(num: string): Quotation {
       { id: uid(), label: "งานด่วน", percent: 25, enabled: false },
     ],
     difficulties: [
-      { id: "diff-communication", label: "ลูกค้าสื่อสารยาก / เปลี่ยนใจบ่อย", percent: 15, enabled: false },
+      {
+        id: "diff-communication",
+        label: "ลูกค้าสื่อสารยาก / เปลี่ยนใจบ่อย",
+        percent: 15,
+        enabled: false,
+      },
       { id: "diff-rush", label: "งานเร่งด่วน (ภายใน 7 วัน)", percent: 20, enabled: false },
       { id: "diff-scope", label: "ขอบเขตงานคลุมเครือ ต้องตีโจทย์เอง", percent: 10, enabled: false },
       { id: "diff-revisions", label: "คาดว่าต้องแก้ไขหลายรอบ", percent: 10, enabled: false },
@@ -344,7 +351,11 @@ export function quotationsKey(userId: string | null) {
   return ["quotations", userId] as const;
 }
 
-function nextNumberFromList(list: Quotation[], prefix: string, getter: (q: Quotation) => string | undefined) {
+function nextNumberFromList(
+  list: Quotation[],
+  prefix: string,
+  getter: (q: Quotation) => string | undefined,
+) {
   const year = new Date().getFullYear();
   const full = `${prefix}-${year}-`;
   const nums = list
@@ -387,7 +398,9 @@ export function useQuotations() {
   const createMutation = useMutation({
     mutationFn: async (init?: Partial<Quotation>) => {
       if (!userId) throw new Error("ต้องเข้าสู่ระบบก่อน");
-      const blank = makeBlankQuotation(init?.number ?? nextNumberFromList(list, "QT", (q) => q.number));
+      const blank = makeBlankQuotation(
+        init?.number ?? nextNumberFromList(list, "QT", (q) => q.number),
+      );
       const draft: Quotation = { ...blank, ...init, number: init?.number ?? blank.number };
       const { data, error } = await supabase
         .from("quotations")
@@ -423,7 +436,9 @@ export function useQuotations() {
       qc.setQueryData<Quotation[]>(quotationsKey(userId), (old) => {
         const prev = old ?? [];
         return prev.map((q) =>
-          q.id === id ? { ...q, ...patch, ...(merged ?? {}), updatedAt: new Date().toISOString() } : q,
+          q.id === id
+            ? { ...q, ...patch, ...(merged ?? {}), updatedAt: new Date().toISOString() }
+            : q,
         );
       });
     },
@@ -638,7 +653,10 @@ export function statusLabel(s: QuotationStatus): { label: string; tone: string }
     case "pending_payment":
       return { label: "รอเซ็น/มัดจำ", tone: "bg-amber-50 text-amber-800 border-amber-200" };
     case "pending_receipt":
-      return { label: "กำลังดำเนินงาน", tone: "bg-[#FF5F05]/10 text-[#FF5F05] border-[#FF5F05]/30" };
+      return {
+        label: "กำลังดำเนินงาน",
+        tone: "bg-[#FF5F05]/10 text-[#FF5F05] border-[#FF5F05]/30",
+      };
     case "completed":
       return { label: "ปิดงาน", tone: "bg-emerald-50 text-emerald-800 border-emerald-200" };
     case "rejected":

@@ -4,7 +4,13 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Loader2, Plus, Save, Trash2, Users } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -104,7 +110,11 @@ export function QuotationCollaboratorsPanel({
       {embedded && canEdit && dirty && (
         <div className="flex justify-end -mt-1 mb-1">
           <Button size="sm" className="h-8 gap-1" onClick={handleSave} disabled={sync.isPending}>
-            {sync.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
+            {sync.isPending ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            ) : (
+              <Save className="h-3.5 w-3.5" />
+            )}
             บันทึก
           </Button>
         </div>
@@ -116,7 +126,10 @@ export function QuotationCollaboratorsPanel({
       ) : (
         <ul className="space-y-3">
           {draft.map((c, i) => (
-            <li key={`${c.userId ?? "x"}-${i}`} className="rounded-lg border border-border/60 p-3 space-y-2">
+            <li
+              key={`${c.userId ?? "x"}-${i}`}
+              className="rounded-lg border border-border/60 p-3 space-y-2"
+            >
               {canEdit ? (
                 <>
                   <div className="grid grid-cols-2 gap-2">
@@ -212,7 +225,11 @@ export function QuotationCollaboratorsPanel({
         </CardTitle>
         {canEdit && dirty && (
           <Button size="sm" className="h-8 gap-1" onClick={handleSave} disabled={sync.isPending}>
-            {sync.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
+            {sync.isPending ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            ) : (
+              <Save className="h-3.5 w-3.5" />
+            )}
             บันทึก
           </Button>
         )}

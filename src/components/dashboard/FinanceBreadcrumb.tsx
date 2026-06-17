@@ -18,7 +18,10 @@ export function FinanceBreadcrumb({
   onNavigate?: (sub: FinanceSub) => void;
 }) {
   return (
-    <nav aria-label="breadcrumb" className="flex items-center gap-1 text-xs text-muted-foreground mb-4">
+    <nav
+      aria-label="breadcrumb"
+      className="flex items-center gap-1 text-xs text-muted-foreground mb-4"
+    >
       <button
         type="button"
         className="hover:text-foreground transition"

@@ -1,10 +1,7 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
 
 export function adminClient() {
-  return createClient(
-    Deno.env.get("SUPABASE_URL")!,
-    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
-  );
+  return createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
 }
 
 export async function assertAdmin(userId: string, logTag = "admin"): Promise<boolean> {
@@ -19,9 +16,10 @@ export async function assertAdmin(userId: string, logTag = "admin"): Promise<boo
   return !!data;
 }
 
-export async function requireAdminUser(req: Request, logTag: string): Promise<
-  { ok: true; userId: string } | { ok: false; status: number; error: string }
-> {
+export async function requireAdminUser(
+  req: Request,
+  logTag: string,
+): Promise<{ ok: true; userId: string } | { ok: false; status: number; error: string }> {
   const authHeader = req.headers.get("Authorization");
   if (!authHeader?.startsWith("Bearer ")) {
     return { ok: false, status: 401, error: "unauthorized" };

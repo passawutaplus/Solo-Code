@@ -66,7 +66,9 @@ export function BetaFeedbackPanel() {
           <CardTitle className="text-sm flex items-center gap-2">
             <MessageSquareHeart className="h-4 w-4 text-primary" />
             ข้อเสนอแนะจาก Tester
-            <Badge variant="secondary" className="text-[10px]">{items.length}</Badge>
+            <Badge variant="secondary" className="text-[10px]">
+              {items.length}
+            </Badge>
           </CardTitle>
           <div className="flex items-center gap-2">
             <div className="relative">
@@ -91,12 +93,7 @@ export function BetaFeedbackPanel() {
                 ))}
               </SelectContent>
             </Select>
-            <Button
-              size="sm"
-              variant="outline"
-              className="h-8 gap-1.5"
-              onClick={() => refetch()}
-            >
+            <Button size="sm" variant="outline" className="h-8 gap-1.5" onClick={() => refetch()}>
               <RefreshCw className="h-3.5 w-3.5" />
             </Button>
           </div>
@@ -108,20 +105,14 @@ export function BetaFeedbackPanel() {
             <Loader2 className="h-4 w-4 animate-spin" /> กำลังโหลด...
           </div>
         ) : grouped.length === 0 ? (
-          <div className="text-center py-10 text-sm text-muted-foreground">
-            ยังไม่มีข้อเสนอแนะ
-          </div>
+          <div className="text-center py-10 text-sm text-muted-foreground">ยังไม่มีข้อเสนอแนะ</div>
         ) : (
           <div className="divide-y divide-border/50">
             {grouped.map(([feat, list]) => (
               <div key={feat} className="px-4 py-3 sm:px-5">
                 <div className="flex items-center gap-2 mb-2">
-                  <Badge className="bg-primary text-primary-foreground text-[10px]">
-                    {feat}
-                  </Badge>
-                  <span className="text-[11px] text-muted-foreground">
-                    {list.length} รายการ
-                  </span>
+                  <Badge className="bg-primary text-primary-foreground text-[10px]">{feat}</Badge>
+                  <span className="text-[11px] text-muted-foreground">{list.length} รายการ</span>
                 </div>
                 <div className="space-y-2">
                   {list.map((it) => (
@@ -138,12 +129,12 @@ export function BetaFeedbackPanel() {
                                 className={`h-3 w-3 ${i < it.rating! ? "fill-amber-400 text-amber-400" : "text-muted-foreground/30"}`}
                               />
                             ))}
-                            <span className="text-[10px] text-muted-foreground ml-1">{it.rating}/5</span>
+                            <span className="text-[10px] text-muted-foreground ml-1">
+                              {it.rating}/5
+                            </span>
                           </div>
                         )}
-                        <p className="text-sm whitespace-pre-wrap break-words">
-                          {it.message}
-                        </p>
+                        <p className="text-sm whitespace-pre-wrap break-words">{it.message}</p>
                         <p className="text-[11px] text-muted-foreground mt-1">
                           {it.userName || it.userEmail || "ผู้ใช้"} ·{" "}
                           {new Date(it.createdAt).toLocaleString("th-TH", {
@@ -176,9 +167,7 @@ export function BetaFeedbackPanel() {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>ลบข้อเสนอแนะนี้?</AlertDialogTitle>
-            <AlertDialogDescription>
-              จะถูกลบถาวรจากระบบ
-            </AlertDialogDescription>
+            <AlertDialogDescription>จะถูกลบถาวรจากระบบ</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>ยกเลิก</AlertDialogCancel>

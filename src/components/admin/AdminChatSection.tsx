@@ -7,7 +7,15 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { MessageSquare, Send, Loader2, Volume2, VolumeX, Search, Image as ImageIcon } from "lucide-react";
+import {
+  MessageSquare,
+  Send,
+  Loader2,
+  Volume2,
+  VolumeX,
+  Search,
+  Image as ImageIcon,
+} from "lucide-react";
 import { useChatMessages, playBeep, type ChatMessage } from "@/hooks/useChat";
 import { uploadCompressedImage } from "@/lib/imageCompress";
 
@@ -44,7 +52,7 @@ export function AdminChatSection() {
       .limit(500);
     if (!msgs) return;
 
-    const byUser = new Map<string, { last: typeof msgs[0]; unread: number }>();
+    const byUser = new Map<string, { last: (typeof msgs)[0]; unread: number }>();
     for (const m of msgs) {
       const cur = byUser.get(m.user_id);
       if (!cur) {
@@ -63,9 +71,11 @@ export function AdminChatSection() {
       return;
     }
     // Admin-only listing: returns non-sensitive profile columns (bank/tax/phone/address are excluded server-side).
-    const { data: profilesAll } = await (supabase.rpc as unknown as (fn: string) => Promise<{ data: Array<{ user_id: string; email: string | null; display_name: string | null }> | null }>)(
-      "admin_list_profiles_safe",
-    );
+    const { data: profilesAll } = await (
+      supabase.rpc as unknown as (fn: string) => Promise<{
+        data: Array<{ user_id: string; email: string | null; display_name: string | null }> | null;
+      }>
+    )("admin_list_profiles_safe");
     const profiles = (profilesAll ?? []).filter((p) => ids.includes(p.user_id));
     const profMap = new Map((profiles ?? []).map((p) => [p.user_id, p]));
 
@@ -102,31 +112,35 @@ export function AdminChatSection() {
   React.useEffect(() => {
     const ch = supabase
       .channel("admin_chat_global")
-      .on("postgres_changes", { event: "INSERT", schema: "public", table: "chat_messages" }, (payload) => {
-        const m = payload.new as ChatMessage;
-        if (seenIdsRef.current.has(m.id)) return;
-        seenIdsRef.current.add(m.id);
-        if (m.sender_role === "user" && soundOn) {
-          playBeep();
-          // desktop notification when tab is hidden / unfocused
-          if (
-            typeof document !== "undefined" &&
-            document.visibilityState !== "visible" &&
-            "Notification" in window &&
-            Notification.permission === "granted"
-          ) {
-            try {
-              new Notification("ข้อความใหม่จากผู้ใช้", {
-                body: m.body || "[รูป]",
-                tag: `chat-${m.user_id}`,
-              });
-            } catch {
-              // ignore
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "chat_messages" },
+        (payload) => {
+          const m = payload.new as ChatMessage;
+          if (seenIdsRef.current.has(m.id)) return;
+          seenIdsRef.current.add(m.id);
+          if (m.sender_role === "user" && soundOn) {
+            playBeep();
+            // desktop notification when tab is hidden / unfocused
+            if (
+              typeof document !== "undefined" &&
+              document.visibilityState !== "visible" &&
+              "Notification" in window &&
+              Notification.permission === "granted"
+            ) {
+              try {
+                new Notification("ข้อความใหม่จากผู้ใช้", {
+                  body: m.body || "[รูป]",
+                  tag: `chat-${m.user_id}`,
+                });
+              } catch {
+                // ignore
+              }
             }
           }
-        }
-        refreshConvs();
-      })
+          refreshConvs();
+        },
+      )
       .on("postgres_changes", { event: "UPDATE", schema: "public", table: "chat_messages" }, () => {
         refreshConvs();
       })
@@ -141,7 +155,11 @@ export function AdminChatSection() {
     if (!activeUserId) return;
     const ids = messages.filter((m) => m.sender_role === "user" && !m.is_read).map((m) => m.id);
     if (ids.length === 0) return;
-    supabase.from("chat_messages").update({ is_read: true }).in("id", ids).then(() => refreshConvs());
+    supabase
+      .from("chat_messages")
+      .update({ is_read: true })
+      .in("id", ids)
+      .then(() => refreshConvs());
   }, [activeUserId, messages, refreshConvs]);
 
   React.useEffect(() => {
@@ -263,7 +281,10 @@ export function AdminChatSection() {
                   </div>
                   <div className="text-[10px] text-muted-foreground truncate">{c.last_message}</div>
                   <div className="text-[9px] text-muted-foreground mt-0.5">
-                    {new Date(c.last_at).toLocaleString("th-TH", { dateStyle: "short", timeStyle: "short" })}
+                    {new Date(c.last_at).toLocaleString("th-TH", {
+                      dateStyle: "short",
+                      timeStyle: "short",
+                    })}
                   </div>
                 </button>
               ))
@@ -280,7 +301,10 @@ export function AdminChatSection() {
             <>
               <div ref={scrollRef} className="flex-1 overflow-y-auto p-3 space-y-2">
                 {messages.map((m) => (
-                  <div key={m.id} className={`flex ${m.sender_role === "admin" ? "justify-end" : "justify-start"}`}>
+                  <div
+                    key={m.id}
+                    className={`flex ${m.sender_role === "admin" ? "justify-end" : "justify-start"}`}
+                  >
                     <div
                       className={`max-w-[75%] rounded-2xl px-3 py-2 ${
                         m.sender_role === "admin"
@@ -289,9 +313,16 @@ export function AdminChatSection() {
                       }`}
                     >
                       {m.image_url && <SignedChatImage url={m.image_url} />}
-                      {m.body && <div className="text-xs whitespace-pre-wrap break-words">{m.body}</div>}
-                      <div className={`text-[9px] mt-1 ${m.sender_role === "admin" ? "text-primary-foreground/70" : "text-muted-foreground"}`}>
-                        {new Date(m.created_at).toLocaleTimeString("th-TH", { hour: "2-digit", minute: "2-digit" })}
+                      {m.body && (
+                        <div className="text-xs whitespace-pre-wrap break-words">{m.body}</div>
+                      )}
+                      <div
+                        className={`text-[9px] mt-1 ${m.sender_role === "admin" ? "text-primary-foreground/70" : "text-muted-foreground"}`}
+                      >
+                        {new Date(m.created_at).toLocaleTimeString("th-TH", {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
                       </div>
                     </div>
                   </div>
@@ -316,7 +347,11 @@ export function AdminChatSection() {
                   disabled={uploading}
                   onClick={() => fileRef.current?.click()}
                 >
-                  {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ImageIcon className="h-4 w-4" />}
+                  {uploading ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <ImageIcon className="h-4 w-4" />
+                  )}
                 </Button>
                 <Textarea
                   value={body}
@@ -337,7 +372,11 @@ export function AdminChatSection() {
                   disabled={sending || !body.trim()}
                   onClick={() => send()}
                 >
-                  {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                  {sending ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Send className="h-4 w-4" />
+                  )}
                 </Button>
               </div>
             </>

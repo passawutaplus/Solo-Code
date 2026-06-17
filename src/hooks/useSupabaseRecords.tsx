@@ -33,9 +33,7 @@ type Options<TItem extends RecordWithId, TRow> = {
   filterEq?: { column: string; value: string };
 };
 
-export function useSupabaseRecords<TItem extends RecordWithId, TRow>(
-  opts: Options<TItem, TRow>,
-) {
+export function useSupabaseRecords<TItem extends RecordWithId, TRow>(opts: Options<TItem, TRow>) {
   const { user } = useAuth();
   const userId = user?.id;
   const qc = useQueryClient();
@@ -91,7 +89,10 @@ export function useSupabaseRecords<TItem extends RecordWithId, TRow>(
             await supabase
               .from(opts.table as never)
               .delete()
-              .in("id", removed.map((x) => x.id));
+              .in(
+                "id",
+                removed.map((x) => x.id),
+              );
           }
           for (const a of added) {
             await supabase.from(opts.table as never).insert(opts.toRow(a, userId) as never);

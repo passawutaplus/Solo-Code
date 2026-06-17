@@ -1,6 +1,12 @@
 import * as React from "react";
 import { createPortal } from "react-dom";
-import { Dialog, DialogContent, DialogCloseButton, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogCloseButton,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { ZoomIn, ZoomOut, Download } from "lucide-react";
 import { BriefPdfTemplate } from "./BriefPdfTemplate";
@@ -39,7 +45,9 @@ export function BriefPdfPreviewDialog({ brief, open, onOpenChange, autoPrint, ow
   }, [brief, owner]);
   const [zoom, setZoom] = React.useState(1);
 
-  React.useEffect(() => { if (open) setZoom(1); }, [open]);
+  React.useEffect(() => {
+    if (open) setZoom(1);
+  }, [open]);
 
   const triggerPrint = React.useCallback(() => {
     runPrintToPdf({
@@ -74,13 +82,23 @@ export function BriefPdfPreviewDialog({ brief, open, onOpenChange, autoPrint, ow
               พรีวิว PDF · {brief.title}
             </DialogTitle>
             <div className="flex items-center gap-1.5 shrink-0">
-              <Button size="sm" variant="ghost" className="h-8 w-8 p-0"
-                onClick={() => setZoom((z) => Math.max(0.5, z - 0.1))} title="ย่อ">
+              <Button
+                size="sm"
+                variant="ghost"
+                className="h-8 w-8 p-0"
+                onClick={() => setZoom((z) => Math.max(0.5, z - 0.1))}
+                title="ย่อ"
+              >
                 <ZoomOut className="h-4 w-4" />
               </Button>
               <span className="text-xs num w-10 text-center">{Math.round(zoom * 100)}%</span>
-              <Button size="sm" variant="ghost" className="h-8 w-8 p-0"
-                onClick={() => setZoom((z) => Math.min(1.6, z + 0.1))} title="ขยาย">
+              <Button
+                size="sm"
+                variant="ghost"
+                className="h-8 w-8 p-0"
+                onClick={() => setZoom((z) => Math.min(1.6, z + 0.1))}
+                title="ขยาย"
+              >
                 <ZoomIn className="h-4 w-4" />
               </Button>
               <Button
@@ -113,14 +131,14 @@ export function BriefPdfPreviewDialog({ brief, open, onOpenChange, autoPrint, ow
 
       {/* Print-only payload: portal to <body> so it's a direct child of body.
           Print CSS hides every other top-level body child. */}
-      {open && typeof document !== "undefined" &&
+      {open &&
+        typeof document !== "undefined" &&
         createPortal(
           <div className="brief-print-only">
             <BriefPdfTemplate brief={briefWithOwner!} theme={briefTheme} tier={tier} />
           </div>,
           document.body,
-        )
-      }
+        )}
     </>
   );
 }

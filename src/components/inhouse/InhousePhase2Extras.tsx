@@ -15,7 +15,10 @@ export function InhouseSharedAssetsCard() {
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-3 text-sm text-muted-foreground">
-        <p>ไลบรารี asset ร่วมของทีม (brand kit, รูป, ไฟล์) — ใช้ Assets ส่วนตัวได้ก่อน แล้วจะ sync ข้ามสมาชิกในรอบถัดไป</p>
+        <p>
+          ไลบรารี asset ร่วมของทีม (brand kit, รูป, ไฟล์) — ใช้ Assets ส่วนตัวได้ก่อน แล้วจะ sync
+          ข้ามสมาชิกในรอบถัดไป
+        </p>
         <Button variant="outline" size="sm" asChild>
           <Link to="/dashboard" search={{ tab: "mydata", sub: "assets" }}>
             เปิด Assets (My Desk)

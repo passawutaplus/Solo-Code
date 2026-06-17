@@ -63,8 +63,12 @@ export const Route = createFileRoute("/api/assistant/stream")({
           return Response.json({ error: "invalid_json" }, { status: 400 });
         }
 
-        const message = String(body?.message ?? "").trim().slice(0, 500);
-        const requestId = String(body?.request_id ?? "").trim().slice(0, 64);
+        const message = String(body?.message ?? "")
+          .trim()
+          .slice(0, 500);
+        const requestId = String(body?.request_id ?? "")
+          .trim()
+          .slice(0, 64);
         if (!message) {
           return Response.json({ error: "empty_message" }, { status: 400 });
         }

@@ -3,12 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { useFinance } from "@/store/finance";
 import { formatTHB } from "@/data/mockData";
-import {
-  TrendingUp,
-  Wallet,
-  Users,
-  Receipt,
-} from "lucide-react";
+import { TrendingUp, Wallet, Users, Receipt } from "lucide-react";
 import {
   ResponsiveContainer,
   LineChart,
@@ -99,7 +94,9 @@ const MOCK_CLIENTS: ClientBar[] = [
 
 /** สร้างข้อมูลตัวอย่างเมื่อยังไม่มีรายได้/รายจ่ายจริง */
 function buildMockChartData(monthLabels: string[], monthCount: number) {
-  const incomeSeeds = [32000, 38000, 42000, 45000, 48000, 52000, 55000, 58000, 61000, 64000, 67000, 72000];
+  const incomeSeeds = [
+    32000, 38000, 42000, 45000, 48000, 52000, 55000, 58000, 61000, 64000, 67000, 72000,
+  ];
   const expenseRatio = 0.28;
 
   const lineData: ChartPoint[] = monthLabels.map((label, idx) => {
@@ -123,9 +120,7 @@ function buildMockChartData(monthLabels: string[], monthCount: number) {
   const currentNetTotal = netLineData.reduce((s, d) => s + d.current, 0);
   const previousNetTotal = netLineData.reduce((s, d) => s + d.previous, 0);
   const avgMonthlyIncome =
-    monthlyBars.length > 0
-      ? monthlyBars.reduce((s, d) => s + d.value, 0) / monthlyBars.length
-      : 0;
+    monthlyBars.length > 0 ? monthlyBars.reduce((s, d) => s + d.value, 0) / monthlyBars.length : 0;
   const latestMonthIncome = monthlyBars.at(-1)?.value ?? 0;
   const prevMonthIncome = monthlyBars.at(-2)?.value ?? 0;
 
@@ -244,9 +239,7 @@ export function OverviewPerformanceCharts() {
   );
 
   const avgMonthlyIncome =
-    monthlyBars.length > 0
-      ? monthlyBars.reduce((s, d) => s + d.value, 0) / monthlyBars.length
-      : 0;
+    monthlyBars.length > 0 ? monthlyBars.reduce((s, d) => s + d.value, 0) / monthlyBars.length : 0;
 
   const latestMonthIncome = monthlyBars.at(-1)?.value ?? 0;
   const prevMonthIncome = monthlyBars.at(-2)?.value ?? 0;
@@ -394,7 +387,9 @@ function KpiChartCard({
         </div>
         <div className="flex flex-wrap items-end gap-x-4 gap-y-1">
           <div>
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wide">ช่วงที่เลือก</p>
+            <p className="text-[10px] text-muted-foreground uppercase tracking-wide">
+              ช่วงที่เลือก
+            </p>
             <p className="text-lg font-semibold num">{current}</p>
           </div>
           <div>
@@ -475,11 +470,7 @@ function HorizontalBarChart({ data }: { data: ClientBar[] }) {
 
   return (
     <ResponsiveContainer width="100%" height="100%">
-      <BarChart
-        data={data}
-        layout="vertical"
-        margin={{ top: 4, right: 8, left: 4, bottom: 4 }}
-      >
+      <BarChart data={data} layout="vertical" margin={{ top: 4, right: 8, left: 4, bottom: 4 }}>
         <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" horizontal={false} />
         <XAxis
           type="number"
@@ -520,7 +511,13 @@ function HorizontalBarChart({ data }: { data: ClientBar[] }) {
   );
 }
 
-function VerticalBarWithAvg({ data, avg }: { data: { label: string; value: number }[]; avg: number }) {
+function VerticalBarWithAvg({
+  data,
+  avg,
+}: {
+  data: { label: string; value: number }[];
+  avg: number;
+}) {
   return (
     <ResponsiveContainer width="100%" height="100%">
       <BarChart data={data} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
@@ -551,7 +548,12 @@ function VerticalBarWithAvg({ data, avg }: { data: { label: string; value: numbe
           stroke="var(--color-primary)"
           strokeDasharray="4 4"
           strokeOpacity={0.7}
-          label={{ value: "Avg", position: "insideTopRight", fontSize: 10, fill: "var(--color-primary)" }}
+          label={{
+            value: "Avg",
+            position: "insideTopRight",
+            fontSize: 10,
+            fill: "var(--color-primary)",
+          }}
         />
         <Bar dataKey="value" fill="var(--color-primary)" radius={[6, 6, 0, 0]} barSize={20} />
       </BarChart>

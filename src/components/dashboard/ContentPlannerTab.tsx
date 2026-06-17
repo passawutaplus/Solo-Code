@@ -45,7 +45,11 @@ function ContentPlannerInner() {
   const qc = useQueryClient();
   const { user } = useAuth();
 
-  const { items: posts, setItems: setPosts, isLoading } = useSupabaseRecords<Post, PlannerRow>({
+  const {
+    items: posts,
+    setItems: setPosts,
+    isLoading,
+  } = useSupabaseRecords<Post, PlannerRow>({
     table: "planner_posts",
     cacheKey: "planner_posts",
     orderBy: { column: "post_date", ascending: true },
@@ -91,7 +95,12 @@ function ContentPlannerInner() {
       .channel(`planner-approvals-${user.id}`)
       .on(
         "postgres_changes",
-        { event: "UPDATE", schema: "public", table: "planner_posts", filter: `user_id=eq.${user.id}` },
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "planner_posts",
+          filter: `user_id=eq.${user.id}`,
+        },
         (payload) => {
           const newRow = payload.new as PlannerRow;
           const oldRow = payload.old as PlannerRow;
@@ -106,7 +115,9 @@ function ContentPlannerInner() {
         },
       )
       .subscribe();
-    return () => { supabase.removeChannel(ch); };
+    return () => {
+      supabase.removeChannel(ch);
+    };
   }, [user?.id, qc]);
 
   const handleAddClient = React.useCallback(
@@ -135,8 +146,7 @@ function ContentPlannerInner() {
     [clients],
   );
 
-  const clientName = (id: string) =>
-    clients.find((c) => c.id === id)?.name ?? "ลูกค้า";
+  const clientName = (id: string) => clients.find((c) => c.id === id)?.name ?? "ลูกค้า";
 
   const filtered = posts.filter(
     (p) =>
@@ -237,7 +247,9 @@ function ContentPlannerInner() {
         <PostFormModal
           mode="edit"
           open={!!editingPost}
-          onOpenChange={(o) => { if (!o) setEditingPost(null); }}
+          onOpenChange={(o) => {
+            if (!o) setEditingPost(null);
+          }}
           initial={editingPost}
           clientOptions={clientOptionsForAdd}
           onSave={handleSavePost}

@@ -125,9 +125,27 @@ export function ColorVariations({ hex, onPick }: Props) {
         </div>
       </div>
 
-      <Row title="Tints" subtitle="บวกสีขาว — สว่างขึ้น" swatches={tintList} selected={hex} onPick={onPick} />
-      <Row title="Shades" subtitle="บวกสีดำ — มืดลง" swatches={shadeList} selected={hex} onPick={onPick} />
-      <Row title="Tones" subtitle="บวกสีเทา — นุ่มลง" swatches={toneList} selected={hex} onPick={onPick} />
+      <Row
+        title="Tints"
+        subtitle="บวกสีขาว — สว่างขึ้น"
+        swatches={tintList}
+        selected={hex}
+        onPick={onPick}
+      />
+      <Row
+        title="Shades"
+        subtitle="บวกสีดำ — มืดลง"
+        swatches={shadeList}
+        selected={hex}
+        onPick={onPick}
+      />
+      <Row
+        title="Tones"
+        subtitle="บวกสีเทา — นุ่มลง"
+        swatches={toneList}
+        selected={hex}
+        onPick={onPick}
+      />
     </section>
   );
 }

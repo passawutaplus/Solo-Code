@@ -24,7 +24,18 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { Plus, Pencil, Trash2, Eye, Search, ExternalLink, BookOpen, Upload, Loader2, X } from "lucide-react";
+import {
+  Plus,
+  Pencil,
+  Trash2,
+  Eye,
+  Search,
+  ExternalLink,
+  BookOpen,
+  Upload,
+  Loader2,
+  X,
+} from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -62,7 +73,7 @@ const FEATURE_LINKS = [
   { label: "Expense Tracker / ภาษี", value: "/dashboard?tab=tax" },
   { label: "Payment Dashboard", value: "/dashboard?tab=finance" },
   { label: "Project Management", value: "/dashboard?tab=projects" },
-  
+
   { label: "Client Management (CRM)", value: "/dashboard?tab=clients" },
   { label: "Subscriptions", value: "/dashboard?tab=subscriptions" },
   { label: "Suppliers", value: "/dashboard?tab=suppliers" },
@@ -95,7 +106,7 @@ export function ArticlesSection() {
     const q = search.trim().toLowerCase();
     if (!q) return rows;
     return rows.filter(
-      (r) => r.title.toLowerCase().includes(q) || r.slug.toLowerCase().includes(q)
+      (r) => r.title.toLowerCase().includes(q) || r.slug.toLowerCase().includes(q),
     );
   }, [rows, search]);
 
@@ -160,9 +171,7 @@ export function ArticlesSection() {
         </div>
 
         {loading ? (
-          <div className="px-4 py-12 text-center text-sm text-muted-foreground">
-            กำลังโหลด…
-          </div>
+          <div className="px-4 py-12 text-center text-sm text-muted-foreground">กำลังโหลด…</div>
         ) : filtered.length === 0 ? (
           <div className="px-4 py-12 text-center text-sm text-muted-foreground">
             ยังไม่มีบทความ — กดปุ่ม "เขียนบทความใหม่" เพื่อเริ่มต้น
@@ -170,14 +179,19 @@ export function ArticlesSection() {
         ) : (
           <ul className="divide-y divide-border">
             {filtered.map((a) => (
-              <li key={a.id} className="grid grid-cols-12 gap-2 px-4 py-3 items-center hover:bg-muted/30 transition-colors">
+              <li
+                key={a.id}
+                className="grid grid-cols-12 gap-2 px-4 py-3 items-center hover:bg-muted/30 transition-colors"
+              >
                 <div className="col-span-6 sm:col-span-5 min-w-0">
                   <div className="font-medium text-sm truncate">{a.title}</div>
-                  <div className="text-[10px] text-muted-foreground font-mono truncate">/{a.slug}</div>
+                  <div className="text-[10px] text-muted-foreground font-mono truncate">
+                    /{a.slug}
+                  </div>
                 </div>
                 <div className="hidden sm:block col-span-2">
                   <Badge variant="outline" className="text-[10px]">
-                    {CATEGORY_LABEL_TH[(a.category as ArticleCategory)] || a.category}
+                    {CATEGORY_LABEL_TH[a.category as ArticleCategory] || a.category}
                   </Badge>
                 </div>
                 <div className="col-span-3 sm:col-span-2">
@@ -186,7 +200,9 @@ export function ArticlesSection() {
                       เผยแพร่
                     </Badge>
                   ) : (
-                    <Badge variant="secondary" className="text-[10px]">draft</Badge>
+                    <Badge variant="secondary" className="text-[10px]">
+                      draft
+                    </Badge>
                   )}
                 </div>
                 <div className="hidden sm:block col-span-1 text-right text-xs text-muted-foreground">
@@ -195,15 +211,32 @@ export function ArticlesSection() {
                 <div className="col-span-3 sm:col-span-2 flex items-center justify-end gap-1">
                   {a.status === "published" && (
                     <Button asChild size="icon" variant="ghost" className="h-8 w-8">
-                      <a href={`/blog/${a.slug}`} target="_blank" rel="noopener noreferrer" title="ดูหน้าจริง">
+                      <a
+                        href={`/blog/${a.slug}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        title="ดูหน้าจริง"
+                      >
                         <Eye className="h-3.5 w-3.5" />
                       </a>
                     </Button>
                   )}
-                  <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => openEdit(a.id)} title="แก้ไข">
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    className="h-8 w-8"
+                    onClick={() => openEdit(a.id)}
+                    title="แก้ไข"
+                  >
                     <Pencil className="h-3.5 w-3.5" />
                   </Button>
-                  <Button size="icon" variant="ghost" className="h-8 w-8 text-destructive hover:text-destructive" onClick={() => handleDelete(a)} title="ลบ">
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    className="h-8 w-8 text-destructive hover:text-destructive"
+                    onClick={() => handleDelete(a)}
+                    title="ลบ"
+                  >
                     <Trash2 className="h-3.5 w-3.5" />
                   </Button>
                 </div>
@@ -248,7 +281,7 @@ function ArticleEditorDialog({
   const [summary, setSummary] = React.useState(initial?.summary ?? "");
   const [content, setContent] = React.useState(initial?.content ?? "");
   const [category, setCategory] = React.useState<ArticleCategory>(
-    (initial?.category as ArticleCategory) ?? "Management"
+    (initial?.category as ArticleCategory) ?? "Management",
   );
   const [featuredImage, setFeaturedImage] = React.useState(initial?.featured_image ?? "");
   const [featuredImageAlt, setFeaturedImageAlt] = React.useState(initial?.featured_image_alt ?? "");
@@ -256,7 +289,7 @@ function ArticleEditorDialog({
   const [metaDescription, setMetaDescription] = React.useState(initial?.meta_description ?? "");
   const [relatedLink, setRelatedLink] = React.useState(initial?.related_feature_link ?? "");
   const [status, setStatus] = React.useState<"draft" | "published">(
-    (initial?.status as "draft" | "published") ?? "draft"
+    (initial?.status as "draft" | "published") ?? "draft",
   );
   const [saving, setSaving] = React.useState(false);
 
@@ -337,7 +370,11 @@ function ArticleEditorDialog({
             <div>
               <Label>เนื้อหา</Label>
               <div className="mt-1.5">
-                <RichTextEditor value={content} onChange={setContent} placeholder="เริ่มเขียนเนื้อหาที่นี่…" />
+                <RichTextEditor
+                  value={content}
+                  onChange={setContent}
+                  placeholder="เริ่มเขียนเนื้อหาที่นี่…"
+                />
               </div>
             </div>
           </div>
@@ -351,7 +388,9 @@ function ArticleEditorDialog({
               <div className="space-y-2">
                 <Label className="text-xs">สถานะ</Label>
                 <Select value={status} onValueChange={(v) => setStatus(v as any)}>
-                  <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
+                  <SelectTrigger className="h-9">
+                    <SelectValue />
+                  </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="draft">ฉบับร่าง</SelectItem>
                     <SelectItem value="published">เผยแพร่</SelectItem>
@@ -361,10 +400,14 @@ function ArticleEditorDialog({
               <div className="space-y-2">
                 <Label className="text-xs">หมวดหมู่</Label>
                 <Select value={category} onValueChange={(v) => setCategory(v as ArticleCategory)}>
-                  <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
+                  <SelectTrigger className="h-9">
+                    <SelectValue />
+                  </SelectTrigger>
                   <SelectContent>
                     {ARTICLE_CATEGORIES.map((c) => (
-                      <SelectItem key={c} value={c}>{CATEGORY_LABEL_TH[c]} ({c})</SelectItem>
+                      <SelectItem key={c} value={c}>
+                        {CATEGORY_LABEL_TH[c]} ({c})
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -381,7 +424,10 @@ function ArticleEditorDialog({
                   <span className="text-[10px] text-muted-foreground">/blog/</span>
                   <Input
                     value={slug}
-                    onChange={(e) => { setSlug(slugify(e.target.value)); setSlugTouched(true); }}
+                    onChange={(e) => {
+                      setSlug(slugify(e.target.value));
+                      setSlugTouched(true);
+                    }}
                     className="h-8 border-0 px-1 font-mono text-xs"
                     maxLength={120}
                   />
@@ -389,12 +435,19 @@ function ArticleEditorDialog({
               </div>
               <div className="space-y-1.5">
                 <Label className="text-xs">ลิงก์ฟีเจอร์ที่เกี่ยวข้อง (CTA)</Label>
-                <Select value={relatedLink || "none"} onValueChange={(v) => setRelatedLink(v === "none" ? "" : v)}>
-                  <SelectTrigger className="h-9"><SelectValue placeholder="ไม่มี" /></SelectTrigger>
+                <Select
+                  value={relatedLink || "none"}
+                  onValueChange={(v) => setRelatedLink(v === "none" ? "" : v)}
+                >
+                  <SelectTrigger className="h-9">
+                    <SelectValue placeholder="ไม่มี" />
+                  </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="none">ไม่มี</SelectItem>
                     {FEATURE_LINKS.map((f) => (
-                      <SelectItem key={f.value} value={f.value}>{f.label}</SelectItem>
+                      <SelectItem key={f.value} value={f.value}>
+                        {f.label}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -415,7 +468,7 @@ function ArticleEditorDialog({
                   maxLength={70}
                 />
                 <CharCounter
-                  current={(effectiveMetaTitle).length}
+                  current={effectiveMetaTitle.length}
                   warn={50}
                   max={60}
                   hint="ดีที่สุด 50–60 ตัวอักษร"
@@ -445,10 +498,7 @@ function ArticleEditorDialog({
                 🖼️ รูปปก
               </h4>
 
-              <FeaturedImageUploader
-                value={featuredImage}
-                onChange={setFeaturedImage}
-              />
+              <FeaturedImageUploader value={featuredImage} onChange={setFeaturedImage} />
 
               <div className="space-y-1.5">
                 <Label className="text-xs">Featured Image URL</Label>
@@ -470,7 +520,12 @@ function ArticleEditorDialog({
                 />
               </div>
               {relatedLink && (
-                <a href={relatedLink} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-[10px] text-primary hover:underline mt-2">
+                <a
+                  href={relatedLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1.5 text-[10px] text-primary hover:underline mt-2"
+                >
                   <ExternalLink className="h-3 w-3" />
                   ทดสอบลิงก์ CTA
                 </a>
@@ -480,7 +535,9 @@ function ArticleEditorDialog({
         </div>
 
         <DialogFooter className="gap-2 mt-4">
-          <Button variant="outline" onClick={onClose} disabled={saving}>ยกเลิก</Button>
+          <Button variant="outline" onClick={onClose} disabled={saving}>
+            ยกเลิก
+          </Button>
           <Button variant="secondary" onClick={() => save(false)} disabled={saving}>
             บันทึกฉบับร่าง
           </Button>
@@ -493,16 +550,31 @@ function ArticleEditorDialog({
   );
 }
 
-function CharCounter({ current, warn, max, hint }: { current: number; warn: number; max: number; hint: string }) {
+function CharCounter({
+  current,
+  warn,
+  max,
+  hint,
+}: {
+  current: number;
+  warn: number;
+  max: number;
+  hint: string;
+}) {
   const color =
-    current === 0 ? "text-muted-foreground" :
-    current > max ? "text-destructive" :
-    current >= warn ? "text-emerald-600 dark:text-emerald-400" :
-    "text-amber-600 dark:text-amber-400";
+    current === 0
+      ? "text-muted-foreground"
+      : current > max
+        ? "text-destructive"
+        : current >= warn
+          ? "text-emerald-600 dark:text-emerald-400"
+          : "text-amber-600 dark:text-amber-400";
   return (
     <div className="flex items-center justify-between text-[10px]">
       <span className="text-muted-foreground">{hint}</span>
-      <span className={color}>{current} / {max}</span>
+      <span className={color}>
+        {current} / {max}
+      </span>
     </div>
   );
 }
@@ -578,7 +650,11 @@ function FeaturedImageUploader({
               disabled={uploading}
               className="gap-1.5"
             >
-              {uploading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Upload className="h-3.5 w-3.5" />}
+              {uploading ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <Upload className="h-3.5 w-3.5" />
+              )}
               เปลี่ยนรูป
             </Button>
             <Button

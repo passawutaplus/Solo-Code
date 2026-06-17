@@ -17,9 +17,14 @@ export function LandingFeaturesTabs() {
   const [tab, setTab] = React.useState<string>("jobs");
 
   return (
-    <section id="features" className="mx-auto max-w-6xl px-4 py-14 sm:py-20 bg-muted/25 rounded-3xl my-4 sm:my-6">
+    <section
+      id="features"
+      className="mx-auto max-w-6xl px-4 py-14 sm:py-20 bg-muted/25 rounded-3xl my-4 sm:my-6"
+    >
       <FadeUp className="text-center max-w-2xl mx-auto mb-8">
-        <h3 className="text-2xl sm:text-3xl font-bold tracking-tight">ฟีเจอร์ที่ครบทุกมุมการทำงาน</h3>
+        <h3 className="text-2xl sm:text-3xl font-bold tracking-tight">
+          ฟีเจอร์ที่ครบทุกมุมการทำงาน
+        </h3>
         <p className="mt-3 text-sm sm:text-base text-muted-foreground">
           ออกแบบมาเพื่อฟรีแลนซ์โดยเฉพาะ ตั้งแต่รับงาน บริหาร ไปจนถึงเก็บเงินและยื่นภาษี
         </p>
@@ -53,7 +58,9 @@ export function LandingFeaturesTabs() {
                         </div>
                         <div>
                           <h4 className="text-sm font-semibold">{item.title}</h4>
-                          <p className="mt-0.5 text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
+                          <p className="mt-0.5 text-sm text-muted-foreground leading-relaxed">
+                            {item.desc}
+                          </p>
                         </div>
                       </li>
                     ))}
@@ -71,7 +78,11 @@ export function LandingFeaturesTabs() {
                             exit="exit"
                             transition={carouselSlideTransition}
                           >
-                            <MockupImage src={mock.src} alt={mock.alt} className="h-full w-full object-cover object-top" />
+                            <MockupImage
+                              src={mock.src}
+                              alt={mock.alt}
+                              className="h-full w-full object-cover object-top"
+                            />
                           </motion.div>
                         </AnimatePresence>
                       </div>

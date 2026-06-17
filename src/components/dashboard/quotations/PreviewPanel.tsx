@@ -53,7 +53,12 @@ const DOC_META: Record<DocKind, { label: string; en: string }> = {
   receipt: { label: "ใบเสร็จรับเงิน", en: "RECEIPT" },
 };
 
-export function PreviewPanel({ q, docKind = "quotation", themeOverride, showTimelineSection }: Props) {
+export function PreviewPanel({
+  q,
+  docKind = "quotation",
+  themeOverride,
+  showTimelineSection,
+}: Props) {
   const { data: usageRights } = useUsageRightsById(q.usageRightsId);
   const { profile } = useAuth();
   const { tier } = useSubscription();
@@ -86,9 +91,14 @@ export function PreviewPanel({ q, docKind = "quotation", themeOverride, showTime
   );
 
   // Attached brief reference (title only — used as a small footnote in header)
-  const [briefRef, setBriefRef] = React.useState<{ title: string; share_token: string } | null>(null);
+  const [briefRef, setBriefRef] = React.useState<{ title: string; share_token: string } | null>(
+    null,
+  );
   React.useEffect(() => {
-    if (!q.briefId) { setBriefRef(null); return; }
+    if (!q.briefId) {
+      setBriefRef(null);
+      return;
+    }
     let cancelled = false;
     supabase
       .from("design_briefs")
@@ -99,26 +109,31 @@ export function PreviewPanel({ q, docKind = "quotation", themeOverride, showTime
         if (cancelled) return;
         setBriefRef(data ? { title: data.title, share_token: data.share_token } : null);
       });
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [q.briefId]);
   const meta = DOC_META[docKind];
-  const hasTimelineContent =
-    !!(q.startDate || q.endDate || q.milestones.length > 0 || revisionDates.length > 0);
-  const showTimeline =
-    showTimelineSection !== undefined ? showTimelineSection : hasTimelineContent;
+  const hasTimelineContent = !!(
+    q.startDate ||
+    q.endDate ||
+    q.milestones.length > 0 ||
+    revisionDates.length > 0
+  );
+  const showTimeline = showTimelineSection !== undefined ? showTimelineSection : hasTimelineContent;
   // Resolve the document number to display (เลขที่เอกสาร) per kind
   const docNumber =
     docKind === "invoice"
       ? q.invoiceNumber || q.number.replace(/^QT-/, "INV-")
       : docKind === "receipt"
-      ? q.receiptNumber || q.number.replace(/^QT-/, "RC-")
-      : q.number;
+        ? q.receiptNumber || q.number.replace(/^QT-/, "RC-")
+        : q.number;
   const docDate =
     docKind === "invoice"
       ? q.invoiceIssuedAt
       : docKind === "receipt"
-      ? q.receiptIssuedAt || q.paidAt
-      : undefined;
+        ? q.receiptIssuedAt || q.paidAt
+        : undefined;
 
   // Build a flat line-item list combining services + enabled add-ons + difficulties + hidden cost
   const lineItems: { name: string; description?: string; amount: number; meta?: string }[] = [];
@@ -195,19 +210,13 @@ export function PreviewPanel({ q, docKind = "quotation", themeOverride, showTime
             {tagline ? (
               <p className="text-[11px] text-neutral-500 mt-1">{tagline}</p>
             ) : (
-              !issuer && (
-                <p className="text-[11px] text-neutral-500 mt-1">
-                  {brandName}
-                </p>
-              )
+              !issuer && <p className="text-[11px] text-neutral-500 mt-1">{brandName}</p>
             )}
           </div>
           <div className="text-right flex-shrink-0 space-y-1">
             <p className="text-[10px] uppercase tracking-wider text-neutral-400">เลขที่</p>
             <p className="text-sm font-semibold num text-neutral-900">{docNumber}</p>
-            <p className="text-[11px] text-neutral-500 num pt-1">
-              {fmtThaiLong(docDate || today)}
-            </p>
+            <p className="text-[11px] text-neutral-500 num pt-1">{fmtThaiLong(docDate || today)}</p>
             {docKind !== "quotation" && (
               <p className="text-[10px] text-neutral-400 num">อ้างอิง {q.number}</p>
             )}
@@ -227,12 +236,8 @@ export function PreviewPanel({ q, docKind = "quotation", themeOverride, showTime
         {/* ── FROM / TO ── */}
         <div className="grid grid-cols-2 gap-6 pb-2">
           <div>
-            <p className="text-[10px] uppercase tracking-wider text-neutral-400 mb-1">
-              จาก / FROM
-            </p>
-            <p className="text-sm font-semibold text-neutral-900">
-              {brandName}
-            </p>
+            <p className="text-[10px] uppercase tracking-wider text-neutral-400 mb-1">จาก / FROM</p>
+            <p className="text-sm font-semibold text-neutral-900">{brandName}</p>
             {issuerAddress && (
               <p className="text-[10px] text-neutral-600 leading-snug mt-0.5 whitespace-pre-line">
                 {issuerAddress}
@@ -272,7 +277,9 @@ export function PreviewPanel({ q, docKind = "quotation", themeOverride, showTime
           </div>
           {showTimeline && (
             <div className="text-right">
-              <p className="text-[10px] uppercase tracking-wider text-neutral-400 mb-0.5">ระยะเวลา</p>
+              <p className="text-[10px] uppercase tracking-wider text-neutral-400 mb-0.5">
+                ระยะเวลา
+              </p>
               <p className="text-sm font-medium text-neutral-900 num">
                 {fmtThaiShort(q.startDate)} — {fmtThaiShort(q.endDate)}
               </p>
@@ -325,12 +332,13 @@ export function PreviewPanel({ q, docKind = "quotation", themeOverride, showTime
         {/* ── TOTALS (right-aligned column) ── */}
         <div className="flex justify-end">
           <div className="w-full max-w-[58%] space-y-1.5">
-            <TotalRow label="ยอดรวมก่อนภาษี" value={`฿${formatBaht(totals.preTaxBeforeDiscount)}`} />
+            <TotalRow
+              label="ยอดรวมก่อนภาษี"
+              value={`฿${formatBaht(totals.preTaxBeforeDiscount)}`}
+            />
             {totals.discountAmount > 0 && (
               <TotalRow
-                label={
-                  q.discountKind === "percent" ? `ส่วนลด (${q.discountValue}%)` : "ส่วนลด"
-                }
+                label={q.discountKind === "percent" ? `ส่วนลด (${q.discountValue}%)` : "ส่วนลด"}
                 value={`−฿${formatBaht(totals.discountAmount)}`}
                 tone="text-emerald-600"
               />
@@ -419,7 +427,9 @@ export function PreviewPanel({ q, docKind = "quotation", themeOverride, showTime
                   src={profile.payment_qr_url}
                   alt="QR Payment"
                   className="h-20 w-20 ml-auto object-contain"
-                 loading="lazy" decoding="async" />
+                  loading="lazy"
+                  decoding="async"
+                />
                 <p className="text-[9px] text-neutral-500 mt-0.5">สแกนเพื่อชำระเงิน</p>
               </div>
             )}
@@ -463,9 +473,7 @@ export function PreviewPanel({ q, docKind = "quotation", themeOverride, showTime
         {/* ── TERMS / NOTES ── */}
         {profile?.terms && (
           <div className="pt-1">
-            <p className="text-[11px] font-semibold text-neutral-700 mb-1.5">
-              หมายเหตุและเงื่อนไข
-            </p>
+            <p className="text-[11px] font-semibold text-neutral-700 mb-1.5">หมายเหตุและเงื่อนไข</p>
             <ul className="space-y-1 text-[10.5px] text-neutral-700">
               {profile.terms
                 .split("\n")
@@ -483,9 +491,7 @@ export function PreviewPanel({ q, docKind = "quotation", themeOverride, showTime
         {/* ── TIMELINE / MILESTONES ── */}
         {showTimeline && (q.milestones.length > 0 || revisionDates.length > 0) && (
           <div className="pt-1">
-            <p className="text-[11px] font-semibold text-neutral-700 mb-2">
-              ลำดับงานและกำหนดส่ง
-            </p>
+            <p className="text-[11px] font-semibold text-neutral-700 mb-2">ลำดับงานและกำหนดส่ง</p>
             <div className="space-y-2.5">
               {q.milestones.map((m, i) => {
                 const isLast = i === q.milestones.length - 1;

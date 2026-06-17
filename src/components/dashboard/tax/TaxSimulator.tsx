@@ -20,11 +20,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import {
-  Popover,
-  PopoverTrigger,
-  PopoverContent,
-} from "@/components/ui/popover";
+import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { TaxBracketGauge } from "./TaxBracketGauge";
 import {
   calcThaiTax,
@@ -106,25 +102,141 @@ const GROUPS: Record<GroupKey, { label: string; emoji: string }> = {
 };
 
 const DEDUCTIONS: DeductionDef[] = [
-  { key: "sso", label: "ประกันสังคม (ม.40)", cap: 9000, icon: ShieldCheck, group: "personal", hint: "ตามจริง สูงสุด ฿9,000" },
-  { key: "spouse", label: "คู่สมรส (ไม่มีรายได้)", cap: 60000, icon: Users, group: "personal", hint: "฿60,000" },
-  { key: "parents", label: "ค่าเลี้ยงดูบิดามารดา", cap: 60000, icon: Users, group: "personal", hint: "คนละ ฿30,000 รวมสูงสุด ฿60,000" },
-  { key: "child", label: "บุตร", cap: 60000, icon: Baby, group: "personal", hint: "คนละ ฿30,000 (คนที่ 2 ปี 61+ = ฿60k)" },
-  { key: "homeLoan", label: "ดอกเบี้ยบ้าน", cap: 100000, icon: HomeIcon, group: "personal", hint: "ตามจริง สูงสุด ฿100,000" },
+  {
+    key: "sso",
+    label: "ประกันสังคม (ม.40)",
+    cap: 9000,
+    icon: ShieldCheck,
+    group: "personal",
+    hint: "ตามจริง สูงสุด ฿9,000",
+  },
+  {
+    key: "spouse",
+    label: "คู่สมรส (ไม่มีรายได้)",
+    cap: 60000,
+    icon: Users,
+    group: "personal",
+    hint: "฿60,000",
+  },
+  {
+    key: "parents",
+    label: "ค่าเลี้ยงดูบิดามารดา",
+    cap: 60000,
+    icon: Users,
+    group: "personal",
+    hint: "คนละ ฿30,000 รวมสูงสุด ฿60,000",
+  },
+  {
+    key: "child",
+    label: "บุตร",
+    cap: 60000,
+    icon: Baby,
+    group: "personal",
+    hint: "คนละ ฿30,000 (คนที่ 2 ปี 61+ = ฿60k)",
+  },
+  {
+    key: "homeLoan",
+    label: "ดอกเบี้ยบ้าน",
+    cap: 100000,
+    icon: HomeIcon,
+    group: "personal",
+    hint: "ตามจริง สูงสุด ฿100,000",
+  },
 
-  { key: "lifeInsurance", label: "ประกันชีวิต", cap: 100000, icon: HeartPulse, group: "insurance", hint: "กรมธรรม์ ≥10 ปี สูงสุด ฿100,000" },
-  { key: "healthInsurance", label: "ประกันสุขภาพตนเอง", cap: 25000, icon: Stethoscope, group: "insurance", hint: "รวมกับประกันชีวิต ≤ ฿100,000" },
-  { key: "parentsHealth", label: "ประกันสุขภาพบิดามารดา", cap: 15000, icon: HeartPulse, group: "insurance", hint: "สูงสุด ฿15,000" },
-  { key: "pensionInsurance", label: "ประกันบำนาญ", cap: 200000, icon: ShieldCheck, group: "insurance", hint: "≤15% เงินได้ สูงสุด ฿200,000" },
+  {
+    key: "lifeInsurance",
+    label: "ประกันชีวิต",
+    cap: 100000,
+    icon: HeartPulse,
+    group: "insurance",
+    hint: "กรมธรรม์ ≥10 ปี สูงสุด ฿100,000",
+  },
+  {
+    key: "healthInsurance",
+    label: "ประกันสุขภาพตนเอง",
+    cap: 25000,
+    icon: Stethoscope,
+    group: "insurance",
+    hint: "รวมกับประกันชีวิต ≤ ฿100,000",
+  },
+  {
+    key: "parentsHealth",
+    label: "ประกันสุขภาพบิดามารดา",
+    cap: 15000,
+    icon: HeartPulse,
+    group: "insurance",
+    hint: "สูงสุด ฿15,000",
+  },
+  {
+    key: "pensionInsurance",
+    label: "ประกันบำนาญ",
+    cap: 200000,
+    icon: ShieldCheck,
+    group: "insurance",
+    hint: "≤15% เงินได้ สูงสุด ฿200,000",
+  },
 
-  { key: "ssf", label: "SSF (กองทุนรวมเพื่อการออม)", cap: 200000, icon: Landmark, group: "investment", hint: "≤30% เงินได้ สูงสุด ฿200,000", pctCap: 0.3 },
-  { key: "rmf", label: "RMF (กองทุนเลี้ยงชีพ)", cap: 500000, icon: Landmark, group: "investment", hint: "≤30% เงินได้ สูงสุด ฿500,000", pctCap: 0.3 },
-  { key: "thaiESG", label: "Thai ESG", cap: 300000, icon: Landmark, group: "investment", hint: "ถือ 5 ปี, ≤30% เงินได้ สูงสุด ฿300,000", pctCap: 0.3 },
-  { key: "pvd", label: "PVD / กบข. / กอช.", cap: 500000, icon: Landmark, group: "investment", hint: "รวมเกษียณอื่นไม่เกิน ฿500,000" },
+  {
+    key: "ssf",
+    label: "SSF (กองทุนรวมเพื่อการออม)",
+    cap: 200000,
+    icon: Landmark,
+    group: "investment",
+    hint: "≤30% เงินได้ สูงสุด ฿200,000",
+    pctCap: 0.3,
+  },
+  {
+    key: "rmf",
+    label: "RMF (กองทุนเลี้ยงชีพ)",
+    cap: 500000,
+    icon: Landmark,
+    group: "investment",
+    hint: "≤30% เงินได้ สูงสุด ฿500,000",
+    pctCap: 0.3,
+  },
+  {
+    key: "thaiESG",
+    label: "Thai ESG",
+    cap: 300000,
+    icon: Landmark,
+    group: "investment",
+    hint: "ถือ 5 ปี, ≤30% เงินได้ สูงสุด ฿300,000",
+    pctCap: 0.3,
+  },
+  {
+    key: "pvd",
+    label: "PVD / กบข. / กอช.",
+    cap: 500000,
+    icon: Landmark,
+    group: "investment",
+    hint: "รวมเกษียณอื่นไม่เกิน ฿500,000",
+  },
 
-  { key: "shopping", label: "Easy E-Receipt 2025", cap: 50000, icon: ShoppingBag, group: "economy", hint: "e-Tax Invoice/e-Receipt สูงสุด ฿50,000" },
-  { key: "education", label: "บริจาคเพื่อการศึกษา (×2)", cap: 0, icon: GraduationCap, group: "economy", hint: "ลดหย่อนได้ 2 เท่า", doubled: true },
-  { key: "donation", label: "เงินบริจาคทั่วไป", cap: 0, icon: HandCoins, group: "economy", hint: "ตามจริง ≤10% เงินได้" },
+  {
+    key: "shopping",
+    label: "Easy E-Receipt 2025",
+    cap: 50000,
+    icon: ShoppingBag,
+    group: "economy",
+    hint: "e-Tax Invoice/e-Receipt สูงสุด ฿50,000",
+  },
+  {
+    key: "education",
+    label: "บริจาคเพื่อการศึกษา (×2)",
+    cap: 0,
+    icon: GraduationCap,
+    group: "economy",
+    hint: "ลดหย่อนได้ 2 เท่า",
+    doubled: true,
+  },
+  {
+    key: "donation",
+    label: "เงินบริจาคทั่วไป",
+    cap: 0,
+    icon: HandCoins,
+    group: "economy",
+    hint: "ตามจริง ≤10% เงินได้",
+  },
 ];
 
 const DEFAULT_PERSONAL = 60_000;
@@ -262,8 +374,7 @@ export function TaxSimulator({ open, onOpenChange, currentIncome }: Props) {
 
   const actualTotal = actualItems.reduce((s, x) => s + (x.amount || 0), 0);
 
-  const expense =
-    expMethod === "lumpsum" ? lumpSumExpense : Math.min(actualTotal, totalGross);
+  const expense = expMethod === "lumpsum" ? lumpSumExpense : Math.min(actualTotal, totalGross);
 
   const computeDeductionFor = React.useCallback(
     (d: DeductionDef, raw: number) => {
@@ -419,7 +530,9 @@ export function TaxSimulator({ open, onOpenChange, currentIncome }: Props) {
             <Badge className="bg-primary/15 text-primary border-primary/40 border">
               🚧 โหมดจำลองวางแผนภาษี · Simulation Mode
             </Badge>
-            <Badge variant="outline" className="text-[10px]">ทดลองได้ไม่กระทบข้อมูลจริง</Badge>
+            <Badge variant="outline" className="text-[10px]">
+              ทดลองได้ไม่กระทบข้อมูลจริง
+            </Badge>
           </div>
           <DialogTitle className="text-xl flex items-center gap-2 text-foreground">
             <Sparkles className="h-5 w-5 text-primary" />
@@ -463,9 +576,7 @@ export function TaxSimulator({ open, onOpenChange, currentIncome }: Props) {
                       max={12}
                       value={defaultMonths}
                       onChange={(e) =>
-                        setDefaultMonths(
-                          Math.min(12, Math.max(1, Number(e.target.value) || 1)),
-                        )
+                        setDefaultMonths(Math.min(12, Math.max(1, Number(e.target.value) || 1)))
                       }
                       className="h-8 w-16 num text-sm"
                     />
@@ -497,12 +608,21 @@ export function TaxSimulator({ open, onOpenChange, currentIncome }: Props) {
                         </span>
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-medium truncate">
-                            {it.name || <span className="text-muted-foreground italic">ยังไม่ได้ตั้งชื่อ — กดเพื่อแก้ไข</span>}
+                            {it.name || (
+                              <span className="text-muted-foreground italic">
+                                ยังไม่ได้ตั้งชื่อ — กดเพื่อแก้ไข
+                              </span>
+                            )}
                           </p>
                           <p className="text-[11px] text-muted-foreground">
                             {INCOME_TYPE_META[it.type].section} ·{" "}
                             <span className="num">฿{formatTHB(Math.round(annual))}</span>/ปี
-                            {it.hasWht && <> · WHT <span className="num">฿{formatTHB(Math.round(wht))}</span></>}
+                            {it.hasWht && (
+                              <>
+                                {" "}
+                                · WHT <span className="num">฿{formatTHB(Math.round(wht))}</span>
+                              </>
+                            )}
                           </p>
                         </div>
                         {!expanded && (
@@ -580,7 +700,10 @@ export function TaxSimulator({ open, onOpenChange, currentIncome }: Props) {
                                   value={it.months}
                                   onChange={(e) =>
                                     updateItem(it.id, {
-                                      months: Math.min(12, Math.max(1, Number(e.target.value) || 1)),
+                                      months: Math.min(
+                                        12,
+                                        Math.max(1, Number(e.target.value) || 1),
+                                      ),
                                     })
                                   }
                                   className="h-9 w-20 num text-sm"
@@ -607,9 +730,7 @@ export function TaxSimulator({ open, onOpenChange, currentIncome }: Props) {
                                 {it.hasWht && (
                                   <Select
                                     value={String(it.whtRate)}
-                                    onValueChange={(v) =>
-                                      updateItem(it.id, { whtRate: Number(v) })
-                                    }
+                                    onValueChange={(v) => updateItem(it.id, { whtRate: Number(v) })}
                                   >
                                     <SelectTrigger className="h-7 w-[70px] text-xs">
                                       <SelectValue />
@@ -691,7 +812,8 @@ export function TaxSimulator({ open, onOpenChange, currentIncome }: Props) {
 
               {expMethod === "lumpsum" ? (
                 <p className="text-[11px] text-muted-foreground">
-                  ระบบจะหักให้อัตโนมัติตามมาตรา 40 — เช่น 40(2) เหมา 50% (ไม่เกิน 100k), 40(8) เหมา 60%
+                  ระบบจะหักให้อัตโนมัติตามมาตรา 40 — เช่น 40(2) เหมา 50% (ไม่เกิน 100k), 40(8) เหมา
+                  60%
                 </p>
               ) : (
                 <div className="space-y-2">
@@ -701,8 +823,13 @@ export function TaxSimulator({ open, onOpenChange, currentIncome }: Props) {
                     </p>
                   )}
                   {actualItems.map((a, idx) => (
-                    <div key={a.id} className="grid grid-cols-[auto_1fr_auto_auto] gap-2 items-center">
-                      <span className="text-[11px] text-muted-foreground w-5 text-center">{idx + 1}.</span>
+                    <div
+                      key={a.id}
+                      className="grid grid-cols-[auto_1fr_auto_auto] gap-2 items-center"
+                    >
+                      <span className="text-[11px] text-muted-foreground w-5 text-center">
+                        {idx + 1}.
+                      </span>
                       <Input
                         value={a.name}
                         onChange={(e) => updateActual(a.id, { name: e.target.value })}
@@ -759,7 +886,7 @@ export function TaxSimulator({ open, onOpenChange, currentIncome }: Props) {
             >
               <Tabs value={tab} onValueChange={(v) => setTab(v as GroupKey)}>
                 <TabsList className="grid grid-cols-2 sm:grid-cols-4 h-auto p-1 gap-1 w-full">
-                  {(Object.entries(GROUPS) as [GroupKey, typeof GROUPS[GroupKey]][]).map(
+                  {(Object.entries(GROUPS) as [GroupKey, (typeof GROUPS)[GroupKey]][]).map(
                     ([k, g]) => (
                       <TabsTrigger
                         key={k}
@@ -807,9 +934,7 @@ export function TaxSimulator({ open, onOpenChange, currentIncome }: Props) {
                         <div
                           key={d.key}
                           className={`rounded-lg border p-3 transition-colors ${
-                            checked
-                              ? "border-primary/50 bg-primary/5"
-                              : "border-border bg-card/30"
+                            checked ? "border-primary/50 bg-primary/5" : "border-border bg-card/30"
                           }`}
                         >
                           <div className="flex items-start gap-2">
@@ -827,9 +952,7 @@ export function TaxSimulator({ open, onOpenChange, currentIncome }: Props) {
                                 <p className="text-sm font-medium leading-tight">{d.label}</p>
                                 <Switch
                                   checked={checked}
-                                  onCheckedChange={(v) =>
-                                    setActive((s) => ({ ...s, [d.key]: v }))
-                                  }
+                                  onCheckedChange={(v) => setActive((s) => ({ ...s, [d.key]: v }))}
                                 />
                               </div>
                               <p className="text-[10px] text-muted-foreground mt-0.5">{d.hint}</p>
@@ -903,9 +1026,7 @@ export function TaxSimulator({ open, onOpenChange, currentIncome }: Props) {
                 </div>
                 <div
                   className={`rounded-xl border p-3 text-center ${
-                    diff > 0
-                      ? "border-warning/40 bg-warning/10"
-                      : "border-success/40 bg-success/10"
+                    diff > 0 ? "border-warning/40 bg-warning/10" : "border-success/40 bg-success/10"
                   }`}
                 >
                   <p className="text-[10px] text-muted-foreground">
@@ -929,7 +1050,10 @@ export function TaxSimulator({ open, onOpenChange, currentIncome }: Props) {
               <div className="rounded-xl border border-border bg-white p-3 space-y-1.5 text-xs">
                 <p className="font-semibold text-sm mb-1">📊 สรุปการคำนวณ</p>
                 <Row label="รายได้รวมทั้งปี" value={totalGross} />
-                <Row label={`- ค่าใช้จ่าย (${expMethod === "lumpsum" ? "เหมา" : "จริง"})`} value={-expense} />
+                <Row
+                  label={`- ค่าใช้จ่าย (${expMethod === "lumpsum" ? "เหมา" : "จริง"})`}
+                  value={-expense}
+                />
                 <Row label="- ลดหย่อนส่วนตัว" value={-personal} />
                 <Row label="- ลดหย่อนเพิ่มเติม" value={-activeDeductionTotal} />
                 <div className="border-t border-border/60 pt-1.5 mt-1.5">
@@ -1126,8 +1250,8 @@ function Stat({
         accent
           ? "border-primary/40 bg-primary/5"
           : muted
-          ? "border-border bg-muted/30"
-          : "border-border bg-card/40"
+            ? "border-border bg-muted/30"
+            : "border-border bg-card/40"
       }`}
     >
       <p className="text-[10px] text-muted-foreground leading-tight">{label}</p>

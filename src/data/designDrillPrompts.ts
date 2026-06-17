@@ -20,23 +20,18 @@ export interface DrillPromptTemplate {
   freeHint?: string;
 }
 
-export const DRILL_CATEGORY_META: Record<
-  DrillCategory,
-  { label: string; anthemCategory: string }
-> = {
-  logo: { label: "Logo", anthemCategory: "Graphic" },
-  uiux: { label: "UI/UX", anthemCategory: "Web/UI" },
-  poster: { label: "Poster", anthemCategory: "Graphic" },
-  social: { label: "Social", anthemCategory: "Graphic" },
-  illustration: { label: "Illustration", anthemCategory: "Illustration" },
-  branding: { label: "Branding", anthemCategory: "Branding" },
-  typography: { label: "Typography", anthemCategory: "Graphic" },
-};
+export const DRILL_CATEGORY_META: Record<DrillCategory, { label: string; anthemCategory: string }> =
+  {
+    logo: { label: "Logo", anthemCategory: "Graphic" },
+    uiux: { label: "UI/UX", anthemCategory: "Web/UI" },
+    poster: { label: "Poster", anthemCategory: "Graphic" },
+    social: { label: "Social", anthemCategory: "Graphic" },
+    illustration: { label: "Illustration", anthemCategory: "Illustration" },
+    branding: { label: "Branding", anthemCategory: "Branding" },
+    typography: { label: "Typography", anthemCategory: "Graphic" },
+  };
 
-export const DRILL_DIFFICULTY_META: Record<
-  DrillDifficulty,
-  { label: string; hint: string }
-> = {
+export const DRILL_DIFFICULTY_META: Record<DrillDifficulty, { label: string; hint: string }> = {
   easy: { label: "ง่าย", hint: "30–45 นาที" },
   medium: { label: "กลาง", hint: "1–2 ชม." },
   hard: { label: "ท้าทาย", hint: "2–4 ชม." },
@@ -111,7 +106,8 @@ export const DRILL_PROMPTS: DrillPromptTemplate[] = [
     id: "logo-h1",
     category: "logo",
     difficulty: "hard",
-    brief: "ออกแบบ logo + sub-brand lockup สำหรับ media group ที่มี 3 vertical (news, podcast, events)",
+    brief:
+      "ออกแบบ logo + sub-brand lockup สำหรับ media group ที่มี 3 vertical (news, podcast, events)",
     constraints: ["ใช้สีได้ไม่เกิน 2 สี + ขาว/ดำ", "ต้องมี negative space อย่างน้อย 40%"],
     timeHint: "3 ชม.",
   },
@@ -163,7 +159,8 @@ export const DRILL_PROMPTS: DrillPromptTemplate[] = [
     id: "uiux-h1",
     category: "uiux",
     difficulty: "hard",
-    brief: "ออกแบบ design system starter: color tokens, typography scale, button + input components",
+    brief:
+      "ออกแบบ design system starter: color tokens, typography scale, button + input components",
     constraints: ["ใช้สีได้ไม่เกิน 2 สี + ขาว/ดำ", "ต้อง responsive 3 breakpoints"],
     timeHint: "4 ชม.",
   },
@@ -285,7 +282,8 @@ export const DRILL_PROMPTS: DrillPromptTemplate[] = [
     id: "ill-e1",
     category: "illustration",
     difficulty: "easy",
-    brief: "วาด icon set 6 icons สำหรับ productivity app (task, calendar, note, timer, folder, star)",
+    brief:
+      "วาด icon set 6 icons สำหรับ productivity app (task, calendar, note, timer, folder, star)",
     constraints: ["ใช้ geometric shape เป็นหลัก", "ห้ามใช้ gradient"],
     timeHint: "45 นาที",
   },
@@ -354,7 +352,8 @@ export const DRILL_PROMPTS: DrillPromptTemplate[] = [
     id: "brand-m1",
     category: "branding",
     difficulty: "medium",
-    brief: "สร้าง mini brand guide: logo usage, colors, typography, do/don't สำหรับ skincare startup",
+    brief:
+      "สร้าง mini brand guide: logo usage, colors, typography, do/don't สำหรับ skincare startup",
     constraints: ["ต้องทำงานได้ทั้งพื้นเข้มและพื้นอ่อน", "ใช้ grid 8px ทั้งชิ้น"],
     timeHint: "2 ชม.",
   },
@@ -371,7 +370,8 @@ export const DRILL_PROMPTS: DrillPromptTemplate[] = [
     id: "brand-h1",
     category: "branding",
     difficulty: "hard",
-    brief: "Rebrand identity ครบชุด: logo, palette, typography, pattern, social templates สำหรับ hotel boutique",
+    brief:
+      "Rebrand identity ครบชุด: logo, palette, typography, pattern, social templates สำหรับ hotel boutique",
     constraints: ["ต้องทำงานได้ทั้งพื้นเข้มและพื้นอ่อน", "ต้องมี negative space อย่างน้อย 40%"],
     timeHint: "4 ชม.",
   },

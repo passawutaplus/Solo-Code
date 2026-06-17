@@ -22,7 +22,15 @@ import {
 import { Plus, AlertCircle, UserPlus, Trash2, Eye, ImageIcon, Loader2 } from "lucide-react";
 import { sanitizeText, safeUrl } from "@/lib/security";
 import { toast } from "sonner";
-import { Platform, Post, Status, PLATFORM_META, STATUS_META, todayISO, colorForClient } from "./contentMeta";
+import {
+  Platform,
+  Post,
+  Status,
+  PLATFORM_META,
+  STATUS_META,
+  todayISO,
+  colorForClient,
+} from "./contentMeta";
 import { AiAssistButton } from "./AiAssistButton";
 import { PostPreviewMockup } from "./PostPreviewMockup";
 import { PostPreviewDialog } from "./PostPreviewDialog";
@@ -130,7 +138,10 @@ export function PostFormModal({
   };
 
   const handleImageUpload = async (file: File) => {
-    if (!user?.id) { toast.error("กรุณาเข้าสู่ระบบก่อน"); return; }
+    if (!user?.id) {
+      toast.error("กรุณาเข้าสู่ระบบก่อน");
+      return;
+    }
     setUploading(true);
     try {
       const url = await uploadCompressedImage({
@@ -158,7 +169,8 @@ export function PostFormModal({
       touched && showOtherInput && customPlatforms.length === 0
         ? "ระบุชื่อแพลตฟอร์มอื่นๆ อย่างน้อย 1 อัน"
         : "",
-    link: touched && link.trim() && safeUrl(link) === null ? "ลิงก์ไม่ถูกต้อง (ใช้ http/https)" : "",
+    link:
+      touched && link.trim() && safeUrl(link) === null ? "ลิงก์ไม่ถูกต้อง (ใช้ http/https)" : "",
   };
 
   const submit = async () => {
@@ -253,7 +265,13 @@ export function PostFormModal({
             <Label>
               ลูกค้า <span className="text-destructive">*</span>
             </Label>
-            <Select value={clientId} onValueChange={(v) => { setClientId(v); setTouched(true); }}>
+            <Select
+              value={clientId}
+              onValueChange={(v) => {
+                setClientId(v);
+                setTouched(true);
+              }}
+            >
               <SelectTrigger className={`rounded-xl ${errors.client ? "border-destructive" : ""}`}>
                 <SelectValue placeholder="เลือกลูกค้า" />
               </SelectTrigger>
@@ -278,7 +296,9 @@ export function PostFormModal({
             {errors.client && <ErrorText>{errors.client}</ErrorText>}
             {isAddingNew && (
               <div className="grid gap-1.5 mt-2">
-                <Label>ชื่อลูกค้าใหม่ <span className="text-destructive">*</span></Label>
+                <Label>
+                  ชื่อลูกค้าใหม่ <span className="text-destructive">*</span>
+                </Label>
                 <Input
                   value={newClientName}
                   onChange={(e) => setNewClientName(e.target.value)}
@@ -292,7 +312,9 @@ export function PostFormModal({
           </div>
 
           <div className="grid gap-1.5">
-            <Label>หัวข้อ / Topic <span className="text-destructive">*</span></Label>
+            <Label>
+              หัวข้อ / Topic <span className="text-destructive">*</span>
+            </Label>
             <Input
               value={title}
               onChange={(e) => setTitle(e.target.value)}
@@ -306,16 +328,28 @@ export function PostFormModal({
           <div className="grid grid-cols-2 gap-3">
             <div className="grid gap-1.5">
               <Label>วันที่</Label>
-              <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="rounded-xl" />
+              <Input
+                type="date"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+                className="rounded-xl"
+              />
             </div>
             <div className="grid gap-1.5">
               <Label>เวลา</Label>
-              <Input type="time" value={time} onChange={(e) => setTime(e.target.value)} className="rounded-xl" />
+              <Input
+                type="time"
+                value={time}
+                onChange={(e) => setTime(e.target.value)}
+                className="rounded-xl"
+              />
             </div>
           </div>
 
           <div className="grid gap-1.5">
-            <Label>แพลตฟอร์ม <span className="text-destructive">*</span></Label>
+            <Label>
+              แพลตฟอร์ม <span className="text-destructive">*</span>
+            </Label>
             <div className="flex flex-wrap gap-2">
               {(Object.keys(PLATFORM_META) as Platform[]).map((p) => {
                 const M = PLATFORM_META[p];
@@ -325,7 +359,10 @@ export function PostFormModal({
                   <button
                     key={p}
                     type="button"
-                    onClick={() => { togglePlatform(p); setTouched(true); }}
+                    onClick={() => {
+                      togglePlatform(p);
+                      setTouched(true);
+                    }}
                     className={`flex items-center gap-1.5 rounded-xl border px-3 py-1.5 text-xs font-medium transition-all ${
                       active
                         ? "bg-primary text-primary-foreground border-primary shadow-soft"
@@ -347,25 +384,39 @@ export function PostFormModal({
                     value={otherInput}
                     onChange={(e) => setOtherInput(e.target.value)}
                     onKeyDown={(e) => {
-                      if (e.key === "Enter") { e.preventDefault(); addCustomPlatform(); }
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        addCustomPlatform();
+                      }
                     }}
                     placeholder="ระบุ เช่น LINE OA, X, Threads"
                     maxLength={30}
                     className="rounded-xl text-xs"
                   />
-                  <Button type="button" size="sm" variant="outline" onClick={addCustomPlatform} className="rounded-xl">
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    onClick={addCustomPlatform}
+                    className="rounded-xl"
+                  >
                     เพิ่ม
                   </Button>
                 </div>
                 <div className="flex flex-wrap gap-1">
                   {customPlatforms.map((c) => (
-                    <span key={c} className="inline-flex items-center gap-1 rounded-md bg-muted px-2 py-0.5 text-[10px]">
+                    <span
+                      key={c}
+                      className="inline-flex items-center gap-1 rounded-md bg-muted px-2 py-0.5 text-[10px]"
+                    >
                       {c}
                       <button
                         type="button"
                         onClick={() => setCustomPlatforms(customPlatforms.filter((x) => x !== c))}
                         className="text-muted-foreground hover:text-destructive"
-                      >×</button>
+                      >
+                        ×
+                      </button>
                     </span>
                   ))}
                 </div>
@@ -380,7 +431,10 @@ export function PostFormModal({
               <Input
                 type="file"
                 accept="image/*"
-                onChange={(e) => { const f = e.target.files?.[0]; if (f) handleImageUpload(f); }}
+                onChange={(e) => {
+                  const f = e.target.files?.[0];
+                  if (f) handleImageUpload(f);
+                }}
                 className="rounded-xl text-xs"
                 disabled={uploading}
               />
@@ -389,7 +443,13 @@ export function PostFormModal({
             {imageUrl && (
               <div className="mt-1 flex items-center gap-2">
                 <img src={imageUrl} alt="" className="h-16 w-16 rounded-lg object-cover border" />
-                <Button type="button" variant="ghost" size="sm" onClick={() => setImageUrl("")} className="text-xs">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setImageUrl("")}
+                  className="text-xs"
+                >
                   ลบรูป
                 </Button>
               </div>
@@ -420,10 +480,14 @@ export function PostFormModal({
             <div className="grid gap-1.5">
               <Label>สถานะ</Label>
               <Select value={status} onValueChange={(v) => setStatus(v as Status)}>
-                <SelectTrigger className="rounded-xl"><SelectValue /></SelectTrigger>
+                <SelectTrigger className="rounded-xl">
+                  <SelectValue />
+                </SelectTrigger>
                 <SelectContent>
                   {(Object.keys(STATUS_META) as Status[]).map((s) => (
-                    <SelectItem key={s} value={s}>{STATUS_META[s].label}</SelectItem>
+                    <SelectItem key={s} value={s}>
+                      {STATUS_META[s].label}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -478,12 +542,18 @@ export function PostFormModal({
 
         <DialogFooter className="flex-row gap-2 sm:justify-between">
           {mode === "edit" && onDelete && (
-            <Button variant="ghost" onClick={handleDelete} className="rounded-xl text-destructive hover:text-destructive gap-1">
+            <Button
+              variant="ghost"
+              onClick={handleDelete}
+              className="rounded-xl text-destructive hover:text-destructive gap-1"
+            >
               <Trash2 className="h-4 w-4" /> ลบ
             </Button>
           )}
           <div className="flex gap-2 ml-auto">
-            <Button variant="ghost" onClick={() => setOpen(false)} className="rounded-xl">ยกเลิก</Button>
+            <Button variant="ghost" onClick={() => setOpen(false)} className="rounded-xl">
+              ยกเลิก
+            </Button>
             <Button onClick={submit} className="rounded-xl bg-primary hover:bg-primary/90">
               {mode === "create" ? "บันทึก" : "อัปเดต"}
             </Button>

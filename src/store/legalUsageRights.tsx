@@ -193,19 +193,26 @@ export function useLegalChecklist(checklistId: string) {
       if (current.has(itemId)) current.delete(itemId);
       else current.add(itemId);
       const checked = [...current];
-      const { error } = await (supabase as any)
-        .from("legal_checklist_progress")
-        .upsert(
-          { user_id: uid, checklist_id: checklistId, checked_items: checked, updated_at: new Date().toISOString() },
-          { onConflict: "user_id,checklist_id" },
-        );
+      const { error } = await (supabase as any).from("legal_checklist_progress").upsert(
+        {
+          user_id: uid,
+          checklist_id: checklistId,
+          checked_items: checked,
+          updated_at: new Date().toISOString(),
+        },
+        { onConflict: "user_id,checklist_id" },
+      );
       throwIfSupabaseError(error);
       return checked;
     },
     onSuccess: (checked) => qc.setQueryData(key, checked),
   });
 
-  return { checked: progress.data ?? [], toggle: toggle.mutateAsync, isLoading: progress.isLoading };
+  return {
+    checked: progress.data ?? [],
+    toggle: toggle.mutateAsync,
+    isLoading: progress.isLoading,
+  };
 }
 
 export function useLegalDocuments() {

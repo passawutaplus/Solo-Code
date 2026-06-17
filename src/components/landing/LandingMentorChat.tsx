@@ -5,8 +5,16 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import {
-  Sparkles, Send, Palette, Calculator, MessageCircle, Loader2,
-  StopCircle, Trash2, RotateCcw, TrendingUp,
+  Sparkles,
+  Send,
+  Palette,
+  Calculator,
+  MessageCircle,
+  Loader2,
+  StopCircle,
+  Trash2,
+  RotateCcw,
+  TrendingUp,
 } from "lucide-react";
 import { toast } from "sonner";
 import { PriceGuideModal } from "@/components/price-guide/PriceGuideModal";
@@ -37,21 +45,34 @@ const STORAGE_GUEST_USED = "so1o.mentor.guest_used.v1";
 function getGuestId(): string {
   try {
     let id = localStorage.getItem(STORAGE_GUEST);
-    if (!id) { id = crypto.randomUUID(); localStorage.setItem(STORAGE_GUEST, id); }
+    if (!id) {
+      id = crypto.randomUUID();
+      localStorage.setItem(STORAGE_GUEST, id);
+    }
     return id;
-  } catch { return "guest-fallback"; }
+  } catch {
+    return "guest-fallback";
+  }
 }
-function todayStr() { return new Date().toISOString().slice(0, 10); }
+function todayStr() {
+  return new Date().toISOString().slice(0, 10);
+}
 function readGuestUsed(): number {
   try {
     const raw = localStorage.getItem(STORAGE_GUEST_USED);
     if (!raw) return 0;
     const d = JSON.parse(raw);
     return d?.date === todayStr() ? Number(d.count ?? 0) : 0;
-  } catch { return 0; }
+  } catch {
+    return 0;
+  }
 }
 function writeGuestUsed(count: number) {
-  try { localStorage.setItem(STORAGE_GUEST_USED, JSON.stringify({ date: todayStr(), count })); } catch { /* noop */ }
+  try {
+    localStorage.setItem(STORAGE_GUEST_USED, JSON.stringify({ date: todayStr(), count }));
+  } catch {
+    /* noop */
+  }
 }
 
 function inferJobType(text: string): JobType {
@@ -60,9 +81,12 @@ function inferJobType(text: string): JobType {
   if (t.includes("แบรนด์") || t.includes("brand") || t.includes("ci")) return "branding";
   if (t.includes("เว็บ") || t.includes("website") || t.includes("landing")) return "website";
   if (t.includes("ui") || t.includes("ux") || t.includes("แอพ") || t.includes("app")) return "uiux";
-  if (t.includes("วิดีโอ") || t.includes("video") || t.includes("motion") || t.includes("ตัดต่อ")) return "video";
-  if (t.includes("ภาพประกอบ") || t.includes("illustration") || t.includes("กราฟิก")) return "illustration";
-  if (t.includes("คอนเทนต์") || t.includes("content") || t.includes("เขียน") || t.includes("copy")) return "content";
+  if (t.includes("วิดีโอ") || t.includes("video") || t.includes("motion") || t.includes("ตัดต่อ"))
+    return "video";
+  if (t.includes("ภาพประกอบ") || t.includes("illustration") || t.includes("กราฟิก"))
+    return "illustration";
+  if (t.includes("คอนเทนต์") || t.includes("content") || t.includes("เขียน") || t.includes("copy"))
+    return "content";
   if (t.includes("ถ่าย") || t.includes("photo") || t.includes("รีทัช")) return "photography";
   return "other";
 }
@@ -88,19 +112,32 @@ export function LandingMentorChat() {
       const raw = localStorage.getItem(STORAGE_MSGS);
       if (raw) {
         const parsed = JSON.parse(raw) as Msg[];
-        if (Array.isArray(parsed) && parsed.length > 0) { setMsgs(parsed); return; }
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setMsgs(parsed);
+          return;
+        }
       }
-    } catch { /* noop */ }
-    setMsgs([{
-      id: "welcome", role: "assistant",
-      content: "สวัสดีครับ ผมคือ So1o Mentor — พี่เลี้ยงฟรีแลนซ์ของคุณ ลองเลือกหัวข้อด้านล่าง หรือพิมพ์ถามเรื่องราคา ดีไซน์ การคุยลูกค้าได้เลยครับ (ฟรี 5 คำถาม/วัน ไม่ต้องสมัคร)",
-      status: "ok",
-    }]);
+    } catch {
+      /* noop */
+    }
+    setMsgs([
+      {
+        id: "welcome",
+        role: "assistant",
+        content:
+          "สวัสดีครับ ผมคือ So1o Mentor — พี่เลี้ยงฟรีแลนซ์ของคุณ ลองเลือกหัวข้อด้านล่าง หรือพิมพ์ถามเรื่องราคา ดีไซน์ การคุยลูกค้าได้เลยครับ (ฟรี 5 คำถาม/วัน ไม่ต้องสมัคร)",
+        status: "ok",
+      },
+    ]);
   }, []);
 
   React.useEffect(() => {
     if (msgs.length === 0) return;
-    try { localStorage.setItem(STORAGE_MSGS, JSON.stringify(msgs.slice(-30))); } catch { /* noop */ }
+    try {
+      localStorage.setItem(STORAGE_MSGS, JSON.stringify(msgs.slice(-30)));
+    } catch {
+      /* noop */
+    }
   }, [msgs]);
 
   React.useEffect(() => {
@@ -109,7 +146,9 @@ export function LandingMentorChat() {
       try {
         const raw = localStorage.getItem("so1o.lastPriceCtx");
         if (raw) setPriceCtx(JSON.parse(raw));
-      } catch { /* noop */ }
+      } catch {
+        /* noop */
+      }
       return;
     }
     (async () => {
@@ -130,7 +169,11 @@ export function LandingMentorChat() {
           marketAvgMax: Number(data.max_price ?? 0),
         };
         setPriceCtx(ctx);
-        try { localStorage.setItem("so1o.lastPriceCtx", JSON.stringify(ctx)); } catch { /* noop */ }
+        try {
+          localStorage.setItem("so1o.lastPriceCtx", JSON.stringify(ctx));
+        } catch {
+          /* noop */
+        }
       }
     })();
   }, [user]);
@@ -147,9 +190,20 @@ export function LandingMentorChat() {
       return;
     }
 
-    const userMsg: Msg = { id: `u_${Date.now()}`, role: "user", content: text.trim(), status: "ok" };
+    const userMsg: Msg = {
+      id: `u_${Date.now()}`,
+      role: "user",
+      content: text.trim(),
+      status: "ok",
+    };
     const assistantId = `a_${Date.now()}`;
-    const assistantMsg: Msg = { id: assistantId, role: "assistant", content: "", status: "streaming", jobTypeHint: inferJobType(text) };
+    const assistantMsg: Msg = {
+      id: assistantId,
+      role: "assistant",
+      content: "",
+      status: "streaming",
+      jobTypeHint: inferJobType(text),
+    };
     setMsgs((m) => [...m, userMsg, assistantMsg]);
     setInput("");
     setLoading(true);
@@ -171,8 +225,8 @@ export function LandingMentorChat() {
         signal: ctrl.signal,
         headers: {
           "Content-Type": "application/json",
-          "apikey": ANON_KEY,
-          "Authorization": authHeader,
+          apikey: ANON_KEY,
+          Authorization: authHeader,
           "x-guest-id": guestId,
         },
         body: JSON.stringify({
@@ -186,10 +240,17 @@ export function LandingMentorChat() {
       if (resp.status === 429) {
         setUsed(DAILY_LIMIT);
         if (!user) writeGuestUsed(DAILY_LIMIT);
-        setMsgs((m) => m.map((x) => x.id === assistantId ? {
-          ...x, status: "error",
-          content: `วันนี้คุยครบ ${DAILY_LIMIT} คำถามแล้วครับ พรุ่งนี้มาคุยกันต่อนะครับ 🙏`,
-        } : x));
+        setMsgs((m) =>
+          m.map((x) =>
+            x.id === assistantId
+              ? {
+                  ...x,
+                  status: "error",
+                  content: `วันนี้คุยครบ ${DAILY_LIMIT} คำถามแล้วครับ พรุ่งนี้มาคุยกันต่อนะครับ 🙏`,
+                }
+              : x,
+          ),
+        );
         return;
       }
       if (!resp.ok || !resp.body) throw new Error(`http_${resp.status}`);
@@ -228,19 +289,32 @@ export function LandingMentorChat() {
             }
             if (typeof j.delta === "string") {
               acc += j.delta;
-              setMsgs((m) => m.map((x) => x.id === assistantId ? { ...x, content: acc } : x));
+              setMsgs((m) => m.map((x) => (x.id === assistantId ? { ...x, content: acc } : x)));
             }
-          } catch { /* skip */ }
+          } catch {
+            /* skip */
+          }
         }
       }
-      setMsgs((m) => m.map((x) => x.id === assistantId ? { ...x, status: "ok", content: acc || x.content } : x));
+      setMsgs((m) =>
+        m.map((x) =>
+          x.id === assistantId ? { ...x, status: "ok", content: acc || x.content } : x,
+        ),
+      );
     } catch (e) {
       const err = e as Error;
       if (err.name === "AbortError") {
-        setMsgs((m) => m.map((x) => x.id === assistantId ? {
-          ...x, status: "ok",
-          content: (x.content || "") + "\n\n⏹ หยุดการตอบแล้วครับ",
-        } : x));
+        setMsgs((m) =>
+          m.map((x) =>
+            x.id === assistantId
+              ? {
+                  ...x,
+                  status: "ok",
+                  content: (x.content || "") + "\n\n⏹ หยุดการตอบแล้วครับ",
+                }
+              : x,
+          ),
+        );
       } else {
         // Streaming failed — fallback to non-streaming via supabase client
         console.error("[mentor] stream failed, falling back:", err);
@@ -258,10 +332,17 @@ export function LandingMentorChat() {
           if (data?.error === "limit_reached") {
             setUsed(DAILY_LIMIT);
             if (!user) writeGuestUsed(DAILY_LIMIT);
-            setMsgs((m) => m.map((x) => x.id === assistantId ? {
-              ...x, status: "error",
-              content: `วันนี้คุยครบ ${DAILY_LIMIT} คำถามแล้วครับ พรุ่งนี้มาคุยกันต่อนะครับ 🙏`,
-            } : x));
+            setMsgs((m) =>
+              m.map((x) =>
+                x.id === assistantId
+                  ? {
+                      ...x,
+                      status: "error",
+                      content: `วันนี้คุยครบ ${DAILY_LIMIT} คำถามแล้วครับ พรุ่งนี้มาคุยกันต่อนะครับ 🙏`,
+                    }
+                  : x,
+              ),
+            );
             return;
           }
           const reply = String(data?.reply ?? "").trim();
@@ -270,14 +351,23 @@ export function LandingMentorChat() {
             setUsed(data.used);
             if (!user) writeGuestUsed(data.used);
           }
-          setMsgs((m) => m.map((x) => x.id === assistantId ? { ...x, status: "ok", content: reply } : x));
+          setMsgs((m) =>
+            m.map((x) => (x.id === assistantId ? { ...x, status: "ok", content: reply } : x)),
+          );
         } catch (e2) {
           console.error("[mentor] fallback failed:", e2);
           const reason = (e2 as Error)?.message || err.message || "unknown";
-          setMsgs((m) => m.map((x) => x.id === assistantId ? {
-            ...x, status: "error",
-            content: `ขออภัยครับ ส่งไม่สำเร็จ (${reason.slice(0, 80)}) — กดปุ่ม 🔄 ลองใหม่ด้านล่างได้เลย`,
-          } : x));
+          setMsgs((m) =>
+            m.map((x) =>
+              x.id === assistantId
+                ? {
+                    ...x,
+                    status: "error",
+                    content: `ขออภัยครับ ส่งไม่สำเร็จ (${reason.slice(0, 80)}) — กดปุ่ม 🔄 ลองใหม่ด้านล่างได้เลย`,
+                  }
+                : x,
+            ),
+          );
           toast.error("ส่งไม่สำเร็จ ลองอีกครั้งได้");
         }
       }
@@ -287,7 +377,9 @@ export function LandingMentorChat() {
     }
   };
 
-  const stop = () => { abortRef.current?.abort(); };
+  const stop = () => {
+    abortRef.current?.abort();
+  };
 
   const retryLast = () => {
     const lastUser = [...msgs].reverse().find((m) => m.role === "user");
@@ -300,12 +392,19 @@ export function LandingMentorChat() {
   };
 
   const clearChat = () => {
-    setMsgs([{
-      id: "welcome", role: "assistant",
-      content: "เริ่มใหม่ครับ — เลือกหัวข้อหรือพิมพ์คำถามได้เลย",
-      status: "ok",
-    }]);
-    try { localStorage.removeItem(STORAGE_MSGS); } catch { /* noop */ }
+    setMsgs([
+      {
+        id: "welcome",
+        role: "assistant",
+        content: "เริ่มใหม่ครับ — เลือกหัวข้อหรือพิมพ์คำถามได้เลย",
+        status: "ok",
+      },
+    ]);
+    try {
+      localStorage.removeItem(STORAGE_MSGS);
+    } catch {
+      /* noop */
+    }
   };
 
   const openPriceWith = (jobType?: JobType) => {
@@ -313,7 +412,10 @@ export function LandingMentorChat() {
     setShowPriceModal(true);
   };
 
-  const lastError = msgs.length > 0 && msgs[msgs.length - 1].status === "error" && msgs[msgs.length - 1].role === "assistant";
+  const lastError =
+    msgs.length > 0 &&
+    msgs[msgs.length - 1].status === "error" &&
+    msgs[msgs.length - 1].role === "assistant";
   const hasConversation = msgs.filter((m) => m.id !== "welcome").length > 0;
   const streamingMsg = msgs.find((m) => m.status === "streaming");
 
@@ -326,16 +428,23 @@ export function LandingMentorChat() {
             <Sparkles className="h-3 w-3" /> So1o Mentor — AI สำหรับฟรีแลนซ์
           </div>
           <h3 className="text-2xl sm:text-3xl font-bold tracking-tight">
-            พี่เลี้ยง AI ที่อยู่<span className="bg-gradient-primary bg-clip-text text-transparent">ข้างฟรีแลนซ์</span>เสมอ
+            พี่เลี้ยง AI ที่อยู่
+            <span className="bg-gradient-primary bg-clip-text text-transparent">ข้างฟรีแลนซ์</span>
+            เสมอ
           </h3>
           <p className="text-sm text-muted-foreground leading-relaxed">
-            ลองคุยฟรี 5 คำถาม/วัน ไม่ต้องสมัครสมาชิก — So1o Mentor ช่วยคุณตัดสินใจเรื่องสำคัญในงานฟรีแลนซ์
+            ลองคุยฟรี 5 คำถาม/วัน ไม่ต้องสมัครสมาชิก — So1o Mentor
+            ช่วยคุณตัดสินใจเรื่องสำคัญในงานฟรีแลนซ์
           </p>
           <ul className="space-y-2.5">
             {[
               { Icon: Calculator, t: "คิดราคาอย่างมั่นใจ", d: "Markup + WHT 3% + อ้างอิงราคาตลาด" },
               { Icon: Palette, t: "ที่ปรึกษาดีไซน์", d: "สี ฟอนต์ Layout Mood & Tone ครบ" },
-              { Icon: MessageCircle, t: "รับมือลูกค้ายากๆ", d: "ร่างข้อความตอบลูกค้าอย่างมืออาชีพ" },
+              {
+                Icon: MessageCircle,
+                t: "รับมือลูกค้ายากๆ",
+                d: "ร่างข้อความตอบลูกค้าอย่างมืออาชีพ",
+              },
             ].map(({ Icon, t, d }) => (
               <li key={t} className="flex items-start gap-2.5">
                 <div className="h-8 w-8 shrink-0 rounded-lg bg-primary/15 text-primary flex items-center justify-center">
@@ -354,9 +463,12 @@ export function LandingMentorChat() {
                 <TrendingUp className="h-3.5 w-3.5" /> Price Guide ล่าสุด
               </p>
               <p className="text-muted-foreground">
-                งาน <b>{priceCtx.jobType}</b> · {priceCtx.days} วัน · แนะนำ <b className="num">฿{priceCtx.recommended.toLocaleString()}</b>
+                งาน <b>{priceCtx.jobType}</b> · {priceCtx.days} วัน · แนะนำ{" "}
+                <b className="num">฿{priceCtx.recommended.toLocaleString()}</b>
               </p>
-              <p className="text-[10px] text-muted-foreground mt-1">So1o Mentor จะอ้างอิงตัวเลขนี้ในคำตอบ</p>
+              <p className="text-[10px] text-muted-foreground mt-1">
+                So1o Mentor จะอ้างอิงตัวเลขนี้ในคำตอบ
+              </p>
             </div>
           )}
         </div>
@@ -370,25 +482,38 @@ export function LandingMentorChat() {
             <div className="flex-1">
               <p className="text-sm font-semibold leading-none">So1o Mentor</p>
               <p className="text-[10px] text-muted-foreground mt-0.5">
-                {user ? "ออนไลน์ · สมาชิก" : "โหมดทดลอง · ไม่ต้องล็อกอิน"} · ใช้แล้ว {used}/{DAILY_LIMIT} วันนี้
+                {user ? "ออนไลน์ · สมาชิก" : "โหมดทดลอง · ไม่ต้องล็อกอิน"} · ใช้แล้ว {used}/
+                {DAILY_LIMIT} วันนี้
               </p>
             </div>
-            <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={clearChat} title="ล้างบทสนทนา" aria-label="ล้างบทสนทนา">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-7 w-7 p-0"
+              onClick={clearChat}
+              title="ล้างบทสนทนา"
+              aria-label="ล้างบทสนทนา"
+            >
               <Trash2 className="h-3.5 w-3.5" />
             </Button>
           </div>
 
           <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-3">
             {msgs.map((m) => (
-              <div key={m.id} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
+              <div
+                key={m.id}
+                className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}
+              >
                 <div className="max-w-[88%] space-y-1.5">
-                  <div className={`rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed whitespace-pre-wrap ${
-                    m.role === "user"
-                      ? "bg-gradient-primary text-primary-foreground rounded-br-sm"
-                      : m.status === "error"
-                        ? "bg-destructive/10 text-destructive rounded-bl-sm border border-destructive/20"
-                        : "bg-muted text-foreground rounded-bl-sm"
-                  }`}>
+                  <div
+                    className={`rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed whitespace-pre-wrap ${
+                      m.role === "user"
+                        ? "bg-gradient-primary text-primary-foreground rounded-br-sm"
+                        : m.status === "error"
+                          ? "bg-destructive/10 text-destructive rounded-bl-sm border border-destructive/20"
+                          : "bg-muted text-foreground rounded-bl-sm"
+                    }`}
+                  >
                     {m.content}
                     {m.status === "streaming" && (
                       <span className="inline-block w-1.5 h-3.5 bg-primary ml-0.5 align-middle animate-pulse" />
@@ -396,8 +521,10 @@ export function LandingMentorChat() {
                   </div>
                   {m.status === "streaming" && (
                     <div className="h-1 w-full overflow-hidden rounded-full bg-muted">
-                      <div className="h-full w-1/3 bg-gradient-primary animate-[shimmer_1.4s_ease-in-out_infinite]"
-                        style={{ backgroundSize: "200% 100%" }} />
+                      <div
+                        className="h-full w-1/3 bg-gradient-primary animate-[shimmer_1.4s_ease-in-out_infinite]"
+                        style={{ backgroundSize: "200% 100%" }}
+                      />
                     </div>
                   )}
                   {m.role === "assistant" && m.status === "ok" && m.id !== "welcome" && (
@@ -417,10 +544,17 @@ export function LandingMentorChat() {
           {/* Topic gallery: full when no conversation, compact button after */}
           <div className="px-3 pt-3 pb-1 border-t border-border/60 bg-card/60">
             {!hasConversation ? (
-              <MentorTopicGallery onPick={(q) => send(q)} disabled={loading || used >= DAILY_LIMIT} />
+              <MentorTopicGallery
+                onPick={(q) => send(q)}
+                disabled={loading || used >= DAILY_LIMIT}
+              />
             ) : (
               <div className="flex flex-wrap items-center gap-1.5">
-                <MentorTopicGallery compact onPick={(q) => send(q)} disabled={loading || used >= DAILY_LIMIT} />
+                <MentorTopicGallery
+                  compact
+                  onPick={(q) => send(q)}
+                  disabled={loading || used >= DAILY_LIMIT}
+                />
                 {lastError && !loading && (
                   <button
                     type="button"
@@ -435,24 +569,49 @@ export function LandingMentorChat() {
           </div>
 
           <form
-            onSubmit={(e) => { e.preventDefault(); send(input); }}
+            onSubmit={(e) => {
+              e.preventDefault();
+              send(input);
+            }}
             className="p-3 border-t border-border bg-card/80 flex items-center gap-2"
           >
             <Input
               value={input}
               onChange={(e) => setInput(e.target.value.slice(0, 500))}
-              placeholder={used >= DAILY_LIMIT ? "ครบโควต้าวันนี้แล้ว มาใหม่พรุ่งนี้นะครับ" : "พิมพ์คำถามถึง So1o Mentor..."}
+              placeholder={
+                used >= DAILY_LIMIT
+                  ? "ครบโควต้าวันนี้แล้ว มาใหม่พรุ่งนี้นะครับ"
+                  : "พิมพ์คำถามถึง So1o Mentor..."
+              }
               disabled={loading || used >= DAILY_LIMIT}
               aria-label="พิมพ์คำถามถึง So1o Mentor"
               className="flex-1"
             />
             {loading ? (
-              <Button type="button" variant="destructive" size="icon" onClick={stop} className="shrink-0" title="หยุด" aria-label="หยุดการตอบกลับ">
+              <Button
+                type="button"
+                variant="destructive"
+                size="icon"
+                onClick={stop}
+                className="shrink-0"
+                title="หยุด"
+                aria-label="หยุดการตอบกลับ"
+              >
                 <StopCircle className="h-4 w-4" />
               </Button>
             ) : (
-              <Button type="submit" disabled={!input.trim() || used >= DAILY_LIMIT} size="icon" className="bg-gradient-primary shrink-0" aria-label="ส่งคำถาม">
-                {streamingMsg ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+              <Button
+                type="submit"
+                disabled={!input.trim() || used >= DAILY_LIMIT}
+                size="icon"
+                className="bg-gradient-primary shrink-0"
+                aria-label="ส่งคำถาม"
+              >
+                {streamingMsg ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Send className="h-4 w-4" />
+                )}
               </Button>
             )}
           </form>

@@ -51,10 +51,16 @@ export function AdminTicketsSection() {
   React.useEffect(() => {
     let cancelled = false;
     (async () => {
-      const { data, error } = await (supabase.rpc as unknown as (fn: string) => Promise<{
-        data: Array<{ user_id: string; email: string | null; display_name: string | null }> | null;
-        error: { message: string } | null;
-      }>).call(supabase, "admin_list_profiles_safe");
+      const { data, error } = await (
+        supabase.rpc as unknown as (fn: string) => Promise<{
+          data: Array<{
+            user_id: string;
+            email: string | null;
+            display_name: string | null;
+          }> | null;
+          error: { message: string } | null;
+        }>
+      ).call(supabase, "admin_list_profiles_safe");
       if (cancelled) return;
       if (error) {
         toast.error("โหลดรายชื่อผู้ใช้ไม่สำเร็จ", { description: error.message });
@@ -161,7 +167,10 @@ export function AdminTicketsSection() {
                 className="pl-8 h-9 text-sm"
               />
             </div>
-            <Select value={sourceFilter} onValueChange={(v) => setSourceFilter(v as TicketSource | "all")}>
+            <Select
+              value={sourceFilter}
+              onValueChange={(v) => setSourceFilter(v as TicketSource | "all")}
+            >
               <SelectTrigger className="w-full sm:w-[150px] h-9 text-xs">
                 <SelectValue placeholder="แหล่ง" />
               </SelectTrigger>
@@ -174,7 +183,10 @@ export function AdminTicketsSection() {
                 ))}
               </SelectContent>
             </Select>
-            <Select value={ratingFilter} onValueChange={(v) => setRatingFilter(v as typeof ratingFilter)}>
+            <Select
+              value={ratingFilter}
+              onValueChange={(v) => setRatingFilter(v as typeof ratingFilter)}
+            >
               <SelectTrigger className="w-full sm:w-[130px] h-9 text-xs">
                 <SelectValue placeholder="คะแนน" />
               </SelectTrigger>
@@ -184,7 +196,10 @@ export function AdminTicketsSection() {
                 <SelectItem value="high">สูง 4–5</SelectItem>
               </SelectContent>
             </Select>
-            <Select value={priorityFilter} onValueChange={(v) => setPriorityFilter(v as TicketPriority | "all")}>
+            <Select
+              value={priorityFilter}
+              onValueChange={(v) => setPriorityFilter(v as TicketPriority | "all")}
+            >
               <SelectTrigger className="w-full sm:w-[140px] h-9 text-xs">
                 <SelectValue placeholder="ความสำคัญ" />
               </SelectTrigger>
@@ -197,7 +212,10 @@ export function AdminTicketsSection() {
                 ))}
               </SelectContent>
             </Select>
-            <Select value={categoryFilter} onValueChange={(v) => setCategoryFilter(v as TicketCategory | "all")}>
+            <Select
+              value={categoryFilter}
+              onValueChange={(v) => setCategoryFilter(v as TicketCategory | "all")}
+            >
               <SelectTrigger className="w-full sm:w-[130px] h-9 text-xs">
                 <SelectValue placeholder="ประเภท" />
               </SelectTrigger>
@@ -254,7 +272,11 @@ export function AdminTicketsSection() {
 
       {liveSelected && (
         <>
-          <div className="fixed inset-0 bg-black/30 z-40" onClick={() => setSelected(null)} aria-hidden />
+          <div
+            className="fixed inset-0 bg-black/30 z-40"
+            onClick={() => setSelected(null)}
+            aria-hidden
+          />
           <AdminTicketDetail
             ticket={liveSelected}
             userLabel={userMap.get(liveSelected.userId) ?? liveSelected.userId}

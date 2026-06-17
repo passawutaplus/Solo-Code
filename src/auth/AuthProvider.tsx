@@ -52,7 +52,12 @@ interface AuthContextValue {
   loading: boolean;
   isAdmin: boolean;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
-  signUp: (email: string, password: string, displayName?: string, freelanceField?: string) => Promise<{ error: Error | null }>;
+  signUp: (
+    email: string,
+    password: string,
+    displayName?: string,
+    freelanceField?: string,
+  ) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
 }
@@ -89,14 +94,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     setProfile(profileRow);
     const isAdminRole = (roles ?? []).some((r) => r.role === "admin");
-    setRole(isAdminRole ? "admin" : (roles?.[0]?.role as AppRole) ?? "user");
+    setRole(isAdminRole ? "admin" : ((roles?.[0]?.role as AppRole) ?? "user"));
   }, []);
 
   React.useEffect(() => {
     // CRITICAL: set listener BEFORE getSession
     const { data: subscription } = supabase.auth.onAuthStateChange((event, newSession) => {
       setSession((prev) => {
-        if (prev?.access_token === newSession?.access_token && prev?.user?.id === newSession?.user?.id) {
+        if (
+          prev?.access_token === newSession?.access_token &&
+          prev?.user?.id === newSession?.user?.id
+        ) {
           return prev;
         }
         return newSession;
@@ -147,21 +155,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return { error: error as Error | null };
   }, []);
 
-  const signUp = React.useCallback(async (email: string, password: string, displayName?: string, freelanceField?: string) => {
-    const redirectUrl = typeof window !== "undefined" ? `${window.location.origin}/dashboard` : undefined;
-    const meta: Record<string, string> = {};
-    if (displayName) meta.display_name = displayName;
-    if (freelanceField) meta.freelance_field = freelanceField;
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: redirectUrl,
-        data: Object.keys(meta).length ? meta : undefined,
-      },
-    });
-    return { error: error as Error | null };
-  }, []);
+  const signUp = React.useCallback(
+    async (email: string, password: string, displayName?: string, freelanceField?: string) => {
+      const redirectUrl =
+        typeof window !== "undefined" ? `${window.location.origin}/dashboard` : undefined;
+      const meta: Record<string, string> = {};
+      if (displayName) meta.display_name = displayName;
+      if (freelanceField) meta.freelance_field = freelanceField;
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: redirectUrl,
+          data: Object.keys(meta).length ? meta : undefined,
+        },
+      });
+      return { error: error as Error | null };
+    },
+    [],
+  );
 
   const signOut = React.useCallback(async () => {
     await supabase.auth.signOut();

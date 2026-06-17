@@ -9,7 +9,6 @@ export function useDailyTrendsQuery() {
     queryKey: DAILY_TRENDS_QUERY_KEY,
     queryFn: () => fetchTrends(),
     staleTime: DAILY_TRENDS_STALE_MS,
-    refetchInterval: (query) =>
-      query.state.data?.status === "pending" ? 5000 : false,
+    refetchInterval: (query) => (query.state.data?.status === "pending" ? 5000 : false),
   });
 }

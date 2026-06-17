@@ -115,12 +115,19 @@ export function CreateTicketForm({
 
   if (created) {
     return (
-      <div className={cn("flex flex-col items-center justify-center text-center", compact ? "p-4" : "p-6")}>
+      <div
+        className={cn(
+          "flex flex-col items-center justify-center text-center",
+          compact ? "p-4" : "p-6",
+        )}
+      >
         <div className="h-14 w-14 rounded-full bg-green-50 flex items-center justify-center mb-3">
           <CheckCircle2 className="h-7 w-7 text-green-600" />
         </div>
         <p className="text-sm text-gray-500">เลขตั๋วของคุณ</p>
-        <p className="text-2xl font-bold text-[#FF5F05] tracking-wide mt-1">{created.ticketNumber}</p>
+        <p className="text-2xl font-bold text-[#FF5F05] tracking-wide mt-1">
+          {created.ticketNumber}
+        </p>
         <p className="text-xs text-gray-500 mt-2 max-w-[260px]">
           ติดตามสถานะได้ที่ &quot;ตั๋วของฉัน&quot; — ทีมงานจะอัปเดตเมื่อเริ่มแก้และปิดงาน
         </p>

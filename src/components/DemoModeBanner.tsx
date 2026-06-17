@@ -32,7 +32,10 @@ export function DemoModeBanner() {
         <FlaskConical className="mt-0.5 h-4 w-4 shrink-0 text-amber-600 dark:text-amber-300 sm:mt-0" />
         <p className="flex-1 text-xs leading-relaxed sm:text-sm">
           {DEMO_BANNER_SHORT}{" "}
-          <Link to="/research" className="text-primary font-medium hover:underline whitespace-nowrap">
+          <Link
+            to="/research"
+            className="text-primary font-medium hover:underline whitespace-nowrap"
+          >
             คู่มือ UX
           </Link>
         </p>

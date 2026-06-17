@@ -8,7 +8,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { toast } from "sonner";
 import { Loader2, Upload, LogOut, ShieldCheck, RotateCcw, Image as ImageIcon } from "lucide-react";
 import { compressImageFile, dataUrlToBlob } from "@/lib/imageCompress";
@@ -183,7 +189,9 @@ export function SettingsTab() {
           <div className="flex items-center justify-between mb-5 gap-4">
             <div>
               <h2 className="text-sm font-semibold tracking-tight">ตั้งค่าโปรไฟล์ร้าน</h2>
-              <p className="text-xs text-muted-foreground">ข้อมูลนี้จะแสดงในใบเสนอราคาและเอกสารที่ส่งให้ลูกค้า</p>
+              <p className="text-xs text-muted-foreground">
+                ข้อมูลนี้จะแสดงในใบเสนอราคาและเอกสารที่ส่งให้ลูกค้า
+              </p>
             </div>
             <div className="flex items-start gap-3 shrink-0">
               <AccountIdentityBadge variant="settings" />
@@ -201,34 +209,79 @@ export function SettingsTab() {
               <div className="flex items-center gap-3">
                 <div className="h-20 w-20 rounded-2xl border border-border bg-muted overflow-hidden shrink-0 flex items-center justify-center">
                   {form.logo_url ? (
-                    <img src={form.logo_url} alt="brand logo" className="h-full w-full object-cover" loading="lazy" decoding="async" />
+                    <img
+                      src={form.logo_url}
+                      alt="brand logo"
+                      className="h-full w-full object-cover"
+                      loading="lazy"
+                      decoding="async"
+                    />
                   ) : (
                     <ImageIcon className="h-6 w-6 text-muted-foreground" />
                   )}
                 </div>
-                <input ref={logoRef} type="file" accept="image/png,image/jpeg,image/webp" className="hidden" onChange={onUploadLogo} />
-                <Button type="button" variant="outline" onClick={() => logoRef.current?.click()} disabled={uploadingLogo} className="flex-1 h-12">
-                  {uploadingLogo ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+                <input
+                  ref={logoRef}
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp"
+                  className="hidden"
+                  onChange={onUploadLogo}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => logoRef.current?.click()}
+                  disabled={uploadingLogo}
+                  className="flex-1 h-12"
+                >
+                  {uploadingLogo ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Upload className="h-4 w-4" />
+                  )}
                   เลือกรูป
                 </Button>
               </div>
-              <p className="text-[10px] text-muted-foreground">รูปสี่เหลี่ยมจัตุรัสสวยที่สุด · ไม่เกิน 500KB</p>
+              <p className="text-[10px] text-muted-foreground">
+                รูปสี่เหลี่ยมจัตุรัสสวยที่สุด · ไม่เกิน 500KB
+              </p>
             </div>
 
             <Field label="ชื่อร้าน/สตูดิโอ">
-              <Input value={form.brand_name} onChange={(e) => setField("brand_name", e.target.value)} maxLength={80} placeholder="So1o Freelancer" />
+              <Input
+                value={form.brand_name}
+                onChange={(e) => setField("brand_name", e.target.value)}
+                maxLength={80}
+                placeholder="So1o Freelancer"
+              />
             </Field>
 
             <Field label="แท็กไลน์">
-              <Input value={form.tagline} onChange={(e) => setField("tagline", e.target.value)} maxLength={200} placeholder="โปรแกรมช่วยคำนวณราคาและทำใบเสนอราคาออนไลน์อย่างง่าย" />
+              <Input
+                value={form.tagline}
+                onChange={(e) => setField("tagline", e.target.value)}
+                maxLength={200}
+                placeholder="โปรแกรมช่วยคำนวณราคาและทำใบเสนอราคาออนไลน์อย่างง่าย"
+              />
             </Field>
 
             <Field label="ชื่อของคุณ">
-              <Input value={form.display_name} onChange={(e) => setField("display_name", e.target.value)} maxLength={80} placeholder="So1o Freelancer" />
+              <Input
+                value={form.display_name}
+                onChange={(e) => setField("display_name", e.target.value)}
+                maxLength={80}
+                placeholder="So1o Freelancer"
+              />
             </Field>
 
             <Field label="เบอร์โทร">
-              <Input value={form.phone} onChange={(e) => setField("phone", e.target.value)} maxLength={30} placeholder="เช่น 081-234-5678" inputMode="tel" />
+              <Input
+                value={form.phone}
+                onChange={(e) => setField("phone", e.target.value)}
+                maxLength={30}
+                placeholder="เช่น 081-234-5678"
+                inputMode="tel"
+              />
             </Field>
 
             <Field label="EMAIL">
@@ -236,26 +289,48 @@ export function SettingsTab() {
             </Field>
 
             <Field label="ที่อยู่">
-              <Textarea value={form.address} onChange={(e) => setField("address", e.target.value)} maxLength={300} rows={2} placeholder="เช่น 123/4 ถ.สุขุมวิท แขวงคลองตัน เขตวัฒนา กรุงเทพฯ 10110" />
+              <Textarea
+                value={form.address}
+                onChange={(e) => setField("address", e.target.value)}
+                maxLength={300}
+                rows={2}
+                placeholder="เช่น 123/4 ถ.สุขุมวิท แขวงคลองตัน เขตวัฒนา กรุงเทพฯ 10110"
+              />
             </Field>
 
             <Field label="เลขประชาชน/นิติบุคคล">
-              <Input value={form.tax_id} onChange={(e) => setField("tax_id", e.target.value)} maxLength={30} placeholder="เช่น 1234567890123" inputMode="numeric" />
+              <Input
+                value={form.tax_id}
+                onChange={(e) => setField("tax_id", e.target.value)}
+                maxLength={30}
+                placeholder="เช่น 1234567890123"
+                inputMode="numeric"
+              />
             </Field>
 
             <Field label="สกุลเงิน">
               <Select value={form.currency} onValueChange={(v) => setField("currency", v)}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
                 <SelectContent>
                   {CURRENCIES.map((c) => (
-                    <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
+                    <SelectItem key={c.value} value={c.value}>
+                      {c.label}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </Field>
 
             <Field label="ลิงก์โซเชียล / โชว์เคสภายนอก (เช่น Pixel100, Behance)">
-              <Input value={form.social_link} onChange={(e) => setField("social_link", e.target.value)} maxLength={300} placeholder="เช่น https://instagram.com/your_handle" inputMode="url" />
+              <Input
+                value={form.social_link}
+                onChange={(e) => setField("social_link", e.target.value)}
+                maxLength={300}
+                placeholder="เช่น https://instagram.com/your_handle"
+                inputMode="url"
+              />
             </Field>
 
             <Field label="เงื่อนไขการใช้บริการ">
@@ -264,17 +339,30 @@ export function SettingsTab() {
                 onChange={(e) => setField("terms", e.target.value)}
                 maxLength={2000}
                 rows={4}
-                placeholder={"• ชำระมัดจำเพื่อเริ่มงาน\n• โอนลิขสิทธิ์เมื่อชำระเต็ม\n• แก้ไขเพิ่มเติม ฿500 ต่อรอบ"}
+                placeholder={
+                  "• ชำระมัดจำเพื่อเริ่มงาน\n• โอนลิขสิทธิ์เมื่อชำระเต็ม\n• แก้ไขเพิ่มเติม ฿500 ต่อรอบ"
+                }
               />
-              <p className="text-[10px] text-muted-foreground mt-1">แต่ละบรรทัดจะเป็น bullet ในใบเสนอราคา</p>
+              <p className="text-[10px] text-muted-foreground mt-1">
+                แต่ละบรรทัดจะเป็น bullet ในใบเสนอราคา
+              </p>
             </Field>
 
             <div className="flex items-center gap-2 pt-3 border-t border-border/40">
-              <Button type="button" variant="ghost" onClick={onReset} className="text-muted-foreground gap-1.5">
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={onReset}
+                className="text-muted-foreground gap-1.5"
+              >
                 <RotateCcw className="h-3.5 w-3.5" /> รีเซ็ต
               </Button>
               <div className="flex-1" />
-              <Button type="submit" disabled={saving} className="bg-primary hover:bg-primary/90 gap-1.5 px-6">
+              <Button
+                type="submit"
+                disabled={saving}
+                className="bg-primary hover:bg-primary/90 gap-1.5 px-6"
+              >
                 {saving && <Loader2 className="h-4 w-4 animate-spin" />}
                 บันทึกการตั้งค่า
               </Button>
@@ -282,13 +370,23 @@ export function SettingsTab() {
 
             <div className="pt-2 flex flex-col sm:flex-row gap-2">
               {isAdmin && (
-                <Button type="button" asChild variant="outline" className="gap-1.5 w-full sm:w-auto border-primary/40 text-foreground">
+                <Button
+                  type="button"
+                  asChild
+                  variant="outline"
+                  className="gap-1.5 w-full sm:w-auto border-primary/40 text-foreground"
+                >
                   <Link to="/admin">
                     <ShieldCheck className="h-3.5 w-3.5" /> เข้าหน้า Admin
                   </Link>
                 </Button>
               )}
-              <Button type="button" variant="ghost" onClick={signOut} className="text-muted-foreground gap-1.5 w-full sm:w-auto">
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={signOut}
+                className="text-muted-foreground gap-1.5 w-full sm:w-auto"
+              >
                 <LogOut className="h-3.5 w-3.5" /> ออกจากระบบ
               </Button>
             </div>

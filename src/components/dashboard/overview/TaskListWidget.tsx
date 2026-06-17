@@ -3,12 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-  Plus,
-  Trash2,
-  ListTodo,
-  NotebookPen,
-} from "lucide-react";
+import { Plus, Trash2, ListTodo, NotebookPen } from "lucide-react";
 import { useDashboardTasks, type DashboardTask } from "@/store/dashboardTasks";
 import { toast } from "sonner";
 
@@ -107,8 +102,8 @@ export function TaskListWidget() {
                 {filter === "done"
                   ? "ยังไม่มีงานที่เสร็จ"
                   : filter === "pending"
-                  ? "ไม่มีงานค้าง 🎉"
-                  : "ยังไม่มี task — กดเพิ่มได้เลย"}
+                    ? "ไม่มีงานค้าง 🎉"
+                    : "ยังไม่มี task — กดเพิ่มได้เลย"}
               </p>
             </div>
           ) : (

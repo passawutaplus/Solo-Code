@@ -93,23 +93,23 @@ export function ColorChartPicker({ value, onChange, size, className }: Props) {
   // Keyboard a11y on SV chart
   const onKey = (e: React.KeyboardEvent<HTMLDivElement>) => {
     const step = e.shiftKey ? 10 : 1;
-    let s = sat, v = val;
+    let s = sat,
+      v = val;
     if (e.key === "ArrowLeft") s = Math.max(0, sat - step);
     else if (e.key === "ArrowRight") s = Math.min(100, sat + step);
     else if (e.key === "ArrowUp") v = Math.min(100, val + step);
     else if (e.key === "ArrowDown") v = Math.max(0, val - step);
     else return;
     e.preventDefault();
-    setSat(s); setVal(v); emit(hue, s, v);
+    setSat(s);
+    setVal(v);
+    emit(hue, s, v);
   };
 
   const hueColor = colord({ h: hue, s: 100, v: 100 }).toHex();
 
   return (
-    <div
-      className={className}
-      style={size ? { width: size } : undefined}
-    >
+    <div className={className} style={size ? { width: size } : undefined}>
       {/* SV Chart */}
       <div
         ref={svRef}

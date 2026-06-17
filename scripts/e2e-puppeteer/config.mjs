@@ -35,7 +35,9 @@ export function getAccount(role) {
   const email = process.env[emailKey];
   const password = process.env[passKey];
   if (!email || !password) {
-    throw new Error(`Missing ${emailKey}/${passKey} — set in .env.local (see docs/test-accounts.md)`);
+    throw new Error(
+      `Missing ${emailKey}/${passKey} — set in .env.local (see docs/test-accounts.md)`,
+    );
   }
   return { email, password };
 }

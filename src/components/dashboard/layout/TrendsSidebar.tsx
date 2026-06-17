@@ -4,7 +4,14 @@ import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { getDailyTrends, type DailyTrendItem } from "@/lib/dailyTrends.functions";
 import { DAILY_TRENDS_QUERY_KEY, DAILY_TRENDS_STALE_MS } from "@/hooks/useDailyTrendsPrefetch";
-import { Newspaper, ChevronRight, ChevronLeft, ExternalLink, Sparkles, Loader2 } from "lucide-react";
+import {
+  Newspaper,
+  ChevronRight,
+  ChevronLeft,
+  ExternalLink,
+  Sparkles,
+  Loader2,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { TrendCoverImage } from "@/components/dashboard/TrendCoverImage";
@@ -20,14 +27,19 @@ export function TrendsSidebar({ collapsed, onToggle }: TrendsSidebarProps) {
     queryKey: DAILY_TRENDS_QUERY_KEY,
     queryFn: () => fetchTrends(),
     staleTime: DAILY_TRENDS_STALE_MS,
-    refetchInterval: (query) =>
-      query.state.data?.status === "pending" ? 5000 : false,
+    refetchInterval: (query) => (query.state.data?.status === "pending" ? 5000 : false),
   });
 
   if (collapsed) {
     return (
       <aside className="hidden xl:flex shrink-0 w-10 border-l border-border bg-card/40 flex-col items-center py-3 gap-2">
-        <Button size="sm" variant="ghost" className="h-8 w-8 p-0" onClick={onToggle} aria-label="เปิดแผงเทรนด์">
+        <Button
+          size="sm"
+          variant="ghost"
+          className="h-8 w-8 p-0"
+          onClick={onToggle}
+          aria-label="เปิดแผงเทรนด์"
+        >
           <ChevronLeft className="h-4 w-4" />
         </Button>
         <div className="rounded-lg bg-primary-soft text-primary p-1.5">
@@ -48,7 +60,13 @@ export function TrendsSidebar({ collapsed, onToggle }: TrendsSidebarProps) {
           <Newspaper className="h-4 w-4 text-primary shrink-0" />
           <h2 className="text-sm font-semibold truncate">ข่าวสาร & เทรนด์</h2>
         </div>
-        <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={onToggle} aria-label="หุบแผง">
+        <Button
+          size="sm"
+          variant="ghost"
+          className="h-7 w-7 p-0"
+          onClick={onToggle}
+          aria-label="หุบแผง"
+        >
           <ChevronRight className="h-4 w-4" />
         </Button>
       </div>
@@ -80,7 +98,9 @@ export function TrendsSidebar({ collapsed, onToggle }: TrendsSidebarProps) {
                   <TrendCoverImage item={featured} variant="card" className="w-full h-full" />
                 </div>
                 <h3 className="text-sm font-semibold leading-snug mb-1">{featured.title}</h3>
-                <p className="text-xs text-muted-foreground leading-relaxed line-clamp-3">{featured.body}</p>
+                <p className="text-xs text-muted-foreground leading-relaxed line-clamp-3">
+                  {featured.body}
+                </p>
                 {featured.source_url && safeHref(featured.source_url) && (
                   <a
                     href={safeHref(featured.source_url)!}
@@ -88,7 +108,8 @@ export function TrendsSidebar({ collapsed, onToggle }: TrendsSidebarProps) {
                     rel="noopener noreferrer"
                     className="mt-2 inline-flex items-center gap-1 text-[11px] font-medium text-primary hover:underline"
                   >
-                    อ่านต่อที่ {featured.source ?? "แหล่งอ้างอิง"} <ExternalLink className="h-3 w-3" />
+                    อ่านต่อที่ {featured.source ?? "แหล่งอ้างอิง"}{" "}
+                    <ExternalLink className="h-3 w-3" />
                   </a>
                 )}
               </div>
@@ -118,7 +139,9 @@ export function TrendsSidebar({ collapsed, onToggle }: TrendsSidebarProps) {
                         {t.category}
                       </span>
                       <p className="text-xs font-semibold leading-snug line-clamp-2">{t.title}</p>
-                      <p className="text-[11px] text-muted-foreground mt-0.5 line-clamp-2 leading-snug">{t.body}</p>
+                      <p className="text-[11px] text-muted-foreground mt-0.5 line-clamp-2 leading-snug">
+                        {t.body}
+                      </p>
                       {t.source && (
                         <p className="text-[10px] text-muted-foreground/80 mt-1 inline-flex items-center gap-0.5">
                           <ExternalLink className="h-2.5 w-2.5" /> {t.source}
@@ -133,7 +156,9 @@ export function TrendsSidebar({ collapsed, onToggle }: TrendsSidebarProps) {
 
           {data?.date && (
             <p className="text-center text-[10px] text-muted-foreground/70 pt-2">
-              อัปเดตล่าสุด {new Date(data.date).toLocaleDateString("th-TH", { day: "numeric", month: "short" })} · คัดสรรประจำวัน
+              อัปเดตล่าสุด{" "}
+              {new Date(data.date).toLocaleDateString("th-TH", { day: "numeric", month: "short" })}{" "}
+              · คัดสรรประจำวัน
             </p>
           )}
         </div>

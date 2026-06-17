@@ -2,12 +2,22 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { HttpErrorPage } from "@/components/HttpErrorPage";
 import { safeHref } from "@/lib/security";
 import * as React from "react";
-import { getArticleBySlug, incrementArticleView, listPublishedArticles } from "@/server/articles.functions";
+import {
+  getArticleBySlug,
+  incrementArticleView,
+  listPublishedArticles,
+} from "@/server/articles.functions";
 import { ArticleCard, type ArticleCardData } from "@/components/blog/ArticleCard";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, ArrowRight, Sparkles, Clock, Eye } from "lucide-react";
-import { CATEGORY_GRADIENT, CATEGORY_LABEL_TH, isValidCategory, readingTimeMin, stripHtml } from "@/lib/articleHelpers";
+import {
+  CATEGORY_GRADIENT,
+  CATEGORY_LABEL_TH,
+  isValidCategory,
+  readingTimeMin,
+  stripHtml,
+} from "@/lib/articleHelpers";
 import DOMPurify from "isomorphic-dompurify";
 import logoUrl from "@/assets/solo-freelancer-logo.webp";
 import { LineHeaderButton } from "@/components/LineContactButton";
@@ -31,7 +41,10 @@ export const Route = createFileRoute("/blog/$slug")({
     if (!loaderData?.article) return { meta: [{ title: "ไม่พบบทความ" }] };
     const a = loaderData.article;
     const url = `${SITE_URL}/blog/${a.slug}`;
-    const desc = (a.meta_description || a.summary || stripHtml(a.content).slice(0, 160)).slice(0, 160);
+    const desc = (a.meta_description || a.summary || stripHtml(a.content).slice(0, 160)).slice(
+      0,
+      160,
+    );
     const title = a.meta_title || a.title;
     const image = a.featured_image || logoUrl;
     return {
@@ -63,7 +76,11 @@ export const Route = createFileRoute("/blog/$slug")({
             datePublished: a.published_at,
             dateModified: a.updated_at,
             author: { "@type": "Organization", name: "So1o Freelancer" },
-            publisher: { "@type": "Organization", name: "So1o Freelancer", logo: { "@type": "ImageObject", url: `${SITE_URL}${logoUrl}` } },
+            publisher: {
+              "@type": "Organization",
+              name: "So1o Freelancer",
+              logo: { "@type": "ImageObject", url: `${SITE_URL}${logoUrl}` },
+            },
             mainEntityOfPage: { "@type": "WebPage", "@id": url },
           }),
         },
@@ -90,7 +107,9 @@ export const Route = createFileRoute("/blog/$slug")({
 
 function ArticlePage() {
   const { article, related } = Route.useLoaderData();
-  const category = (isValidCategory(article.category) ? article.category : "Management") as keyof typeof CATEGORY_GRADIENT;
+  const category = (
+    isValidCategory(article.category) ? article.category : "Management"
+  ) as keyof typeof CATEGORY_GRADIENT;
   const gradient = CATEGORY_GRADIENT[category];
   const labelTh = CATEGORY_LABEL_TH[category];
   const readMin = readingTimeMin(article.content);
@@ -104,7 +123,10 @@ function ArticlePage() {
     <div className="min-h-screen bg-background">
       <header className="border-b border-border bg-card/50 backdrop-blur sticky top-0 z-30">
         <div className="mx-auto max-w-5xl px-4 py-3 flex items-center justify-between gap-3">
-          <Link to="/blog" className="flex items-center gap-2 text-sm hover:opacity-80 transition-opacity">
+          <Link
+            to="/blog"
+            className="flex items-center gap-2 text-sm hover:opacity-80 transition-opacity"
+          >
             <ArrowLeft className="h-4 w-4" />
             <span>บทความทั้งหมด</span>
           </Link>
@@ -120,7 +142,9 @@ function ArticlePage() {
       <main className="mx-auto max-w-5xl px-4 py-8 sm:py-12">
         {/* Hero */}
         <div className="mb-8">
-          <Badge variant="outline" className="mb-3">{labelTh}</Badge>
+          <Badge variant="outline" className="mb-3">
+            {labelTh}
+          </Badge>
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight leading-tight">
             {article.title}
           </h1>
@@ -132,11 +156,19 @@ function ArticlePage() {
           <div className="mt-4 flex items-center gap-4 text-xs text-muted-foreground">
             {article.published_at && (
               <time dateTime={article.published_at}>
-                {new Date(article.published_at).toLocaleDateString("th-TH", { year: "numeric", month: "long", day: "numeric" })}
+                {new Date(article.published_at).toLocaleDateString("th-TH", {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                })}
               </time>
             )}
-            <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> {readMin} นาที</span>
-            <span className="flex items-center gap-1"><Eye className="h-3 w-3" /> {article.view_count}</span>
+            <span className="flex items-center gap-1">
+              <Clock className="h-3 w-3" /> {readMin} นาที
+            </span>
+            <span className="flex items-center gap-1">
+              <Eye className="h-3 w-3" /> {article.view_count}
+            </span>
           </div>
         </div>
 
@@ -149,7 +181,10 @@ function ArticlePage() {
               className="w-full aspect-[16/9] object-cover"
             />
           ) : (
-            <div className={`w-full aspect-[16/9] bg-gradient-to-br ${gradient} flex items-center justify-center p-8`} aria-hidden="true">
+            <div
+              className={`w-full aspect-[16/9] bg-gradient-to-br ${gradient} flex items-center justify-center p-8`}
+              aria-hidden="true"
+            >
               <span className="text-white/95 text-2xl sm:text-4xl font-bold tracking-tight text-center drop-shadow">
                 {article.title}
               </span>
@@ -161,7 +196,9 @@ function ArticlePage() {
           {/* Article body */}
           <article
             className="lg:col-span-2 prose prose-base sm:prose-lg max-w-none prose-headings:tracking-tight prose-a:text-primary"
-            dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(article.content, { USE_PROFILES: { html: true } }) }}
+            dangerouslySetInnerHTML={{
+              __html: DOMPurify.sanitize(article.content, { USE_PROFILES: { html: true } }),
+            }}
           />
 
           {/* Sidebar CTA */}
@@ -176,14 +213,19 @@ function ArticlePage() {
                   <p className="mt-1.5 text-xs opacity-90 leading-relaxed">
                     นำสิ่งที่อ่านมาใช้จริงในงานคุณได้ทันทีบน So1o Freelancer
                   </p>
-                  {(() => { const safe = article.related_feature_link ? safeHref(article.related_feature_link) : null; return safe ? (
-                  <Button asChild variant="secondary" size="sm" className="mt-4 w-full">
-                    <a href={safe}>
-                      เปิดฟีเจอร์
-                      <ArrowRight className="h-3.5 w-3.5 ml-1" />
-                    </a>
-                  </Button>
-                  ) : null; })()}
+                  {(() => {
+                    const safe = article.related_feature_link
+                      ? safeHref(article.related_feature_link)
+                      : null;
+                    return safe ? (
+                      <Button asChild variant="secondary" size="sm" className="mt-4 w-full">
+                        <a href={safe}>
+                          เปิดฟีเจอร์
+                          <ArrowRight className="h-3.5 w-3.5 ml-1" />
+                        </a>
+                      </Button>
+                    ) : null;
+                  })()}
                 </div>
               )}
 
@@ -202,9 +244,13 @@ function ArticlePage() {
 
         {related.length > 0 && (
           <section className="mt-16 pt-10 border-t border-border">
-            <h2 className="text-xl sm:text-2xl font-bold tracking-tight mb-6">บทความที่เกี่ยวข้อง</h2>
+            <h2 className="text-xl sm:text-2xl font-bold tracking-tight mb-6">
+              บทความที่เกี่ยวข้อง
+            </h2>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              {related.map((a: ArticleCardData) => <ArticleCard key={a.slug} a={a} />)}
+              {related.map((a: ArticleCardData) => (
+                <ArticleCard key={a.slug} a={a} />
+              ))}
             </div>
           </section>
         )}

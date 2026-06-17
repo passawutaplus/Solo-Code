@@ -15,7 +15,10 @@ const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const BodySchema = z.object({ project_id: z.string().uuid() });
 
 const json = (b: unknown, status = 200) =>
-  new Response(JSON.stringify(b), { status, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+  new Response(JSON.stringify(b), {
+    status,
+    headers: { ...corsHeaders, "Content-Type": "application/json" },
+  });
 
 async function embed(text: string): Promise<number[]> {
   return geminiEmbedText(getGeminiApiKey(), text);
@@ -37,7 +40,11 @@ Deno.serve(async (req) => {
   const uid = claims.claims.sub as string;
 
   let raw: unknown;
-  try { raw = await req.json(); } catch { return json({ error: "invalid json" }, 400); }
+  try {
+    raw = await req.json();
+  } catch {
+    return json({ error: "invalid json" }, 400);
+  }
   const parsed = BodySchema.safeParse(raw);
   if (!parsed.success) return json({ error: parsed.error.flatten().fieldErrors }, 400);
   const { project_id } = parsed.data;
@@ -56,9 +63,15 @@ Deno.serve(async (req) => {
     if (project.owner_id !== uid && !isAdmin) return json({ error: "forbidden" }, 403);
 
     const text = [
-      project.title, project.subtitle ?? "", project.category, project.description ?? "",
-      (project.tags ?? []).join(", "), (project.tools ?? []).join(", "),
-    ].filter(Boolean).join("\n");
+      project.title,
+      project.subtitle ?? "",
+      project.category,
+      project.description ?? "",
+      (project.tags ?? []).join(", "),
+      (project.tools ?? []).join(", "),
+    ]
+      .filter(Boolean)
+      .join("\n");
 
     const vec = await embed(text);
     const { error: upErr } = await admin

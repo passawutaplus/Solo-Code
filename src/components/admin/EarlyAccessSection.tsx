@@ -12,7 +12,18 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Link } from "@tanstack/react-router";
-import { Rocket, ExternalLink, Search, Loader2, Mail, MessageCircle, FlaskConical, Copy, UserX, MessageSquareHeart } from "lucide-react";
+import {
+  Rocket,
+  ExternalLink,
+  Search,
+  Loader2,
+  Mail,
+  MessageCircle,
+  FlaskConical,
+  Copy,
+  UserX,
+  MessageSquareHeart,
+} from "lucide-react";
 import { useAllBetaFeedback } from "@/store/betaFeedback";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -63,10 +74,7 @@ export function EarlyAccessSection() {
   const load = React.useCallback(async () => {
     setLoading(true);
     const [appsRes, approvedRes, usageRes, profilesRes] = await Promise.all([
-      supabase
-        .from("tester_applications")
-        .select("*")
-        .order("created_at", { ascending: false }),
+      supabase.from("tester_applications").select("*").order("created_at", { ascending: false }),
       supabase
         .from("profiles")
         .select("user_id", { count: "exact", head: true })
@@ -77,9 +85,18 @@ export function EarlyAccessSection() {
         .order("created_at", { ascending: false })
         .limit(2000),
       // Admin-only listing: returns non-sensitive profile columns server-side.
-      (supabase.rpc as unknown as (fn: string) => Promise<{ data: Array<{ user_id: string; email: string | null; display_name: string | null; created_at: string; tester_approved: boolean }> | null; error: { message: string } | null }>)(
-        "admin_list_profiles_safe",
-      ).then((res) => ({
+      (
+        supabase.rpc as unknown as (fn: string) => Promise<{
+          data: Array<{
+            user_id: string;
+            email: string | null;
+            display_name: string | null;
+            created_at: string;
+            tester_approved: boolean;
+          }> | null;
+          error: { message: string } | null;
+        }>
+      )("admin_list_profiles_safe").then((res) => ({
         ...res,
         data: res.data
           ? [...res.data]
@@ -97,7 +114,8 @@ export function EarlyAccessSection() {
       // Admin no longer has cross-user SELECT on profiles, so fall back to counting
       // approved rows from the safe RPC list when the head-count returns null.
       const safeCount = profilesRes.data
-        ? (profilesRes.data as Array<{ tester_approved: boolean }>).filter((p) => p.tester_approved).length
+        ? (profilesRes.data as Array<{ tester_approved: boolean }>).filter((p) => p.tester_approved)
+            .length
         : 0;
       setApprovedCount(approvedRes.count ?? safeCount);
     }
@@ -110,9 +128,16 @@ export function EarlyAccessSection() {
     }
     if (!profilesRes.error) {
       const appliedIds = new Set((appsRes.data ?? []).map((a: { user_id: string }) => a.user_id));
-      const pendingList = ((profilesRes.data ?? []) as Array<PendingProfile & { tester_approved: boolean }>)
+      const pendingList = (
+        (profilesRes.data ?? []) as Array<PendingProfile & { tester_approved: boolean }>
+      )
         .filter((p) => !p.tester_approved && !appliedIds.has(p.user_id))
-        .map(({ user_id, email, display_name, created_at }) => ({ user_id, email, display_name, created_at }));
+        .map(({ user_id, email, display_name, created_at }) => ({
+          user_id,
+          email,
+          display_name,
+          created_at,
+        }));
       setPending(pendingList);
     }
     setLoading(false);
@@ -126,15 +151,11 @@ export function EarlyAccessSection() {
   React.useEffect(() => {
     const channel = supabase
       .channel("early-access-monitor")
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "tester_applications" },
-        () => load(),
+      .on("postgres_changes", { event: "*", schema: "public", table: "tester_applications" }, () =>
+        load(),
       )
-      .on(
-        "postgres_changes",
-        { event: "UPDATE", schema: "public", table: "profiles" },
-        () => load(),
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "profiles" }, () =>
+        load(),
       )
       .subscribe();
     return () => {
@@ -215,12 +236,7 @@ export function EarlyAccessSection() {
               </p>
             </div>
             <div className="flex flex-col sm:flex-row gap-2 shrink-0">
-              <Button
-                onClick={sendTest}
-                disabled={testing}
-                variant="outline"
-                className="gap-2"
-              >
+              <Button onClick={sendTest} disabled={testing} variant="outline" className="gap-2">
                 {testing ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
                 ) : (
@@ -253,12 +269,8 @@ export function EarlyAccessSection() {
               <div className="text-xs font-medium text-muted-foreground">{pct}%</div>
             </div>
 
-
             <div className="h-2 w-full rounded-full bg-muted overflow-hidden">
-              <div
-                className="h-full bg-primary transition-all"
-                style={{ width: `${pct}%` }}
-              />
+              <div className="h-full bg-primary transition-all" style={{ width: `${pct}%` }} />
             </div>
           </div>
         </CardContent>
@@ -406,9 +418,7 @@ export function EarlyAccessSection() {
               <Loader2 className="h-4 w-4 animate-spin" /> กำลังโหลด...
             </div>
           ) : filtered.length === 0 ? (
-            <div className="text-center py-12 text-sm text-muted-foreground">
-              ยังไม่มีผู้สมัคร
-            </div>
+            <div className="text-center py-12 text-sm text-muted-foreground">ยังไม่มีผู้สมัคร</div>
           ) : (
             <div className="overflow-x-auto">
               <Table>
@@ -426,9 +436,7 @@ export function EarlyAccessSection() {
                 <TableBody>
                   {filtered.map((a, idx) => (
                     <TableRow key={a.id}>
-                      <TableCell className="text-xs text-muted-foreground">
-                        {idx + 1}
-                      </TableCell>
+                      <TableCell className="text-xs text-muted-foreground">{idx + 1}</TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
                           <PresenceDot lastSeen={lastSeen.get(a.user_id) ?? null} />

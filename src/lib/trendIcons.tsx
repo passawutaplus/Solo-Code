@@ -41,7 +41,7 @@ export const TREND_ICONS: Record<TrendIconKey, LucideIcon> = {
 };
 
 const CATEGORY_ICON: Record<string, TrendIconKey> = {
-  "สีเทรนด์": "palette",
+  สีเทรนด์: "palette",
   Typography: "type",
   "AI Tools": "bot",
   "Design Style": "layout",

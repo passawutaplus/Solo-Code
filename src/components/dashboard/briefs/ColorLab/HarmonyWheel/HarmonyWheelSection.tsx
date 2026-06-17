@@ -31,14 +31,16 @@ export function HarmonyWheelSection({ hex, onHexChange }: Props) {
   const harmony = React.useMemo(() => computeHarmony(tunedHex, mode), [tunedHex, mode]);
   const palette5 = React.useMemo(
     () => applyMoodToPalette(buildPalette5(hex, mode), mood),
-    [hex, mode, mood]
+    [hex, mode, mood],
   );
 
   return (
     <div className="space-y-5">
       {/* Mode selector */}
       <div>
-        <p className="text-[11px] font-semibold text-muted-foreground mb-2">โหมดคู่สี (Harmony Mode)</p>
+        <p className="text-[11px] font-semibold text-muted-foreground mb-2">
+          โหมดคู่สี (Harmony Mode)
+        </p>
         <div className="flex flex-wrap gap-1.5">
           {HARMONY_MODES.map((m) => (
             <button
@@ -140,7 +142,10 @@ export function HarmonyWheelSection({ hex, onHexChange }: Props) {
             className="gap-1.5 h-8 text-xs"
             onClick={() => {
               const css = palette5
-                .map((c, i) => `--brand-${i === 0 ? "primary" : i === 1 ? "secondary" : `accent-${i - 1}`}: ${c};`)
+                .map(
+                  (c, i) =>
+                    `--brand-${i === 0 ? "primary" : i === 1 ? "secondary" : `accent-${i - 1}`}: ${c};`,
+                )
                 .join("\n");
               copyText("CSS Variables", css);
             }}

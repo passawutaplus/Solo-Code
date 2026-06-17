@@ -1,9 +1,6 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { z } from "npm:zod@3";
-import {
-  exchangeLineAuthCode,
-  verifyLineIdToken,
-} from "../_shared/line-oauth.ts";
+import { exchangeLineAuthCode, verifyLineIdToken } from "../_shared/line-oauth.ts";
 import { sendLineTestSamples } from "../_shared/line-test-samples.ts";
 
 const corsHeaders = {
@@ -33,7 +30,11 @@ const json = (body: unknown, status = 200) =>
     headers: { ...corsHeaders, "Content-Type": "application/json" },
   });
 
-async function authUserId(req: Request, supabaseUrl: string, anonKey: string): Promise<string | null> {
+async function authUserId(
+  req: Request,
+  supabaseUrl: string,
+  anonKey: string,
+): Promise<string | null> {
   const authHeader = req.headers.get("Authorization");
   if (!authHeader?.startsWith("Bearer ")) return null;
   const userClient = createClient(supabaseUrl, anonKey, {
@@ -148,9 +149,6 @@ Deno.serve(async (req) => {
     });
   } catch (e) {
     console.error("[line-connect]", e);
-    return json(
-      { error: e instanceof Error ? e.message : "connect_failed" },
-      400,
-    );
+    return json({ error: e instanceof Error ? e.message : "connect_failed" }, 400);
   }
 });

@@ -2,13 +2,25 @@ import * as React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Calendar, ChevronLeft, ChevronRight, CreditCard, CalendarClock, AlertCircle, FileText } from "lucide-react";
+import {
+  Calendar,
+  ChevronLeft,
+  ChevronRight,
+  CreditCard,
+  CalendarClock,
+  AlertCircle,
+  FileText,
+} from "lucide-react";
 import { formatTHB, type PaymentMethod, type Subscription } from "@/data/mockData";
 import { useClientInvoices, type ClientInvoice } from "@/store/clientInvoices";
 
 export function BillingCalendar({
-  subs, paymentMethods,
-}: { subs: Subscription[]; paymentMethods: PaymentMethod[] }) {
+  subs,
+  paymentMethods,
+}: {
+  subs: Subscription[];
+  paymentMethods: PaymentMethod[];
+}) {
   const { list: invoices } = useClientInvoices();
 
   const billingDays = React.useMemo(() => new Set(subs.map((s) => s.billingDay)), [subs]);
@@ -37,7 +49,9 @@ export function BillingCalendar({
   }, [paymentMethods]);
 
   const today = new Date();
-  const [cursor, setCursor] = React.useState(() => new Date(today.getFullYear(), today.getMonth(), 1));
+  const [cursor, setCursor] = React.useState(
+    () => new Date(today.getFullYear(), today.getMonth(), 1),
+  );
   const cursorYear = cursor.getFullYear();
   const cursorMonth = cursor.getMonth();
   const daysInMonth = new Date(cursorYear, cursorMonth + 1, 0).getDate();
@@ -67,15 +81,30 @@ export function BillingCalendar({
           <Calendar className="h-4 w-4 text-primary" /> ปฏิทินตัดบิล
         </CardTitle>
         <div className="flex items-center gap-1">
-          <Button variant="ghost" size="icon" className="h-7 w-7 rounded-lg" onClick={() => setCursor(new Date(cursorYear, cursorMonth - 1, 1))}>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-7 w-7 rounded-lg"
+            onClick={() => setCursor(new Date(cursorYear, cursorMonth - 1, 1))}
+          >
             <ChevronLeft className="h-3.5 w-3.5" />
           </Button>
           <span className="text-xs font-medium min-w-[110px] text-center">{monthLabel}</span>
-          <Button variant="ghost" size="icon" className="h-7 w-7 rounded-lg" onClick={() => setCursor(new Date(cursorYear, cursorMonth + 1, 1))}>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-7 w-7 rounded-lg"
+            onClick={() => setCursor(new Date(cursorYear, cursorMonth + 1, 1))}
+          >
             <ChevronRight className="h-3.5 w-3.5" />
           </Button>
           {!isCurrentMonth && (
-            <Button variant="ghost" size="sm" className="h-7 rounded-lg text-[10px] px-2" onClick={() => setCursor(new Date(today.getFullYear(), today.getMonth(), 1))}>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-7 rounded-lg text-[10px] px-2"
+              onClick={() => setCursor(new Date(today.getFullYear(), today.getMonth(), 1))}
+            >
               วันนี้
             </Button>
           )}
@@ -83,14 +112,24 @@ export function BillingCalendar({
       </CardHeader>
       <CardContent>
         <div className="flex flex-wrap items-center gap-3 text-[10px] text-muted-foreground mb-2 px-1">
-          <span className="flex items-center gap-1"><span className="h-1.5 w-1.5 rounded-full bg-primary" /> Subscription</span>
-          <span className="flex items-center gap-1"><span className="h-1.5 w-1.5 rounded-full bg-blue-500" /> ตัดรอบบัตร</span>
-          <span className="flex items-center gap-1"><span className="h-1.5 w-1.5 rounded-full bg-destructive" /> วันสุดท้ายจ่าย</span>
-          <span className="flex items-center gap-1"><span className="h-1.5 w-1.5 rounded-full bg-amber-500" /> ใบแจ้งหนี้ลูกค้า</span>
+          <span className="flex items-center gap-1">
+            <span className="h-1.5 w-1.5 rounded-full bg-primary" /> Subscription
+          </span>
+          <span className="flex items-center gap-1">
+            <span className="h-1.5 w-1.5 rounded-full bg-blue-500" /> ตัดรอบบัตร
+          </span>
+          <span className="flex items-center gap-1">
+            <span className="h-1.5 w-1.5 rounded-full bg-destructive" /> วันสุดท้ายจ่าย
+          </span>
+          <span className="flex items-center gap-1">
+            <span className="h-1.5 w-1.5 rounded-full bg-amber-500" /> ใบแจ้งหนี้ลูกค้า
+          </span>
         </div>
         <div className="grid grid-cols-7 gap-1.5 text-center">
           {["จ", "อ", "พ", "พฤ", "ศ", "ส", "อา"].map((d) => (
-            <div key={d} className="text-[10px] font-medium text-muted-foreground py-1">{d}</div>
+            <div key={d} className="text-[10px] font-medium text-muted-foreground py-1">
+              {d}
+            </div>
           ))}
           {Array.from({ length: firstWeekday }).map((_, i) => (
             <div key={`blank-${i}`} />
@@ -132,19 +171,30 @@ export function BillingCalendar({
                 <PopoverTrigger asChild>{cell}</PopoverTrigger>
                 <PopoverContent className="w-72 p-3" align="center">
                   <div className="flex items-center justify-between pb-2 mb-2 border-b">
-                    <p className="text-sm font-semibold">วันที่ {day} {monthLabel}</p>
-                    {dayTotal > 0 && <p className="text-xs text-muted-foreground num">฿{formatTHB(dayTotal)}</p>}
+                    <p className="text-sm font-semibold">
+                      วันที่ {day} {monthLabel}
+                    </p>
+                    {dayTotal > 0 && (
+                      <p className="text-xs text-muted-foreground num">฿{formatTHB(dayTotal)}</p>
+                    )}
                   </div>
                   <div className="space-y-2.5 max-h-72 overflow-auto">
                     {todays.length > 0 && (
                       <div>
-                        <p className="text-[10px] font-semibold text-muted-foreground mb-1 uppercase tracking-wide">Subscriptions</p>
+                        <p className="text-[10px] font-semibold text-muted-foreground mb-1 uppercase tracking-wide">
+                          Subscriptions
+                        </p>
                         <div className="space-y-1">
                           {todays.map((t) => {
                             const Icon = t.icon;
                             return (
-                              <div key={t.id} className="flex items-center gap-2 rounded-md p-1.5 hover:bg-muted/50">
-                                <div className="rounded-md bg-primary-soft p-1.5 text-primary"><Icon className="h-3.5 w-3.5" /></div>
+                              <div
+                                key={t.id}
+                                className="flex items-center gap-2 rounded-md p-1.5 hover:bg-muted/50"
+                              >
+                                <div className="rounded-md bg-primary-soft p-1.5 text-primary">
+                                  <Icon className="h-3.5 w-3.5" />
+                                </div>
                                 <div className="flex-1 min-w-0">
                                   <p className="text-xs font-medium truncate">{t.name}</p>
                                   <p className="text-[10px] text-muted-foreground">{t.category}</p>
@@ -158,11 +208,18 @@ export function BillingCalendar({
                     )}
                     {stmts.length > 0 && (
                       <div>
-                        <p className="text-[10px] font-semibold text-blue-600 mb-1 uppercase tracking-wide flex items-center gap-1"><CalendarClock className="h-3 w-3" /> ตัดรอบบัตร</p>
+                        <p className="text-[10px] font-semibold text-blue-600 mb-1 uppercase tracking-wide flex items-center gap-1">
+                          <CalendarClock className="h-3 w-3" /> ตัดรอบบัตร
+                        </p>
                         <div className="space-y-1">
                           {stmts.map((m) => (
-                            <div key={m.id} className="flex items-center gap-2 rounded-md p-1.5 bg-blue-500/5">
-                              <div className="rounded-md bg-blue-500/15 p-1.5 text-blue-600"><CreditCard className="h-3.5 w-3.5" /></div>
+                            <div
+                              key={m.id}
+                              className="flex items-center gap-2 rounded-md p-1.5 bg-blue-500/5"
+                            >
+                              <div className="rounded-md bg-blue-500/15 p-1.5 text-blue-600">
+                                <CreditCard className="h-3.5 w-3.5" />
+                              </div>
                               <div className="flex-1 min-w-0">
                                 <p className="text-xs font-medium truncate">{m.label}</p>
                                 <p className="text-[10px] text-muted-foreground num">••{m.last4}</p>
@@ -174,11 +231,18 @@ export function BillingCalendar({
                     )}
                     {dues.length > 0 && (
                       <div>
-                        <p className="text-[10px] font-semibold text-destructive mb-1 uppercase tracking-wide flex items-center gap-1"><AlertCircle className="h-3 w-3" /> วันสุดท้ายต้องจ่าย</p>
+                        <p className="text-[10px] font-semibold text-destructive mb-1 uppercase tracking-wide flex items-center gap-1">
+                          <AlertCircle className="h-3 w-3" /> วันสุดท้ายต้องจ่าย
+                        </p>
                         <div className="space-y-1">
                           {dues.map((m) => (
-                            <div key={m.id} className="flex items-center gap-2 rounded-md p-1.5 bg-destructive/5">
-                              <div className="rounded-md bg-destructive/15 p-1.5 text-destructive"><CreditCard className="h-3.5 w-3.5" /></div>
+                            <div
+                              key={m.id}
+                              className="flex items-center gap-2 rounded-md p-1.5 bg-destructive/5"
+                            >
+                              <div className="rounded-md bg-destructive/15 p-1.5 text-destructive">
+                                <CreditCard className="h-3.5 w-3.5" />
+                              </div>
                               <div className="flex-1 min-w-0">
                                 <p className="text-xs font-medium truncate">{m.label}</p>
                                 <p className="text-[10px] text-muted-foreground num">••{m.last4}</p>
@@ -186,24 +250,37 @@ export function BillingCalendar({
                             </div>
                           ))}
                         </div>
-                    {invs.length > 0 && (
-                      <div>
-                        <p className="text-[10px] font-semibold text-amber-600 mb-1 uppercase tracking-wide flex items-center gap-1"><FileText className="h-3 w-3" /> ใบแจ้งหนี้ลูกค้า</p>
-                        <div className="space-y-1">
-                          {invs.map((inv) => (
-                            <div key={inv.id} className="flex items-center gap-2 rounded-md p-1.5 bg-amber-500/5">
-                              <div className="rounded-md bg-amber-500/15 p-1.5 text-amber-600"><FileText className="h-3.5 w-3.5" /></div>
-                              <div className="flex-1 min-w-0">
-                                <p className="text-xs font-medium truncate">{inv.name}</p>
-                                {inv.project && <p className="text-[10px] text-muted-foreground truncate">{inv.project}</p>}
-                              </div>
-                              <p className="num text-xs font-semibold">฿{formatTHB(inv.amount)}</p>
+                        {invs.length > 0 && (
+                          <div>
+                            <p className="text-[10px] font-semibold text-amber-600 mb-1 uppercase tracking-wide flex items-center gap-1">
+                              <FileText className="h-3 w-3" /> ใบแจ้งหนี้ลูกค้า
+                            </p>
+                            <div className="space-y-1">
+                              {invs.map((inv) => (
+                                <div
+                                  key={inv.id}
+                                  className="flex items-center gap-2 rounded-md p-1.5 bg-amber-500/5"
+                                >
+                                  <div className="rounded-md bg-amber-500/15 p-1.5 text-amber-600">
+                                    <FileText className="h-3.5 w-3.5" />
+                                  </div>
+                                  <div className="flex-1 min-w-0">
+                                    <p className="text-xs font-medium truncate">{inv.name}</p>
+                                    {inv.project && (
+                                      <p className="text-[10px] text-muted-foreground truncate">
+                                        {inv.project}
+                                      </p>
+                                    )}
+                                  </div>
+                                  <p className="num text-xs font-semibold">
+                                    ฿{formatTHB(inv.amount)}
+                                  </p>
+                                </div>
+                              ))}
                             </div>
-                          ))}
-                        </div>
+                          </div>
+                        )}
                       </div>
-                    )}
-                  </div>
                     )}
                   </div>
                 </PopoverContent>

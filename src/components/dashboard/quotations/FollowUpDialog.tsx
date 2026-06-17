@@ -1,5 +1,11 @@
 import * as React from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
@@ -29,7 +35,15 @@ const TONE_OPTIONS: { id: FollowUpTone; label: string; tone: string }[] = [
   { id: "urgent", label: "เร่งด่วน", tone: "bg-destructive/15 text-destructive" },
 ];
 
-export function FollowUpDialog({ q, open, onClose }: { q: Quotation | null; open: boolean; onClose: () => void }) {
+export function FollowUpDialog({
+  q,
+  open,
+  onClose,
+}: {
+  q: Quotation | null;
+  open: boolean;
+  onClose: () => void;
+}) {
   const { update } = useQuotations();
   const { profile } = useAuth();
   const { isPro } = useSubscription();
@@ -125,7 +139,9 @@ export function FollowUpDialog({ q, open, onClose }: { q: Quotation | null; open
 
         <div className="space-y-3 text-sm">
           <div className="rounded-xl border border-border/60 p-3 bg-muted/20">
-            <p className="text-xs text-muted-foreground">ลูกค้า: <span className="text-foreground font-medium">{q.clientName}</span></p>
+            <p className="text-xs text-muted-foreground">
+              ลูกค้า: <span className="text-foreground font-medium">{q.clientName}</span>
+            </p>
             <p className="text-xs text-muted-foreground mt-0.5">โครงการ: {q.projectName}</p>
             <div className="flex items-center justify-between mt-2">
               <div>
@@ -148,7 +164,9 @@ export function FollowUpDialog({ q, open, onClose }: { q: Quotation | null; open
                   key={t.id}
                   onClick={() => setTplId(t.id)}
                   className={`rounded-lg border px-3 py-2 text-xs font-medium transition-all ${
-                    tplId === t.id ? "border-primary " + t.tone : "border-border hover:border-primary/40"
+                    tplId === t.id
+                      ? "border-primary " + t.tone
+                      : "border-border hover:border-primary/40"
                   }`}
                 >
                   {t.label}
@@ -173,30 +191,61 @@ export function FollowUpDialog({ q, open, onClose }: { q: Quotation | null; open
           </Button>
 
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-            <Button size="sm" variant="outline" onClick={copy}><Copy className="h-3.5 w-3.5" />Copy</Button>
-            <Button size="sm" variant="outline" onClick={openLine} className="bg-[#06C755]/10 border-[#06C755]/40 text-[#06C755] hover:bg-[#06C755]/20">
-              <MessageCircle className="h-3.5 w-3.5" />LINE
+            <Button size="sm" variant="outline" onClick={copy}>
+              <Copy className="h-3.5 w-3.5" />
+              Copy
             </Button>
-            <Button size="sm" variant="outline" onClick={openWhatsApp} className="bg-[#25D366]/10 border-[#25D366]/40 text-[#25D366] hover:bg-[#25D366]/20">
-              <Phone className="h-3.5 w-3.5" />WhatsApp
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={openLine}
+              className="bg-[#06C755]/10 border-[#06C755]/40 text-[#06C755] hover:bg-[#06C755]/20"
+            >
+              <MessageCircle className="h-3.5 w-3.5" />
+              LINE
             </Button>
-            <Button size="sm" variant="outline" onClick={openMail}><Mail className="h-3.5 w-3.5" />Email</Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={openWhatsApp}
+              className="bg-[#25D366]/10 border-[#25D366]/40 text-[#25D366] hover:bg-[#25D366]/20"
+            >
+              <Phone className="h-3.5 w-3.5" />
+              WhatsApp
+            </Button>
+            <Button size="sm" variant="outline" onClick={openMail}>
+              <Mail className="h-3.5 w-3.5" />
+              Email
+            </Button>
           </div>
 
           <div className="rounded-xl border border-border/60 p-3 space-y-2">
             <Label className="text-[11px] font-semibold">รับชำระบางส่วน (Partial)</Label>
             <div className="flex gap-2">
-              <Input placeholder="ยอดที่ได้รับ" inputMode="numeric" value={partial}
-                onChange={(e) => setPartial(e.target.value)} className="num" />
-              <Button size="sm" onClick={recordPartial} disabled={!partial}>บันทึก</Button>
+              <Input
+                placeholder="ยอดที่ได้รับ"
+                inputMode="numeric"
+                value={partial}
+                onChange={(e) => setPartial(e.target.value)}
+                className="num"
+              />
+              <Button size="sm" onClick={recordPartial} disabled={!partial}>
+                บันทึก
+              </Button>
             </div>
             {(q.paidPartial || 0) > 0 && (
-              <p className="text-[11px] text-muted-foreground">ชำระแล้ว ฿{q.paidPartial.toLocaleString("th-TH")}</p>
+              <p className="text-[11px] text-muted-foreground">
+                ชำระแล้ว ฿{q.paidPartial.toLocaleString("th-TH")}
+              </p>
             )}
           </div>
         </div>
 
-        <DialogFooter><Button variant="outline" onClick={onClose}>ปิด</Button></DialogFooter>
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose}>
+            ปิด
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

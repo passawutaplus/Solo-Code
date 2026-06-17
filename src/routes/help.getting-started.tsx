@@ -67,7 +67,9 @@ function GettingStartedPage() {
                         ขั้นที่ {i + 1}
                       </p>
                       <h2 className="text-base font-semibold">{step.title}</h2>
-                      <p className="text-sm text-muted-foreground mt-2 leading-relaxed">{step.body}</p>
+                      <p className="text-sm text-muted-foreground mt-2 leading-relaxed">
+                        {step.body}
+                      </p>
                       <p className="text-[11px] text-muted-foreground mt-2 flex items-start gap-1.5">
                         <CheckCircle2 className="h-3.5 w-3.5 shrink-0 mt-0.5 text-emerald-600" />
                         {step.tip}

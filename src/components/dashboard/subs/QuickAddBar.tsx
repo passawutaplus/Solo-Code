@@ -63,9 +63,7 @@ export function QuickAddBar() {
         <div className="flex flex-wrap gap-2">
           {popular.map((item) => {
             const Icon = item.icon;
-            const exists = subs.some(
-              (s) => s.name.toLowerCase() === item.name.toLowerCase(),
-            );
+            const exists = subs.some((s) => s.name.toLowerCase() === item.name.toLowerCase());
             return (
               <Button
                 key={item.name}

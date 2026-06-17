@@ -1,16 +1,9 @@
 import * as React from "react";
 import { FileText, Lightbulb, Loader2, Plus } from "lucide-react";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import {
-  queuePipelineQuotation,
-  queueSmartBriefQuickCapture,
-} from "@/lib/pipelineNewDeal";
+import { queuePipelineQuotation, queueSmartBriefQuickCapture } from "@/lib/pipelineNewDeal";
 
 type Props = {
   variant?: "sidebar" | "header";
@@ -64,11 +57,7 @@ export function PipelineNewDealButton({
             style={{ background: "#FF5F05" }}
             disabled={creating}
           >
-            {creating ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <Plus className="h-4 w-4" />
-            )}
+            {creating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
             New Deal
           </Button>
         </PopoverTrigger>
@@ -105,7 +94,10 @@ export function PipelineNewDealButton({
         side={collapsed ? "right" : "top"}
         align="center"
         sideOffset={8}
-        className={cn("p-2", collapsed ? "w-72" : "w-[calc(var(--sidebar-width)-1rem)] max-w-[15rem]")}
+        className={cn(
+          "p-2",
+          collapsed ? "w-72" : "w-[calc(var(--sidebar-width)-1rem)] max-w-[15rem]",
+        )}
       >
         <DealOptions onBrief={goBrief} onQuotation={goQuotation} />
       </PopoverContent>
@@ -113,13 +105,7 @@ export function PipelineNewDealButton({
   );
 }
 
-function DealOptions({
-  onBrief,
-  onQuotation,
-}: {
-  onBrief: () => void;
-  onQuotation: () => void;
-}) {
+function DealOptions({ onBrief, onQuotation }: { onBrief: () => void; onQuotation: () => void }) {
   return (
     <div className="space-y-1.5">
       <p className="px-1 pb-0.5 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">

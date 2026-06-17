@@ -269,7 +269,11 @@ export function InhouseSettingsTab({ org }: Props) {
               ปิด
             </Button>
             <Button onClick={handleInvite} disabled={createInvite.isPending}>
-              {createInvite.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : "สร้างลิงก์เชิญ"}
+              {createInvite.isPending ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                "สร้างลิงก์เชิญ"
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -280,7 +284,11 @@ export function InhouseSettingsTab({ org }: Props) {
           <DialogHeader>
             <DialogTitle>Workspace ใหม่</DialogTitle>
           </DialogHeader>
-          <Input value={newWsName} onChange={(e) => setNewWsName(e.target.value)} placeholder="ชื่อโปรเจกต์" />
+          <Input
+            value={newWsName}
+            onChange={(e) => setNewWsName(e.target.value)}
+            placeholder="ชื่อโปรเจกต์"
+          />
           <DialogFooter>
             <Button onClick={handleCreateWs} disabled={createWorkspace.isPending}>
               สร้าง

@@ -9,7 +9,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { Loader2, CheckCircle2, MessageSquare, ExternalLink, Calendar } from "lucide-react";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
-import { PLATFORM_META, STATUS_META, type Platform, type Status } from "@/components/dashboard/planner/contentMeta";
+import {
+  PLATFORM_META,
+  STATUS_META,
+  type Platform,
+  type Status,
+} from "@/components/dashboard/planner/contentMeta";
 
 type ShareLink = {
   id: string;
@@ -38,10 +43,7 @@ type PlannerRow = {
 
 export const Route = createFileRoute("/planner/$token")({
   head: () => ({
-    meta: [
-      { title: "Content Planner — So1o" },
-      { name: "robots", content: "noindex,nofollow" },
-    ],
+    meta: [{ title: "Content Planner — So1o" }, { name: "robots", content: "noindex,nofollow" }],
   }),
   errorComponent: ({ error }) => <RouteError error={error} />,
   component: PublicPlannerPage,
@@ -61,31 +63,47 @@ function PublicPlannerPage() {
     const { data: l, error: lErr } = await supabase
       .rpc("get_planner_share_by_token", { _token: token })
       .maybeSingle();
-    if (lErr || !l) { setLoading(false); return; }
+    if (lErr || !l) {
+      setLoading(false);
+      return;
+    }
     setLink(l as ShareLink);
 
     const { data, error } = await supabase.rpc("get_planner_posts_by_token", { _token: token });
-    if (error) { toast.error(error.message); setLoading(false); return; }
+    if (error) {
+      toast.error(error.message);
+      setLoading(false);
+      return;
+    }
     setPosts((data ?? []) as PlannerRow[]);
     setLoading(false);
   }, [token]);
 
-  React.useEffect(() => { load(); }, [load]);
+  React.useEffect(() => {
+    load();
+  }, [load]);
 
   const submitApproval = async (postId: string, status: "approved" | "changes_requested") => {
     setSubmitting(postId);
     try {
-      const { error } = await supabase.rpc("submit_post_approval" as never, {
-        _share_token: token,
-        _post_id: postId,
-        _status: status,
-        _feedback: status === "changes_requested" ? feedbackText : "",
-      } as never);
+      const { error } = await supabase.rpc(
+        "submit_post_approval" as never,
+        {
+          _share_token: token,
+          _post_id: postId,
+          _status: status,
+          _feedback: status === "changes_requested" ? feedbackText : "",
+        } as never,
+      );
       if (error) throw error;
       setPosts((arr) =>
         arr.map((p) =>
           p.id === postId
-            ? { ...p, approval_status: status, client_feedback: status === "changes_requested" ? feedbackText : p.client_feedback }
+            ? {
+                ...p,
+                approval_status: status,
+                client_feedback: status === "changes_requested" ? feedbackText : p.client_feedback,
+              }
             : p,
         ),
       );
@@ -138,11 +156,15 @@ function PublicPlannerPage() {
         </div>
 
         {posts.length === 0 && (
-          <Card className="rounded-2xl"><CardContent className="py-10 text-center text-sm text-muted-foreground">ยังไม่มีโพสต์ในเดือนนี้</CardContent></Card>
+          <Card className="rounded-2xl">
+            <CardContent className="py-10 text-center text-sm text-muted-foreground">
+              ยังไม่มีโพสต์ในเดือนนี้
+            </CardContent>
+          </Card>
         )}
 
         {posts.map((p) => {
-          const SM = STATUS_META[(p.status as Status)] ?? STATUS_META.draft;
+          const SM = STATUS_META[p.status as Status] ?? STATUS_META.draft;
           const isApproved = p.approval_status === "approved";
           const isChanges = p.approval_status === "changes_requested";
           return (
@@ -157,38 +179,62 @@ function PublicPlannerPage() {
                     </div>
                     <CardTitle className="text-base">{p.title}</CardTitle>
                   </div>
-                  <span className={`text-[10px] font-medium rounded-md px-2 py-0.5 ${SM.className}`}>
+                  <span
+                    className={`text-[10px] font-medium rounded-md px-2 py-0.5 ${SM.className}`}
+                  >
                     {SM.label}
                   </span>
                 </div>
                 <div className="flex items-center gap-1 mt-1.5">
-                  {(p.platforms as Platform[]).filter((x) => x !== "other").map((pl) => {
-                    const M = PLATFORM_META[pl];
-                    if (!M) return null;
-                    const Icon = M.icon;
-                    return <span key={pl} className={`inline-flex items-center justify-center h-5 w-5 rounded-md ${M.bgClass}`}><Icon className="h-3 w-3" /></span>;
-                  })}
+                  {(p.platforms as Platform[])
+                    .filter((x) => x !== "other")
+                    .map((pl) => {
+                      const M = PLATFORM_META[pl];
+                      if (!M) return null;
+                      const Icon = M.icon;
+                      return (
+                        <span
+                          key={pl}
+                          className={`inline-flex items-center justify-center h-5 w-5 rounded-md ${M.bgClass}`}
+                        >
+                          <Icon className="h-3 w-3" />
+                        </span>
+                      );
+                    })}
                   {(p.custom_platforms ?? []).map((c) => (
-                    <span key={c} className="text-[10px] rounded-md bg-muted px-1.5 py-0.5">{c}</span>
+                    <span key={c} className="text-[10px] rounded-md bg-muted px-1.5 py-0.5">
+                      {c}
+                    </span>
                   ))}
                 </div>
               </CardHeader>
               <CardContent className="space-y-3">
                 {p.image_url && (
-                  <img src={p.image_url} alt="" className="w-full max-h-[400px] object-cover rounded-xl border" />
+                  <img
+                    src={p.image_url}
+                    alt=""
+                    className="w-full max-h-[400px] object-cover rounded-xl border"
+                  />
                 )}
                 {p.caption && (
                   <p className="text-sm whitespace-pre-wrap text-foreground/90">{p.caption}</p>
                 )}
                 {p.link && safeHref(p.link) && (
-                  <a href={safeHref(p.link)!} target="_blank" rel="noopener noreferrer" className="text-xs text-primary inline-flex items-center gap-1">
+                  <a
+                    href={safeHref(p.link)!}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs text-primary inline-flex items-center gap-1"
+                  >
                     <ExternalLink className="h-3 w-3" /> เปิดลิงก์อ้างอิง
                   </a>
                 )}
 
                 {p.client_feedback && (
                   <div className="rounded-xl bg-muted/60 p-2.5 text-xs">
-                    <div className="text-[10px] font-semibold text-muted-foreground mb-1">ฟีดแบคก่อนหน้า:</div>
+                    <div className="text-[10px] font-semibold text-muted-foreground mb-1">
+                      ฟีดแบคก่อนหน้า:
+                    </div>
                     <p className="whitespace-pre-wrap">{p.client_feedback}</p>
                   </div>
                 )}
@@ -214,9 +260,21 @@ function PublicPlannerPage() {
                         disabled={!feedbackText.trim() || submitting === p.id}
                         onClick={() => submitApproval(p.id, "changes_requested")}
                       >
-                        {submitting === p.id ? <Loader2 className="h-3 w-3 animate-spin" /> : "ส่งคำขอแก้ไข"}
+                        {submitting === p.id ? (
+                          <Loader2 className="h-3 w-3 animate-spin" />
+                        ) : (
+                          "ส่งคำขอแก้ไข"
+                        )}
                       </Button>
-                      <Button size="sm" variant="ghost" className="rounded-xl" onClick={() => { setFeedbackOpenId(null); setFeedbackText(""); }}>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="rounded-xl"
+                        onClick={() => {
+                          setFeedbackOpenId(null);
+                          setFeedbackText("");
+                        }}
+                      >
                         ยกเลิก
                       </Button>
                     </div>
@@ -229,13 +287,22 @@ function PublicPlannerPage() {
                       disabled={submitting === p.id}
                       onClick={() => submitApproval(p.id, "approved")}
                     >
-                      {submitting === p.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <><CheckCircle2 className="h-4 w-4 mr-1" /> อนุมัติ</>}
+                      {submitting === p.id ? (
+                        <Loader2 className="h-3 w-3 animate-spin" />
+                      ) : (
+                        <>
+                          <CheckCircle2 className="h-4 w-4 mr-1" /> อนุมัติ
+                        </>
+                      )}
                     </Button>
                     <Button
                       size="sm"
                       variant="outline"
                       className="rounded-xl flex-1"
-                      onClick={() => { setFeedbackOpenId(p.id); setFeedbackText(p.client_feedback ?? ""); }}
+                      onClick={() => {
+                        setFeedbackOpenId(p.id);
+                        setFeedbackText(p.client_feedback ?? "");
+                      }}
                     >
                       <MessageSquare className="h-4 w-4 mr-1" />
                       ขอแก้ไข

@@ -37,7 +37,9 @@ export function PriceHistoryWidget() {
     setRows((data as EventRow[]) ?? []);
   }, [user]);
 
-  React.useEffect(() => { refresh(); }, [refresh]);
+  React.useEffect(() => {
+    refresh();
+  }, [refresh]);
 
   // Realtime: refresh whenever the user's price_guide_events change (insert/delete by trim trigger)
   React.useEffect(() => {
@@ -46,11 +48,18 @@ export function PriceHistoryWidget() {
       .channel(`pg-events-${user.id}`)
       .on(
         "postgres_changes",
-        { event: "*", schema: "public", table: "price_guide_events", filter: `user_id=eq.${user.id}` },
+        {
+          event: "*",
+          schema: "public",
+          table: "price_guide_events",
+          filter: `user_id=eq.${user.id}`,
+        },
         () => refresh(),
       )
       .subscribe();
-    return () => { supabase.removeChannel(ch); };
+    return () => {
+      supabase.removeChannel(ch);
+    };
   }, [user, refresh]);
 
   return (
@@ -65,10 +74,14 @@ export function PriceHistoryWidget() {
       </CardHeader>
       <CardContent className="space-y-1.5">
         {rows.length === 0 && (
-          <p className="text-xs text-muted-foreground text-center py-3">ยังไม่มีประวัติ — ลองกด "ประเมินใหม่" ดูครับ</p>
+          <p className="text-xs text-muted-foreground text-center py-3">
+            ยังไม่มีประวัติ — ลองกด "ประเมินใหม่" ดูครับ
+          </p>
         )}
         {rows.length > 0 && (
-          <p className="text-[10px] text-muted-foreground text-center pb-1">เก็บประวัติได้สูงสุด 5 รายการล่าสุด</p>
+          <p className="text-[10px] text-muted-foreground text-center pb-1">
+            เก็บประวัติได้สูงสุด 5 รายการล่าสุด
+          </p>
         )}
         {rows.map((r) => (
           <div key={r.id} className="text-xs p-2 rounded-lg bg-muted/30">
@@ -76,12 +89,25 @@ export function PriceHistoryWidget() {
               onClick={() => setExpanded(expanded === r.id ? null : r.id)}
               className="w-full flex items-center gap-2 text-left"
             >
-              <Badge variant="outline" className="text-[10px] shrink-0">{r.job_type}</Badge>
-              <span className="num text-muted-foreground shrink-0">{r.days}วัน × {r.quantity}</span>
-              <span className="num font-semibold text-primary flex-1">฿{fmt(Number(r.recommended_price))}</span>
-              {r.applied && <Badge className="bg-success/15 text-success border-success/30 text-[10px]">ใช้แล้ว</Badge>}
+              <Badge variant="outline" className="text-[10px] shrink-0">
+                {r.job_type}
+              </Badge>
+              <span className="num text-muted-foreground shrink-0">
+                {r.days}วัน × {r.quantity}
+              </span>
+              <span className="num font-semibold text-primary flex-1">
+                ฿{fmt(Number(r.recommended_price))}
+              </span>
+              {r.applied && (
+                <Badge className="bg-success/15 text-success border-success/30 text-[10px]">
+                  ใช้แล้ว
+                </Badge>
+              )}
               <span className="text-muted-foreground text-[10px] shrink-0">
-                {new Date(r.created_at).toLocaleDateString("th-TH", { day: "numeric", month: "short" })}
+                {new Date(r.created_at).toLocaleDateString("th-TH", {
+                  day: "numeric",
+                  month: "short",
+                })}
               </span>
             </button>
             {expanded === r.id && r.reasoning && (
@@ -92,7 +118,13 @@ export function PriceHistoryWidget() {
           </div>
         ))}
       </CardContent>
-      <PriceGuideModal open={open} onOpenChange={(o) => { setOpen(o); if (!o) refresh(); }} />
+      <PriceGuideModal
+        open={open}
+        onOpenChange={(o) => {
+          setOpen(o);
+          if (!o) refresh();
+        }}
+      />
     </Card>
   );
 }

@@ -1,5 +1,11 @@
 import * as React from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Copy, ExternalLink, Hash, CheckCircle2, Mail, Loader2, Wallet } from "lucide-react";
@@ -150,7 +156,8 @@ export function ShareTrackerDialog({
           </div>
 
           <p className="text-[11px] text-muted-foreground leading-snug pt-1 border-t border-border">
-            💡 ใส่อีเมลลูกค้าในใบเสนอราคาก่อน ถึงจะส่งอีเมลได้ · ลูกค้ากดยอมรับใบเสนอราคาได้จากลิงก์นี้
+            💡 ใส่อีเมลลูกค้าในใบเสนอราคาก่อน ถึงจะส่งอีเมลได้ ·
+            ลูกค้ากดยอมรับใบเสนอราคาได้จากลิงก์นี้
           </p>
         </div>
       </DialogContent>

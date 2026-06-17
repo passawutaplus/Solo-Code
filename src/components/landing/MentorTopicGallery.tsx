@@ -87,14 +87,22 @@ export function MentorTopicGallery({ onPick, compact, disabled }: Props) {
           <Sparkles className="h-3 w-3" /> หาไอเดียคุย
         </button>
         {showModal && (
-          <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm grid place-items-center p-4" onClick={() => setShowModal(false)}>
+          <div
+            className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm grid place-items-center p-4"
+            onClick={() => setShowModal(false)}
+          >
             <div
               className="w-full max-w-md rounded-2xl border border-border bg-card p-4 shadow-elevated max-h-[80vh] overflow-y-auto"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex items-center justify-between mb-3">
-                <h3 className="text-sm font-bold flex items-center gap-1.5"><Sparkles className="h-4 w-4 text-primary" /> เลือกหัวข้อสนใจ</h3>
-                <button onClick={() => setShowModal(false)} className="h-7 w-7 rounded-full hover:bg-muted grid place-items-center">
+                <h3 className="text-sm font-bold flex items-center gap-1.5">
+                  <Sparkles className="h-4 w-4 text-primary" /> เลือกหัวข้อสนใจ
+                </h3>
+                <button
+                  onClick={() => setShowModal(false)}
+                  className="h-7 w-7 rounded-full hover:bg-muted grid place-items-center"
+                >
                   <X className="h-4 w-4" />
                 </button>
               </div>
@@ -102,7 +110,10 @@ export function MentorTopicGallery({ onPick, compact, disabled }: Props) {
                 topics={MENTOR_TOPICS}
                 openId={openId}
                 setOpenId={setOpenId}
-                onPick={(q) => { setShowModal(false); onPick(q); }}
+                onPick={(q) => {
+                  setShowModal(false);
+                  onPick(q);
+                }}
                 disabled={disabled}
               />
             </div>
@@ -117,13 +128,23 @@ export function MentorTopicGallery({ onPick, compact, disabled }: Props) {
       <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-1">
         <Sparkles className="h-3 w-3 text-primary" /> เริ่มคุยจากหัวข้อยอดฮิต
       </p>
-      <Gallery topics={MENTOR_TOPICS} openId={openId} setOpenId={setOpenId} onPick={onPick} disabled={disabled} />
+      <Gallery
+        topics={MENTOR_TOPICS}
+        openId={openId}
+        setOpenId={setOpenId}
+        onPick={onPick}
+        disabled={disabled}
+      />
     </div>
   );
 }
 
 function Gallery({
-  topics, openId, setOpenId, onPick, disabled,
+  topics,
+  openId,
+  setOpenId,
+  onPick,
+  disabled,
 }: {
   topics: Topic[];
   openId: string | null;

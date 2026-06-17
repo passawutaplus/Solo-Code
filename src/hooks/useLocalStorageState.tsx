@@ -15,9 +15,7 @@ export function useLocalStorageState<T>(
 ): [T, React.Dispatch<React.SetStateAction<T>>] {
   const [state, setState] = React.useState<T>(() => {
     if (typeof window === "undefined") {
-      return typeof initialValue === "function"
-        ? (initialValue as () => T)()
-        : initialValue;
+      return typeof initialValue === "function" ? (initialValue as () => T)() : initialValue;
     }
     try {
       const raw = window.localStorage.getItem(key);
@@ -25,9 +23,7 @@ export function useLocalStorageState<T>(
     } catch {
       /* fallthrough to initial */
     }
-    return typeof initialValue === "function"
-      ? (initialValue as () => T)()
-      : initialValue;
+    return typeof initialValue === "function" ? (initialValue as () => T)() : initialValue;
   });
 
   // เก็บค่าล่าสุดที่ "เราเขียนเอง" ไว้ เพื่อตรวจ event ที่กลับเข้ามาจากแท็บอื่น

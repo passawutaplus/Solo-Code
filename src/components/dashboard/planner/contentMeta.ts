@@ -1,5 +1,17 @@
 import * as React from "react";
-import { Facebook, Instagram, Youtube, Music2, Globe, FileEdit, Clock, CheckCircle2, Sparkles, CalendarClock, Eye } from "lucide-react";
+import {
+  Facebook,
+  Instagram,
+  Youtube,
+  Music2,
+  Globe,
+  FileEdit,
+  Clock,
+  CheckCircle2,
+  Sparkles,
+  CalendarClock,
+  Eye,
+} from "lucide-react";
 
 export type Platform = "facebook" | "instagram" | "tiktok" | "youtube" | "other";
 export type Status = "draft" | "in_review" | "approved" | "scheduled" | "published";
@@ -24,13 +36,43 @@ export type Post = {
 
 export const PLATFORM_META: Record<
   Platform,
-  { label: string; icon: React.ComponentType<{ className?: string }>; color: string; bgClass: string }
+  {
+    label: string;
+    icon: React.ComponentType<{ className?: string }>;
+    color: string;
+    bgClass: string;
+  }
 > = {
-  facebook: { label: "Facebook", icon: Facebook, color: "text-[#1877F2]", bgClass: "bg-[#1877F2] text-white" },
-  instagram: { label: "Instagram", icon: Instagram, color: "text-[#E1306C]", bgClass: "bg-gradient-to-tr from-yellow-400 via-pink-500 to-purple-600 text-white" },
-  tiktok: { label: "TikTok", icon: Music2, color: "text-foreground", bgClass: "bg-black text-white" },
-  youtube: { label: "YouTube", icon: Youtube, color: "text-[#FF0000]", bgClass: "bg-[#FF0000] text-white" },
-  other: { label: "อื่นๆ", icon: Globe, color: "text-muted-foreground", bgClass: "bg-muted text-foreground" },
+  facebook: {
+    label: "Facebook",
+    icon: Facebook,
+    color: "text-[#1877F2]",
+    bgClass: "bg-[#1877F2] text-white",
+  },
+  instagram: {
+    label: "Instagram",
+    icon: Instagram,
+    color: "text-[#E1306C]",
+    bgClass: "bg-gradient-to-tr from-yellow-400 via-pink-500 to-purple-600 text-white",
+  },
+  tiktok: {
+    label: "TikTok",
+    icon: Music2,
+    color: "text-foreground",
+    bgClass: "bg-black text-white",
+  },
+  youtube: {
+    label: "YouTube",
+    icon: Youtube,
+    color: "text-[#FF0000]",
+    bgClass: "bg-[#FF0000] text-white",
+  },
+  other: {
+    label: "อื่นๆ",
+    icon: Globe,
+    color: "text-muted-foreground",
+    bgClass: "bg-muted text-foreground",
+  },
 };
 
 export const STATUS_META: Record<
@@ -39,8 +81,16 @@ export const STATUS_META: Record<
 > = {
   draft: { label: "Draft", icon: FileEdit, className: "bg-muted text-muted-foreground" },
   in_review: { label: "In Review", icon: Eye, className: "bg-[#FF6B00]/15 text-[#FF6B00]" },
-  approved: { label: "Approved", icon: CheckCircle2, className: "bg-blue-500/15 text-blue-600 dark:text-blue-400" },
-  scheduled: { label: "Scheduled", icon: CalendarClock, className: "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400" },
+  approved: {
+    label: "Approved",
+    icon: CheckCircle2,
+    className: "bg-blue-500/15 text-blue-600 dark:text-blue-400",
+  },
+  scheduled: {
+    label: "Scheduled",
+    icon: CalendarClock,
+    className: "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400",
+  },
   published: { label: "Published", icon: Sparkles, className: "bg-success/15 text-success" },
 };
 

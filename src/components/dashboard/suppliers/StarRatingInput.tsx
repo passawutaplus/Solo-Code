@@ -42,7 +42,9 @@ export function StarRatingInput({ value, onChange, size = 28, className }: Props
                 style={{ width: size, height: size }}
                 className={cn(
                   "transition-colors",
-                  active ? "fill-amber-400 stroke-amber-500" : "fill-transparent stroke-muted-foreground/40",
+                  active
+                    ? "fill-amber-400 stroke-amber-500"
+                    : "fill-transparent stroke-muted-foreground/40",
                 )}
               />
             </button>

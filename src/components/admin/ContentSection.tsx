@@ -80,7 +80,10 @@ export function ContentSection({ m }: { m: AdminMetrics }) {
                       <span className="num text-muted-foreground">฿{fmtTHB(e.total)}</span>
                     </div>
                     <div className="h-1.5 bg-muted rounded-full overflow-hidden">
-                      <div className="h-full bg-primary rounded-full" style={{ width: `${pct}%` }} />
+                      <div
+                        className="h-full bg-primary rounded-full"
+                        style={{ width: `${pct}%` }}
+                      />
                     </div>
                   </div>
                 );
@@ -88,7 +91,8 @@ export function ContentSection({ m }: { m: AdminMetrics }) {
             </div>
           )}
           <p className="mt-3 text-[10px] text-muted-foreground">
-            * รายชื่อ Subscription ยอดนิยมดูได้ที่แท็บ <strong>Top Subscriptions</strong> ในเมนู Subscriptions
+            * รายชื่อ Subscription ยอดนิยมดูได้ที่แท็บ <strong>Top Subscriptions</strong> ในเมนู
+            Subscriptions
           </p>
         </CardContent>
       </Card>

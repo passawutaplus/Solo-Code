@@ -138,7 +138,9 @@ export function QuotationsTab() {
   React.useEffect(() => {
     if (anthemHandoffConsumedRef.current) return;
     if (!listLoaded.current && list.length === 0) {
-      const t = setTimeout(() => { listLoaded.current = true; }, 400);
+      const t = setTimeout(() => {
+        listLoaded.current = true;
+      }, 400);
       return () => clearTimeout(t);
     }
     listLoaded.current = true;
@@ -214,7 +216,9 @@ export function QuotationsTab() {
   React.useEffect(() => {
     if (studioHandoffConsumedRef.current) return;
     if (!listLoaded.current && list.length === 0) {
-      const t = setTimeout(() => { listLoaded.current = true; }, 400);
+      const t = setTimeout(() => {
+        listLoaded.current = true;
+      }, 400);
       return () => clearTimeout(t);
     }
     listLoaded.current = true;
@@ -294,7 +298,9 @@ export function QuotationsTab() {
       studioId: studioInit.studioId,
       studioSnapshot,
     })
-      .then((q) => { if (q) void afterCreate(q); })
+      .then((q) => {
+        if (q) void afterCreate(q);
+      })
       .catch((e) => toast.error(e instanceof Error ? e.message : "สร้างไม่สำเร็จ"));
   }, [create, update, list, studioHandoffVersion, tier, profile?.document_theme]);
 
@@ -303,17 +309,31 @@ export function QuotationsTab() {
     if (handoffConsumedRef.current) return;
     if (!listLoaded.current && list.length === 0) {
       // Give the query one tick to load; if still empty after a short delay, proceed
-      const t = setTimeout(() => { listLoaded.current = true; }, 400);
+      const t = setTimeout(() => {
+        listLoaded.current = true;
+      }, 400);
       return () => clearTimeout(t);
     }
     listLoaded.current = true;
     let raw: string | null = null;
-    try { raw = sessionStorage.getItem("so1o.openQuotationFromBrief"); } catch { /* noop */ }
+    try {
+      raw = sessionStorage.getItem("so1o.openQuotationFromBrief");
+    } catch {
+      /* noop */
+    }
     if (!raw) return;
     handoffConsumedRef.current = true;
-    try { sessionStorage.removeItem("so1o.openQuotationFromBrief"); } catch { /* noop */ }
+    try {
+      sessionStorage.removeItem("so1o.openQuotationFromBrief");
+    } catch {
+      /* noop */
+    }
     let init: Partial<Quotation> & { items?: Quotation["items"]; briefId?: string } = {};
-    try { init = JSON.parse(raw); } catch { return; }
+    try {
+      init = JSON.parse(raw);
+    } catch {
+      return;
+    }
 
     const briefId = init.briefId;
     const newItems = (init.items ?? []).map((it) => ({
@@ -330,7 +350,9 @@ export function QuotationsTab() {
     if (existing) {
       // Merge fresh client/timeline info without clobbering user-entered prices
       const existingNamesLower = new Set(existing.items.map((i) => i.name.trim().toLowerCase()));
-      const itemsToAdd = newItems.filter((i) => !existingNamesLower.has(i.name.trim().toLowerCase()));
+      const itemsToAdd = newItems.filter(
+        (i) => !existingNamesLower.has(i.name.trim().toLowerCase()),
+      );
       const mergedPatch: Partial<Quotation> = {
         projectName: init.projectName || existing.projectName,
         clientName: init.clientName || existing.clientName,
@@ -339,8 +361,11 @@ export function QuotationsTab() {
         clientLineId: init.clientLineId || existing.clientLineId,
         startDate: init.startDate || existing.startDate,
         endDate: init.endDate || existing.endDate,
-        revisionsCount: typeof init.revisionsCount === "number" ? init.revisionsCount : existing.revisionsCount,
-        notes: init.notes ? `${existing.notes ? existing.notes + "\n\n" : ""}--- อัปเดตจากบรีฟ ---\n${init.notes}` : existing.notes,
+        revisionsCount:
+          typeof init.revisionsCount === "number" ? init.revisionsCount : existing.revisionsCount,
+        notes: init.notes
+          ? `${existing.notes ? existing.notes + "\n\n" : ""}--- อัปเดตจากบรีฟ ---\n${init.notes}`
+          : existing.notes,
         items: itemsToAdd.length ? [...existing.items, ...itemsToAdd] : existing.items,
       };
       update(existing.id, mergedPatch)
@@ -357,12 +382,14 @@ export function QuotationsTab() {
     }
 
     // No existing — create fresh and link via briefId
-    create({ ...init, items: newItems, briefId }).then((q) => {
-      if (q?.id) {
-        setEditingId(q.id);
-        toast.success("สร้างใบเสนอราคาจากบรีฟแล้ว — กรอกราคาให้ครบได้เลย");
-      }
-    }).catch((e) => toast.error(e instanceof Error ? e.message : "สร้างไม่สำเร็จ"));
+    create({ ...init, items: newItems, briefId })
+      .then((q) => {
+        if (q?.id) {
+          setEditingId(q.id);
+          toast.success("สร้างใบเสนอราคาจากบรีฟแล้ว — กรอกราคาให้ครบได้เลย");
+        }
+      })
+      .catch((e) => toast.error(e instanceof Error ? e.message : "สร้างไม่สำเร็จ"));
   }, [create, update, list]);
 
   const counts = React.useMemo(() => {
@@ -475,7 +502,7 @@ export function QuotationsTab() {
   }
 
   const meta = DOC_TYPES.find((d) => d.value === docType)!;
-  const mockupQ = mockupId ? list.find((q) => q.id === mockupId) ?? null : null;
+  const mockupQ = mockupId ? (list.find((q) => q.id === mockupId) ?? null) : null;
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
@@ -491,8 +518,8 @@ export function QuotationsTab() {
                   {docType === "quotation"
                     ? "รายการใบเสนอราคาทั้งหมด · จัดการได้ในที่เดียว"
                     : docType === "invoice"
-                    ? "รายการใบแจ้งหนี้ที่ส่งให้ลูกค้าแล้ว"
-                    : "ใบเสร็จรับเงินที่ออกให้ลูกค้าแล้ว"}
+                      ? "รายการใบแจ้งหนี้ที่ส่งให้ลูกค้าแล้ว"
+                      : "ใบเสร็จรับเงินที่ออกให้ลูกค้าแล้ว"}
                 </p>
               </div>
               {docType === "quotation" && (
@@ -569,7 +596,9 @@ export function QuotationsTab() {
                     if (q) {
                       supabase.auth.getUser().then(({ data }) => {
                         const email = data.user?.email;
-                        const name = (data.user?.user_metadata as any)?.full_name as string | undefined;
+                        const name = (data.user?.user_metadata as any)?.full_name as
+                          | string
+                          | undefined;
                         if (!email) return;
                         const totals = computeTotals(q);
                         sendTransactionalEmail({
@@ -657,12 +686,17 @@ export function QuotationsTab() {
           <AlertDialogHeader>
             <AlertDialogTitle>ใบเสนอราคารวม Studio</AlertDialogTitle>
             <AlertDialogDescription>
-              ฟีเจอร์นี้ใช้ได้เฉพาะแพ็ก In-House — อัปเกรดเพื่อรับ handoff จาก Pixel100 และจัดการทีมใน So1o
+              ฟีเจอร์นี้ใช้ได้เฉพาะแพ็ก In-House — อัปเกรดเพื่อรับ handoff จาก Pixel100
+              และจัดการทีมใน So1o
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>ปิด</AlertDialogCancel>
-            <AlertDialogAction onClick={() => { window.location.href = "/dashboard?tab=settings&section=subscription"; }}>
+            <AlertDialogAction
+              onClick={() => {
+                window.location.href = "/dashboard?tab=settings&section=subscription";
+              }}
+            >
               ดูแพ็ก In-House
             </AlertDialogAction>
           </AlertDialogFooter>

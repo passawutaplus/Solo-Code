@@ -2,12 +2,25 @@ import * as React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StatCard } from "./StatCard";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { useFinance } from "@/store/finance";
 import { ClientsProvider, useClients, type SavedClient } from "@/store/clients";
 import { formatTHB, MONTHLY_GOAL } from "@/data/mockData";
 import {
-  Users, Target, CheckCircle2, AlertTriangle, FileText, Plus, UserPlus, Trash2,
+  Users,
+  Target,
+  CheckCircle2,
+  AlertTriangle,
+  FileText,
+  Plus,
+  UserPlus,
+  Trash2,
 } from "lucide-react";
 import { toast } from "sonner";
 import { CONTRACTS } from "./clients/shared";
@@ -33,25 +46,47 @@ function ClientsTabInner() {
   const [confirmDel, setConfirmDel] = React.useState<SavedClient | null>(null);
 
   const receivable = invoices.filter((c) => c.status !== "paid").reduce((s, c) => s + c.amount, 0);
-  const overdue = invoices.filter((c) => c.status === "late7" || c.status === "late30").reduce((s, c) => s + c.amount, 0);
+  const overdue = invoices
+    .filter((c) => c.status === "late7" || c.status === "late30")
+    .reduce((s, c) => s + c.amount, 0);
   const unpaidCount = invoices.filter((c) => c.status !== "paid").length;
 
   const thisMonth = new Date().toISOString().slice(0, 7);
-  const monthlyEarned = incomes.filter((i) => i.month === thisMonth).reduce((s, i) => s + i.gross, 0);
+  const monthlyEarned = incomes
+    .filter((i) => i.month === thisMonth)
+    .reduce((s, i) => s + i.gross, 0);
   const goalPct = Math.min(100, (monthlyEarned / MONTHLY_GOAL) * 100);
 
   return (
     <div className="space-y-5">
       <PageFooterActions feature="ลูกค้า" label="ลูกค้า (CRM)" />
       <div className="grid gap-4 sm:grid-cols-3">
-        <StatCard accent label="ค้างรับทั้งหมด" value={`฿${formatTHB(receivable)}`} sub={`${unpaidCount} ใบ`} icon={<Users className="h-5 w-5" />} />
-        <StatCard label="เกินกำหนด" value={`฿${formatTHB(overdue)}`} sub="ต้องตามเก็บ" icon={<AlertTriangle className="h-5 w-5" />} />
-        <StatCard label="รับแล้ว (เดือนนี้)" value={`฿${formatTHB(monthlyEarned)}`} sub={`เข้าจริง ${incomes.filter((i) => i.month === thisMonth).length} ใบ`} icon={<CheckCircle2 className="h-5 w-5" />} />
+        <StatCard
+          accent
+          label="ค้างรับทั้งหมด"
+          value={`฿${formatTHB(receivable)}`}
+          sub={`${unpaidCount} ใบ`}
+          icon={<Users className="h-5 w-5" />}
+        />
+        <StatCard
+          label="เกินกำหนด"
+          value={`฿${formatTHB(overdue)}`}
+          sub="ต้องตามเก็บ"
+          icon={<AlertTriangle className="h-5 w-5" />}
+        />
+        <StatCard
+          label="รับแล้ว (เดือนนี้)"
+          value={`฿${formatTHB(monthlyEarned)}`}
+          sub={`เข้าจริง ${incomes.filter((i) => i.month === thisMonth).length} ใบ`}
+          icon={<CheckCircle2 className="h-5 w-5" />}
+        />
       </div>
 
       <Card className="animate-fade-up">
         <CardHeader className="pb-2">
-          <CardTitle className="text-base flex items-center gap-2"><Target className="h-4 w-4 text-primary" /> เป้าหมายรายเดือน</CardTitle>
+          <CardTitle className="text-base flex items-center gap-2">
+            <Target className="h-4 w-4 text-primary" /> เป้าหมายรายเดือน
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex items-end justify-between mb-3">
@@ -61,11 +96,18 @@ function ClientsTabInner() {
             </div>
             <div className="text-right">
               <p className="num text-2xl font-semibold text-primary">{goalPct.toFixed(0)}%</p>
-              <p className="text-xs text-muted-foreground">{goalPct >= 100 ? "บรรลุแล้ว!" : `เหลืออีก ฿${formatTHB(MONTHLY_GOAL - monthlyEarned)}`}</p>
+              <p className="text-xs text-muted-foreground">
+                {goalPct >= 100
+                  ? "บรรลุแล้ว!"
+                  : `เหลืออีก ฿${formatTHB(MONTHLY_GOAL - monthlyEarned)}`}
+              </p>
             </div>
           </div>
           <div className="h-3 rounded-full bg-muted overflow-hidden">
-            <div className="h-full rounded-full bg-gradient-primary transition-all duration-700 shadow-soft" style={{ width: `${goalPct}%` }} />
+            <div
+              className="h-full rounded-full bg-gradient-primary transition-all duration-700 shadow-soft"
+              style={{ width: `${goalPct}%` }}
+            />
           </div>
         </CardContent>
       </Card>
@@ -142,8 +184,16 @@ function ClientsTabInner() {
       <ClientFormDialog
         editing={editing}
         onClose={() => setEditing(null)}
-        onCreate={(payload) => { add(payload); toast.success("เพิ่มลูกค้าเรียบร้อย"); setEditing(null); }}
-        onUpdate={(id, payload) => { update(id, payload); toast.success("อัปเดตลูกค้าเรียบร้อย"); setEditing(null); }}
+        onCreate={(payload) => {
+          add(payload);
+          toast.success("เพิ่มลูกค้าเรียบร้อย");
+          setEditing(null);
+        }}
+        onUpdate={(id, payload) => {
+          update(id, payload);
+          toast.success("อัปเดตลูกค้าเรียบร้อย");
+          setEditing(null);
+        }}
       />
 
       <Dialog open={!!confirmDel} onOpenChange={(o) => !o && setConfirmDel(null)}>
@@ -155,11 +205,16 @@ function ClientsTabInner() {
             "{confirmDel?.name}" จะถูกลบออกจากสมุด — ใบเสนอราคาที่เคยออกไม่ได้รับผลกระทบ
           </p>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setConfirmDel(null)}>ยกเลิก</Button>
+            <Button variant="outline" onClick={() => setConfirmDel(null)}>
+              ยกเลิก
+            </Button>
             <Button
               variant="destructive"
               onClick={() => {
-                if (confirmDel) { remove(confirmDel.id); toast.success("ลบแล้ว"); }
+                if (confirmDel) {
+                  remove(confirmDel.id);
+                  toast.success("ลบแล้ว");
+                }
                 setConfirmDel(null);
               }}
             >

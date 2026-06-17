@@ -2,24 +2,24 @@
  * Generates flat PNG icons for email templates.
  * Run: node scripts/generate-email-icons.mjs
  */
-import { mkdirSync, copyFileSync } from 'node:fs'
-import { join, dirname } from 'node:path'
-import { fileURLToPath } from 'node:url'
-import sharp from 'sharp'
+import { mkdirSync, copyFileSync } from "node:fs";
+import { join, dirname } from "node:path";
+import { fileURLToPath } from "node:url";
+import sharp from "sharp";
 
-const __dirname = dirname(fileURLToPath(import.meta.url))
-const OUT = join(__dirname, '..', 'public', 'email')
-const ICONS = join(OUT, 'icons')
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const OUT = join(__dirname, "..", "public", "email");
+const ICONS = join(OUT, "icons");
 
-mkdirSync(ICONS, { recursive: true })
+mkdirSync(ICONS, { recursive: true });
 
-const ORANGE = '#FF5F05'
-const INK = '#0F0F0F'
-const BODY = '#4A4A4A'
-const SUCCESS = '#059669'
-const WARNING = '#DC2626'
-const MUTE = '#9CA3AF'
-const LINE_GREEN = '#06C755'
+const ORANGE = "#FF5F05";
+const INK = "#0F0F0F";
+const BODY = "#4A4A4A";
+const SUCCESS = "#059669";
+const WARNING = "#DC2626";
+const MUTE = "#9CA3AF";
+const LINE_GREEN = "#06C755";
 
 const icons = {
   payment: `<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">
@@ -87,18 +87,18 @@ const icons = {
     <circle cx="24" cy="24" r="18" fill="none" stroke="${BODY}" stroke-width="2.5"/>
     <path d="M18 18 L30 30 M30 18 L18 30" stroke="${BODY}" stroke-width="2.5" stroke-linecap="round"/>
   </svg>`,
-}
+};
 
 for (const [name, svg] of Object.entries(icons)) {
-  const buf = Buffer.from(svg)
-  await sharp(buf).resize(48, 48).png().toFile(join(ICONS, `${name}.png`))
-  console.log(`  icons/${name}.png`)
+  const buf = Buffer.from(svg);
+  await sharp(buf)
+    .resize(48, 48)
+    .png()
+    .toFile(join(ICONS, `${name}.png`));
+  console.log(`  icons/${name}.png`);
 }
 
 // Logo: copy existing mark
-copyFileSync(
-  join(__dirname, '..', 'src', 'assets', 'so1o-logo-mark.png'),
-  join(OUT, 'logo.png'),
-)
-console.log('  logo.png')
-console.log('Done.')
+copyFileSync(join(__dirname, "..", "src", "assets", "so1o-logo-mark.png"), join(OUT, "logo.png"));
+console.log("  logo.png");
+console.log("Done.");

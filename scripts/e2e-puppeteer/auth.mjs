@@ -5,9 +5,9 @@ import { goto, launchBrowser, signIn, signOut, waitForServer, waitForUrl } from 
 function hasCredentials() {
   return Boolean(
     process.env.E2E_USER_EMAIL &&
-      process.env.E2E_USER_PASSWORD &&
-      process.env.E2E_ADMIN_EMAIL &&
-      process.env.E2E_ADMIN_PASSWORD,
+    process.env.E2E_USER_PASSWORD &&
+    process.env.E2E_ADMIN_EMAIL &&
+    process.env.E2E_ADMIN_PASSWORD,
   );
 }
 

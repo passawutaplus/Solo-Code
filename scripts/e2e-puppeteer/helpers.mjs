@@ -57,8 +57,8 @@ export async function signIn(page, role) {
   const { email, password } = getAccount(role);
   await goto(page, "/auth");
   await page.waitForSelector("#login-email, input[type='email']", { timeout: 10_000 });
-  const emailSel = await page.$("#login-email") ? "#login-email" : "input[type='email']";
-  const passSel = await page.$("#login-pass") ? "#login-pass" : "input[type='password']";
+  const emailSel = (await page.$("#login-email")) ? "#login-email" : "input[type='email']";
+  const passSel = (await page.$("#login-pass")) ? "#login-pass" : "input[type='password']";
   await page.click(emailSel, { clickCount: 3 });
   await page.type(emailSel, email, { delay: 10 });
   await page.click(passSel, { clickCount: 3 });

@@ -47,7 +47,16 @@ export function exportAccountantPackage(opts: {
 
   downloadText(summaryLines.join("\n"), `so1o-tax-summary-${year}.txt`);
 
-  const headers = ["เดือน", "ลูกค้า", "ประเภท", "ยอด Gross", "อัตรา WHT", "หัก ณ ที่จ่าย", "เลขใบ 50ทวิ", "ได้รับใบ"];
+  const headers = [
+    "เดือน",
+    "ลูกค้า",
+    "ประเภท",
+    "ยอด Gross",
+    "อัตรา WHT",
+    "หัก ณ ที่จ่าย",
+    "เลขใบ 50ทวิ",
+    "ได้รับใบ",
+  ];
   const rows = incomes.map((i) => [
     i.month,
     i.client,
@@ -59,7 +68,10 @@ export function exportAccountantPackage(opts: {
     i.certificateReceived ? "Y" : "N",
   ]);
   const csv = [headers, ...rows].map((r) => r.map(escapeCSV).join(",")).join("\n");
-  downloadBlob(new Blob([`\uFEFF${csv}`], { type: "text/csv;charset=utf-8;" }), `so1o-income-detail-${year}.csv`);
+  downloadBlob(
+    new Blob([`\uFEFF${csv}`], { type: "text/csv;charset=utf-8;" }),
+    `so1o-income-detail-${year}.csv`,
+  );
 
   toast.success("ดาวน์โหลดสรุปภาษี + CSV รายได้แล้ว — ส่งให้นักบัญชีได้เลย");
 }

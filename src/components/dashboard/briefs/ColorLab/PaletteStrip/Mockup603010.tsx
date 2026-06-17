@@ -27,7 +27,12 @@ export function Mockup603010({ hex, palette }: Props) {
     const arr = [...palette];
     const c = colord(hex);
     while (arr.length < 3) {
-      arr.push(c.rotate(arr.length * 60).toHex().toUpperCase());
+      arr.push(
+        c
+          .rotate(arr.length * 60)
+          .toHex()
+          .toUpperCase(),
+      );
     }
     return arr.slice(0, Math.max(3, palette.length));
   }, [palette, hex]);
@@ -47,7 +52,7 @@ export function Mockup603010({ hex, palette }: Props) {
     const out = `${ratio[0]}% (Background): ${bg}\n${ratio[1]}% (Surface): ${fg}\n${ratio[2]}% (Accent): ${accent}`;
     navigator.clipboard.writeText(out).then(
       () => toast.success(`คัดลอกพาเลต ${ratio.join("-")} แล้ว`),
-      () => toast.error("ก๊อปปี้ไม่สำเร็จ")
+      () => toast.error("ก๊อปปี้ไม่สำเร็จ"),
     );
   };
 
@@ -117,8 +122,8 @@ export function Mockup603010({ hex, palette }: Props) {
         <div className="px-5 py-8 space-y-3">
           <h3 className="text-xl font-bold leading-tight">หัวข้อใหญ่ของหน้า</h3>
           <p className="text-xs opacity-85 max-w-md">
-            เนื้อหาตัวอย่าง — ดูว่าสีหลักทำหน้าที่เป็นพื้นหลังแล้วอ่านสบายตาแค่ไหน
-            ลองกดปุ่ม "สลับ" เพื่อเทียบสัดส่วนใหม่
+            เนื้อหาตัวอย่าง — ดูว่าสีหลักทำหน้าที่เป็นพื้นหลังแล้วอ่านสบายตาแค่ไหน ลองกดปุ่ม "สลับ"
+            เพื่อเทียบสัดส่วนใหม่
           </p>
           <div className="flex items-center gap-2 pt-2">
             <button
@@ -152,7 +157,10 @@ export function Mockup603010({ hex, palette }: Props) {
           { pct: `${ratio[1]}%`, label: "พื้นรอง", color: fg },
           { pct: `${ratio[2]}%`, label: "เน้น (CTA)", color: accent },
         ].map((s) => (
-          <div key={s.label} className="rounded-lg border border-border p-2 flex items-center gap-2">
+          <div
+            key={s.label}
+            className="rounded-lg border border-border p-2 flex items-center gap-2"
+          >
             <div className="h-6 w-6 rounded" style={{ backgroundColor: s.color }} />
             <div className="leading-tight">
               <div className="font-bold text-[11px]">{s.pct}</div>

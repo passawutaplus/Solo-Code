@@ -13,7 +13,11 @@ import {
 } from "@/components/ui/select";
 import { TicketStatusBadge } from "@/components/support/TicketStatusBadge";
 import { TicketDetailPanel } from "@/components/support/TicketDetailSheet";
-import { TicketFeatureBadge, TicketRatingStars, TicketSourceBadge } from "@/components/support/TicketMetaBadges";
+import {
+  TicketFeatureBadge,
+  TicketRatingStars,
+  TicketSourceBadge,
+} from "@/components/support/TicketMetaBadges";
 import {
   PRIORITY_LABELS,
   STATUS_LABELS,
@@ -115,7 +119,8 @@ export function AdminTicketDetail({
             {ticket.rating != null && <TicketRatingStars rating={ticket.rating} />}
           </div>
           <span className="text-[11px] text-muted-foreground block">
-            {userLabel} · {formatDistanceToNow(new Date(ticket.createdAt), { addSuffix: true, locale: th })}
+            {userLabel} ·{" "}
+            {formatDistanceToNow(new Date(ticket.createdAt), { addSuffix: true, locale: th })}
           </span>
 
           <div className="grid grid-cols-2 gap-2">
@@ -172,12 +177,24 @@ export function AdminTicketDetail({
               </Button>
             )}
             {ticket.status === "in_progress" && (
-              <Button size="sm" variant="outline" className="h-7 text-xs" disabled={saving} onClick={() => quickAction("qa")}>
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-7 text-xs"
+                disabled={saving}
+                onClick={() => quickAction("qa")}
+              >
                 ส่ง QA
               </Button>
             )}
             {ticket.status === "qa" && (
-              <Button size="sm" variant="outline" className="h-7 text-xs" disabled={saving} onClick={() => quickAction("resolved")}>
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-7 text-xs"
+                disabled={saving}
+                onClick={() => quickAction("resolved")}
+              >
                 แก้แล้ว
               </Button>
             )}
@@ -194,7 +211,13 @@ export function AdminTicketDetail({
               </Button>
             )}
             {["resolved", "qa", "in_progress"].includes(ticket.status) && (
-              <Button size="sm" variant="outline" className="h-7 text-xs" disabled={saving} onClick={() => quickAction("closed")}>
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-7 text-xs"
+                disabled={saving}
+                onClick={() => quickAction("closed")}
+              >
                 ปิดงาน
               </Button>
             )}
@@ -214,7 +237,9 @@ export function AdminTicketDetail({
 
         <div className="p-4 space-y-3 border-b">
           <div>
-            <label className="text-[10px] font-semibold text-muted-foreground">โน้ตภายใน (แอดมิน)</label>
+            <label className="text-[10px] font-semibold text-muted-foreground">
+              โน้ตภายใน (แอดมิน)
+            </label>
             <Textarea
               value={adminNote}
               onChange={(e) => setAdminNote(e.target.value)}
@@ -224,7 +249,9 @@ export function AdminTicketDetail({
             />
           </div>
           <div>
-            <label className="text-[10px] font-semibold text-muted-foreground">คำตอบถึงผู้ใช้</label>
+            <label className="text-[10px] font-semibold text-muted-foreground">
+              คำตอบถึงผู้ใช้
+            </label>
             <Textarea
               value={resolutionNote}
               onChange={(e) => setResolutionNote(e.target.value)}
@@ -236,10 +263,18 @@ export function AdminTicketDetail({
           {resolutionNote.trim() && (
             <div className="rounded-lg border border-green-200 bg-green-50/80 p-2.5">
               <p className="text-[10px] font-semibold text-green-800 mb-1">ตัวอย่างแจ้งเตือน</p>
-              <p className="text-[11px] text-green-900 leading-snug">{notifyPreview(ticket, resolutionNote)}</p>
+              <p className="text-[11px] text-green-900 leading-snug">
+                {notifyPreview(ticket, resolutionNote)}
+              </p>
             </div>
           )}
-          <Button size="sm" variant="secondary" className="h-7 text-xs" disabled={saving} onClick={saveNotes}>
+          <Button
+            size="sm"
+            variant="secondary"
+            className="h-7 text-xs"
+            disabled={saving}
+            onClick={saveNotes}
+          >
             {saving ? <Loader2 className="h-3 w-3 animate-spin mr-1" /> : null}
             บันทึกโน้ต
           </Button>

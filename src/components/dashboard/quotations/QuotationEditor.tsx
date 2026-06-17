@@ -1,9 +1,35 @@
 import * as React from "react";
-import { useQuotations, computeTotals, formatBaht, statusLabel, type Quotation, type QuotationStatus, type DocKind } from "@/store/quotations";
+import {
+  useQuotations,
+  computeTotals,
+  formatBaht,
+  statusLabel,
+  type Quotation,
+  type QuotationStatus,
+  type DocKind,
+} from "@/store/quotations";
 import { useFinance } from "@/store/finance";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Download, Save, ArrowRight, CheckCircle2, RefreshCw, Eye, Link2, User, FileText, ListTree, CalendarRange, PanelRight, ImageIcon, StickyNote, Coins, Users } from "lucide-react";
+import {
+  ArrowLeft,
+  Download,
+  Save,
+  ArrowRight,
+  CheckCircle2,
+  RefreshCw,
+  Eye,
+  Link2,
+  User,
+  FileText,
+  ListTree,
+  CalendarRange,
+  PanelRight,
+  ImageIcon,
+  StickyNote,
+  Coins,
+  Users,
+} from "lucide-react";
 import { StickyToolbar, type ToolbarAction } from "../shared/StickyToolbar";
 import { SettingsPanel } from "./SettingsPanel";
 import { ServicesPanel } from "./ServicesPanel";
@@ -14,7 +40,10 @@ import { QuotationHeaderBannerField } from "./QuotationHeaderBannerField";
 import { QuotationCollaboratorsPanel } from "./QuotationCollaboratorsPanel";
 import { useQuotationCollaborators } from "@/hooks/useQuotationCollaborators";
 import { QuotationMockupDialog } from "./QuotationMockupDialog";
-import { QuotationExportOptionsDialog, type QuotationExportChoice } from "./QuotationExportOptionsDialog";
+import {
+  QuotationExportOptionsDialog,
+  type QuotationExportChoice,
+} from "./QuotationExportOptionsDialog";
 import { ShareTrackerDialog } from "./ShareTrackerDialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/auth/AuthProvider";
@@ -24,7 +53,6 @@ interface Props {
   id: string;
   onBack: () => void;
 }
-
 
 export function QuotationEditor({ id, onBack }: Props) {
   const { get, update, markPdfExported, advanceStatus, isLoading } = useQuotations();
@@ -37,8 +65,7 @@ export function QuotationEditor({ id, onBack }: Props) {
   const canEditCollaborators =
     !!user &&
     !!q &&
-    (q.ownerUserId === user.id ||
-      collabs.some((c) => c.userId === user.id && c.role === "lead"));
+    (q.ownerUserId === user.id || collabs.some((c) => c.userId === user.id && c.role === "lead"));
   const [showMobilePreview, setShowMobilePreview] = React.useState(false);
   const [advancedOpen, setAdvancedOpen] = React.useState(false);
   const [mockupOpen, setMockupOpen] = React.useState(false);
@@ -51,7 +78,11 @@ export function QuotationEditor({ id, onBack }: Props) {
   });
 
   const [shareOpen, setShareOpen] = React.useState(false);
-  const [shareInfo, setShareInfo] = React.useState<{ share_token: string; tracking_code: string; isNew: boolean } | null>(null);
+  const [shareInfo, setShareInfo] = React.useState<{
+    share_token: string;
+    tracking_code: string;
+    isNew: boolean;
+  } | null>(null);
   const [creatingTracker, setCreatingTracker] = React.useState(false);
 
   // Document kind shown in preview/print → derived from current status
@@ -66,23 +97,30 @@ export function QuotationEditor({ id, onBack }: Props) {
 
   // Auto-sync income to Tax module whenever a quotation reaches "completed"
   // Sync helper — สามารถเรียกซ้ำได้ทั้งใน effect และจากปุ่ม Resync
-  const syncIncomeNow = React.useCallback((quotation: typeof q) => {
-    if (!quotation || quotation.status !== "completed") return;
-    const totals = computeTotals(quotation);
-    const monthSrc = quotation.paidAt || quotation.receiptIssuedAt || quotation.updatedAt || new Date().toISOString();
-    const month = monthSrc.slice(0, 7);
-    upsertIncomeFromQuotation({
-      sourceQuotationId: quotation.id,
-      month,
-      client: quotation.clientName || "ลูกค้า",
-      gross: totals.preTax,
-      withholding: totals.withholdingAmount,
-      incomeType: "freelance",
-      whtRate: quotation.whtEnabled ? quotation.whtRate : 0,
-      certificateReceived: false,
-      note: `จาก ${quotation.number}${quotation.invoiceNumber ? ` / ${quotation.invoiceNumber}` : ""}${quotation.receiptNumber ? ` / ${quotation.receiptNumber}` : ""}`,
-    });
-  }, [upsertIncomeFromQuotation]);
+  const syncIncomeNow = React.useCallback(
+    (quotation: typeof q) => {
+      if (!quotation || quotation.status !== "completed") return;
+      const totals = computeTotals(quotation);
+      const monthSrc =
+        quotation.paidAt ||
+        quotation.receiptIssuedAt ||
+        quotation.updatedAt ||
+        new Date().toISOString();
+      const month = monthSrc.slice(0, 7);
+      upsertIncomeFromQuotation({
+        sourceQuotationId: quotation.id,
+        month,
+        client: quotation.clientName || "ลูกค้า",
+        gross: totals.preTax,
+        withholding: totals.withholdingAmount,
+        incomeType: "freelance",
+        whtRate: quotation.whtEnabled ? quotation.whtRate : 0,
+        certificateReceived: false,
+        note: `จาก ${quotation.number}${quotation.invoiceNumber ? ` / ${quotation.invoiceNumber}` : ""}${quotation.receiptNumber ? ` / ${quotation.receiptNumber}` : ""}`,
+      });
+    },
+    [upsertIncomeFromQuotation],
+  );
 
   // Auto-sync income to Tax module whenever a quotation reaches "completed"
   React.useEffect(() => {
@@ -103,15 +141,15 @@ export function QuotationEditor({ id, onBack }: Props) {
   if (!q) {
     if (isLoading) {
       return (
-        <div className="text-center py-16 text-sm text-muted-foreground">
-          กำลังโหลดใบเสนอราคา…
-        </div>
+        <div className="text-center py-16 text-sm text-muted-foreground">กำลังโหลดใบเสนอราคา…</div>
       );
     }
     return (
       <div className="text-center py-12">
         <p className="text-sm text-muted-foreground mb-3">ไม่พบใบเสนอราคา</p>
-        <Button onClick={onBack} variant="outline">กลับ</Button>
+        <Button onClick={onBack} variant="outline">
+          กลับ
+        </Button>
       </div>
     );
   }
@@ -149,7 +187,6 @@ export function QuotationEditor({ id, onBack }: Props) {
     setMockupOpen(true);
   }
 
-
   function handleAdvance(next: QuotationStatus) {
     if (!q) return;
     advanceStatus(q.id, next);
@@ -173,27 +210,38 @@ export function QuotationEditor({ id, onBack }: Props) {
   void handleStatusManualChange;
 
   // Workflow CTA mapping
-  const nextStep: { label: string; status: QuotationStatus; icon: React.ReactNode } | null = (() => {
-    switch (q.status) {
-      case "pending_approval":
-        return { label: "ทำใบแจ้งหนี้", status: "pending_payment", icon: <ArrowRight className="h-4 w-4" /> };
-      case "pending_payment":
-        return { label: "ทำใบเสร็จรับเงิน", status: "pending_receipt", icon: <ArrowRight className="h-4 w-4" /> };
-      case "pending_receipt":
-        return { label: "ปิดงาน (ลูกค้าได้รับใบเสร็จ)", status: "completed", icon: <CheckCircle2 className="h-4 w-4" /> };
-      default:
-        return null;
-    }
-  })();
+  const nextStep: { label: string; status: QuotationStatus; icon: React.ReactNode } | null =
+    (() => {
+      switch (q.status) {
+        case "pending_approval":
+          return {
+            label: "ทำใบแจ้งหนี้",
+            status: "pending_payment",
+            icon: <ArrowRight className="h-4 w-4" />,
+          };
+        case "pending_payment":
+          return {
+            label: "ทำใบเสร็จรับเงิน",
+            status: "pending_receipt",
+            icon: <ArrowRight className="h-4 w-4" />,
+          };
+        case "pending_receipt":
+          return {
+            label: "ปิดงาน (ลูกค้าได้รับใบเสร็จ)",
+            status: "completed",
+            icon: <CheckCircle2 className="h-4 w-4" />,
+          };
+        default:
+          return null;
+      }
+    })();
 
   const statusInfo = statusLabel(q.status);
 
   async function handleCreateOrOpenTracker() {
     if (!q || !user) return;
     const needsContract =
-      q.status === "pending_payment" ||
-      q.status === "pending_receipt" ||
-      q.status === "completed";
+      q.status === "pending_payment" || q.status === "pending_receipt" || q.status === "completed";
     if (needsContract && !q.contractAccepted) {
       toast.error("ยืนยันสัญญาจ้างก่อน — เปิดจาก Pipeline > การ์ดดีล > สัญญาจ้าง");
       return;
@@ -209,7 +257,11 @@ export function QuotationEditor({ id, onBack }: Props) {
         .maybeSingle();
 
       if (existing) {
-        setShareInfo({ share_token: existing.share_token, tracking_code: existing.tracking_code, isNew: false });
+        setShareInfo({
+          share_token: existing.share_token,
+          tracking_code: existing.tracking_code,
+          isNew: false,
+        });
         setShareOpen(true);
         return;
       }
@@ -234,7 +286,11 @@ export function QuotationEditor({ id, onBack }: Props) {
         .select("share_token, tracking_code")
         .single();
       if (error) throw error;
-      setShareInfo({ share_token: created.share_token, tracking_code: created.tracking_code, isNew: true });
+      setShareInfo({
+        share_token: created.share_token,
+        tracking_code: created.tracking_code,
+        isNew: true,
+      });
       setShareOpen(true);
       toast.success("สร้าง Job Tracker แล้ว — คัดลอกลิงก์ส่งให้ลูกค้าได้เลย");
     } catch (err) {
@@ -246,7 +302,11 @@ export function QuotationEditor({ id, onBack }: Props) {
 
   const secondaryActions: ToolbarAction[] = [
     { label: "บันทึก", onClick: handleSave, icon: <Save className="h-4 w-4" /> },
-    { label: "ดูตัวอย่าง", onClick: () => setPreviewOptionsOpen(true), icon: <Eye className="h-4 w-4" /> },
+    {
+      label: "ดูตัวอย่าง",
+      onClick: () => setPreviewOptionsOpen(true),
+      icon: <Eye className="h-4 w-4" />,
+    },
   ];
   if (q.status === "completed") {
     secondaryActions.push({
@@ -259,7 +319,8 @@ export function QuotationEditor({ id, onBack }: Props) {
 
   const primaryActions: ToolbarAction[] = [];
   // workflow advance buttons removed — status is managed from the list dropdown only.
-  void nextStep; void handleAdvance;
+  void nextStep;
+  void handleAdvance;
   if (q.status !== "draft") {
     primaryActions.push({
       label: creatingTracker ? "กำลังสร้าง..." : "สร้างลิงก์ติดตามงาน",
@@ -291,10 +352,12 @@ export function QuotationEditor({ id, onBack }: Props) {
         icon={<FileText className="h-4 w-4" />}
         headerExtra={
           totals ? (
-          <div className="text-right shrink-0">
-            <p className="text-[10px] uppercase tracking-wide text-muted-foreground">ยอดรวม</p>
-            <p className="num text-lg font-bold text-primary leading-tight">฿{formatBaht(totals.grandTotal)}</p>
-          </div>
+            <div className="text-right shrink-0">
+              <p className="text-[10px] uppercase tracking-wide text-muted-foreground">ยอดรวม</p>
+              <p className="num text-lg font-bold text-primary leading-tight">
+                ฿{formatBaht(totals.grandTotal)}
+              </p>
+            </div>
           ) : null
         }
       >
@@ -342,7 +405,11 @@ export function QuotationEditor({ id, onBack }: Props) {
 
           {(q.quotationKind === "inhouse" || q.quotationKind === "studio") && (
             <QuotationCollapsibleBlock
-              title={q.quotationKind === "inhouse" ? "สมาชิกทีม (In-House)" : "สมาชิก Studio (Pixel100 nest)"}
+              title={
+                q.quotationKind === "inhouse"
+                  ? "สมาชิกทีม (In-House)"
+                  : "สมาชิก Studio (Pixel100 nest)"
+              }
               icon={<Users className="h-3.5 w-3.5" />}
             >
               <QuotationCollaboratorsPanel
@@ -390,10 +457,14 @@ export function QuotationEditor({ id, onBack }: Props) {
         badge={
           <>
             {q.quotationKind === "inhouse" && (
-              <Badge variant="secondary" className="text-[10px] shrink-0">ทีม In-House</Badge>
+              <Badge variant="secondary" className="text-[10px] shrink-0">
+                ทีม In-House
+              </Badge>
             )}
             {q.quotationKind === "studio" && (
-              <Badge variant="secondary" className="text-[10px] shrink-0">Studio Quote</Badge>
+              <Badge variant="secondary" className="text-[10px] shrink-0">
+                Studio Quote
+              </Badge>
             )}
             <Badge
               variant="outline"
@@ -485,7 +556,6 @@ export function QuotationEditor({ id, onBack }: Props) {
         mode="preview"
       />
 
-
       <QuotationMockupDialog
         q={q}
         docKind={docKind}
@@ -513,7 +583,6 @@ export function QuotationEditor({ id, onBack }: Props) {
           isNew={shareInfo.isNew}
         />
       )}
-
     </div>
   );
 }

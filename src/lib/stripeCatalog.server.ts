@@ -8,7 +8,7 @@ type CatalogFile = {
   products?: Record<string, { prices?: Record<string, string> }>;
 };
 
-let cached: Partial<Record<StripeEnv, CatalogFile | null>> = {};
+const cached: Partial<Record<StripeEnv, CatalogFile | null>> = {};
 
 function catalogPath(env: StripeEnv): string {
   const root = join(dirname(fileURLToPath(import.meta.url)), "../..");

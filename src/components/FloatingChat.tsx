@@ -68,12 +68,7 @@ export function FloatingChat({
             </div>
           </div>
 
-          <AssistantChatPanel
-            preset={preset}
-            compact
-            active={open}
-            onCloseLimitCta={close}
-          />
+          <AssistantChatPanel preset={preset} compact active={open} onCloseLimitCta={close} />
         </div>
       )}
     </>

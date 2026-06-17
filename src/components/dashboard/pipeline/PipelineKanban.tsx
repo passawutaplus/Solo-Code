@@ -11,11 +11,7 @@ import {
   useSensors,
 } from "@dnd-kit/core";
 import { cn } from "@/lib/utils";
-import {
-  PIPELINE_COLUMNS,
-  PIPELINE_LABELS,
-  type PipelineColumn,
-} from "@/lib/pipelineStatus";
+import { PIPELINE_COLUMNS, PIPELINE_LABELS, type PipelineColumn } from "@/lib/pipelineStatus";
 import type { PipelineDeal } from "@/store/pipeline";
 import { DealCard } from "./DealCard";
 
@@ -121,9 +117,7 @@ export function PipelineKanban({
         ))}
       </div>
       <DragOverlay>
-        {active ? (
-          <DealCard deal={active} onClick={() => {}} dragging />
-        ) : null}
+        {active ? <DealCard deal={active} onClick={() => {}} dragging /> : null}
       </DragOverlay>
     </DndContext>
   );

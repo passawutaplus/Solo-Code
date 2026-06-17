@@ -11,12 +11,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface Notif {
   id: string;
@@ -28,8 +23,6 @@ interface Notif {
   actor_avatar: string | null;
   created_at: string;
 }
-
-
 
 const typeIcon: Record<string, React.ReactNode> = {
   like: <Heart className="h-3.5 w-3.5 text-rose-500" />,
@@ -67,7 +60,10 @@ export function NotificationBell() {
   }, [user]);
 
   React.useEffect(() => {
-    if (!user) { setItems([]); return; }
+    if (!user) {
+      setItems([]);
+      return;
+    }
     fetchItems();
     const channel = supabase
       .channel(`notif-${user.id}`)
@@ -77,7 +73,9 @@ export function NotificationBell() {
         () => fetchItems(),
       )
       .subscribe();
-    return () => { supabase.removeChannel(channel); };
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [user, fetchItems]);
 
   const unread = items.filter((n) => !n.read).length;
@@ -103,7 +101,11 @@ export function NotificationBell() {
   const markAllRead = async () => {
     if (!user || unread === 0) return;
     setItems((prev) => prev.map((n) => ({ ...n, read: true })));
-    await supabase.from("notifications").update({ read: true }).eq("user_id", user.id).eq("read", false);
+    await supabase
+      .from("notifications")
+      .update({ read: true })
+      .eq("user_id", user.id)
+      .eq("read", false);
   };
 
   const markOne = async (id: string) => {
@@ -120,9 +122,7 @@ export function NotificationBell() {
     >
       <Bell className="h-4 w-4" />
       {unread > 0 && (
-        <span
-          className="absolute top-0 right-0 translate-x-1/3 -translate-y-1/3 min-w-[18px] h-[18px] px-1 rounded-full bg-rose-500 text-[10px] font-bold text-white grid place-items-center ring-2 ring-background tabular-nums"
-        >
+        <span className="absolute top-0 right-0 translate-x-1/3 -translate-y-1/3 min-w-[18px] h-[18px] px-1 rounded-full bg-rose-500 text-[10px] font-bold text-white grid place-items-center ring-2 ring-background tabular-nums">
           {unread > 99 ? "99+" : unread}
         </span>
       )}
@@ -130,13 +130,17 @@ export function NotificationBell() {
   );
 
   return (
-    <DropdownMenu open={open} onOpenChange={(o) => { setOpen(o); if (o) fetchItems(); }}>
+    <DropdownMenu
+      open={open}
+      onOpenChange={(o) => {
+        setOpen(o);
+        if (o) fetchItems();
+      }}
+    >
       <TooltipProvider delayDuration={300}>
         <Tooltip>
           <TooltipTrigger asChild>
-            <DropdownMenuTrigger asChild>
-              {triggerButton}
-            </DropdownMenuTrigger>
+            <DropdownMenuTrigger asChild>{triggerButton}</DropdownMenuTrigger>
           </TooltipTrigger>
           {unread > 0 && !open && (
             <TooltipContent side="bottom" align="end" className="text-xs">
@@ -164,10 +168,18 @@ export function NotificationBell() {
             <ul className="divide-y">
               {items.map((n) => {
                 const inner = (
-                  <div className={`flex gap-2.5 px-3 py-2.5 hover:bg-muted/50 transition ${!n.read ? "bg-primary/5" : ""}`}>
+                  <div
+                    className={`flex gap-2.5 px-3 py-2.5 hover:bg-muted/50 transition ${!n.read ? "bg-primary/5" : ""}`}
+                  >
                     <div className="relative shrink-0">
                       {n.actor_avatar ? (
-                        <img src={n.actor_avatar} alt="" className="h-9 w-9 rounded-full object-cover"  loading="lazy" decoding="async" />
+                        <img
+                          src={n.actor_avatar}
+                          alt=""
+                          className="h-9 w-9 rounded-full object-cover"
+                          loading="lazy"
+                          decoding="async"
+                        />
                       ) : (
                         <div className="h-9 w-9 rounded-full bg-muted grid place-items-center text-xs font-semibold">
                           {n.actor_name.slice(0, 1).toUpperCase()}
@@ -179,7 +191,9 @@ export function NotificationBell() {
                     </div>
                     <div className="min-w-0 flex-1">
                       <p className="text-xs leading-snug line-clamp-3">{n.message}</p>
-                      <p className="text-[10px] text-muted-foreground mt-0.5">{timeAgo(n.created_at)}ที่แล้ว</p>
+                      <p className="text-[10px] text-muted-foreground mt-0.5">
+                        {timeAgo(n.created_at)}ที่แล้ว
+                      </p>
                     </div>
                     {!n.read && <span className="mt-1 h-2 w-2 rounded-full bg-primary shrink-0" />}
                   </div>

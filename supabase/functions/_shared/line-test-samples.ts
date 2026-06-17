@@ -34,14 +34,15 @@ async function pushLineText(lineUserId: string, text: string) {
 
   if (res.ok) return { ok: true as const };
   let error = res.statusText;
-  try { error = await res.text(); } catch { /* ignore */ }
+  try {
+    error = await res.text();
+  } catch {
+    /* ignore */
+  }
   return { ok: false as const, error };
 }
 
-export async function sendLineTestSamples(
-  lineUserId: string,
-  personal?: LinePersonalization,
-) {
+export async function sendLineTestSamples(lineUserId: string, personal?: LinePersonalization) {
   const results: Array<{ kind: string; ok: boolean; error?: string }> = [];
 
   for (const sample of SAMPLES) {

@@ -79,7 +79,10 @@ export function throwClientError(
 }
 
 /** Coerce to a finite, non-negative number within bounds. */
-export function safeNumber(raw: string | number, opts: { min?: number; max?: number } = {}): number | null {
+export function safeNumber(
+  raw: string | number,
+  opts: { min?: number; max?: number } = {},
+): number | null {
   const n = typeof raw === "number" ? raw : Number(String(raw).replace(/[, ]/g, ""));
   if (!Number.isFinite(n)) return null;
   const { min = 0, max = 1e12 } = opts;

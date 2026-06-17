@@ -106,8 +106,7 @@ export function decodeStudioMembersParam(
       return {
         userId: typeof row.userId === "string" ? row.userId : undefined,
         displayName: String(row.displayName ?? "สมาชิก"),
-        revenuePercent:
-          typeof row.revenuePercent === "number" ? row.revenuePercent : undefined,
+        revenuePercent: typeof row.revenuePercent === "number" ? row.revenuePercent : undefined,
       };
     });
   } catch {

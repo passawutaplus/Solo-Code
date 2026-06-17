@@ -58,7 +58,11 @@ export function JobLicenseCertificateButton({ quotationId }: { quotationId: stri
           disabled={busy}
           onClick={() => void shareLink()}
         >
-          {busy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Link2 className="h-3.5 w-3.5" />}
+          {busy ? (
+            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+          ) : (
+            <Link2 className="h-3.5 w-3.5" />
+          )}
           ลิงก์ตรวจสอบ
         </Button>
       </div>

@@ -1,7 +1,13 @@
 import * as React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Loader2, RefreshCw, Smartphone, Tablet, Monitor } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -31,10 +37,12 @@ const ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
 };
 
 const rpc = (fn: string, args?: Record<string, unknown>) =>
-  (supabase.rpc as unknown as (
-    f: string,
-    a?: Record<string, unknown>,
-  ) => Promise<{ data: unknown; error: { message: string } | null }>).call(supabase, fn, args);
+  (
+    supabase.rpc as unknown as (
+      f: string,
+      a?: Record<string, unknown>,
+    ) => Promise<{ data: unknown; error: { message: string } | null }>
+  ).call(supabase, fn, args);
 
 export function DeviceAnalyticsSection() {
   const [days, setDays] = React.useState("30");
@@ -66,7 +74,9 @@ export function DeviceAnalyticsSection() {
     }
   }, [days]);
 
-  React.useEffect(() => { load(); }, [load]);
+  React.useEffect(() => {
+    load();
+  }, [load]);
 
   const totalSessions = rows.reduce((s, r) => s + Number(r.sessions), 0);
 
@@ -81,7 +91,9 @@ export function DeviceAnalyticsSection() {
         </div>
         <div className="flex items-center gap-2">
           <Select value={days} onValueChange={setDays}>
-            <SelectTrigger className="w-[130px] h-9"><SelectValue /></SelectTrigger>
+            <SelectTrigger className="w-[130px] h-9">
+              <SelectValue />
+            </SelectTrigger>
             <SelectContent>
               <SelectItem value="7">7 วัน</SelectItem>
               <SelectItem value="30">30 วัน</SelectItem>
@@ -90,7 +102,11 @@ export function DeviceAnalyticsSection() {
             </SelectContent>
           </Select>
           <Button size="sm" variant="outline" onClick={load} disabled={loading}>
-            {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RefreshCw className="h-3.5 w-3.5" />}
+            {loading ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            ) : (
+              <RefreshCw className="h-3.5 w-3.5" />
+            )}
           </Button>
         </div>
       </div>
@@ -106,11 +122,11 @@ export function DeviceAnalyticsSection() {
                   <span className="text-xs text-muted-foreground capitalize">{dt}</span>
                   <Icon className="h-4 w-4 text-primary" />
                 </div>
-                <p className="text-2xl font-semibold tabular-nums">
-                  {r ? `${r.pct}%` : "—"}
-                </p>
+                <p className="text-2xl font-semibold tabular-nums">{r ? `${r.pct}%` : "—"}</p>
                 <p className="text-[11px] text-muted-foreground mt-0.5">
-                  {r ? `${Number(r.sessions).toLocaleString()} sessions · ${Number(r.unique_users).toLocaleString()} คน` : "ยังไม่มีข้อมูล"}
+                  {r
+                    ? `${Number(r.sessions).toLocaleString()} sessions · ${Number(r.unique_users).toLocaleString()} คน`
+                    : "ยังไม่มีข้อมูล"}
                 </p>
               </CardContent>
             </Card>
@@ -120,7 +136,9 @@ export function DeviceAnalyticsSection() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <Card className="lg:col-span-1">
-          <CardHeader className="pb-2"><CardTitle className="text-sm">สัดส่วนอุปกรณ์</CardTitle></CardHeader>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm">สัดส่วนอุปกรณ์</CardTitle>
+          </CardHeader>
           <CardContent>
             {totalSessions === 0 ? (
               <div className="py-10 text-center text-sm text-muted-foreground">ยังไม่มีข้อมูล</div>
@@ -128,15 +146,27 @@ export function DeviceAnalyticsSection() {
               <div className="h-[220px]">
                 <ResponsiveContainer>
                   <PieChart>
-                    <Pie data={rows} dataKey="sessions" nameKey="device_type" innerRadius={50} outerRadius={80}>
+                    <Pie
+                      data={rows}
+                      dataKey="sessions"
+                      nameKey="device_type"
+                      innerRadius={50}
+                      outerRadius={80}
+                    >
                       {rows.map((r) => (
-                        <Cell key={r.device_type} fill={COLORS[r.device_type] ?? "var(--chart-4)"} />
+                        <Cell
+                          key={r.device_type}
+                          fill={COLORS[r.device_type] ?? "var(--chart-4)"}
+                        />
                       ))}
                     </Pie>
                     <Tooltip
                       contentStyle={{
-                        background: "var(--popover)", border: "1px solid var(--border)",
-                        borderRadius: 8, fontSize: 12, color: "var(--popover-foreground)",
+                        background: "var(--popover)",
+                        border: "1px solid var(--border)",
+                        borderRadius: 8,
+                        fontSize: 12,
+                        color: "var(--popover-foreground)",
                       }}
                     />
                   </PieChart>
@@ -157,7 +187,9 @@ function BreakdownCard({ title, rows }: { title: string; rows: BreakdownRow[] })
   const max = rows[0]?.sessions ?? 0;
   return (
     <Card>
-      <CardHeader className="pb-2"><CardTitle className="text-sm">{title}</CardTitle></CardHeader>
+      <CardHeader className="pb-2">
+        <CardTitle className="text-sm">{title}</CardTitle>
+      </CardHeader>
       <CardContent>
         {rows.length === 0 ? (
           <p className="py-6 text-center text-xs text-muted-foreground">ยังไม่มีข้อมูล</p>

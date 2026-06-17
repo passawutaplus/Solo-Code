@@ -100,7 +100,8 @@ export function PageHelpButton({
           <div className="border-t border-border/60 px-5 py-3 bg-muted/30">
             <p className="text-[11px] text-muted-foreground flex items-center gap-1.5">
               <ArrowRight className="h-3 w-3 text-primary shrink-0" />
-              ถัดไปใน workflow: <span className="font-medium text-foreground">{guide.nextPage}</span>
+              ถัดไปใน workflow:{" "}
+              <span className="font-medium text-foreground">{guide.nextPage}</span>
             </p>
           </div>
         )}

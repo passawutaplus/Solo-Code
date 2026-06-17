@@ -104,8 +104,9 @@ export function UsersSection({ m }: { m: AdminMetrics }) {
       const res = await deleteUser({ data: { target_user_id: targetUserId, force } });
       if (!res?.ok) {
         const isEmpty = res && typeof res === "object" && Object.keys(res).length === 0;
-        const msg = res?.error
-          || (isEmpty ? "เซสชันหมดอายุ กรุณาออกแล้วเข้าสู่ระบบใหม่" : "ลบไม่สำเร็จ (ไม่ทราบสาเหตุ)");
+        const msg =
+          res?.error ||
+          (isEmpty ? "เซสชันหมดอายุ กรุณาออกแล้วเข้าสู่ระบบใหม่" : "ลบไม่สำเร็จ (ไม่ทราบสาเหตุ)");
         console.error("[deleteUser] server returned:", res);
         toast.error(msg);
         if (Array.isArray((res as any)?.warnings) && (res as any).warnings.length > 0) {
@@ -124,7 +125,10 @@ export function UsersSection({ m }: { m: AdminMetrics }) {
         toast.success(`Purge ทันที ${label} สำเร็จ · ${authNote}`);
       } else {
         const purgeDate = res.purge_after
-          ? new Date(res.purge_after).toLocaleDateString("th-TH", { month: "short", day: "numeric" })
+          ? new Date(res.purge_after).toLocaleDateString("th-TH", {
+              month: "short",
+              day: "numeric",
+            })
           : "อีก 7 วัน";
         toast.success(`ปิดใช้งาน ${label} แล้ว · จะ purge อัตโนมัติ ${purgeDate}`);
       }
@@ -136,7 +140,9 @@ export function UsersSection({ m }: { m: AdminMetrics }) {
         try {
           const text = await e.text();
           msg = text || `ลบไม่สำเร็จ (${e.status})`;
-        } catch { msg = `ลบไม่สำเร็จ (${e.status})`; }
+        } catch {
+          msg = `ลบไม่สำเร็จ (${e.status})`;
+        }
         if (e.status === 401) msg = "หมดอายุการเข้าสู่ระบบ กรุณาเข้าใหม่";
       } else if (e instanceof Error) {
         msg = e.message;
@@ -195,13 +201,19 @@ export function UsersSection({ m }: { m: AdminMetrics }) {
               <TableBody>
                 {m.loading ? (
                   <TableRow>
-                    <TableCell colSpan={11} className="text-center text-xs text-muted-foreground py-6">
+                    <TableCell
+                      colSpan={11}
+                      className="text-center text-xs text-muted-foreground py-6"
+                    >
                       กำลังโหลด...
                     </TableCell>
                   </TableRow>
                 ) : filtered.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={11} className="text-center text-xs text-muted-foreground py-6">
+                    <TableCell
+                      colSpan={11}
+                      className="text-center text-xs text-muted-foreground py-6"
+                    >
                       ไม่พบสมาชิก
                     </TableCell>
                   </TableRow>
@@ -231,31 +243,50 @@ export function UsersSection({ m }: { m: AdminMetrics }) {
                         <TableCell className="text-xs text-right num">
                           {act?.income ? `฿${Math.round(act.income).toLocaleString()}` : "—"}
                         </TableCell>
-                        
+
                         <TableCell className="text-xs text-center">
                           {(() => {
                             const used = m.aiUsageToday.get(p.user_id) ?? 0;
                             const full = used >= 5;
                             return (
-                              <Badge variant={full ? "destructive" : used > 0 ? "default" : "outline"} className="text-[10px] tabular-nums">
+                              <Badge
+                                variant={full ? "destructive" : used > 0 ? "default" : "outline"}
+                                className="text-[10px] tabular-nums"
+                              >
                                 {used}/5
                               </Badge>
                             );
                           })()}
                         </TableCell>
-                        <TableCell className="text-xs text-right num">{m.aiUsageTotal.get(p.user_id) ?? 0}</TableCell>
+                        <TableCell className="text-xs text-right num">
+                          {m.aiUsageTotal.get(p.user_id) ?? 0}
+                        </TableCell>
                         <TableCell className="text-xs">
                           <LastActiveCell ts={p.last_active_at} />
                         </TableCell>
                         <TableCell>
                           {isInactive ? (
-                            <Badge variant="secondary" className="text-[10px]">inactive</Badge>
+                            <Badge variant="secondary" className="text-[10px]">
+                              inactive
+                            </Badge>
                           ) : isAdmin ? (
-                            <Badge className="bg-foreground text-background text-[10px]">admin</Badge>
+                            <Badge className="bg-foreground text-background text-[10px]">
+                              admin
+                            </Badge>
                           ) : p.tester_approved ? (
-                            <Badge variant="secondary" className="text-[10px] bg-emerald-500/15 text-emerald-700">tester</Badge>
+                            <Badge
+                              variant="secondary"
+                              className="text-[10px] bg-emerald-500/15 text-emerald-700"
+                            >
+                              tester
+                            </Badge>
                           ) : (
-                            <Badge variant="outline" className="text-[10px] text-amber-600 border-amber-500/40">รอกรอกแบบสอบถาม</Badge>
+                            <Badge
+                              variant="outline"
+                              className="text-[10px] text-amber-600 border-amber-500/40"
+                            >
+                              รอกรอกแบบสอบถาม
+                            </Badge>
                           )}
                         </TableCell>
                         <TableCell className="text-xs text-muted-foreground">
@@ -293,7 +324,13 @@ export function UsersSection({ m }: { m: AdminMetrics }) {
                                   variant="outline"
                                   className="h-7 text-[11px] gap-1 text-destructive hover:bg-destructive hover:text-destructive-foreground"
                                   disabled={isSelf || isDeleting || isPending || isInactive}
-                                  title={isSelf ? "ไม่สามารถปิดใช้ตัวเองได้" : isInactive ? "ผู้ใช้นี้ inactive แล้ว" : "ปิดใช้งานผู้ใช้"}
+                                  title={
+                                    isSelf
+                                      ? "ไม่สามารถปิดใช้ตัวเองได้"
+                                      : isInactive
+                                        ? "ผู้ใช้นี้ inactive แล้ว"
+                                        : "ปิดใช้งานผู้ใช้"
+                                  }
                                 >
                                   {isDeleting ? (
                                     <Loader2 className="h-3 w-3 animate-spin" />
@@ -306,9 +343,13 @@ export function UsersSection({ m }: { m: AdminMetrics }) {
                                 <AlertDialogHeader>
                                   <AlertDialogTitle>ยืนยันการลบผู้ใช้</AlertDialogTitle>
                                   <AlertDialogDescription>
-                                  ต้องการปิดใช้งานบัญชี <strong>{p.email ?? p.display_name ?? p.user_id}</strong> ใช่ไหม?
+                                    ต้องการปิดใช้งานบัญชี{" "}
+                                    <strong>{p.email ?? p.display_name ?? p.user_id}</strong>{" "}
+                                    ใช่ไหม?
                                     <br />
-                                    ระบบจะทำเครื่องหมาย inactive ทันที ถอดสิทธิ์ใช้งาน และตั้งคิว purge ข้อมูล/ไฟล์อัตโนมัติใน 7 วัน เพื่อลดปัญหา FK หรือ session ค้าง
+                                    ระบบจะทำเครื่องหมาย inactive ทันที ถอดสิทธิ์ใช้งาน และตั้งคิว
+                                    purge ข้อมูล/ไฟล์อัตโนมัติใน 7 วัน เพื่อลดปัญหา FK หรือ session
+                                    ค้าง
                                   </AlertDialogDescription>
                                 </AlertDialogHeader>
                                 <label className="flex items-start gap-2 text-xs px-1 py-2 rounded-md bg-muted/40 cursor-pointer">
@@ -321,10 +362,13 @@ export function UsersSection({ m }: { m: AdminMetrics }) {
                                     }
                                   />
                                   <span>
-                                    <strong className="text-destructive">ลบทันที (ข้าม 7 วัน)</strong>
+                                    <strong className="text-destructive">
+                                      ลบทันที (ข้าม 7 วัน)
+                                    </strong>
                                     <br />
                                     <span className="text-[10px] text-muted-foreground">
-                                      ลบข้อมูล public + storage + auth.users ตอนนี้เลย — ใช้เฉพาะกรณีจำเป็น
+                                      ลบข้อมูล public + storage + auth.users ตอนนี้เลย —
+                                      ใช้เฉพาะกรณีจำเป็น
                                     </span>
                                   </span>
                                 </label>
@@ -332,7 +376,9 @@ export function UsersSection({ m }: { m: AdminMetrics }) {
                                   <AlertDialogCancel>ยกเลิก</AlertDialogCancel>
                                   <AlertDialogAction
                                     className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                                    onClick={() => handleDelete(p.user_id, p.email ?? p.display_name ?? "user")}
+                                    onClick={() =>
+                                      handleDelete(p.user_id, p.email ?? p.display_name ?? "user")
+                                    }
                                   >
                                     {forceMap[p.user_id] ? "Purge ทันที" : "ปิดใช้งาน"}
                                   </AlertDialogAction>
@@ -355,11 +401,15 @@ export function UsersSection({ m }: { m: AdminMetrics }) {
 }
 
 function LastActiveCell({ ts }: { ts: string | null }) {
-  if (!ts) return <span className="text-muted-foreground" title="ยังไม่เคยใช้งาน">— ไม่เคย</span>;
+  if (!ts)
+    return (
+      <span className="text-muted-foreground" title="ยังไม่เคยใช้งาน">
+        — ไม่เคย
+      </span>
+    );
   const date = new Date(ts);
   const days = Math.floor((Date.now() - date.getTime()) / 86400000);
-  const label =
-    days < 1 ? "วันนี้" : days === 1 ? "เมื่อวาน" : `${days} วันก่อน`;
+  const label = days < 1 ? "วันนี้" : days === 1 ? "เมื่อวาน" : `${days} วันก่อน`;
 
   // Color band by recency
   let cls = "text-muted-foreground";

@@ -56,7 +56,8 @@ export async function enqueueLineNotification(opts: {
 
   if (!profile?.line_messaging_user_id) return { sent: false, reason: "not_linked" };
   if (!profile.line_notify_enabled) return { sent: false, reason: "disabled" };
-  if (!prefsAllow(profile.line_notify_prefs, opts.kind)) return { sent: false, reason: "kind_disabled" };
+  if (!prefsAllow(profile.line_notify_prefs, opts.kind))
+    return { sent: false, reason: "kind_disabled" };
 
   const tier = profile.subscription_tier ?? "free";
   if (tier !== "pro" && tier !== "pro_plus" && tier !== "inhouse") {

@@ -1,7 +1,17 @@
 import * as React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Database, HardDrive, AlertTriangle, CheckCircle2, Loader2, RefreshCw, Users, BarChart3, TrendingUp } from "lucide-react";
+import {
+  Database,
+  HardDrive,
+  AlertTriangle,
+  CheckCircle2,
+  Loader2,
+  RefreshCw,
+  Users,
+  BarChart3,
+  TrendingUp,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -102,7 +112,13 @@ export function UsageSection() {
               อัปเดต {lastFetch.toLocaleTimeString("th-TH", { hour: "2-digit", minute: "2-digit" })}
             </span>
           )}
-          <Button size="sm" variant="outline" onClick={load} disabled={loading} className="h-8 gap-1.5">
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={load}
+            disabled={loading}
+            className="h-8 gap-1.5"
+          >
             <RefreshCw className={`h-3 w-3 ${loading ? "animate-spin" : ""}`} />
             <span className="text-xs">รีเฟรช</span>
           </Button>
@@ -188,13 +204,13 @@ export function UsageSection() {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             {(storage?.buckets ?? []).map((b) => (
-              <div
-                key={b.bucket}
-                className="border border-border rounded-lg p-3 bg-card/40"
-              >
+              <div key={b.bucket} className="border border-border rounded-lg p-3 bg-card/40">
                 <div className="flex items-center justify-between mb-1">
                   <span className="text-xs font-mono font-medium truncate">{b.bucket}</span>
-                  <Badge variant={b.public ? "secondary" : "outline"} className="text-[9px] h-4 px-1.5">
+                  <Badge
+                    variant={b.public ? "secondary" : "outline"}
+                    className="text-[9px] h-4 px-1.5"
+                  >
                     {b.public ? "PUBLIC" : "PRIVATE"}
                   </Badge>
                 </div>
@@ -226,7 +242,8 @@ export function UsageSection() {
             </Badge>
           </div>
           <p className="text-[11px] text-muted-foreground mb-3">
-            ใช้สำหรับวางแผน tier ราคา — ดูว่า user เฉลี่ยใช้กี่ records ต่อฟีเจอร์ และ heaviest user ใช้ไปเท่าไหร่
+            ใช้สำหรับวางแผน tier ราคา — ดูว่า user เฉลี่ยใช้กี่ records ต่อฟีเจอร์ และ heaviest user
+            ใช้ไปเท่าไหร่
           </p>
 
           {features.length === 0 ? (
@@ -270,7 +287,9 @@ export function UsageSection() {
                         {Number(f.unique_users).toLocaleString()}
                       </span>
                       <span className="col-span-2 text-right tabular-nums text-card-foreground">
-                        {Number(f.avg_per_user).toLocaleString(undefined, { maximumFractionDigits: 1 })}
+                        {Number(f.avg_per_user).toLocaleString(undefined, {
+                          maximumFractionDigits: 1,
+                        })}
                       </span>
                       <span className="col-span-2 text-right tabular-nums font-semibold text-primary inline-flex items-center justify-end gap-1">
                         <TrendingUp className="h-3 w-3" />
@@ -307,9 +326,9 @@ export function UsageSection() {
       <Card className="border-border bg-muted/30">
         <CardContent className="p-3.5">
           <p className="text-[11px] text-muted-foreground leading-relaxed">
-            <strong>หมายเหตุ:</strong> โควตาที่แสดงคือ Free Tier ของ Lovable Cloud
-            (Database 500 MB · File Storage 1 GB). เมื่อใกล้ถึง 80% ระบบจะเตือนเป็นสีส้ม,
-            เกิน 95% จะเปลี่ยนเป็นแดง — ถึงตอนนั้นแนะนำให้อัปเกรดแพลนหรือลบข้อมูลเก่า
+            <strong>หมายเหตุ:</strong> โควตาที่แสดงคือ Free Tier ของ Lovable Cloud (Database 500 MB
+            · File Storage 1 GB). เมื่อใกล้ถึง 80% ระบบจะเตือนเป็นสีส้ม, เกิน 95% จะเปลี่ยนเป็นแดง —
+            ถึงตอนนั้นแนะนำให้อัปเกรดแพลนหรือลบข้อมูลเก่า
           </p>
         </CardContent>
       </Card>
@@ -336,7 +355,11 @@ function QuotaCard({
 }) {
   const status = pct >= 95 ? "danger" : pct >= 80 ? "warn" : "ok";
   const statusColor =
-    status === "danger" ? "text-red-600" : status === "warn" ? "text-orange-500" : "text-emerald-600";
+    status === "danger"
+      ? "text-red-600"
+      : status === "warn"
+        ? "text-orange-500"
+        : "text-emerald-600";
   const barClass =
     status === "danger" ? "bg-red-500" : status === "warn" ? "bg-orange-400" : "bg-emerald-500";
 
@@ -362,9 +385,7 @@ function QuotaCard({
 
         <div className="flex items-baseline justify-between mb-1.5">
           <span className="text-2xl font-bold tabular-nums">{formatBytes(used)}</span>
-          <span className="text-xs text-muted-foreground">
-            / {formatBytes(limit)}
-          </span>
+          <span className="text-xs text-muted-foreground">/ {formatBytes(limit)}</span>
         </div>
 
         {/* Custom progress bar with status colors */}
@@ -376,9 +397,7 @@ function QuotaCard({
         </div>
 
         <div className="flex items-center justify-between text-[11px]">
-          <span className={`font-semibold tabular-nums ${statusColor}`}>
-            {pct.toFixed(1)}%
-          </span>
+          <span className={`font-semibold tabular-nums ${statusColor}`}>{pct.toFixed(1)}%</span>
           <span className="text-muted-foreground">{extraStat}</span>
         </div>
       </CardContent>

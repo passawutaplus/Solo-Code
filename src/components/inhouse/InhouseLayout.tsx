@@ -27,7 +27,12 @@ import { useInhouseWorkspaces } from "@/hooks/inhouse/useInhouseWorkspace";
 import { useMyInhouseMembership } from "@/hooks/inhouse/useInhouseOrg";
 import logoUrl from "@/assets/solo-freelancer-logo.webp";
 
-const NAV_ITEMS: { view: InhouseWorkspaceView; label: string; icon: React.ComponentType<{ className?: string }>; adminOnly?: boolean }[] = [
+const NAV_ITEMS: {
+  view: InhouseWorkspaceView;
+  label: string;
+  icon: React.ComponentType<{ className?: string }>;
+  adminOnly?: boolean;
+}[] = [
   { view: "overview", label: "Overview", icon: LayoutDashboard },
   { view: "kanban", label: "Kanban", icon: Kanban },
   { view: "todos", label: "To Do", icon: ListTodo },
@@ -138,7 +143,9 @@ export function InhouseLayout({ org, workspace, view, children }: InhouseLayoutP
                   to={href}
                   className={cn(
                     "flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-xs",
-                    active ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground",
+                    active
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-muted text-muted-foreground",
                   )}
                 >
                   <Icon className="h-3.5 w-3.5" />

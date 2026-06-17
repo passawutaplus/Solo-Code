@@ -1,9 +1,21 @@
 import * as React from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Plus,
@@ -23,7 +35,15 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { useFinance } from "@/store/finance";
-import { QUICK_ADD_GROUPS, type SubCategory, formatTHB, INCOME_TYPE_META, SUGGESTED_WHT_RATE, type IncomeType, type ExpenseRecord } from "@/data/mockData";
+import {
+  QUICK_ADD_GROUPS,
+  type SubCategory,
+  formatTHB,
+  INCOME_TYPE_META,
+  SUGGESTED_WHT_RATE,
+  type IncomeType,
+  type ExpenseRecord,
+} from "@/data/mockData";
 import { subSchema, incomeSchema, expenseSchema, parseOrToast } from "@/lib/validation";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
@@ -43,16 +63,30 @@ const INCOME_TYPE_ICONS: Record<IncomeType, LucideIcon> = {
 const INCOME_TYPES = Object.keys(INCOME_TYPE_META) as IncomeType[];
 
 const ALL_CATEGORIES: SubCategory[] = [
-  "Design", "AI", "Dev", "Cloud", "Streaming", "Music",
-  "Productivity", "Internet", "Housing", "Utilities",
-  "Health", "Beauty", "Insurance", "Investments", "CardFees",
-  "Family", "Donations", "Pets", "Learning", "Operations",
+  "Design",
+  "AI",
+  "Dev",
+  "Cloud",
+  "Streaming",
+  "Music",
+  "Productivity",
+  "Internet",
+  "Housing",
+  "Utilities",
+  "Health",
+  "Beauty",
+  "Insurance",
+  "Investments",
+  "CardFees",
+  "Family",
+  "Donations",
+  "Pets",
+  "Learning",
+  "Operations",
 ];
 
 /** Reusable controlled field with built-in maxLength to limit attack surface */
-function Field({
-  label, children,
-}: { label: string; children: React.ReactNode }) {
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="grid gap-2">
       <Label>{label}</Label>
@@ -89,37 +123,50 @@ export function AddSubModal() {
   }, [priceMode, amount, fullPrice, installmentMonths]);
 
   function reset() {
-    setName(""); setAmount(""); setCategory("Design"); setBillingDay("1");
+    setName("");
+    setAmount("");
+    setCategory("Design");
+    setBillingDay("1");
     setPmId(paymentMethods[0]?.id ?? "");
-    setPriceMode("monthly"); setFullPrice(""); setInstallmentMonths("");
+    setPriceMode("monthly");
+    setFullPrice("");
+    setInstallmentMonths("");
   }
 
   function submit() {
     if (!pmId) return toast.error("กรุณาเพิ่มช่องทางจ่ายก่อน");
     const finalAmount = priceMode === "installment" ? String(computedMonthly) : amount;
     const parsed = parseOrToast(subSchema, {
-      name, amount: finalAmount, category, billingDay, paymentMethodId: pmId,
-      status: "active", priceMode,
+      name,
+      amount: finalAmount,
+      category,
+      billingDay,
+      paymentMethodId: pmId,
+      status: "active",
+      priceMode,
       fullPrice: priceMode === "installment" ? fullPrice : undefined,
       installmentMonths: priceMode === "installment" ? installmentMonths : undefined,
       installmentsPaid: 0,
     });
     if (!parsed) return;
     const quick = QUICK_ADD_GROUPS.flatMap((g) => g.items).find((p) => p.name === parsed.name);
-    setSubs((s) => [...s, {
-      id: crypto.randomUUID(),
-      name: parsed.name,
-      amount: parsed.amount,
-      category: parsed.category as SubCategory,
-      billingDay: parsed.billingDay,
-      paymentMethodId: parsed.paymentMethodId,
-      icon: quick?.icon ?? CreditCard,
-      status: "active",
-      priceMode: parsed.priceMode,
-      fullPrice: parsed.fullPrice,
-      installmentMonths: parsed.installmentMonths,
-      installmentsPaid: parsed.installmentsPaid,
-    }]);
+    setSubs((s) => [
+      ...s,
+      {
+        id: crypto.randomUUID(),
+        name: parsed.name,
+        amount: parsed.amount,
+        category: parsed.category as SubCategory,
+        billingDay: parsed.billingDay,
+        paymentMethodId: parsed.paymentMethodId,
+        icon: quick?.icon ?? CreditCard,
+        status: "active",
+        priceMode: parsed.priceMode,
+        fullPrice: parsed.fullPrice,
+        installmentMonths: parsed.installmentMonths,
+        installmentsPaid: parsed.installmentsPaid,
+      },
+    ]);
     toast.success(`เพิ่ม ${parsed.name} เรียบร้อย`);
     setOpen(false);
     reset();
@@ -141,7 +188,9 @@ export function AddSubModal() {
         <ScrollArea className="flex-1 -mx-6 px-6">
           <div className="space-y-4 pb-2">
             <div>
-              <Label className="text-xs text-muted-foreground mb-2 block">⚡ Quick add — เลือกหมวดแล้วแตะเพื่อกรอกอัตโนมัติ</Label>
+              <Label className="text-xs text-muted-foreground mb-2 block">
+                ⚡ Quick add — เลือกหมวดแล้วแตะเพื่อกรอกอัตโนมัติ
+              </Label>
               <div className="flex flex-wrap gap-1 mb-2">
                 {QUICK_ADD_GROUPS.map((g) => (
                   <button
@@ -172,14 +221,21 @@ export function AddSubModal() {
                   >
                     <p.icon className="h-3 w-3 text-primary" />
                     <span>{p.name}</span>
-                    <span className="num text-[10px] text-muted-foreground">฿{formatTHB(p.suggestedAmount)}</span>
+                    <span className="num text-[10px] text-muted-foreground">
+                      ฿{formatTHB(p.suggestedAmount)}
+                    </span>
                   </button>
                 ))}
               </div>
             </div>
 
             <Field label="ชื่อบริการ / รายการ">
-              <Input value={name} maxLength={80} onChange={(e) => setName(e.target.value)} placeholder="เช่น Adobe Creative Cloud" />
+              <Input
+                value={name}
+                maxLength={80}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="เช่น Adobe Creative Cloud"
+              />
             </Field>
             <div className="space-y-1.5">
               <Label>รูปแบบราคา</Label>
@@ -188,7 +244,9 @@ export function AddSubModal() {
                   type="button"
                   onClick={() => setPriceMode("monthly")}
                   className={`text-xs rounded-lg border px-3 py-2 transition ${
-                    priceMode === "monthly" ? "bg-primary text-primary-foreground border-primary" : "bg-card border-border hover:border-primary"
+                    priceMode === "monthly"
+                      ? "bg-primary text-primary-foreground border-primary"
+                      : "bg-card border-border hover:border-primary"
                   }`}
                 >
                   จ่ายต่อเดือน
@@ -197,7 +255,9 @@ export function AddSubModal() {
                   type="button"
                   onClick={() => setPriceMode("installment")}
                   className={`text-xs rounded-lg border px-3 py-2 transition ${
-                    priceMode === "installment" ? "bg-primary text-primary-foreground border-primary" : "bg-card border-border hover:border-primary"
+                    priceMode === "installment"
+                      ? "bg-primary text-primary-foreground border-primary"
+                      : "bg-card border-border hover:border-primary"
                   }`}
                 >
                   ราคาเต็ม + ผ่อน
@@ -208,25 +268,61 @@ export function AddSubModal() {
             {priceMode === "monthly" ? (
               <div className="grid grid-cols-2 gap-3">
                 <Field label="จำนวน (บาท/เดือน)">
-                  <Input className="num" type="number" min={0} max={1000000} value={amount} onChange={(e) => setAmount(e.target.value)} />
+                  <Input
+                    className="num"
+                    type="number"
+                    min={0}
+                    max={1000000}
+                    value={amount}
+                    onChange={(e) => setAmount(e.target.value)}
+                  />
                 </Field>
                 <Field label="วันตัดบิล">
-                  <Input className="num" type="number" min={1} max={31} value={billingDay} onChange={(e) => setBillingDay(e.target.value)} />
+                  <Input
+                    className="num"
+                    type="number"
+                    min={1}
+                    max={31}
+                    value={billingDay}
+                    onChange={(e) => setBillingDay(e.target.value)}
+                  />
                 </Field>
               </div>
             ) : (
               <>
                 <div className="grid grid-cols-2 gap-3">
                   <Field label="ราคาเต็ม (บาท)">
-                    <Input className="num" type="number" min={0} value={fullPrice} onChange={(e) => setFullPrice(e.target.value)} placeholder="เช่น 1850" />
+                    <Input
+                      className="num"
+                      type="number"
+                      min={0}
+                      value={fullPrice}
+                      onChange={(e) => setFullPrice(e.target.value)}
+                      placeholder="เช่น 1850"
+                    />
                   </Field>
                   <Field label="จำนวนงวด (เดือน)">
-                    <Input className="num" type="number" min={1} max={120} value={installmentMonths} onChange={(e) => setInstallmentMonths(e.target.value)} placeholder="10" />
+                    <Input
+                      className="num"
+                      type="number"
+                      min={1}
+                      max={120}
+                      value={installmentMonths}
+                      onChange={(e) => setInstallmentMonths(e.target.value)}
+                      placeholder="10"
+                    />
                   </Field>
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <Field label="วันตัดบิล">
-                    <Input className="num" type="number" min={1} max={31} value={billingDay} onChange={(e) => setBillingDay(e.target.value)} />
+                    <Input
+                      className="num"
+                      type="number"
+                      min={1}
+                      max={31}
+                      value={billingDay}
+                      onChange={(e) => setBillingDay(e.target.value)}
+                    />
                   </Field>
                   <Field label="ตกเดือนละ">
                     <div className="num flex h-9 items-center rounded-md border border-input bg-muted/40 px-3 text-sm font-semibold">
@@ -240,15 +336,23 @@ export function AddSubModal() {
             <div className="grid grid-cols-2 gap-3">
               <Field label="หมวด">
                 <Select value={category} onValueChange={(v) => setCategory(v as SubCategory)}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
                   <SelectContent>
-                    {ALL_CATEGORIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                    {ALL_CATEGORIES.map((c) => (
+                      <SelectItem key={c} value={c}>
+                        {c}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </Field>
               <Field label="ช่องทางจ่าย">
                 <Select value={pmId} onValueChange={setPmId}>
-                  <SelectTrigger><SelectValue placeholder="เลือก..." /></SelectTrigger>
+                  <SelectTrigger>
+                    <SelectValue placeholder="เลือก..." />
+                  </SelectTrigger>
                   <SelectContent>
                     {paymentMethods.map((p) => (
                       <SelectItem key={p.id} value={p.id}>
@@ -259,7 +363,9 @@ export function AddSubModal() {
                 </Select>
               </Field>
             </div>
-            <Button onClick={submit} className="w-full">บันทึก</Button>
+            <Button onClick={submit} className="w-full">
+              บันทึก
+            </Button>
           </div>
         </ScrollArea>
       </DialogContent>
@@ -324,7 +430,14 @@ export function AddIncomeModal({
 
   function submit() {
     const parsed = parseOrToast(incomeSchema, {
-      client, gross, month, incomeType, whtRate, certificateNo, certificateReceived, note,
+      client,
+      gross,
+      month,
+      incomeType,
+      whtRate,
+      certificateNo,
+      certificateReceived,
+      note,
     });
     if (!parsed) return;
     const wht = parsed.gross * (parsed.whtRate / 100);
@@ -368,7 +481,9 @@ export function AddIncomeModal({
     >
       <DialogTrigger asChild>{trigger ?? defaultTrigger}</DialogTrigger>
       <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
-        <DialogHeader><DialogTitle>เพิ่มรายได้</DialogTitle></DialogHeader>
+        <DialogHeader>
+          <DialogTitle>เพิ่มรายได้</DialogTitle>
+        </DialogHeader>
         <div className="space-y-4">
           <Field label="ประเภทเงินได้">
             <div className="grid grid-cols-3 gap-2">
@@ -391,7 +506,9 @@ export function AddIncomeModal({
                     <span
                       className={cn(
                         "flex h-8 w-8 items-center justify-center rounded-lg",
-                        selected ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground",
+                        selected
+                          ? "bg-primary text-primary-foreground"
+                          : "bg-muted text-muted-foreground",
                       )}
                     >
                       <Icon className="h-4 w-4" />
@@ -408,14 +525,23 @@ export function AddIncomeModal({
             <Input
               value={client}
               maxLength={120}
-              placeholder={incomeType === "online_sales" ? "เช่น Shopee, TikTok Shop" : "ชื่อบริษัท / ลูกค้า"}
+              placeholder={
+                incomeType === "online_sales" ? "เช่น Shopee, TikTok Shop" : "ชื่อบริษัท / ลูกค้า"
+              }
               onChange={(e) => setClient(e.target.value)}
             />
           </Field>
 
           <div className="grid grid-cols-2 gap-3">
             <Field label="ยอด Gross (บาท)">
-              <Input className="num" type="number" min={0} max={100000000} value={gross} onChange={(e) => setGross(e.target.value)} />
+              <Input
+                className="num"
+                type="number"
+                min={0}
+                max={100000000}
+                value={gross}
+                onChange={(e) => setGross(e.target.value)}
+              />
             </Field>
             <Field label="เดือน">
               <Input type="month" value={month} onChange={(e) => setMonth(e.target.value)} />
@@ -425,7 +551,9 @@ export function AddIncomeModal({
           <div className="grid grid-cols-2 gap-3">
             <Field label="อัตรา หัก ณ ที่จ่าย (%)">
               <Select value={whtRate} onValueChange={setWhtRate}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="0">ไม่หัก (0%)</SelectItem>
                   <SelectItem value="1">1% (โฆษณา)</SelectItem>
@@ -472,7 +600,9 @@ export function AddIncomeModal({
             />
           </Field>
 
-          <Button onClick={submit} className="w-full">บันทึก</Button>
+          <Button onClick={submit} className="w-full">
+            บันทึก
+          </Button>
         </div>
       </DialogContent>
     </Dialog>
@@ -555,7 +685,10 @@ export function AddExpenseModal({
     toast.success(isEdit ? "แก้ไขรายการเรียบร้อย" : "บันทึกรายจ่ายเรียบร้อย");
     setOpen(false);
     if (!isEdit) {
-      setDesc(""); setAmount(""); setReceiptUrl(undefined); setReceiptPath(undefined);
+      setDesc("");
+      setAmount("");
+      setReceiptUrl(undefined);
+      setReceiptPath(undefined);
     }
   }
 
@@ -576,11 +709,23 @@ export function AddExpenseModal({
         </DialogHeader>
         <div className="space-y-4">
           <Field label="ชื่อรายการ">
-            <Input value={desc} maxLength={160} onChange={(e) => setDesc(e.target.value)} placeholder="เช่น ค่าซอฟต์แวร์, ค่าเดินทาง" />
+            <Input
+              value={desc}
+              maxLength={160}
+              onChange={(e) => setDesc(e.target.value)}
+              placeholder="เช่น ค่าซอฟต์แวร์, ค่าเดินทาง"
+            />
           </Field>
           <div className="grid grid-cols-2 gap-3">
             <Field label="จำนวน (บาท)">
-              <Input className="num" type="number" min={0} max={100000000} value={amount} onChange={(e) => setAmount(e.target.value)} />
+              <Input
+                className="num"
+                type="number"
+                min={0}
+                max={100000000}
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+              />
             </Field>
             <Field label="วันที่">
               <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
@@ -603,23 +748,55 @@ export function AddExpenseModal({
                 />
                 {receiptUrl ? (
                   <div className="flex items-center justify-between gap-2 rounded-lg border border-border/60 bg-muted/40 p-2.5 text-xs">
-                    <a href={receiptUrl} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 text-primary hover:underline truncate">
+                    <a
+                      href={receiptUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="flex items-center gap-1.5 text-primary hover:underline truncate"
+                    >
                       <Paperclip className="h-3.5 w-3.5 shrink-0" />
                       <span className="truncate">เปิดดูใบเสร็จ</span>
                       <ExternalLink className="h-3 w-3 shrink-0" />
                     </a>
                     <div className="flex gap-1 shrink-0">
-                      <Button type="button" variant="ghost" size="sm" className="h-7 px-2" onClick={() => fileRef.current?.click()} disabled={uploading}>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="h-7 px-2"
+                        onClick={() => fileRef.current?.click()}
+                        disabled={uploading}
+                      >
                         เปลี่ยน
                       </Button>
-                      <Button type="button" variant="ghost" size="sm" className="h-7 w-7 p-0 text-destructive" onClick={() => { setReceiptUrl(undefined); setReceiptPath(undefined); }}>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="h-7 w-7 p-0 text-destructive"
+                        onClick={() => {
+                          setReceiptUrl(undefined);
+                          setReceiptPath(undefined);
+                        }}
+                      >
                         <X className="h-3.5 w-3.5" />
                       </Button>
                     </div>
                   </div>
                 ) : (
-                  <Button type="button" variant="outline" size="sm" className="gap-1.5" onClick={() => fileRef.current?.click()} disabled={uploading}>
-                    {uploading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Paperclip className="h-3.5 w-3.5" />}
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="gap-1.5"
+                    onClick={() => fileRef.current?.click()}
+                    disabled={uploading}
+                  >
+                    {uploading ? (
+                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    ) : (
+                      <Paperclip className="h-3.5 w-3.5" />
+                    )}
                     {uploading ? "กำลังอัปโหลด..." : "แนบไฟล์ใบเสร็จ"}
                   </Button>
                 )}
@@ -637,7 +814,13 @@ export function AddExpenseModal({
 }
 
 /** Inline edit trigger for an existing expense row */
-export function EditExpenseButton({ record, kind }: { record: ExpenseRecord; kind: "work" | "personal" }) {
+export function EditExpenseButton({
+  record,
+  kind,
+}: {
+  record: ExpenseRecord;
+  kind: "work" | "personal";
+}) {
   const [open, setOpen] = React.useState(false);
   return (
     <AddExpenseModal

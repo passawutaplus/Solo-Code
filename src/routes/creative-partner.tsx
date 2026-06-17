@@ -25,7 +25,10 @@ export const Route = createFileRoute("/creative-partner")({
   head: () => ({
     meta: [
       { title: "So1o Creative Partner — AI ที่ปรึกษาดีไซน์" },
-      { name: "description", content: "AI ที่ปรึกษาด้านงานออกแบบ สี ฟอนต์ คอนเซปต์ สำหรับฟรีแลนซ์ไทย" },
+      {
+        name: "description",
+        content: "AI ที่ปรึกษาด้านงานออกแบบ สี ฟอนต์ คอนเซปต์ สำหรับฟรีแลนซ์ไทย",
+      },
       { property: "og:title", content: "So1o Creative Partner — AI ที่ปรึกษาดีไซน์" },
       { property: "og:description", content: "AI ที่ปรึกษาด้านงานออกแบบสำหรับฟรีแลนซ์ไทย" },
       { property: "og:url", content: "https://solofreelancer.com/creative-partner" },
@@ -105,9 +108,7 @@ function CreativePartnerPage() {
     return { today, yesterday, last30 };
   }, [history]);
 
-  const shell = dark
-    ? "bg-[#0f0f0f] text-foreground"
-    : "bg-[#f8f9fc] text-foreground";
+  const shell = dark ? "bg-[#0f0f0f] text-foreground" : "bg-[#f8f9fc] text-foreground";
 
   const panel = dark
     ? "bg-card/80 border-border/60 backdrop-blur-xl"
@@ -174,14 +175,20 @@ function CreativePartnerPage() {
           <HistoryGroup title="30 วันที่แล้ว" items={grouped.last30} dark={dark} />
         </div>
 
-        <div className={cn("p-3 border-t space-y-2", dark ? "border-border/40" : "border-border/60")}>
+        <div
+          className={cn("p-3 border-t space-y-2", dark ? "border-border/40" : "border-border/60")}
+        >
           <div className={cn("rounded-xl border p-3", panel)}>
             <AssistantCreditBar />
           </div>
           <div className="flex flex-wrap gap-x-2 gap-y-1 text-[10px] text-muted-foreground px-1">
-            <Link to="/privacy" className="hover:text-foreground">Privacy</Link>
+            <Link to="/privacy" className="hover:text-foreground">
+              Privacy
+            </Link>
             <span>·</span>
-            <Link to="/terms" className="hover:text-foreground">Terms</Link>
+            <Link to="/terms" className="hover:text-foreground">
+              Terms
+            </Link>
           </div>
         </div>
       </aside>
@@ -191,16 +198,16 @@ function CreativePartnerPage() {
         <header
           className={cn(
             "flex items-center justify-between px-4 sm:px-6 py-3 border-b shrink-0",
-            dark ? "border-border/40 bg-black/20 backdrop-blur-xl" : "border-border/60 bg-white/90 backdrop-blur-sm",
+            dark
+              ? "border-border/40 bg-black/20 backdrop-blur-xl"
+              : "border-border/60 bg-white/90 backdrop-blur-sm",
           )}
         >
           <div className="flex items-center gap-2 min-w-0">
             <Link to="/" className="md:hidden text-muted-foreground" aria-label="กลับ">
               <ArrowLeft className="h-4 w-4" />
             </Link>
-            <h1 className="text-sm font-semibold truncate">
-              So1o Creative Partner
-            </h1>
+            <h1 className="text-sm font-semibold truncate">So1o Creative Partner</h1>
           </div>
           <div className="flex items-center gap-1.5 shrink-0">
             {!user && (
@@ -274,15 +281,7 @@ function CreativePartnerPage() {
   );
 }
 
-function HistoryGroup({
-  title,
-  items,
-  dark,
-}: {
-  title: string;
-  items: Msg[];
-  dark: boolean;
-}) {
+function HistoryGroup({ title, items, dark }: { title: string; items: Msg[]; dark: boolean }) {
   if (items.length === 0) return null;
   return (
     <div>

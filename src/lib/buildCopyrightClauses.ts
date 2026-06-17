@@ -9,7 +9,10 @@ import {
   type UsageRightsInput,
 } from "@/lib/usageRightsSchema";
 
-export function buildCopyrightClauses(rights: UsageRightsInput, revisionCount?: number): ContractClause[] {
+export function buildCopyrightClauses(
+  rights: UsageRightsInput,
+  revisionCount?: number,
+): ContractClause[] {
   const work = WORK_TYPE_OPTIONS.find((w) => w.value === rights.workType)?.label ?? "งาน";
   const channels = rights.channels
     .map((c) => CHANNEL_OPTIONS.find((o) => o.value === c)?.label ?? c)

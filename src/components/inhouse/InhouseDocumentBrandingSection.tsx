@@ -8,10 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import type { InhouseOrg } from "@/lib/inhouse/types";
 import { useUpdateInhouseOrg } from "@/hooks/inhouse/useInhouseOrg";
-import {
-  resolveDocumentTheme,
-  type DocumentThemeInput,
-} from "@/lib/documentTheme";
+import { resolveDocumentTheme, type DocumentThemeInput } from "@/lib/documentTheme";
 import {
   SOLO_DEFAULT_BRIEF,
   SOLO_DEFAULT_INVOICE,

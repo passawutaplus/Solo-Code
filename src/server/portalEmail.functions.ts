@@ -17,7 +17,9 @@ export const sendPortalLinkToClient = createServerFn({ method: "POST" })
 
     const { data: job, error: jobErr } = await supabaseAdmin
       .from("job_trackers")
-      .select("id, share_token, client_name, title, quotation_id, user_id, deposit_percent, total_amount")
+      .select(
+        "id, share_token, client_name, title, quotation_id, user_id, deposit_percent, total_amount",
+      )
       .eq("share_token", data.shareToken)
       .eq("user_id", userId)
       .maybeSingle();
@@ -95,7 +97,8 @@ export const acceptQuotationByToken = createServerFn({ method: "POST" })
       .eq("share_token", data.token)
       .maybeSingle();
 
-    if (jobErr) throwClientError("portalEmail.acceptQuotation.lookup", jobErr, "ไม่พบใบเสนอราคาสำหรับงานนี้");
+    if (jobErr)
+      throwClientError("portalEmail.acceptQuotation.lookup", jobErr, "ไม่พบใบเสนอราคาสำหรับงานนี้");
     if (!job?.quotation_id) throw new Error("ไม่พบใบเสนอราคาสำหรับงานนี้");
 
     const { data: q, error: qErr } = await supabaseAdmin
@@ -120,7 +123,12 @@ export const acceptQuotationByToken = createServerFn({ method: "POST" })
       .select("id")
       .maybeSingle();
 
-    if (updErr) throwClientError("portalEmail.acceptQuotation.update", updErr, "ใบเสนอราคานี้ไม่สามารถยอมรับได้ในสถานะปัจจุบัน");
+    if (updErr)
+      throwClientError(
+        "portalEmail.acceptQuotation.update",
+        updErr,
+        "ใบเสนอราคานี้ไม่สามารถยอมรับได้ในสถานะปัจจุบัน",
+      );
     if (!updated) throw new Error("ใบเสนอราคานี้ไม่สามารถยอมรับได้ในสถานะปัจจุบัน");
 
     const clientLabel = data.clientName.trim() || job.client_name || "ลูกค้า";

@@ -25,7 +25,8 @@ import { canCreateInhouseOrg, inhouseWorkspacePath } from "@/lib/inhouseAccess";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
-const inhouseFrom = (table: string) => (supabase as unknown as { from: (t: string) => ReturnType<typeof supabase.from> }).from(table);
+const inhouseFrom = (table: string) =>
+  (supabase as unknown as { from: (t: string) => ReturnType<typeof supabase.from> }).from(table);
 
 function OrgCard({ orgSlug, orgName, orgId }: { orgSlug: string; orgName: string; orgId: string }) {
   const { data: workspaces = [], isLoading } = useInhouseWorkspaces(orgId);

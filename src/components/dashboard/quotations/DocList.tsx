@@ -2,7 +2,13 @@ import * as React from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Copy, Trash2, Pencil, Eye, Send } from "lucide-react";
 import {
   computeTotals,
@@ -55,8 +61,8 @@ function docNumOf(q: Quotation, docType: DocKind) {
   return docType === "invoice"
     ? q.invoiceNumber || "—"
     : docType === "receipt"
-    ? q.receiptNumber || "—"
-    : q.number;
+      ? q.receiptNumber || "—"
+      : q.number;
 }
 
 export function DocList({
@@ -112,7 +118,7 @@ export function DocList({
           <tbody>
             {items.map((q) => {
               const t = computeTotals(q);
-              
+
               const docNum = docNumOf(q, docType);
               return (
                 <tr
@@ -160,19 +166,20 @@ export function DocList({
                   </td>
                   <td className="px-3 py-2.5">
                     <div className="flex items-center justify-end gap-1">
-                      {(q.status === "pending_payment" || q.status === "pending_receipt") && q.dueDate && (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className={`h-7 px-2 gap-1 text-[11px] ${isOverdue(q) ? "border-destructive/40 text-destructive hover:bg-destructive/10" : ""}`}
-                          onClick={() => setFollowup(q)}
-                          title="ติดตามการชำระเงิน"
-                        >
-                          <Send className="h-3 w-3" />
-                          <span className="hidden xl:inline">ทวง</span>
-                        </Button>
-                      )}
-                      
+                      {(q.status === "pending_payment" || q.status === "pending_receipt") &&
+                        q.dueDate && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className={`h-7 px-2 gap-1 text-[11px] ${isOverdue(q) ? "border-destructive/40 text-destructive hover:bg-destructive/10" : ""}`}
+                            onClick={() => setFollowup(q)}
+                            title="ติดตามการชำระเงิน"
+                          >
+                            <Send className="h-3 w-3" />
+                            <span className="hidden xl:inline">ทวง</span>
+                          </Button>
+                        )}
+
                       <Button
                         size="sm"
                         variant="ghost"
@@ -213,10 +220,13 @@ export function DocList({
       <div className="md:hidden space-y-2">
         {items.map((q) => {
           const t = computeTotals(q);
-              
+
           const docNum = docNumOf(q, docType);
           return (
-            <div key={q.id} className={`rounded-xl border p-3 bg-card ${sel.has(q.id) ? "border-primary/60 bg-primary/5" : "border-border/60"}`}>
+            <div
+              key={q.id}
+              className={`rounded-xl border p-3 bg-card ${sel.has(q.id) ? "border-primary/60 bg-primary/5" : "border-border/60"}`}
+            >
               <div className="flex items-start justify-between gap-2 mb-2">
                 {onToggleSelect && (
                   <Checkbox
@@ -231,9 +241,7 @@ export function DocList({
                   <p className="text-sm font-medium truncate">
                     {q.projectName || "ไม่มีชื่อโครงการ"}
                   </p>
-                  <p className="text-xs text-muted-foreground truncate">
-                    {q.clientName || "—"}
-                  </p>
+                  <p className="text-xs text-muted-foreground truncate">{q.clientName || "—"}</p>
                 </div>
                 <div className="flex flex-col items-end gap-1 shrink-0">
                   <StatusSelect q={q} onAdvance={onAdvance} />
@@ -247,17 +255,18 @@ export function DocList({
               <div className="flex items-center justify-between gap-2 pt-2 border-t border-border/40">
                 <p className="num font-semibold">฿{formatBaht(t.grandTotal)}</p>
                 <div className="flex items-center gap-1 flex-wrap justify-end">
-                  {(q.status === "pending_payment" || q.status === "pending_receipt") && q.dueDate && (
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className={`h-8 px-2 gap-1 text-[11px] ${isOverdue(q) ? "border-destructive/40 text-destructive" : ""}`}
-                      onClick={() => setFollowup(q)}
-                    >
-                      <Send className="h-3 w-3" /> ทวง
-                    </Button>
-                  )}
-                  
+                  {(q.status === "pending_payment" || q.status === "pending_receipt") &&
+                    q.dueDate && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className={`h-8 px-2 gap-1 text-[11px] ${isOverdue(q) ? "border-destructive/40 text-destructive" : ""}`}
+                        onClick={() => setFollowup(q)}
+                      >
+                        <Send className="h-3 w-3" /> ทวง
+                      </Button>
+                    )}
+
                   <Button
                     size="sm"
                     variant="ghost"

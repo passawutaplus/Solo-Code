@@ -29,7 +29,7 @@ const ArticleInput = z.object({
           return false;
         }
       },
-      { message: "ลิงก์ต้องเป็น http(s) หรือ path ภายในเริ่มด้วย /" }
+      { message: "ลิงก์ต้องเป็น http(s) หรือ path ภายในเริ่มด้วย /" },
     )
     .optional()
     .nullable(),
@@ -63,7 +63,7 @@ export const listPublishedArticles = createServerFn({ method: "GET" })
     let query = supabaseAdmin
       .from("articles")
       .select(
-        "id,slug,title,summary,category,featured_image,featured_image_alt,published_at,view_count"
+        "id,slug,title,summary,category,featured_image,featured_image_alt,published_at,view_count",
       )
       .eq("status", "published")
       .order("published_at", { ascending: false })
@@ -83,7 +83,9 @@ export const listPublishedArticles = createServerFn({ method: "GET" })
   });
 
 export const getArticleBySlug = createServerFn({ method: "GET" })
-  .inputValidator((data: { slug: string }) => z.object({ slug: z.string().min(1).max(120) }).parse(data))
+  .inputValidator((data: { slug: string }) =>
+    z.object({ slug: z.string().min(1).max(120) }).parse(data),
+  )
   .handler(async ({ data }) => {
     const { data: row, error } = await supabaseAdmin
       .from("articles")
@@ -96,7 +98,9 @@ export const getArticleBySlug = createServerFn({ method: "GET" })
   });
 
 export const incrementArticleView = createServerFn({ method: "POST" })
-  .inputValidator((data: { slug: string }) => z.object({ slug: z.string().min(1).max(120) }).parse(data))
+  .inputValidator((data: { slug: string }) =>
+    z.object({ slug: z.string().min(1).max(120) }).parse(data),
+  )
   .handler(async ({ data }) => {
     await supabaseAdmin.rpc("increment_article_view", { _slug: data.slug });
     return { ok: true };
@@ -123,7 +127,7 @@ export const adminListArticles = createServerFn({ method: "GET" })
     const { data, error } = await supabaseAdmin
       .from("articles")
       .select(
-        "id,slug,title,summary,category,status,published_at,updated_at,view_count,featured_image"
+        "id,slug,title,summary,category,status,published_at,updated_at,view_count,featured_image",
       )
       .order("updated_at", { ascending: false })
       .limit(200);
@@ -174,8 +178,7 @@ export const adminUpsertArticle = createServerFn({ method: "POST" })
       meta_description,
       related_feature_link: data.related_feature_link || null,
       status: data.status,
-      published_at:
-        data.status === "published" ? new Date().toISOString() : null,
+      published_at: data.status === "published" ? new Date().toISOString() : null,
       author_user_id: context.userId,
     };
 

@@ -93,7 +93,8 @@ export function PaymentsSection() {
                     </Badge>
                     {r.amount_cents != null && (
                       <span className="text-xs font-semibold num">
-                        {(r.amount_cents / 100).toLocaleString("th-TH")} {r.currency?.toUpperCase() ?? "THB"}
+                        {(r.amount_cents / 100).toLocaleString("th-TH")}{" "}
+                        {r.currency?.toUpperCase() ?? "THB"}
                       </span>
                     )}
                   </div>

@@ -21,7 +21,11 @@ import {
   type TicketStatus,
 } from "@/lib/ticketSchema";
 import type { SupportTicket } from "@/store/supportTickets";
-import { TicketFeatureBadge, TicketRatingStars, TicketSourceBadge } from "@/components/support/TicketMetaBadges";
+import {
+  TicketFeatureBadge,
+  TicketRatingStars,
+  TicketSourceBadge,
+} from "@/components/support/TicketMetaBadges";
 
 function TicketCard({
   ticket,
@@ -45,7 +49,9 @@ function TicketCard({
     >
       <div className="flex items-center gap-1.5 mb-1">
         <span className={cn("h-2 w-2 rounded-full shrink-0", PRIORITY_DOT[ticket.priority])} />
-        <span className="text-[10px] font-mono font-bold text-[#FF5F05]">{ticket.ticketNumber}</span>
+        <span className="text-[10px] font-mono font-bold text-[#FF5F05]">
+          {ticket.ticketNumber}
+        </span>
       </div>
       <p className="text-xs font-medium line-clamp-2">{ticket.title}</p>
       <div className="flex flex-wrap gap-1 mt-1">
@@ -61,11 +67,7 @@ function TicketCard({
   );
 }
 
-function DraggableCard(props: {
-  ticket: SupportTicket;
-  userLabel: string;
-  onClick: () => void;
-}) {
+function DraggableCard(props: { ticket: SupportTicket; userLabel: string; onClick: () => void }) {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: props.ticket.id,
   });

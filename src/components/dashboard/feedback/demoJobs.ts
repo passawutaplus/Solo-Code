@@ -27,8 +27,7 @@ export const DEMO_JOBS: FeedbackJob[] = [
       {
         id: "demo-rev-1b",
         round: 2,
-        notes:
-          "ปรับสีตามที่คุยแล้ว เพิ่มดอกไม้ใต้ตัวอักษรเรียบร้อย รอลูกค้าเช็คอีกรอบ",
+        notes: "ปรับสีตามที่คุยแล้ว เพิ่มดอกไม้ใต้ตัวอักษรเรียบร้อย รอลูกค้าเช็คอีกรอบ",
         images: [],
         status: "in_progress",
         createdAt: iso(2),

@@ -36,7 +36,14 @@ export function ReviewTab() {
             className="relative rounded-xl overflow-hidden border border-border/60 cursor-crosshair select-none"
             onClick={addPin}
           >
-            <img src={SAMPLE_V1} alt="Design version preview" className="w-full block" draggable={false}  loading="lazy" decoding="async" />
+            <img
+              src={SAMPLE_V1}
+              alt="Design version preview"
+              className="w-full block"
+              draggable={false}
+              loading="lazy"
+              decoding="async"
+            />
             {pins.map((pin, i) => (
               <div
                 key={pin.id}
@@ -56,7 +63,9 @@ export function ReviewTab() {
           <div className="mt-3 space-y-1">
             {pins.map((p, i) => (
               <div key={p.id} className="flex items-start gap-2 text-xs">
-                <span className="h-5 w-5 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-[10px] font-bold shrink-0">{i + 1}</span>
+                <span className="h-5 w-5 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-[10px] font-bold shrink-0">
+                  {i + 1}
+                </span>
                 <span>{p.note}</span>
               </div>
             ))}
@@ -72,13 +81,24 @@ export function ReviewTab() {
         </CardHeader>
         <CardContent>
           <div className="grid gap-3 sm:grid-cols-2">
-            {[{ label: "Version 1", src: SAMPLE_V1 }, { label: "Version 2", src: SAMPLE_V2 }].map((v) => (
+            {[
+              { label: "Version 1", src: SAMPLE_V1 },
+              { label: "Version 2", src: SAMPLE_V2 },
+            ].map((v) => (
               <div key={v.label} className="rounded-xl overflow-hidden border border-border/60">
                 <div className="px-3 py-1.5 bg-muted/60 text-xs font-medium flex items-center justify-between">
                   <span>{v.label}</span>
-                  <Button size="sm" variant="ghost" className="h-6 text-[10px]">เลือก</Button>
+                  <Button size="sm" variant="ghost" className="h-6 text-[10px]">
+                    เลือก
+                  </Button>
                 </div>
-                <img src={v.src} alt={v.label} className="w-full block"  loading="lazy" decoding="async" />
+                <img
+                  src={v.src}
+                  alt={v.label}
+                  className="w-full block"
+                  loading="lazy"
+                  decoding="async"
+                />
               </div>
             ))}
           </div>

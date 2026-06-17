@@ -25,9 +25,7 @@ export function CheckoutSuccessHandler() {
     if (!isUpgrade && !isTopup) return;
     handled.current = true;
 
-    const id = toast.loading(
-      isUpgrade ? "กำลังเปิดใช้งานแพ็กเกจ Pro…" : "กำลังเติมเครดิต…",
-    );
+    const id = toast.loading(isUpgrade ? "กำลังเปิดใช้งานแพ็กเกจ Pro…" : "กำลังเติมเครดิต…");
 
     let attempts = 0;
     const initialTier = tier;

@@ -28,7 +28,19 @@ interface RowProps {
   onChange: (v: number) => void;
 }
 
-function MixerSlider({ icon, label, thaiLabel, value, max, unit, trackBg, thumbColor, startSwatch, endSwatch, onChange }: RowProps) {
+function MixerSlider({
+  icon,
+  label,
+  thaiLabel,
+  value,
+  max,
+  unit,
+  trackBg,
+  thumbColor,
+  startSwatch,
+  endSwatch,
+  onChange,
+}: RowProps) {
   return (
     <div className="space-y-1.5">
       <div className="flex items-center justify-between text-xs">
@@ -36,11 +48,17 @@ function MixerSlider({ icon, label, thaiLabel, value, max, unit, trackBg, thumbC
           <span className="text-primary">{icon}</span>
           {thaiLabel} <span className="text-muted-foreground">({label})</span>
         </span>
-        <span className="font-mono text-muted-foreground">{Math.round(value)}{unit}</span>
+        <span className="font-mono text-muted-foreground">
+          {Math.round(value)}
+          {unit}
+        </span>
       </div>
       <div className="flex items-center gap-2">
         {startSwatch && (
-          <span className="h-3.5 w-3.5 rounded-full border border-white/30 shrink-0" style={{ background: startSwatch }} />
+          <span
+            className="h-3.5 w-3.5 rounded-full border border-white/30 shrink-0"
+            style={{ background: startSwatch }}
+          />
         )}
         <div className="flex-1 relative">
           <div
@@ -58,7 +76,10 @@ function MixerSlider({ icon, label, thaiLabel, value, max, unit, trackBg, thumbC
           />
         </div>
         {endSwatch && (
-          <span className="h-3.5 w-3.5 rounded-full border border-white/30 shrink-0" style={{ background: endSwatch }} />
+          <span
+            className="h-3.5 w-3.5 rounded-full border border-white/30 shrink-0"
+            style={{ background: endSwatch }}
+          />
         )}
       </div>
     </div>
@@ -93,7 +114,10 @@ export function ColorMixer({ hex, onChange }: Props) {
   const reset = () => setMix({ hue: mix.hue, tint: 0, shade: 0, tone: 0 });
 
   return (
-    <div className="space-y-3 rounded-2xl p-3 sm:p-4 bg-white/5 backdrop-blur-md border border-white/10" style={{ borderRadius: 14 }}>
+    <div
+      className="space-y-3 rounded-2xl p-3 sm:p-4 bg-white/5 backdrop-blur-md border border-white/10"
+      style={{ borderRadius: 14 }}
+    >
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-2">
           <span
@@ -115,11 +139,20 @@ export function ColorMixer({ hex, onChange }: Props) {
             size="sm"
             variant="ghost"
             className="h-8 gap-1 text-xs"
-            onClick={() => { navigator.clipboard.writeText(current); toast.success(`คัดลอก ${current}`); }}
+            onClick={() => {
+              navigator.clipboard.writeText(current);
+              toast.success(`คัดลอก ${current}`);
+            }}
           >
             <Copy className="h-3.5 w-3.5" /> Copy
           </Button>
-          <Button type="button" size="sm" variant="ghost" className="h-8 gap-1 text-xs" onClick={reset}>
+          <Button
+            type="button"
+            size="sm"
+            variant="ghost"
+            className="h-8 gap-1 text-xs"
+            onClick={reset}
+          >
             <RotateCcw className="h-3.5 w-3.5" /> Reset
           </Button>
         </div>
@@ -127,37 +160,52 @@ export function ColorMixer({ hex, onChange }: Props) {
 
       <MixerSlider
         icon={<Palette className="h-3.5 w-3.5" />}
-        label="Hue" thaiLabel="สี"
-        value={mix.hue} max={360} unit="°"
+        label="Hue"
+        thaiLabel="สี"
+        value={mix.hue}
+        max={360}
+        unit="°"
         trackBg={HUE_GRADIENT}
         thumbColor={current}
         onChange={(v) => set("hue", v)}
       />
       <MixerSlider
         icon={<Sun className="h-3.5 w-3.5" />}
-        label="Tint" thaiLabel="ทินท์"
-        value={mix.tint} max={100} unit="%"
+        label="Tint"
+        thaiLabel="ทินท์"
+        value={mix.tint}
+        max={100}
+        unit="%"
         trackBg={`linear-gradient(90deg, ${current} 0%, #FFFFFF 100%)`}
         thumbColor={current}
-        startSwatch={current} endSwatch="#FFFFFF"
+        startSwatch={current}
+        endSwatch="#FFFFFF"
         onChange={(v) => set("tint", v)}
       />
       <MixerSlider
         icon={<Moon className="h-3.5 w-3.5" />}
-        label="Shade" thaiLabel="เฉดสี"
-        value={mix.shade} max={100} unit="%"
+        label="Shade"
+        thaiLabel="เฉดสี"
+        value={mix.shade}
+        max={100}
+        unit="%"
         trackBg={`linear-gradient(90deg, ${current} 0%, #000000 100%)`}
         thumbColor={current}
-        startSwatch={current} endSwatch="#000000"
+        startSwatch={current}
+        endSwatch="#000000"
         onChange={(v) => set("shade", v)}
       />
       <MixerSlider
         icon={<Droplets className="h-3.5 w-3.5" />}
-        label="Tone" thaiLabel="โทนสี"
-        value={mix.tone} max={100} unit="%"
+        label="Tone"
+        thaiLabel="โทนสี"
+        value={mix.tone}
+        max={100}
+        unit="%"
         trackBg={`linear-gradient(90deg, ${current} 0%, #808080 100%)`}
         thumbColor={current}
-        startSwatch={current} endSwatch="#808080"
+        startSwatch={current}
+        endSwatch="#808080"
         onChange={(v) => set("tone", v)}
       />
     </div>

@@ -23,7 +23,12 @@ interface PendingPreview {
 }
 
 const ACCEPTED_TYPES = new Set([
-  "image/jpeg", "image/jpg", "image/png", "image/webp", "image/gif", "image/svg+xml",
+  "image/jpeg",
+  "image/jpg",
+  "image/png",
+  "image/webp",
+  "image/gif",
+  "image/svg+xml",
 ]);
 
 function friendlyError(err: unknown): string {
@@ -35,7 +40,12 @@ function friendlyError(err: unknown): string {
   if (low.includes("mime") || low.includes("400") || low.includes("invalid")) {
     return "ไฟล์นี้ไม่รองรับ ลอง JPG/PNG/WebP/GIF/SVG";
   }
-  if (low.includes("403") || low.includes("rls") || low.includes("denied") || low.includes("unauthorized")) {
+  if (
+    low.includes("403") ||
+    low.includes("rls") ||
+    low.includes("denied") ||
+    low.includes("unauthorized")
+  ) {
     return "อัปโหลดไม่ได้ — กรุณาเข้าสู่ระบบใหม่";
   }
   if (low.includes("network") || low.includes("fetch")) {
@@ -140,7 +150,10 @@ export function ReferenceUploader({
   return (
     <div className="space-y-3">
       <div
-        onDragOver={(e) => { e.preventDefault(); setDrag(true); }}
+        onDragOver={(e) => {
+          e.preventDefault();
+          setDrag(true);
+        }}
         onDragLeave={() => setDrag(false)}
         onDrop={(e) => {
           e.preventDefault();
@@ -187,8 +200,16 @@ export function ReferenceUploader({
       {(refs.length > 0 || pending.length > 0) && (
         <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
           {refs.map((r, i) => (
-            <div key={`r-${i}`} className="relative group rounded-xl overflow-hidden border border-border bg-muted aspect-square">
-              <img src={r.url} alt={r.name ?? `ref-${i}`} className="w-full h-full object-cover" loading="lazy" />
+            <div
+              key={`r-${i}`}
+              className="relative group rounded-xl overflow-hidden border border-border bg-muted aspect-square"
+            >
+              <img
+                src={r.url}
+                alt={r.name ?? `ref-${i}`}
+                className="w-full h-full object-cover"
+                loading="lazy"
+              />
               {!disabled && (
                 <button
                   type="button"
@@ -205,11 +226,17 @@ export function ReferenceUploader({
             <div
               key={p.id}
               className={`relative rounded-xl overflow-hidden border aspect-square ${
-                p.status === "error" ? "border-destructive bg-destructive/5" : "border-primary/40 bg-muted"
+                p.status === "error"
+                  ? "border-destructive bg-destructive/5"
+                  : "border-primary/40 bg-muted"
               }`}
               title={p.errorMsg || "กำลังอัปโหลด…"}
             >
-              <img src={p.previewUrl} alt={p.name} className="w-full h-full object-cover opacity-70" />
+              <img
+                src={p.previewUrl}
+                alt={p.name}
+                className="w-full h-full object-cover opacity-70"
+              />
               <div className="absolute inset-0 flex items-center justify-center bg-black/30">
                 {p.status === "uploading" ? (
                   <Loader2 className="h-5 w-5 text-white animate-spin" />

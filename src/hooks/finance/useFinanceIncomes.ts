@@ -28,7 +28,10 @@ export function useFinanceIncomes(userId: string | undefined) {
       if (rec.sourceQuotationId) {
         const existing = incomes.find((x) => x.sourceQuotationId === rec.sourceQuotationId);
         if (existing) {
-          const { error } = await supabase.from("finance_incomes").update(row).eq("id", existing.id);
+          const { error } = await supabase
+            .from("finance_incomes")
+            .update(row)
+            .eq("id", existing.id);
           if (error) throw error;
           return;
         }
@@ -54,7 +57,10 @@ export function useFinanceIncomes(userId: string | undefined) {
   const removeIncomeBySourceMutation = useMutation({
     mutationFn: async (sourceQuotationId: string) => {
       if (!userId) return;
-      const { error } = await supabase.from("finance_incomes").delete().eq("source_quotation_id", sourceQuotationId);
+      const { error } = await supabase
+        .from("finance_incomes")
+        .delete()
+        .eq("source_quotation_id", sourceQuotationId);
       if (error) throw error;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: incomesKey(userId) }),
@@ -71,11 +77,15 @@ export function useFinanceIncomes(userId: string | undefined) {
   });
 
   const addIncome = React.useCallback(
-    (rec: Omit<IncomeRecord, "id">) => { addIncomeMutation.mutate(rec); },
+    (rec: Omit<IncomeRecord, "id">) => {
+      addIncomeMutation.mutate(rec);
+    },
     [addIncomeMutation],
   );
   const updateIncome = React.useCallback(
-    (id: string, patch: Partial<IncomeRecord>) => { updateIncomeMutation.mutate({ id, patch }); },
+    (id: string, patch: Partial<IncomeRecord>) => {
+      updateIncomeMutation.mutate({ id, patch });
+    },
     [updateIncomeMutation],
   );
   const upsertIncomeFromQuotation = React.useCallback(
@@ -85,7 +95,9 @@ export function useFinanceIncomes(userId: string | undefined) {
     [upsertIncomeMutation],
   );
   const removeIncomeBySource = React.useCallback(
-    (sourceQuotationId: string) => { removeIncomeBySourceMutation.mutate(sourceQuotationId); },
+    (sourceQuotationId: string) => {
+      removeIncomeBySourceMutation.mutate(sourceQuotationId);
+    },
     [removeIncomeBySourceMutation],
   );
 

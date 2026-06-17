@@ -49,11 +49,7 @@ export function HomeInsightsSection() {
   if (inView && !loading && articles.length === 0) return null;
 
   return (
-    <section
-      ref={sectionRef}
-      id="insights"
-      className="mx-auto max-w-6xl px-4 py-14 sm:py-20"
-    >
+    <section ref={sectionRef} id="insights" className="mx-auto max-w-6xl px-4 py-14 sm:py-20">
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 mb-8">
         <div>
           <div className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card/60 px-3 py-1 text-[11px] font-medium text-muted-foreground mb-3">

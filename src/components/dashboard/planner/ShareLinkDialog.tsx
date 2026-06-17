@@ -32,11 +32,7 @@ type ShareLink = {
   expires_at: string | null;
 };
 
-export function ShareLinkDialog({
-  clients,
-}: {
-  clients: { id: string; name: string }[];
-}) {
+export function ShareLinkDialog({ clients }: { clients: { id: string; name: string }[] }) {
   const { user } = useAuth();
   const [open, setOpen] = React.useState(false);
   const [month, setMonth] = React.useState(() => new Date().toISOString().slice(0, 7));
@@ -51,11 +47,16 @@ export function ShareLinkDialog({
       .select("*")
       .order("created_at", { ascending: false })
       .limit(20);
-    if (error) { toast.error(error.message); return; }
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
     setLinks((data ?? []) as ShareLink[]);
   }, [user?.id]);
 
-  React.useEffect(() => { if (open) loadLinks(); }, [open, loadLinks]);
+  React.useEffect(() => {
+    if (open) loadLinks();
+  }, [open, loadLinks]);
 
   const createLink = async () => {
     if (!user?.id) return;
@@ -83,7 +84,10 @@ export function ShareLinkDialog({
   const deleteLink = async (id: string) => {
     if (!confirm("ลบลิงก์นี้?")) return;
     const { error } = await supabase.from("planner_share_links").delete().eq("id", id);
-    if (error) { toast.error(error.message); return; }
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
     setLinks((arr) => arr.filter((l) => l.id !== id));
     toast.success("ลบแล้ว");
   };
@@ -114,23 +118,36 @@ export function ShareLinkDialog({
           <div className="grid grid-cols-2 gap-3">
             <div className="grid gap-1.5">
               <Label>เดือน</Label>
-              <Input type="month" value={month} onChange={(e) => setMonth(e.target.value)} className="rounded-xl" />
+              <Input
+                type="month"
+                value={month}
+                onChange={(e) => setMonth(e.target.value)}
+                className="rounded-xl"
+              />
             </div>
             <div className="grid gap-1.5">
               <Label>ลูกค้า</Label>
               <Select value={clientId} onValueChange={setClientId}>
-                <SelectTrigger className="rounded-xl"><SelectValue /></SelectTrigger>
+                <SelectTrigger className="rounded-xl">
+                  <SelectValue />
+                </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="__all__">ทุกลูกค้า</SelectItem>
                   {clients.map((c) => (
-                    <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                    <SelectItem key={c.id} value={c.id}>
+                      {c.name}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
           </div>
           <Button onClick={createLink} disabled={loading} className="rounded-xl">
-            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Share2 className="h-4 w-4 mr-1.5" />}
+            {loading ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Share2 className="h-4 w-4 mr-1.5" />
+            )}
             สร้างลิงก์ใหม่
           </Button>
 
@@ -141,17 +158,36 @@ export function ShareLinkDialog({
                 <p className="text-xs text-muted-foreground text-center py-3">ยังไม่มีลิงก์</p>
               )}
               {links.map((l) => {
-                const cName = l.client_id ? clients.find((c) => c.id === l.client_id)?.name ?? "—" : "ทุกลูกค้า";
+                const cName = l.client_id
+                  ? (clients.find((c) => c.id === l.client_id)?.name ?? "—")
+                  : "ทุกลูกค้า";
                 return (
-                  <div key={l.id} className="flex items-center gap-2 rounded-xl border border-border/60 p-2 text-xs">
+                  <div
+                    key={l.id}
+                    className="flex items-center gap-2 rounded-xl border border-border/60 p-2 text-xs"
+                  >
                     <div className="flex-1 min-w-0">
-                      <div className="font-medium">{cName} · {l.month}</div>
-                      <div className="text-[10px] text-muted-foreground truncate">/planner/{l.share_token}</div>
+                      <div className="font-medium">
+                        {cName} · {l.month}
+                      </div>
+                      <div className="text-[10px] text-muted-foreground truncate">
+                        /planner/{l.share_token}
+                      </div>
                     </div>
-                    <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => copyLink(l.share_token)}>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="h-7 w-7"
+                      onClick={() => copyLink(l.share_token)}
+                    >
                       <Copy className="h-3 w-3" />
                     </Button>
-                    <Button size="icon" variant="ghost" className="h-7 w-7 text-destructive" onClick={() => deleteLink(l.id)}>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="h-7 w-7 text-destructive"
+                      onClick={() => deleteLink(l.id)}
+                    >
                       <Trash2 className="h-3 w-3" />
                     </Button>
                   </div>
@@ -162,7 +198,9 @@ export function ShareLinkDialog({
         </div>
 
         <DialogFooter>
-          <Button variant="ghost" onClick={() => setOpen(false)} className="rounded-xl">ปิด</Button>
+          <Button variant="ghost" onClick={() => setOpen(false)} className="rounded-xl">
+            ปิด
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

@@ -124,7 +124,11 @@ export function QuotationHeaderBannerField({ value, onChange }: Props) {
           disabled={uploading}
           onClick={() => inputRef.current?.click()}
         >
-          {uploading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Upload className="h-3.5 w-3.5" />}
+          {uploading ? (
+            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+          ) : (
+            <Upload className="h-3.5 w-3.5" />
+          )}
           เลือกรูปภาพ
         </Button>
       )}

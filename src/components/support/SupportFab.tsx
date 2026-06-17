@@ -1,7 +1,16 @@
 import * as React from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
-import { X, ArrowLeft, MessageCircle, BookOpen, Lightbulb, Sparkles, Ticket, ClipboardList } from "lucide-react";
+import {
+  X,
+  ArrowLeft,
+  MessageCircle,
+  BookOpen,
+  Lightbulb,
+  Sparkles,
+  Ticket,
+  ClipboardList,
+} from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { CreateTicketForm } from "./CreateTicketSheet";
 import { MyTicketsPanel } from "./MyTicketsPanel";
@@ -118,11 +127,7 @@ export function SupportFab({
               : "fixed bottom-6 right-6 z-[60] h-12 w-12 rounded-full bg-white shadow-[0_10px_30px_-8px_rgba(255,95,5,0.5)] ring-2 ring-[#FF5F05]/20 hover:ring-[#FF5F05]/50 hover:scale-105 active:scale-95 transition-all flex items-center justify-center"
           }
         >
-          <img
-            src={so1oLogoMark}
-            alt="So1o"
-            className="h-full w-full object-cover rounded-full"
-          />
+          <img src={so1oLogoMark} alt="So1o" className="h-full w-full object-cover rounded-full" />
           {unread > 0 && (
             <span className="absolute -top-1 -right-1 min-w-5 h-5 px-1.5 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center border-2 border-white z-10 shadow-md">
               {unread > 9 ? "9+" : unread}
@@ -154,11 +159,7 @@ export function SupportFab({
                   </button>
                 )}
                 <div className="h-10 w-10 rounded-xl bg-white p-1.5 shadow-sm shrink-0 overflow-hidden ring-2 ring-white/40">
-                  <img
-                    src={so1oLogoMark}
-                    alt="So1o"
-                    className="h-full w-full object-contain"
-                  />
+                  <img src={so1oLogoMark} alt="So1o" className="h-full w-full object-contain" />
                 </div>
               </div>
               <button
@@ -200,10 +201,7 @@ export function SupportFab({
             {view === "changelog" && <SupportChangelog />}
             {view === "create_ticket" && <CreateTicketForm prefill={{ source: "support_hub" }} />}
             {view === "my_tickets" && (
-              <MyTicketsPanel
-                selectedId={selectedTicketId}
-                onSelectTicket={setSelectedTicketId}
-              />
+              <MyTicketsPanel selectedId={selectedTicketId} onSelectTicket={setSelectedTicketId} />
             )}
           </div>
         </SheetContent>
@@ -282,9 +280,7 @@ function HomeView({
         iconShape="square"
       />
 
-      <div className="pt-1 text-center text-[10px] text-gray-400">
-        So1o Support Hub · v1.0
-      </div>
+      <div className="pt-1 text-center text-[10px] text-gray-400">So1o Support Hub · v1.0</div>
     </div>
   );
 }
@@ -316,8 +312,7 @@ function HubMenuItem({
   iconBgClassName?: string;
   iconShape?: "circle" | "square";
 }) {
-  const iconWrapClass =
-    iconShape === "square" ? "h-10 w-10 rounded-xl" : "h-10 w-10 rounded-full";
+  const iconWrapClass = iconShape === "square" ? "h-10 w-10 rounded-xl" : "h-10 w-10 rounded-full";
   const className = [
     "w-full text-left rounded-xl bg-white p-4 transition-all group",
     highlighted

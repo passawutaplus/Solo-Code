@@ -98,9 +98,7 @@ export async function assertFileSignature(
     throw new Error("ไฟล์เสียหายหรือเป็นไฟล์ปลอม (อ่านลายเซ็นไม่ได้)");
   }
   if (sigKind !== mimeKind) {
-    throw new Error(
-      `เนื้อไฟล์เป็น ${sigKind} แต่ระบุเป็น ${mimeKind} — ปฏิเสธไฟล์ปลอม`,
-    );
+    throw new Error(`เนื้อไฟล์เป็น ${sigKind} แต่ระบุเป็น ${mimeKind} — ปฏิเสธไฟล์ปลอม`);
   }
 
   return sigKind;

@@ -4,7 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/auth/AuthProvider";
 import type { InhouseTask } from "@/lib/inhouse/types";
 
-const inhouseFrom = (table: string) => (supabase as unknown as { from: (t: string) => ReturnType<typeof supabase.from> }).from(table);
+const inhouseFrom = (table: string) =>
+  (supabase as unknown as { from: (t: string) => ReturnType<typeof supabase.from> }).from(table);
 
 async function enrichTasks(tasks: InhouseTask[]): Promise<InhouseTask[]> {
   const assigneeIds = [...new Set(tasks.map((t) => t.assignee_id).filter(Boolean))] as string[];
@@ -16,9 +17,13 @@ async function enrichTasks(tasks: InhouseTask[]): Promise<InhouseTask[]> {
   const map = new Map((profiles ?? []).map((p) => [p.user_id, p]));
   return tasks.map((t) => ({
     ...t,
-    assignee: t.assignee_id && map.get(t.assignee_id)
-      ? { display_name: map.get(t.assignee_id)!.display_name, avatar_url: map.get(t.assignee_id)!.avatar_url }
-      : undefined,
+    assignee:
+      t.assignee_id && map.get(t.assignee_id)
+        ? {
+            display_name: map.get(t.assignee_id)!.display_name,
+            avatar_url: map.get(t.assignee_id)!.avatar_url,
+          }
+        : undefined,
   }));
 }
 
@@ -44,7 +49,12 @@ export function useInhouseTasks(workspaceId: string | undefined) {
       .channel(`inhouse-tasks-${workspaceId}`)
       .on(
         "postgres_changes",
-        { event: "*", schema: "public", table: "inhouse_tasks", filter: `workspace_id=eq.${workspaceId}` },
+        {
+          event: "*",
+          schema: "public",
+          table: "inhouse_tasks",
+          filter: `workspace_id=eq.${workspaceId}`,
+        },
         () => queryClient.invalidateQueries({ queryKey: ["inhouse-tasks", workspaceId] }),
       )
       .subscribe();
@@ -114,7 +124,18 @@ export function useUpdateInhouseTask(orgId: string) {
     mutationFn: async (opts: {
       id: string;
       workspaceId: string;
-      patch: Partial<Pick<InhouseTask, "title" | "description" | "column_key" | "assignee_id" | "priority" | "due_date" | "position">>;
+      patch: Partial<
+        Pick<
+          InhouseTask,
+          | "title"
+          | "description"
+          | "column_key"
+          | "assignee_id"
+          | "priority"
+          | "due_date"
+          | "position"
+        >
+      >;
       eventType?: string;
     }) => {
       const { data, error } = await inhouseFrom("inhouse_tasks")

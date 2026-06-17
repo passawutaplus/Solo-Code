@@ -1,15 +1,11 @@
 import { supabase } from "@/integrations/supabase/client";
-import {
-  buildOAuthCallbackUrl,
-  safeRelativePath,
-  storeOAuthRedirect,
-} from "@/lib/oauthRedirect";
+import { buildOAuthCallbackUrl, safeRelativePath, storeOAuthRedirect } from "@/lib/oauthRedirect";
 
 const DEFAULT_AFTER_AUTH = "/dashboard";
 
-export async function signInWithOAuth(
-  options?: { redirectTo?: string },
-): Promise<{ error?: Error; redirected?: boolean }> {
+export async function signInWithOAuth(options?: {
+  redirectTo?: string;
+}): Promise<{ error?: Error; redirected?: boolean }> {
   const afterAuth = safeRelativePath(options?.redirectTo, DEFAULT_AFTER_AUTH);
   storeOAuthRedirect(afterAuth);
 

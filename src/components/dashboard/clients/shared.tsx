@@ -1,15 +1,13 @@
 import * as React from "react";
-import {
-  CheckCircle2, Clock, AlertTriangle, AlertOctagon,
-} from "lucide-react";
+import { CheckCircle2, Clock, AlertTriangle, AlertOctagon } from "lucide-react";
 import { fieldLabelClass } from "@/lib/formFieldStyles";
 import { DEFAULT_CONTRACT_CLAUSES } from "@/lib/contractTemplates";
 
 export const CLIENT_GRADES: Record<string, { grade: "A" | "B" | "C"; traits: string[] }> = {
   "Nimbus Co.": { grade: "A", traits: ["จ่ายตรงเวลา", "บรีฟชัด"] },
   "Aroma Café": { grade: "B", traits: ["แก้งาน 2-3 รอบ"] },
-  "GreenLeaf": { grade: "C", traits: ["จ่ายช้า", "แก้งานเยอะ"] },
-  "FitLab": { grade: "A", traits: ["บรีฟดี", "ตัดสินใจไว"] },
+  GreenLeaf: { grade: "C", traits: ["จ่ายช้า", "แก้งานเยอะ"] },
+  FitLab: { grade: "A", traits: ["บรีฟดี", "ตัดสินใจไว"] },
 };
 
 /** Re-export pipeline contract clauses for client CRM display. */
@@ -27,8 +25,16 @@ export const GRADE_COLOR = {
 export const STATUS_META = {
   paid: { label: "จ่ายแล้ว", icon: CheckCircle2, className: "bg-success/15 text-success" },
   ontime: { label: "ตรงเวลา", icon: Clock, className: "bg-primary-soft text-primary" },
-  late7: { label: "เลท 7 วัน", icon: AlertTriangle, className: "bg-warning/20 text-warning-foreground" },
-  late30: { label: "เลท 1 เดือน", icon: AlertOctagon, className: "bg-destructive/15 text-destructive" },
+  late7: {
+    label: "เลท 7 วัน",
+    icon: AlertTriangle,
+    className: "bg-warning/20 text-warning-foreground",
+  },
+  late30: {
+    label: "เลท 1 เดือน",
+    icon: AlertOctagon,
+    className: "bg-destructive/15 text-destructive",
+  },
 } as const;
 
 export function SectionTitle({ children }: { children: React.ReactNode }) {
@@ -40,7 +46,10 @@ export function SectionTitle({ children }: { children: React.ReactNode }) {
 }
 
 export function Field({
-  label, icon: Icon, children, required,
+  label,
+  icon: Icon,
+  children,
+  required,
 }: {
   label: React.ReactNode;
   icon?: React.ElementType;

@@ -15,10 +15,7 @@ export type DebitResult = {
 
 /** Stripe/payments environment for user_credits row selection. */
 export function getServerPaymentsEnv(): "sandbox" | "live" {
-  const token =
-    process.env.VITE_PAYMENTS_CLIENT_TOKEN ||
-    process.env.PAYMENTS_CLIENT_TOKEN ||
-    "";
+  const token = process.env.VITE_PAYMENTS_CLIENT_TOKEN || process.env.PAYMENTS_CLIENT_TOKEN || "";
   if (token.startsWith("pk_live_")) return "live";
   if (process.env.STRIPE_ENVIRONMENT === "live") return "live";
   return "sandbox";

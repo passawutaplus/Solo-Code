@@ -38,7 +38,9 @@ type State = {
   monthlyGoal: number;
   setMonthlyGoal: (goal: number) => void;
   updateIncome: (id: string, patch: Partial<IncomeRecord>) => void;
-  upsertIncomeFromQuotation: (rec: Omit<IncomeRecord, "id"> & { sourceQuotationId: string }) => void;
+  upsertIncomeFromQuotation: (
+    rec: Omit<IncomeRecord, "id"> & { sourceQuotationId: string },
+  ) => void;
   removeIncomeBySource: (sourceQuotationId: string) => void;
   isLoading: boolean;
 };

@@ -26,7 +26,12 @@ function BentoTile({
   return (
     <BrowserFrame label={frameLabel} className={cn("h-full", className)}>
       <div className="relative aspect-[800/520] sm:aspect-auto sm:h-full min-h-[120px] overflow-hidden">
-        <MockupImage src={src} alt={alt} priority={priority} className="absolute inset-0 h-full w-full object-cover object-top" />
+        <MockupImage
+          src={src}
+          alt={alt}
+          priority={priority}
+          className="absolute inset-0 h-full w-full object-cover object-top"
+        />
       </div>
     </BrowserFrame>
   );

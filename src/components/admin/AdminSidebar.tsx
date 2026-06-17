@@ -191,8 +191,7 @@ export function AdminSidebar({
     }
   }, [active]);
 
-  const toggleGroup = (label: string) =>
-    setOpenGroups((s) => ({ ...s, [label]: !s[label] }));
+  const toggleGroup = (label: string) => setOpenGroups((s) => ({ ...s, [label]: !s[label] }));
 
   return (
     <Sidebar collapsible="icon" className="border-r border-border">
@@ -207,7 +206,9 @@ export function AdminSidebar({
             <div className="min-w-0">
               <div className="flex items-center gap-1.5">
                 <ShieldCheck className="h-3.5 w-3.5 text-primary shrink-0" />
-                <span className="text-sm font-semibold tracking-tight truncate">Mission Control</span>
+                <span className="text-sm font-semibold tracking-tight truncate">
+                  Mission Control
+                </span>
               </div>
               <p className="text-[10px] text-muted-foreground mt-0.5 truncate">Solo founder mode</p>
             </div>
@@ -219,56 +220,58 @@ export function AdminSidebar({
         {GROUPS.map((g) => {
           const isOpen = collapsed || openGroups[g.label];
           return (
-          <SidebarGroup key={g.label}>
-            {!collapsed && (
-              <button
-                type="button"
-                onClick={() => toggleGroup(g.label)}
-                className="w-full flex items-center justify-between px-2 py-1.5 text-[10px] uppercase tracking-wider text-muted-foreground font-medium hover:text-foreground transition-colors"
-              >
-                <span>{g.label}</span>
-                <ChevronDown
-                  className={`h-3 w-3 transition-transform ${isOpen ? "" : "-rotate-90"}`}
-                />
-              </button>
-            )}
-            {isOpen && (
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {g.items.map((s) => {
-                  const Icon = s.icon;
-                  const isActive = active === s.id;
-                  const badge = s.id === "tickets" ? ticketBadge : s.badge;
-                  return (
-                    <SidebarMenuItem key={s.id}>
-                      <SidebarMenuButton
-                        isActive={isActive}
-                        onClick={() => setActive(s.id)}
-                        tooltip={s.label}
-                        className="gap-2"
-                      >
-                        <Icon className="h-4 w-4 shrink-0" />
-                        {!collapsed && (
-                          <div className="flex flex-col items-start min-w-0 flex-1">
-                            <span className="text-xs font-medium truncate flex items-center gap-1.5 w-full">
-                              {s.label}
-                              {badge != null && badge > 0 && (
-                                <span className="ml-auto inline-flex min-w-4 h-4 px-1 rounded-full bg-[#FF5F05] text-white text-[9px] font-bold items-center justify-center">
-                                  {badge > 99 ? "99+" : badge}
+            <SidebarGroup key={g.label}>
+              {!collapsed && (
+                <button
+                  type="button"
+                  onClick={() => toggleGroup(g.label)}
+                  className="w-full flex items-center justify-between px-2 py-1.5 text-[10px] uppercase tracking-wider text-muted-foreground font-medium hover:text-foreground transition-colors"
+                >
+                  <span>{g.label}</span>
+                  <ChevronDown
+                    className={`h-3 w-3 transition-transform ${isOpen ? "" : "-rotate-90"}`}
+                  />
+                </button>
+              )}
+              {isOpen && (
+                <SidebarGroupContent>
+                  <SidebarMenu>
+                    {g.items.map((s) => {
+                      const Icon = s.icon;
+                      const isActive = active === s.id;
+                      const badge = s.id === "tickets" ? ticketBadge : s.badge;
+                      return (
+                        <SidebarMenuItem key={s.id}>
+                          <SidebarMenuButton
+                            isActive={isActive}
+                            onClick={() => setActive(s.id)}
+                            tooltip={s.label}
+                            className="gap-2"
+                          >
+                            <Icon className="h-4 w-4 shrink-0" />
+                            {!collapsed && (
+                              <div className="flex flex-col items-start min-w-0 flex-1">
+                                <span className="text-xs font-medium truncate flex items-center gap-1.5 w-full">
+                                  {s.label}
+                                  {badge != null && badge > 0 && (
+                                    <span className="ml-auto inline-flex min-w-4 h-4 px-1 rounded-full bg-[#FF5F05] text-white text-[9px] font-bold items-center justify-center">
+                                      {badge > 99 ? "99+" : badge}
+                                    </span>
+                                  )}
                                 </span>
-                              )}
-                            </span>
-                            <span className="text-[9px] text-muted-foreground truncate">{s.sub}</span>
-                          </div>
-                        )}
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  );
-                })}
-              </SidebarMenu>
-            </SidebarGroupContent>
-            )}
-          </SidebarGroup>
+                                <span className="text-[9px] text-muted-foreground truncate">
+                                  {s.sub}
+                                </span>
+                              </div>
+                            )}
+                          </SidebarMenuButton>
+                        </SidebarMenuItem>
+                      );
+                    })}
+                  </SidebarMenu>
+                </SidebarGroupContent>
+              )}
+            </SidebarGroup>
           );
         })}
         <SidebarGroup>

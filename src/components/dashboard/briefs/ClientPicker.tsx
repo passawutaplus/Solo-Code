@@ -1,7 +1,14 @@
 import * as React from "react";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
 import { ChevronsUpDown, UserPlus, Check, User as UserIcon, X } from "lucide-react";
 import { useClients, type SavedClient, type SavedClientInput } from "@/store/clients";
 import { ClientFormDialog } from "@/components/dashboard/clients/ClientFormDialog";
@@ -94,10 +101,16 @@ export function ClientPicker({ value, onPick, disabled }: Props) {
                         setOpen(false);
                       }}
                     >
-                      <Check className={`mr-2 h-4 w-4 ${value.client_id === c.id ? "opacity-100" : "opacity-0"}`} />
+                      <Check
+                        className={`mr-2 h-4 w-4 ${value.client_id === c.id ? "opacity-100" : "opacity-0"}`}
+                      />
                       <div className="flex-1 min-w-0">
                         <div className="text-sm truncate">{c.name}</div>
-                        {c.industry && <div className="text-[10px] text-muted-foreground truncate">{c.industry}</div>}
+                        {c.industry && (
+                          <div className="text-[10px] text-muted-foreground truncate">
+                            {c.industry}
+                          </div>
+                        )}
                       </div>
                     </CommandItem>
                   ))}

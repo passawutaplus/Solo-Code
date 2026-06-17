@@ -62,9 +62,15 @@ function ResetPage() {
 
       <div className="relative z-10 w-full max-w-md">
         <div className="flex flex-col items-center mb-6">
-          <img src={logoUrl} alt="So1o" className="h-14 w-14 rounded-2xl object-cover shadow-elevated" />
+          <img
+            src={logoUrl}
+            alt="So1o"
+            className="h-14 w-14 rounded-2xl object-cover shadow-elevated"
+          />
           <h1 className="mt-3 text-xl font-semibold tracking-tight">ตั้งรหัสผ่านใหม่</h1>
-          <p className="text-xs text-muted-foreground mt-1">กรอกรหัสผ่านใหม่ที่คุณจะใช้เข้าสู่ระบบ</p>
+          <p className="text-xs text-muted-foreground mt-1">
+            กรอกรหัสผ่านใหม่ที่คุณจะใช้เข้าสู่ระบบ
+          </p>
         </div>
 
         <Card className="glass border-white/40 shadow-elevated">
@@ -92,7 +98,11 @@ function ResetPage() {
                   minLength={8}
                 />
               </div>
-              <Button type="submit" disabled={busy} className="w-full h-11 bg-primary hover:bg-primary/90 rounded-lg">
+              <Button
+                type="submit"
+                disabled={busy}
+                className="w-full h-11 bg-primary hover:bg-primary/90 rounded-lg"
+              >
                 {busy && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
                 ยืนยันรหัสผ่านใหม่
               </Button>

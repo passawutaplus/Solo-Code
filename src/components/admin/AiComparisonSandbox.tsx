@@ -6,15 +6,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import {
-  Loader2,
-  Send,
-  Trash2,
-  Sparkles,
-  Bot,
-  Crown,
-  Wand2,
-} from "lucide-react";
+import { Loader2, Send, Trash2, Sparkles, Bot, Crown, Wand2 } from "lucide-react";
 import { toast } from "sonner";
 import ReactMarkdown from "react-markdown";
 
@@ -54,9 +46,7 @@ function ChatPane({
         <div className="flex items-center gap-2 min-w-0">
           <div
             className={`h-8 w-8 rounded-lg grid place-items-center shrink-0 ${
-              isTrained
-                ? "bg-primary text-primary-foreground"
-                : "bg-muted text-muted-foreground"
+              isTrained ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
             }`}
           >
             <Icon className="h-4 w-4" />
@@ -71,9 +61,7 @@ function ChatPane({
               )}
             </CardTitle>
             <p className="text-[10px] text-muted-foreground truncate">
-              {isTrained
-                ? "Personality + Knowledge Base"
-                : "Gemini 3.1 Flash · default prompt"}
+              {isTrained ? "Personality + Knowledge Base" : "Gemini 3.1 Flash · default prompt"}
             </p>
           </div>
         </div>
@@ -87,10 +75,7 @@ function ChatPane({
           <Trash2 className="h-3 w-3" /> Clear
         </Button>
       </CardHeader>
-      <CardContent
-        ref={scrollRef}
-        className="flex-1 overflow-y-auto p-3 space-y-2.5"
-      >
+      <CardContent ref={scrollRef} className="flex-1 overflow-y-auto p-3 space-y-2.5">
         {messages.length === 0 && (
           <div className="h-full grid place-items-center text-center px-6">
             <div className="text-xs text-muted-foreground">
@@ -102,17 +87,14 @@ function ChatPane({
           </div>
         )}
         {messages.map((m, i) => (
-          <div
-            key={i}
-            className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}
-          >
+          <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
             <div
               className={`max-w-[88%] rounded-2xl px-3 py-2 text-xs ${
                 m.role === "user"
                   ? "bg-primary text-primary-foreground"
                   : isTrained
-                  ? "bg-card border border-primary/20"
-                  : "bg-card border border-border"
+                    ? "bg-card border border-primary/20"
+                    : "bg-card border border-border"
               }`}
             >
               {m.role === "assistant" ? (
@@ -143,18 +125,14 @@ export function AiComparisonSandbox() {
   const [draft, setDraft] = React.useState("");
 
   const stdMut = useMutation({
-    mutationFn: (msgs: Msg[]) =>
-      sendFn({ data: { mode: "standard", messages: msgs } }),
-    onSuccess: (res) =>
-      setStandard((prev) => [...prev, { role: "assistant", content: res.reply }]),
+    mutationFn: (msgs: Msg[]) => sendFn({ data: { mode: "standard", messages: msgs } }),
+    onSuccess: (res) => setStandard((prev) => [...prev, { role: "assistant", content: res.reply }]),
     onError: (e: Error) => toast.error(`Standard: ${e.message}`),
   });
 
   const trnMut = useMutation({
-    mutationFn: (msgs: Msg[]) =>
-      sendFn({ data: { mode: "trained", messages: msgs } }),
-    onSuccess: (res) =>
-      setTrained((prev) => [...prev, { role: "assistant", content: res.reply }]),
+    mutationFn: (msgs: Msg[]) => sendFn({ data: { mode: "trained", messages: msgs } }),
+    onSuccess: (res) => setTrained((prev) => [...prev, { role: "assistant", content: res.reply }]),
     onError: (e: Error) => toast.error(`So1o: ${e.message}`),
   });
 
@@ -235,11 +213,7 @@ export function AiComparisonSandbox() {
             disabled={!draft.trim() || loading}
             className="self-end bg-primary gap-1"
           >
-            {loading ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <Send className="h-4 w-4" />
-            )}
+            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
             ส่งคู่
           </Button>
         </div>

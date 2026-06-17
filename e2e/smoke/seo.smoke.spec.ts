@@ -25,7 +25,10 @@ test.describe("SEO @public", () => {
 
   test("auth page has noindex robots meta", async ({ page }) => {
     await page.goto("/auth");
-    await expect(page.locator('meta[name="robots"]').first()).toHaveAttribute("content", /noindex/i);
+    await expect(page.locator('meta[name="robots"]').first()).toHaveAttribute(
+      "content",
+      /noindex/i,
+    );
   });
 
   test("help center has OG tags and FAQ JSON-LD", async ({ page }) => {

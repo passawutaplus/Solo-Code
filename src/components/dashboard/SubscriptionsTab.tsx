@@ -66,11 +66,17 @@ export function SubscriptionsTab() {
           <CreditCard className="h-5 w-5 text-primary shrink-0" />
           <div className="flex-1 text-sm">
             <p className="font-semibold">เริ่มต้นด้วยการเพิ่มช่องทางการตัดเงิน</p>
-            <p className="text-xs text-muted-foreground">เพิ่มบัตร / E-Wallet ก่อน แล้วค่อยผูกกับบริการต่าง ๆ</p>
+            <p className="text-xs text-muted-foreground">
+              เพิ่มบัตร / E-Wallet ก่อน แล้วค่อยผูกกับบริการต่าง ๆ
+            </p>
           </div>
           <PaymentMethodFormDialog
             title="เพิ่มช่องทางใหม่"
-            trigger={<Button size="sm" className="gap-1.5"><Plus className="h-4 w-4" /> เพิ่ม</Button>}
+            trigger={
+              <Button size="sm" className="gap-1.5">
+                <Plus className="h-4 w-4" /> เพิ่ม
+              </Button>
+            }
             onSave={addMethod}
           />
         </div>

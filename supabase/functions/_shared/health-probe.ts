@@ -75,12 +75,8 @@ export async function probeSupabaseRest(
   }
 }
 
-export async function runHealthProbes(
-  supabaseUrl?: string,
-): Promise<HealthProbeResult[]> {
-  const siteResults = await Promise.all(
-    DEFAULT_TARGETS.map((t) => probeHttp(t.name, t.url)),
-  );
+export async function runHealthProbes(supabaseUrl?: string): Promise<HealthProbeResult[]> {
+  const siteResults = await Promise.all(DEFAULT_TARGETS.map((t) => probeHttp(t.name, t.url)));
   const supaUrl = supabaseUrl ?? Deno.env.get("SUPABASE_URL") ?? "";
   const supaResult = supaUrl ? await probeSupabaseRest(supaUrl) : null;
   return supaResult ? [...siteResults, supaResult] : siteResults;

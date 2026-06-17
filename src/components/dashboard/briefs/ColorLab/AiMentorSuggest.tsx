@@ -32,7 +32,10 @@ export function AiMentorSuggest({ hex, onPick }: Props) {
       if (data?.error) throw new Error(data.error);
       const safe: MentorResult = {
         complementary: Array.isArray(data?.complementary)
-          ? data.complementary.map(normalizeHex).filter((x: string | null): x is string => !!x).slice(0, 4)
+          ? data.complementary
+              .map(normalizeHex)
+              .filter((x: string | null): x is string => !!x)
+              .slice(0, 4)
           : [],
         mood: typeof data?.mood === "string" ? data.mood : "",
         tip: typeof data?.tip === "string" ? data.tip : "",
@@ -65,24 +68,37 @@ export function AiMentorSuggest({ hex, onPick }: Props) {
         <div className="flex items-center gap-1.5 text-xs font-semibold text-primary">
           <Sparkles className="h-3.5 w-3.5" /> So1o AI Mentor
         </div>
-        <Button type="button" size="sm" variant="outline" className="h-7 text-xs" onClick={ask} disabled={loading}>
+        <Button
+          type="button"
+          size="sm"
+          variant="outline"
+          className="h-7 text-xs"
+          onClick={ask}
+          disabled={loading}
+        >
           {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : "วิเคราะห์สีนี้"}
         </Button>
       </div>
       {!result && !loading && (
-        <p className="text-[11px] text-muted-foreground">กดปุ่มเพื่อให้ AI แนะนำคู่สี + อารมณ์งานสำหรับ {hex}</p>
+        <p className="text-[11px] text-muted-foreground">
+          กดปุ่มเพื่อให้ AI แนะนำคู่สี + อารมณ์งานสำหรับ {hex}
+        </p>
       )}
       {result && (
         <div className={`space-y-2 ${stale ? "opacity-50" : ""}`}>
           {result.mood && (
-            <p className="text-xs"><span className="font-medium">อารมณ์:</span> {result.mood}</p>
+            <p className="text-xs">
+              <span className="font-medium">อารมณ์:</span> {result.mood}
+            </p>
           )}
           {result.tip && (
             <p className="text-[11px] text-muted-foreground italic">💡 {result.tip}</p>
           )}
           {result.complementary.length > 0 && (
             <div>
-              <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">สีที่เข้าคู่ได้ดี</div>
+              <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">
+                สีที่เข้าคู่ได้ดี
+              </div>
               <div className="flex flex-wrap gap-1.5">
                 {result.complementary.map((c) => (
                   <button
@@ -92,7 +108,10 @@ export function AiMentorSuggest({ hex, onPick }: Props) {
                     className="flex items-center gap-1.5 rounded-md border border-border bg-card pl-1 pr-2 py-1 text-[10px] font-mono hover:border-primary"
                     title={`ใช้ ${c}`}
                   >
-                    <span className="w-4 h-4 rounded border border-border" style={{ backgroundColor: c }} />
+                    <span
+                      className="w-4 h-4 rounded border border-border"
+                      style={{ backgroundColor: c }}
+                    />
                     {c}
                   </button>
                 ))}

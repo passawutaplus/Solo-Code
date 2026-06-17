@@ -39,9 +39,7 @@ export function estimateTax(args: {
   const totalGross = args.incomes.reduce((s, i) => s + i.gross, 0);
   const totalWithheld = args.incomes.reduce((s, i) => s + (i.withholding ?? 0), 0);
   const expenseDeduction =
-    args.expenseMethod === "lumpsum"
-      ? calcLumpSumExpense(args.incomes)
-      : args.workExpensesTotal;
+    args.expenseMethod === "lumpsum" ? calcLumpSumExpense(args.incomes) : args.workExpensesTotal;
   const netIncome = Math.max(
     0,
     totalGross - expenseDeduction - args.personalDeduction - args.activeDeductions,

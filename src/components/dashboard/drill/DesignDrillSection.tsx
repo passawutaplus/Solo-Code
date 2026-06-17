@@ -42,17 +42,9 @@ type Tab = "daily" | "custom";
 const CATEGORIES = Object.keys(DRILL_CATEGORY_META) as DrillCategory[];
 const DIFFICULTIES = Object.keys(DRILL_DIFFICULTY_META) as DrillDifficulty[];
 
-function ChipRow({
-  children,
-  className = "",
-}: {
-  children: React.ReactNode;
-  className?: string;
-}) {
+function ChipRow({ children, className = "" }: { children: React.ReactNode; className?: string }) {
   return (
-    <div
-      className={`flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 scrollbar-none ${className}`}
-    >
+    <div className={`flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 scrollbar-none ${className}`}>
       {children}
     </div>
   );
@@ -175,7 +167,9 @@ export function DesignDrillSection() {
           </span>
           <div>
             <h2 className="text-lg font-bold tracking-tight">Design Drill</h2>
-            <p className="text-xs text-muted-foreground">โจทย์ฝึกดีไซน์รายวัน → โพสผลงานที่ Pixel100</p>
+            <p className="text-xs text-muted-foreground">
+              โจทย์ฝึกดีไซน์รายวัน → โพสผลงานที่ Pixel100
+            </p>
           </div>
         </div>
         {streak > 0 && (
@@ -198,7 +192,10 @@ export function DesignDrillSection() {
         <details className="rounded-xl border border-border/70 bg-muted/30 px-4 py-3 group">
           <summary className="cursor-pointer list-none flex items-center justify-between gap-2 text-xs font-semibold text-muted-foreground">
             <span>ตั้งค่าโจทย์</span>
-            <ChevronDown className="h-4 w-4 transition-transform group-open:rotate-180" aria-hidden />
+            <ChevronDown
+              className="h-4 w-4 transition-transform group-open:rotate-180"
+              aria-hidden
+            />
           </summary>
           <div className="mt-3 space-y-3 pt-3 border-t border-border/60">
             <ChipRow>
@@ -239,66 +236,68 @@ export function DesignDrillSection() {
       )}
 
       <article className="rounded-xl border border-border bg-background/80 p-5 space-y-4">
-          <div className="flex flex-wrap items-center gap-2">
-            <Badge variant="secondary">{activeDrill.meta.label}</Badge>
-            <Badge variant="outline" className="gap-1">
-              <DrillDifficultyIcon difficulty={activeDrill.difficulty} />
-              {DRILL_DIFFICULTY_META[activeDrill.difficulty].label}
-            </Badge>
-            <Badge variant="outline">
-              {activeDrill.mode === "constraints" ? "มีข้อจำกัด" : "ฟรีสไตล์"}
-            </Badge>
-            {activeDrill.template.timeHint && (
-              <span className="text-[11px] text-muted-foreground">{activeDrill.template.timeHint}</span>
-            )}
-          </div>
-
-          <p className="text-base sm:text-lg font-semibold leading-snug">{activeDrill.brief}</p>
-
-          {activeDrill.constraints.length > 0 && (
-            <ul className="space-y-1.5 text-sm text-muted-foreground">
-              {activeDrill.constraints.map((c) => (
-                <li key={c} className="flex items-start gap-2">
-                  <span className="mt-1.5 h-1 w-1 rounded-full bg-primary shrink-0" />
-                  {c}
-                </li>
-              ))}
-            </ul>
+        <div className="flex flex-wrap items-center gap-2">
+          <Badge variant="secondary">{activeDrill.meta.label}</Badge>
+          <Badge variant="outline" className="gap-1">
+            <DrillDifficultyIcon difficulty={activeDrill.difficulty} />
+            {DRILL_DIFFICULTY_META[activeDrill.difficulty].label}
+          </Badge>
+          <Badge variant="outline">
+            {activeDrill.mode === "constraints" ? "มีข้อจำกัด" : "ฟรีสไตล์"}
+          </Badge>
+          {activeDrill.template.timeHint && (
+            <span className="text-[11px] text-muted-foreground">
+              {activeDrill.template.timeHint}
+            </span>
           )}
+        </div>
 
-          {activeDrill.mode === "free" && activeDrill.template.freeHint && (
-            <p className="text-sm text-muted-foreground italic">{activeDrill.template.freeHint}</p>
+        <p className="text-base sm:text-lg font-semibold leading-snug">{activeDrill.brief}</p>
+
+        {activeDrill.constraints.length > 0 && (
+          <ul className="space-y-1.5 text-sm text-muted-foreground">
+            {activeDrill.constraints.map((c) => (
+              <li key={c} className="flex items-start gap-2">
+                <span className="mt-1.5 h-1 w-1 rounded-full bg-primary shrink-0" />
+                {c}
+              </li>
+            ))}
+          </ul>
+        )}
+
+        {activeDrill.mode === "free" && activeDrill.template.freeHint && (
+          <p className="text-sm text-muted-foreground italic">{activeDrill.template.freeHint}</p>
+        )}
+
+        <div className="flex flex-wrap gap-2 pt-1">
+          {!inProgress && !completedToday && (
+            <Button onClick={handleStart} className="gap-1.5">
+              <Play className="h-3.5 w-3.5" aria-hidden />
+              เริ่มทำ
+            </Button>
           )}
-
-          <div className="flex flex-wrap gap-2 pt-1">
-            {!inProgress && !completedToday && (
-              <Button onClick={handleStart} className="gap-1.5">
-                <Play className="h-3.5 w-3.5" aria-hidden />
-                เริ่มทำ
+          {inProgress && drillMatchesProgress && (
+            <>
+              <Button onClick={handleComplete} className="gap-1.5">
+                <CheckCircle2 className="h-3.5 w-3.5" aria-hidden />
+                ทำเสร็จแล้ว
               </Button>
-            )}
-            {inProgress && drillMatchesProgress && (
-              <>
-                <Button onClick={handleComplete} className="gap-1.5">
-                  <CheckCircle2 className="h-3.5 w-3.5" aria-hidden />
-                  ทำเสร็จแล้ว
-                </Button>
-                <Button variant="ghost" size="sm" onClick={handleReset}>
-                  ยกเลิก
-                </Button>
-              </>
-            )}
-            {((inProgress && drillMatchesProgress) || completedToday) && (
-              <Button variant="outline" onClick={handlePost} className="gap-1.5">
-                <ExternalLink className="h-3.5 w-3.5" aria-hidden />
-                โพส Pixel100
+              <Button variant="ghost" size="sm" onClick={handleReset}>
+                ยกเลิก
               </Button>
-            )}
-          </div>
-
-          {completedToday && (
-            <p className="text-xs text-primary font-medium">ทำโจทย์วันนี้เสร็จแล้ว — เก่งมาก!</p>
+            </>
           )}
+          {((inProgress && drillMatchesProgress) || completedToday) && (
+            <Button variant="outline" onClick={handlePost} className="gap-1.5">
+              <ExternalLink className="h-3.5 w-3.5" aria-hidden />
+              โพส Pixel100
+            </Button>
+          )}
+        </div>
+
+        {completedToday && (
+          <p className="text-xs text-primary font-medium">ทำโจทย์วันนี้เสร็จแล้ว — เก่งมาก!</p>
+        )}
       </article>
     </div>
   );

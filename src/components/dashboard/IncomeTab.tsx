@@ -8,7 +8,15 @@ import { AddIncomeModal } from "./Modals";
 import { useFinance } from "@/store/finance";
 import { useQuotations, computeTotals } from "@/store/quotations";
 import { formatTHB } from "@/data/mockData";
-import { Download, Coins, Receipt, Calculator, Sparkles, RefreshCw, ArrowRight } from "lucide-react";
+import {
+  Download,
+  Coins,
+  Receipt,
+  Calculator,
+  Sparkles,
+  RefreshCw,
+  ArrowRight,
+} from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, CartesianGrid } from "recharts";
 import { toast } from "sonner";
 import { FinanceMoneyNav, type FinanceMoneySub } from "./FinanceMoneyNav";
@@ -78,7 +86,9 @@ export function IncomeTab({ onNavigate }: Props) {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="min-w-0 flex-1">
           <FinanceMoneyNav active="income" onNavigate={onNavigate} />
-          <p className="text-xs text-muted-foreground mt-1">บันทึกเงินที่รับจากงาน — ใช้คำนวณภาษีในหน้าถัดไป</p>
+          <p className="text-xs text-muted-foreground mt-1">
+            บันทึกเงินที่รับจากงาน — ใช้คำนวณภาษีในหน้าถัดไป
+          </p>
         </div>
         <AddIncomeModal />
       </div>
@@ -107,7 +117,10 @@ export function IncomeTab({ onNavigate }: Props) {
           <span className="num font-semibold">{syncedCount}</span>
           <span className="text-muted-foreground">/ {completedCount} ใบ</span>
           {outOfSync && (
-            <Badge variant="outline" className="ml-1 bg-warning/15 text-warning-foreground border-warning/30 text-[10px]">
+            <Badge
+              variant="outline"
+              className="ml-1 bg-warning/15 text-warning-foreground border-warning/30 text-[10px]"
+            >
               ไม่ตรงกัน
             </Badge>
           )}
@@ -124,16 +137,37 @@ export function IncomeTab({ onNavigate }: Props) {
             <RefreshCw className={`h-3.5 w-3.5 ${resyncing ? "animate-spin" : ""}`} />
             Resync ทั้งหมด
           </Button>
-          <Button onClick={() => exportIncomeCsv(incomes)} variant="outline" size="sm" className="gap-1.5 h-8">
+          <Button
+            onClick={() => exportIncomeCsv(incomes)}
+            variant="outline"
+            size="sm"
+            className="gap-1.5 h-8"
+          >
             <Download className="h-3.5 w-3.5" /> CSV
           </Button>
         </div>
       </div>
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        <StatCard accent label="รายได้รวม (ปีนี้)" value={`฿${formatTHB(est.totalGross)}`} sub={`${incomes.length} รายการ`} icon={<Coins className="h-5 w-5" />} />
-        <StatCard label="หัก ณ ที่จ่ายสะสม" value={`฿${formatTHB(est.totalWithheld)}`} sub="ใช้เครดิตภาษีในหน้าภาษี" icon={<Receipt className="h-5 w-5" />} />
-        <StatCard label="รายได้เดือนล่าสุด" value={`฿${formatTHB(monthlyIncome.at(-1)?.gross ?? 0)}`} sub={monthlyIncome.at(-1)?.month ?? "—"} icon={<Calculator className="h-5 w-5" />} />
+        <StatCard
+          accent
+          label="รายได้รวม (ปีนี้)"
+          value={`฿${formatTHB(est.totalGross)}`}
+          sub={`${incomes.length} รายการ`}
+          icon={<Coins className="h-5 w-5" />}
+        />
+        <StatCard
+          label="หัก ณ ที่จ่ายสะสม"
+          value={`฿${formatTHB(est.totalWithheld)}`}
+          sub="ใช้เครดิตภาษีในหน้าภาษี"
+          icon={<Receipt className="h-5 w-5" />}
+        />
+        <StatCard
+          label="รายได้เดือนล่าสุด"
+          value={`฿${formatTHB(monthlyIncome.at(-1)?.gross ?? 0)}`}
+          sub={monthlyIncome.at(-1)?.month ?? "—"}
+          icon={<Calculator className="h-5 w-5" />}
+        />
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
@@ -144,15 +178,35 @@ export function IncomeTab({ onNavigate }: Props) {
           <CardContent>
             <div className="h-[200px]">
               {monthlyIncome.length === 0 ? (
-                <p className="text-sm text-muted-foreground text-center py-16">ยังไม่มีรายได้ — เพิ่มรายการหรือซิงค์จาก Quotation</p>
+                <p className="text-sm text-muted-foreground text-center py-16">
+                  ยังไม่มีรายได้ — เพิ่มรายการหรือซิงค์จาก Quotation
+                </p>
               ) : (
                 <ResponsiveContainer>
                   <BarChart data={monthlyIncome}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" vertical={false} />
-                    <XAxis dataKey="month" tick={{ fontSize: 11, fill: "var(--color-muted-foreground)" }} axisLine={false} tickLine={false} />
-                    <YAxis tick={{ fontSize: 10, fill: "var(--color-muted-foreground)" }} axisLine={false} tickLine={false} tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`} />
+                    <CartesianGrid
+                      strokeDasharray="3 3"
+                      stroke="var(--color-border)"
+                      vertical={false}
+                    />
+                    <XAxis
+                      dataKey="month"
+                      tick={{ fontSize: 11, fill: "var(--color-muted-foreground)" }}
+                      axisLine={false}
+                      tickLine={false}
+                    />
+                    <YAxis
+                      tick={{ fontSize: 10, fill: "var(--color-muted-foreground)" }}
+                      axisLine={false}
+                      tickLine={false}
+                      tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`}
+                    />
                     <Tooltip
-                      contentStyle={{ borderRadius: 12, border: "1px solid var(--color-border)", background: "var(--color-card)" }}
+                      contentStyle={{
+                        borderRadius: 12,
+                        border: "1px solid var(--color-border)",
+                        background: "var(--color-card)",
+                      }}
                       formatter={(v: number) => `฿${formatTHB(v)}`}
                     />
                     <Bar dataKey="gross" fill="var(--color-primary)" radius={[8, 8, 0, 0]} />
@@ -163,7 +217,9 @@ export function IncomeTab({ onNavigate }: Props) {
           </CardContent>
         </Card>
 
-        <React.Suspense fallback={<div className="h-64 animate-pulse rounded-xl bg-muted/40 lg:col-span-2" />}>
+        <React.Suspense
+          fallback={<div className="h-64 animate-pulse rounded-xl bg-muted/40 lg:col-span-2" />}
+        >
           <IncomeBreakdown />
         </React.Suspense>
       </div>

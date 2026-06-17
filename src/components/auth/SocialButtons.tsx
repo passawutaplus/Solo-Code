@@ -64,7 +64,11 @@ export function SocialButtons({
   );
 }
 
-export function AuthEmailSeparator({ surface = "background" }: { surface?: "background" | "card" }) {
+export function AuthEmailSeparator({
+  surface = "background",
+}: {
+  surface?: "background" | "card";
+}) {
   const bg = surface === "card" ? "bg-card" : "bg-background";
   return (
     <div className="relative">

@@ -24,9 +24,7 @@ export function SubscriptionStatusBanner() {
   const endsAt = subscription?.current_period_end;
 
   const show =
-    !dismissed &&
-    !!subscription &&
-    (status === "past_due" || (status === "active" && cancelEnd));
+    !dismissed && !!subscription && (status === "past_due" || (status === "active" && cancelEnd));
 
   const handleOpen = async () => {
     setLoading(true);
@@ -50,7 +48,11 @@ export function SubscriptionStatusBanner() {
 
   const isPastDue = status === "past_due";
   const fmtDate = endsAt
-    ? new Date(endsAt).toLocaleDateString("th-TH", { day: "numeric", month: "long", year: "numeric" })
+    ? new Date(endsAt).toLocaleDateString("th-TH", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      })
     : "—";
 
   return (
@@ -66,7 +68,9 @@ export function SubscriptionStatusBanner() {
         {isPastDue ? (
           <>การชำระเงินรอบล่าสุดไม่สำเร็จ — กรุณาอัปเดตวิธีชำระเงินก่อนถูกระงับการใช้งาน</>
         ) : (
-          <>การสมัครสมาชิกของคุณจะสิ้นสุดวันที่ <strong>{fmtDate}</strong> — กดสมัครต่อได้ทุกเมื่อ</>
+          <>
+            การสมัครสมาชิกของคุณจะสิ้นสุดวันที่ <strong>{fmtDate}</strong> — กดสมัครต่อได้ทุกเมื่อ
+          </>
         )}
       </span>
       <Button

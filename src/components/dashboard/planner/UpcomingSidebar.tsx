@@ -21,13 +21,14 @@ export function UpcomingSidebar({
     <Card className="rounded-2xl border-border/60 shadow-soft">
       <CardHeader className="pb-3">
         <CardTitle className="text-base flex items-center gap-2">
-          <Clock className="h-4 w-4 text-primary" />
-          7 วันข้างหน้า
+          <Clock className="h-4 w-4 text-primary" />7 วันข้างหน้า
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4 max-h-[560px] overflow-y-auto">
         {isEmpty && (
-          <p className="text-xs text-muted-foreground text-center py-6">ยังไม่มีโพสต์ที่กำลังจะมาถึง</p>
+          <p className="text-xs text-muted-foreground text-center py-6">
+            ยังไม่มีโพสต์ที่กำลังจะมาถึง
+          </p>
         )}
         {Object.entries(upcomingByClient).map(([cid, list]) => (
           <div key={cid} className="space-y-2">
@@ -55,10 +56,14 @@ export function UpcomingSidebar({
                       </span>
                     </div>
                     {p.approvalStatus === "approved" && (
-                      <div className="mt-1 inline-flex items-center gap-1 text-[9px] text-emerald-600"><CheckCircle2 className="h-2.5 w-2.5" /> ลูกค้าอนุมัติแล้ว</div>
+                      <div className="mt-1 inline-flex items-center gap-1 text-[9px] text-emerald-600">
+                        <CheckCircle2 className="h-2.5 w-2.5" /> ลูกค้าอนุมัติแล้ว
+                      </div>
                     )}
                     {p.approvalStatus === "changes_requested" && (
-                      <div className="mt-1 inline-flex items-center gap-1 text-[9px] text-orange-600"><MessageSquare className="h-2.5 w-2.5" /> ขอแก้ไข</div>
+                      <div className="mt-1 inline-flex items-center gap-1 text-[9px] text-orange-600">
+                        <MessageSquare className="h-2.5 w-2.5" /> ขอแก้ไข
+                      </div>
                     )}
                     <div className="flex items-center justify-between mt-1.5 text-[10px] text-muted-foreground">
                       <span>
@@ -84,12 +89,22 @@ export function UpcomingSidebar({
                     </div>
                     <div className="flex items-center gap-1 mt-2">
                       {onEditPost && (
-                        <Button size="sm" variant="ghost" className="h-6 px-2 rounded-md text-[10px] gap-1" onClick={() => onEditPost(p)}>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="h-6 px-2 rounded-md text-[10px] gap-1"
+                          onClick={() => onEditPost(p)}
+                        >
                           <Pencil className="h-2.5 w-2.5" /> แก้ไข
                         </Button>
                       )}
                       {onPublishNow && p.status === "approved" && (
-                        <Button size="sm" variant="ghost" className="h-6 px-2 rounded-md text-[10px] gap-1 text-emerald-600 hover:text-emerald-700" onClick={() => onPublishNow(p)}>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="h-6 px-2 rounded-md text-[10px] gap-1 text-emerald-600 hover:text-emerald-700"
+                          onClick={() => onPublishNow(p)}
+                        >
                           <Rocket className="h-2.5 w-2.5" /> Publish Now
                         </Button>
                       )}

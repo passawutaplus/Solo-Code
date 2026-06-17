@@ -74,14 +74,12 @@ export const addStepComment = createServerFn({ method: "POST" })
       requesterUserId && requesterUserId === job.user_id ? "owner" : "client";
 
     const body = data.body.trim();
-    const { error } = await supabaseAdmin
-      .from("job_tracker_step_comments")
-      .insert({
-        job_id: job.id,
-        step_index: data.step_index,
-        author_role: authorRole,
-        body,
-      });
+    const { error } = await supabaseAdmin.from("job_tracker_step_comments").insert({
+      job_id: job.id,
+      step_index: data.step_index,
+      author_role: authorRole,
+      body,
+    });
     if (error) throwClientError("stepComments.add", error, "ไม่สามารถบันทึกความคิดเห็นได้");
 
     if (authorRole === "client" && job.user_id) {

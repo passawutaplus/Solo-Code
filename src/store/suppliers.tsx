@@ -26,7 +26,6 @@ export interface Supplier {
   updatedAt: string;
 }
 
-
 export interface SupplierFile {
   id: string;
   supplierId: string;
@@ -50,18 +49,32 @@ const FILES_KEY = (uid?: string) => ["supplier_files", uid ?? "anon"] as const;
 const LINKS_KEY = (uid?: string) => ["supplier_links", uid ?? "anon"] as const;
 
 interface Row {
-  id: string; name: string; category: string | null; contact_name: string | null;
-  phone: string | null; email: string | null; line_id: string | null; website: string | null;
-  address: string | null; rate_note: string | null; rating: number; tags: string[];
-  notes: string; cover_image_url: string | null; created_at: string; updated_at: string;
-  share_token?: string | null; is_shared?: boolean | null; map_url?: string | null;
+  id: string;
+  name: string;
+  category: string | null;
+  contact_name: string | null;
+  phone: string | null;
+  email: string | null;
+  line_id: string | null;
+  website: string | null;
+  address: string | null;
+  rate_note: string | null;
+  rating: number;
+  tags: string[];
+  notes: string;
+  cover_image_url: string | null;
+  created_at: string;
+  updated_at: string;
+  share_token?: string | null;
+  is_shared?: boolean | null;
+  map_url?: string | null;
   share_hidden_fields?: string[] | null;
 }
 
-
 function rowToSupplier(r: Row): Supplier {
   return {
-    id: r.id, name: r.name,
+    id: r.id,
+    name: r.name,
     category: r.category ?? undefined,
     contactName: r.contact_name ?? undefined,
     phone: r.phone ?? undefined,
@@ -83,7 +96,6 @@ function rowToSupplier(r: Row): Supplier {
   };
 }
 
-
 export function useSuppliers() {
   const { user } = useAuth();
   const uid = user?.id;
@@ -93,7 +105,10 @@ export function useSuppliers() {
     queryKey: SUPPLIERS_KEY(uid),
     enabled: !!uid,
     queryFn: async () => {
-      const { data, error } = await supabase.from("suppliers").select("*").order("updated_at", { ascending: false });
+      const { data, error } = await supabase
+        .from("suppliers")
+        .select("*")
+        .order("updated_at", { ascending: false });
       if (error) throw error;
       return (data ?? []).map((r) => rowToSupplier(r as unknown as Row));
     },
@@ -103,13 +118,23 @@ export function useSuppliers() {
     queryKey: FILES_KEY(uid),
     enabled: !!uid,
     queryFn: async () => {
-      const { data, error } = await supabase.from("supplier_files").select("*").order("created_at", { ascending: false });
+      const { data, error } = await supabase
+        .from("supplier_files")
+        .select("*")
+        .order("created_at", { ascending: false });
       if (error) throw error;
-      return (data ?? []).map((f) => ({
-        id: f.id, supplierId: f.supplier_id, fileName: f.file_name,
-        storagePath: f.storage_path, mimeType: f.mime_type ?? undefined,
-        sizeBytes: f.size_bytes ?? undefined, createdAt: f.created_at,
-      } as SupplierFile));
+      return (data ?? []).map(
+        (f) =>
+          ({
+            id: f.id,
+            supplierId: f.supplier_id,
+            fileName: f.file_name,
+            storagePath: f.storage_path,
+            mimeType: f.mime_type ?? undefined,
+            sizeBytes: f.size_bytes ?? undefined,
+            createdAt: f.created_at,
+          }) as SupplierFile,
+      );
     },
   });
 
@@ -117,28 +142,48 @@ export function useSuppliers() {
     queryKey: LINKS_KEY(uid),
     enabled: !!uid,
     queryFn: async () => {
-      const { data, error } = await supabase.from("supplier_links").select("*").order("created_at", { ascending: false });
+      const { data, error } = await supabase
+        .from("supplier_links")
+        .select("*")
+        .order("created_at", { ascending: false });
       if (error) throw error;
-      return (data ?? []).map((l) => ({
-        id: l.id, supplierId: l.supplier_id, label: l.label, url: l.url, createdAt: l.created_at,
-      } as SupplierLink));
+      return (data ?? []).map(
+        (l) =>
+          ({
+            id: l.id,
+            supplierId: l.supplier_id,
+            label: l.label,
+            url: l.url,
+            createdAt: l.created_at,
+          }) as SupplierLink,
+      );
     },
   });
 
   const create = useMutation({
     mutationFn: async (init: Partial<Supplier> & { name: string }) => {
       if (!uid) throw new Error("ต้องเข้าสู่ระบบ");
-      const { data, error } = await supabase.from("suppliers").insert({
-        user_id: uid, name: init.name,
-        category: init.category ?? null,
-        contact_name: init.contactName ?? null,
-        phone: init.phone ?? null, email: init.email ?? null,
-        line_id: init.lineId ?? null, website: init.website ?? null,
-        address: init.address ?? null, rate_note: init.rateNote ?? null,
-        map_url: init.mapUrl ?? null,
-        rating: init.rating ?? 0, tags: init.tags ?? [], notes: init.notes ?? "",
-        cover_image_url: init.coverImageUrl ?? null,
-      }).select().single();
+      const { data, error } = await supabase
+        .from("suppliers")
+        .insert({
+          user_id: uid,
+          name: init.name,
+          category: init.category ?? null,
+          contact_name: init.contactName ?? null,
+          phone: init.phone ?? null,
+          email: init.email ?? null,
+          line_id: init.lineId ?? null,
+          website: init.website ?? null,
+          address: init.address ?? null,
+          rate_note: init.rateNote ?? null,
+          map_url: init.mapUrl ?? null,
+          rating: init.rating ?? 0,
+          tags: init.tags ?? [],
+          notes: init.notes ?? "",
+          cover_image_url: init.coverImageUrl ?? null,
+        })
+        .select()
+        .single();
       if (error) throw error;
       return rowToSupplier(data as unknown as Row);
     },
@@ -164,7 +209,10 @@ export function useSuppliers() {
       if (patch.coverImageUrl !== undefined) upd.cover_image_url = patch.coverImageUrl || null;
       if (patch.shareHiddenFields !== undefined) upd.share_hidden_fields = patch.shareHiddenFields;
 
-      const { error } = await supabase.from("suppliers").update(upd as never).eq("id", id);
+      const { error } = await supabase
+        .from("suppliers")
+        .update(upd as never)
+        .eq("id", id);
       if (error) throw error;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: SUPPLIERS_KEY(uid) }),
@@ -187,14 +235,21 @@ export function useSuppliers() {
       if (!uid) throw new Error("ต้องเข้าสู่ระบบ");
       if (file.size > 5 * 1024 * 1024) throw new Error("ไฟล์ใหญ่เกิน 5MB");
       const allowed = /\.(pdf|png|jpe?g|webp|svg|doc|docx|xls|xlsx|csv|txt)$/i;
-      if (!allowed.test(file.name)) throw new Error("รองรับเฉพาะ PDF / รูป / DOC / XLS / CSV / TXT");
+      if (!allowed.test(file.name))
+        throw new Error("รองรับเฉพาะ PDF / รูป / DOC / XLS / CSV / TXT");
       const ext = file.name.split(".").pop() || "bin";
       const path = `${uid}/${supplierId}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
-      const up = await supabase.storage.from("supplier-files").upload(path, file, { contentType: file.type });
+      const up = await supabase.storage
+        .from("supplier-files")
+        .upload(path, file, { contentType: file.type });
       if (up.error) throw up.error;
       const { error } = await supabase.from("supplier_files").insert({
-        supplier_id: supplierId, user_id: uid, file_name: file.name,
-        storage_path: path, mime_type: file.type, size_bytes: file.size,
+        supplier_id: supplierId,
+        user_id: uid,
+        file_name: file.name,
+        storage_path: path,
+        mime_type: file.type,
+        size_bytes: file.size,
       });
       if (error) throw error;
     },
@@ -211,10 +266,21 @@ export function useSuppliers() {
   });
 
   const addLink = useMutation({
-    mutationFn: async ({ supplierId, label, url }: { supplierId: string; label: string; url: string }) => {
+    mutationFn: async ({
+      supplierId,
+      label,
+      url,
+    }: {
+      supplierId: string;
+      label: string;
+      url: string;
+    }) => {
       if (!uid) throw new Error("ต้องเข้าสู่ระบบ");
       const { error } = await supabase.from("supplier_links").insert({
-        supplier_id: supplierId, user_id: uid, label, url,
+        supplier_id: supplierId,
+        user_id: uid,
+        label,
+        url,
       });
       if (error) throw error;
     },
@@ -230,7 +296,9 @@ export function useSuppliers() {
   });
 
   const getSignedUrl = React.useCallback(async (path: string) => {
-    const { data, error } = await supabase.storage.from("supplier-files").createSignedUrl(path, 60 * 10);
+    const { data, error } = await supabase.storage
+      .from("supplier-files")
+      .createSignedUrl(path, 60 * 10);
     if (error) throw error;
     return data.signedUrl;
   }, []);
@@ -239,9 +307,12 @@ export function useSuppliers() {
     mutationFn: async (id: string) => {
       // Use crypto.randomUUID for token
       const token = crypto.randomUUID();
-      const { data, error } = await supabase.from("suppliers")
+      const { data, error } = await supabase
+        .from("suppliers")
         .update({ share_token: token, is_shared: true } as never)
-        .eq("id", id).select().single();
+        .eq("id", id)
+        .select()
+        .single();
       if (error) throw error;
       return rowToSupplier(data as unknown as Row);
     },
@@ -250,8 +321,10 @@ export function useSuppliers() {
 
   const disableShare = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from("suppliers")
-        .update({ is_shared: false, share_token: null } as never).eq("id", id);
+      const { error } = await supabase
+        .from("suppliers")
+        .update({ is_shared: false, share_token: null } as never)
+        .eq("id", id);
       if (error) throw error;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: SUPPLIERS_KEY(uid) }),

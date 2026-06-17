@@ -49,7 +49,9 @@ export function ContractSignDialog({
       const now = new Date().toISOString();
       let signerIp: string | null = null;
       try {
-        const res = await fetch("https://api.ipify.org?format=json", { signal: AbortSignal.timeout(3000) });
+        const res = await fetch("https://api.ipify.org?format=json", {
+          signal: AbortSignal.timeout(3000),
+        });
         if (res.ok) {
           const json = (await res.json()) as { ip?: string };
           signerIp = json.ip ?? null;

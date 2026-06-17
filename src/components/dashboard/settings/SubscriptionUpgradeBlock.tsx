@@ -99,7 +99,11 @@ export function SubscriptionUpgradeBlock({
             </p>
             <p className="text-[11px] text-muted-foreground">
               {isLoading ? (
-                locale === "en" ? "Loading…" : "กำลังโหลด…"
+                locale === "en" ? (
+                  "Loading…"
+                ) : (
+                  "กำลังโหลด…"
+                )
               ) : (
                 <>
                   <Crown className="inline h-3 w-3 mr-0.5 text-primary" />

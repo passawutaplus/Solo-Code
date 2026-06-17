@@ -311,8 +311,9 @@ export const PLAN_COMPARISON_CATEGORIES: PlanComparisonCategory[] = [
 ];
 
 /** Flat list — convenience for consumers that need all rows. */
-export const PLAN_COMPARISON_ROWS: PlanComparisonRow[] =
-  PLAN_COMPARISON_CATEGORIES.flatMap((c) => c.rows);
+export const PLAN_COMPARISON_ROWS: PlanComparisonRow[] = PLAN_COMPARISON_CATEGORIES.flatMap(
+  (c) => c.rows,
+);
 
 function rowToBenefit(row: PlanComparisonRow, tier: PlanId): string | null {
   const cell = row.values[tier];

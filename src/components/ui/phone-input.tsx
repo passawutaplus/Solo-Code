@@ -1,8 +1,10 @@
 import * as React from "react";
 import { Input } from "@/components/ui/input";
 
-interface PhoneInputProps
-  extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "value" | "onChange" | "type"> {
+interface PhoneInputProps extends Omit<
+  React.InputHTMLAttributes<HTMLInputElement>,
+  "value" | "onChange" | "type"
+> {
   value: string | null | undefined;
   onChange: (value: string) => void;
 }

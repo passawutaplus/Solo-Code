@@ -124,11 +124,7 @@ const SIDEBAR_STYLE = {
   "--sidebar-ring": "rgba(255,255,255,0.4)",
 } as React.CSSProperties;
 
-function groupHasActiveItem(
-  group: NavGroup,
-  active: DashSection,
-  activeSub?: string,
-): boolean {
+function groupHasActiveItem(group: NavGroup, active: DashSection, activeSub?: string): boolean {
   return group.items.some(
     (leaf) => active === leaf.section && (leaf.sub ? activeSub === leaf.sub : true),
   );
@@ -200,12 +196,7 @@ function NavCollapsibleGroup({
               const activeLeaf = isLeafActive(leaf);
               return (
                 <SidebarMenuSubItem key={leaf.label}>
-                  <SidebarMenuSubButton
-                    asChild
-                    size="sm"
-                    isActive={activeLeaf}
-                    className={SUB_BTN}
-                  >
+                  <SidebarMenuSubButton asChild size="sm" isActive={activeLeaf} className={SUB_BTN}>
                     <button
                       type="button"
                       onClick={() => setActive(leaf.section, leaf.sub)}
@@ -305,10 +296,7 @@ export function DashboardSidebar({ active, activeSub, setActive }: DashboardSide
         />
 
         <SidebarMenu
-          className={cn(
-            "min-w-0 grid gap-1.5",
-            collapsed ? "grid-cols-1" : "grid-cols-2",
-          )}
+          className={cn("min-w-0 grid gap-1.5", collapsed ? "grid-cols-1" : "grid-cols-2")}
         >
           <SidebarMenuItem className="min-w-0">
             <SidebarMenuButton
@@ -330,11 +318,7 @@ export function DashboardSidebar({ active, activeSub, setActive }: DashboardSide
         <SidebarUpgradeBadge collapsed={collapsed} />
       </SidebarFooter>
 
-      <SupportFab
-        hiddenTrigger
-        forceOpen={supportOpen}
-        onClose={() => setSupportOpen(false)}
-      />
+      <SupportFab hiddenTrigger forceOpen={supportOpen} onClose={() => setSupportOpen(false)} />
     </Sidebar>
   );
 }

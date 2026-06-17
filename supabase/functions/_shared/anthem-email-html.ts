@@ -18,8 +18,7 @@ const brand = {
 
 const LINE_URL = "https://lin.ee/q3W9Qds";
 const LINE_ID = "@solofreelancer";
-const FOOTER_NOTE =
-  "ปิดการแจ้งเตือนได้ที่ Pixel100 → Settings → การแจ้งเตือน";
+const FOOTER_NOTE = "ปิดการแจ้งเตือนได้ที่ Pixel100 → Settings → การแจ้งเตือน";
 
 export function anthemSiteUrl(): string {
   return (Deno.env.get("ANTHEM_APP_URL") ?? "https://1px-demo.vercel.app").replace(/\/$/, "");

@@ -38,7 +38,10 @@ export function PaymentMethodsManager() {
         {data.map((m) => {
           const Icon = m.icon;
           return (
-            <Card key={m.id} className="animate-fade-up overflow-hidden border-0 shadow-elevated group">
+            <Card
+              key={m.id}
+              className="animate-fade-up overflow-hidden border-0 shadow-elevated group"
+            >
               <div className="bg-gradient-primary glow-edge p-5 text-primary-foreground relative overflow-hidden">
                 <div
                   className="pointer-events-none absolute -top-12 -right-12 h-40 w-40 rounded-full blur-3xl opacity-60"
@@ -52,7 +55,12 @@ export function PaymentMethodsManager() {
                 />
                 <div className="relative flex items-start justify-between mb-8">
                   <Icon className="h-7 w-7 opacity-95" />
-                  <Badge variant="secondary" className="bg-white/20 text-primary-foreground border-0 text-[10px] uppercase tracking-wider backdrop-blur">{m.type}</Badge>
+                  <Badge
+                    variant="secondary"
+                    className="bg-white/20 text-primary-foreground border-0 text-[10px] uppercase tracking-wider backdrop-blur"
+                  >
+                    {m.type}
+                  </Badge>
                 </div>
                 <p className="relative num text-lg tracking-widest opacity-95">
                   {m.type === "cash" ? "เงินสด / โอน" : `•••• •••• •••• ${m.last4}`}
@@ -64,13 +72,18 @@ export function PaymentMethodsManager() {
                     initial={m}
                     onSave={updateMethod}
                     trigger={
-                      <Button size="icon" variant="ghost" className="h-7 w-7 text-primary-foreground hover:bg-white/20">
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="h-7 w-7 text-primary-foreground hover:bg-white/20"
+                      >
                         <Pencil className="h-3.5 w-3.5" />
                       </Button>
                     }
                   />
                   <Button
-                    size="icon" variant="ghost"
+                    size="icon"
+                    variant="ghost"
                     className="h-7 w-7 text-primary-foreground hover:bg-white/20"
                     onClick={() => removeMethod(m.id, m.label)}
                   >
@@ -102,7 +115,9 @@ export function PaymentMethodsManager() {
                   </div>
                 )}
                 <div className="space-y-1.5">
-                  {m.items.length === 0 && <p className="text-xs text-muted-foreground italic">ยังไม่มีบริการที่ผูก</p>}
+                  {m.items.length === 0 && (
+                    <p className="text-xs text-muted-foreground italic">ยังไม่มีบริการที่ผูก</p>
+                  )}
                   {m.items.map((s) => {
                     const I = s.icon;
                     return (
@@ -122,7 +137,9 @@ export function PaymentMethodsManager() {
 
       <Card className="animate-fade-up">
         <CardHeader className="pb-2">
-          <CardTitle className="text-base flex items-center gap-2"><CreditCard className="h-4 w-4 text-primary" /> สรุปทั้งหมด</CardTitle>
+          <CardTitle className="text-base flex items-center gap-2">
+            <CreditCard className="h-4 w-4 text-primary" /> สรุปทั้งหมด
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-3 gap-4 text-center">
@@ -136,7 +153,9 @@ export function PaymentMethodsManager() {
             </div>
             <div>
               <p className="text-xs text-muted-foreground">ยอดรวม/เดือน</p>
-              <p className="num text-2xl font-semibold text-primary">฿{formatTHB(subs.reduce((a, b) => a + b.amount, 0))}</p>
+              <p className="num text-2xl font-semibold text-primary">
+                ฿{formatTHB(subs.reduce((a, b) => a + b.amount, 0))}
+              </p>
             </div>
           </div>
         </CardContent>

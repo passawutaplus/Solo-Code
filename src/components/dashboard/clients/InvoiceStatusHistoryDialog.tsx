@@ -1,11 +1,12 @@
-import {
-  Dialog, DialogContent, DialogHeader, DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { History, ArrowRight, Loader2 } from "lucide-react";
 import { useInvoiceStatusHistory, STATUS_LABEL } from "@/store/clientInvoices";
 
 export function InvoiceStatusHistoryDialog({
-  invoiceId, invoiceName, open, onOpenChange,
+  invoiceId,
+  invoiceName,
+  open,
+  onOpenChange,
 }: {
   invoiceId: string | null;
   invoiceName?: string;
@@ -29,13 +30,18 @@ export function InvoiceStatusHistoryDialog({
             <Loader2 className="h-4 w-4 animate-spin" /> กำลังโหลด…
           </div>
         ) : !data || data.length === 0 ? (
-          <p className="text-sm text-muted-foreground text-center py-8">ยังไม่มีประวัติการเปลี่ยนสถานะ</p>
+          <p className="text-sm text-muted-foreground text-center py-8">
+            ยังไม่มีประวัติการเปลี่ยนสถานะ
+          </p>
         ) : (
           <div className="space-y-2 max-h-80 overflow-auto">
             {data.map((h) => {
               const dt = new Date(h.changedAt);
               return (
-                <div key={h.id} className="rounded-lg border border-border/60 bg-card p-2.5 text-xs space-y-1">
+                <div
+                  key={h.id}
+                  className="rounded-lg border border-border/60 bg-card p-2.5 text-xs space-y-1"
+                >
                   <div className="flex items-center gap-1.5 font-medium">
                     {h.fromStatus ? (
                       <>

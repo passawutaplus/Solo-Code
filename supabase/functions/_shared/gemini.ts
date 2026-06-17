@@ -152,8 +152,7 @@ export function geminiStreamAsSo1oSse(
   messages: GeminiChatMessage[],
 ): ReadableStream<Uint8Array> {
   const { systemInstruction, contents } = splitMessages(messages);
-  const url =
-    `${GEMINI_BASE}/models/${model}:streamGenerateContent?alt=sse&key=${encodeURIComponent(apiKey)}`;
+  const url = `${GEMINI_BASE}/models/${model}:streamGenerateContent?alt=sse&key=${encodeURIComponent(apiKey)}`;
   const reqBody: Record<string, unknown> = { contents };
   if (systemInstruction) reqBody.systemInstruction = systemInstruction;
 
@@ -191,9 +190,7 @@ export function geminiStreamAsSo1oSse(
               const chunk = JSON.parse(payload) as Record<string, unknown>;
               const delta = extractStreamDelta(chunk);
               if (delta) {
-                controller.enqueue(
-                  encoder.encode(`data: ${JSON.stringify({ delta })}\n\n`),
-                );
+                controller.enqueue(encoder.encode(`data: ${JSON.stringify({ delta })}\n\n`));
               }
             } catch {
               /* ignore malformed chunk */
@@ -222,13 +219,17 @@ export async function geminiGenerateWithFunction(
   const { systemInstruction, contents } = splitMessages(options.messages);
   const body: Record<string, unknown> = {
     contents,
-    tools: [{
-      functionDeclarations: [{
-        name: options.functionName,
-        description: options.description,
-        parameters: options.functionSchema,
-      }],
-    }],
+    tools: [
+      {
+        functionDeclarations: [
+          {
+            name: options.functionName,
+            description: options.description,
+            parameters: options.functionSchema,
+          },
+        ],
+      },
+    ],
     toolConfig: {
       functionCallingConfig: {
         mode: "ANY",
@@ -250,10 +251,11 @@ export async function geminiGenerateWithFunction(
   if (!res.ok) throw await parseGeminiError(res);
 
   const json = (await res.json()) as Record<string, unknown>;
-  const parts = ((json.candidates as Array<Record<string, unknown>> | undefined)?.[0]
-    ?.content as Record<string, unknown> | undefined)?.parts as
-    | Array<Record<string, unknown>>
-    | undefined;
+  const parts = (
+    (json.candidates as Array<Record<string, unknown>> | undefined)?.[0]?.content as
+      | Record<string, unknown>
+      | undefined
+  )?.parts as Array<Record<string, unknown>> | undefined;
 
   for (const part of parts ?? []) {
     const fc = part.functionCall as { name?: string; args?: Record<string, unknown> } | undefined;
@@ -334,8 +336,7 @@ export function assertSafeAnthemImageUrl(url: string, userId: string): void {
       : segments.slice(1).join("/");
 
   const allowed =
-    pathInBucket.startsWith(`anthem/${userId}/`) ||
-    pathInBucket.startsWith(`${userId}/`);
+    pathInBucket.startsWith(`anthem/${userId}/`) || pathInBucket.startsWith(`${userId}/`);
   if (!allowed) {
     throw new GeminiError("image access denied", 403);
   }
@@ -392,4 +393,3 @@ export async function geminiGenerateWithParts(
   const json = (await res.json()) as Record<string, unknown>;
   return extractTextFromResponse(json).trim();
 }
-

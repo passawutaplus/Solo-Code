@@ -5,7 +5,8 @@ import type { InhouseActivityEvent, InhouseTask } from "@/lib/inhouse/types";
 import { useInhouseOrgMembers } from "./useInhouseOrg";
 import { useInhouseTasks } from "./useInhouseTasks";
 
-const inhouseFrom = (table: string) => (supabase as unknown as { from: (t: string) => ReturnType<typeof supabase.from> }).from(table);
+const inhouseFrom = (table: string) =>
+  (supabase as unknown as { from: (t: string) => ReturnType<typeof supabase.from> }).from(table);
 
 async function enrichActivity(events: InhouseActivityEvent[]): Promise<InhouseActivityEvent[]> {
   const userIds = [...new Set(events.map((e) => e.user_id).filter(Boolean))] as string[];
@@ -17,9 +18,13 @@ async function enrichActivity(events: InhouseActivityEvent[]): Promise<InhouseAc
   const map = new Map((profiles ?? []).map((p) => [p.user_id, p]));
   return events.map((e) => ({
     ...e,
-    user: e.user_id && map.get(e.user_id)
-      ? { display_name: map.get(e.user_id)!.display_name, avatar_url: map.get(e.user_id)!.avatar_url }
-      : undefined,
+    user:
+      e.user_id && map.get(e.user_id)
+        ? {
+            display_name: map.get(e.user_id)!.display_name,
+            avatar_url: map.get(e.user_id)!.avatar_url,
+          }
+        : undefined,
   }));
 }
 
@@ -50,7 +55,12 @@ export function useInhouseActivity(orgId: string | undefined, workspaceId?: stri
       .channel(`inhouse-act-${orgId}`)
       .on(
         "postgres_changes",
-        { event: "INSERT", schema: "public", table: "inhouse_activity_events", filter: `org_id=eq.${orgId}` },
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "inhouse_activity_events",
+          filter: `org_id=eq.${orgId}`,
+        },
         () => queryClient.invalidateQueries({ queryKey: ["inhouse-activity", orgId] }),
       )
       .subscribe();
@@ -73,7 +83,11 @@ export interface MemberTaskSummary {
   lastActive: string | null;
 }
 
-export function useInhouseMonitor(orgId: string | undefined, orgSlug: string | undefined, workspaceId?: string) {
+export function useInhouseMonitor(
+  orgId: string | undefined,
+  orgSlug: string | undefined,
+  workspaceId?: string,
+) {
   const { data: members = [] } = useInhouseOrgMembers(orgId);
   const { data: tasks = [] } = useInhouseTasks(workspaceId);
   const { data: activity = [] } = useInhouseActivity(orgId, workspaceId);
@@ -82,9 +96,7 @@ export function useInhouseMonitor(orgId: string | undefined, orgSlug: string | u
   const today = new Date().toISOString().slice(0, 10);
 
   const memberSummaries: MemberTaskSummary[] = activeMembers.map((m) => {
-    const userTasks = workspaceId
-      ? tasks.filter((t) => t.assignee_id === m.user_id)
-      : [];
+    const userTasks = workspaceId ? tasks.filter((t) => t.assignee_id === m.user_id) : [];
     const lastEvent = activity.find((e) => e.user_id === m.user_id);
 
     return {
@@ -94,7 +106,8 @@ export function useInhouseMonitor(orgId: string | undefined, orgSlug: string | u
       role: m.role,
       todo: userTasks.filter((t) => t.column_key === "todo" || t.column_key === "backlog").length,
       doing: userTasks.filter((t) => t.column_key === "doing" || t.column_key === "review").length,
-      overdue: userTasks.filter((t) => t.due_date && t.due_date < today && t.column_key !== "done").length,
+      overdue: userTasks.filter((t) => t.due_date && t.due_date < today && t.column_key !== "done")
+        .length,
       lastActive: lastEvent?.created_at ?? m.joined_at,
     };
   });
@@ -106,13 +119,17 @@ export function useInhouseMonitor(orgId: string | undefined, orgSlug: string | u
     taskStats: {
       total: tasks.length,
       inProgress: tasks.filter((t) => ["doing", "review"].includes(t.column_key)).length,
-      overdue: tasks.filter((t) => t.due_date && t.due_date < today && t.column_key !== "done").length,
+      overdue: tasks.filter((t) => t.due_date && t.due_date < today && t.column_key !== "done")
+        .length,
       done: tasks.filter((t) => t.column_key === "done").length,
     },
   };
 }
 
-export function useLogInhouseWorkspaceView(orgId: string | undefined, workspaceId: string | undefined) {
+export function useLogInhouseWorkspaceView(
+  orgId: string | undefined,
+  workspaceId: string | undefined,
+) {
   useEffect(() => {
     if (!orgId || !workspaceId) return;
     void supabase.rpc("log_inhouse_activity", {
@@ -128,7 +145,7 @@ export function tasksByColumn(tasks: InhouseTask[], columns: string[]) {
   const map: Record<string, InhouseTask[]> = {};
   for (const col of columns) map[col] = [];
   for (const t of tasks) {
-    const key = columns.includes(t.column_key) ? t.column_key : columns[0] ?? "todo";
+    const key = columns.includes(t.column_key) ? t.column_key : (columns[0] ?? "todo");
     map[key].push(t);
   }
   for (const col of columns) {

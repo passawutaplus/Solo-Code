@@ -64,7 +64,11 @@ export const Route = createFileRoute("/dashboard")({
   head: () => ({
     meta: [
       { title: "My Desk — หลังบ้านฟรีแลนซ์ | So1o Freelancer" },
-      { name: "description", content: "บริหารจัดการรายได้ ค่าสมาชิก ภาษี ลูกค้า โปรเจกต์ และคอนเทนต์ในที่เดียว สำหรับฟรีแลนซ์ไทย" },
+      {
+        name: "description",
+        content:
+          "บริหารจัดการรายได้ ค่าสมาชิก ภาษี ลูกค้า โปรเจกต์ และคอนเทนต์ในที่เดียว สำหรับฟรีแลนซ์ไทย",
+      },
       { name: "robots", content: "noindex,nofollow" },
       { property: "og:title", content: "My Desk — หลังบ้านฟรีแลนซ์" },
       { property: "og:description", content: "ติดตามรายได้ ภาษี VAT และค่าสมาชิกแบบครบวงจร" },
@@ -133,7 +137,6 @@ function getSectionTitle(section: DashSection, sub?: string): string {
   if (sub && subMap && subMap[sub]) return subMap[sub];
   return SECTION_FALLBACK[section];
 }
-
 
 const DEFAULT_SUBS: Record<DashSection, string | undefined> = {
   home: undefined,
@@ -209,7 +212,9 @@ function Dashboard() {
       if (studioParams.linkId) {
         await supabase
           .from("ecosystem_links")
-          .update({ meta: { converted_at: new Date().toISOString(), target: "studio_quotation_handoff" } })
+          .update({
+            meta: { converted_at: new Date().toISOString(), target: "studio_quotation_handoff" },
+          })
           .eq("id", studioParams.linkId);
       }
 
@@ -286,16 +291,27 @@ function Dashboard() {
         if (ownsLink) {
           await supabase
             .from("ecosystem_links")
-            .update({ meta: { converted_at: new Date().toISOString(), target: "quotation_handoff" } })
+            .update({
+              meta: { converted_at: new Date().toISOString(), target: "quotation_handoff" },
+            })
             .eq("id", params.linkId);
         }
       }
 
       updateSection("finance", "quotations");
       const url = new URL(window.location.href);
-      ["from", "conversation_id", "request_id", "client_name", "project_title", "client_email", "client_phone", "message", "deadline", "link_id"].forEach(
-        (k) => url.searchParams.delete(k),
-      );
+      [
+        "from",
+        "conversation_id",
+        "request_id",
+        "client_name",
+        "project_title",
+        "client_email",
+        "client_phone",
+        "message",
+        "deadline",
+        "link_id",
+      ].forEach((k) => url.searchParams.delete(k));
       window.history.replaceState({}, "", url.toString());
     })();
   }, [updateSection, user?.id]);
@@ -337,7 +353,6 @@ function Dashboard() {
               </div>
             </header>
 
-
             <div className="flex-1 flex min-w-0">
               <main className="relative flex-1 min-w-0 overflow-x-hidden">
                 <div className="ambient-blobs" aria-hidden="true" />
@@ -371,10 +386,7 @@ function Dashboard() {
                     )}
                     {section === "mydata" && (
                       <React.Suspense fallback={<MyDataSkeleton />}>
-                        <MyDataTab
-                          sub={(sub as any) ?? "clients"}
-                          onNavigate={updateSection}
-                        />
+                        <MyDataTab sub={(sub as any) ?? "clients"} onNavigate={updateSection} />
                       </React.Suspense>
                     )}
                     {section === "settings" && (
@@ -388,13 +400,20 @@ function Dashboard() {
                   </div>
                 </div>
                 {/* Bottom safe-area spacer so content isn't hidden behind BottomNav on mobile */}
-                <div className="md:hidden h-[calc(env(safe-area-inset-bottom)+64px)]" aria-hidden="true" />
+                <div
+                  className="md:hidden h-[calc(env(safe-area-inset-bottom)+64px)]"
+                  aria-hidden="true"
+                />
               </main>
             </div>
           </SidebarInset>
 
           {/* Mobile bottom navigation (PWA-friendly) */}
-          <BottomNav active={section} activeSub={sub} onSelect={(s, nextSub) => updateSection(s, nextSub)} />
+          <BottomNav
+            active={section}
+            activeSub={sub}
+            onSelect={(s, nextSub) => updateSection(s, nextSub)}
+          />
           <DashboardCommandMenu onNavigate={updateSection} />
 
           {/* AI chat FAB: DraggableFabDock in __root. Support + สร้างดีล: sidebar footer */}

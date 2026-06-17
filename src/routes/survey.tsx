@@ -6,7 +6,15 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import {
-  User, Briefcase, ArrowRight, ArrowLeft, Check, Loader2, Sparkles, Home, LayoutDashboard,
+  User,
+  Briefcase,
+  ArrowRight,
+  ArrowLeft,
+  Check,
+  Loader2,
+  Sparkles,
+  Home,
+  LayoutDashboard,
 } from "lucide-react";
 import { FREELANCER_QS, CLIENT_QS, type Persona } from "@/components/onboarding/surveyShared";
 
@@ -14,7 +22,10 @@ export const Route = createFileRoute("/survey")({
   head: () => ({
     meta: [
       { title: "ตอบแบบสอบถาม So1o — ช่วยเราเข้าใจคุณดีขึ้น" },
-      { name: "description", content: "ตอบ 5 คำถามสั้นๆ เพื่อให้ So1o ปรับฟีเจอร์ให้เหมาะกับคุณที่สุด" },
+      {
+        name: "description",
+        content: "ตอบ 5 คำถามสั้นๆ เพื่อให้ So1o ปรับฟีเจอร์ให้เหมาะกับคุณที่สุด",
+      },
       { name: "robots", content: "noindex,nofollow" },
       { property: "og:title", content: "แบบสอบถาม So1o" },
       { property: "og:description", content: "ตอบ 5 คำถามสั้นๆ ใช้เวลาไม่เกิน 1 นาที" },
@@ -28,9 +39,14 @@ const GUEST_KEY = "so1o.mentor.guest_id";
 function getGuestId(): string {
   try {
     let id = localStorage.getItem(GUEST_KEY);
-    if (!id) { id = crypto.randomUUID(); localStorage.setItem(GUEST_KEY, id); }
+    if (!id) {
+      id = crypto.randomUUID();
+      localStorage.setItem(GUEST_KEY, id);
+    }
     return id;
-  } catch { return "guest-fallback"; }
+  } catch {
+    return "guest-fallback";
+  }
 }
 
 function SurveyPage() {
@@ -43,27 +59,40 @@ function SurveyPage() {
   const [direction, setDirection] = React.useState(1);
   const [done, setDone] = React.useState(false);
 
-  const questions = persona === "freelancer" ? FREELANCER_QS : persona === "client" ? CLIENT_QS : [];
+  const questions =
+    persona === "freelancer" ? FREELANCER_QS : persona === "client" ? CLIENT_QS : [];
   const totalSteps = 1 + questions.length;
   const progress = Math.round(((step + 1) / Math.max(1, totalSteps)) * 100);
 
   const currentQ = step > 0 ? questions[step - 1] : null;
   const currentVal = currentQ ? answers[currentQ.key] : null;
-  const canNext = step === 0
-    ? !!persona
-    : currentQ?.multi
-      ? Array.isArray(currentVal) && currentVal.length > 0
-      : !!currentVal;
+  const canNext =
+    step === 0
+      ? !!persona
+      : currentQ?.multi
+        ? Array.isArray(currentVal) && currentVal.length > 0
+        : !!currentVal;
 
-  const next = () => { if (canNext) { setDirection(1); setStep((s) => s + 1); } };
-  const back = () => { if (step > 0) { setDirection(-1); setStep((s) => s - 1); } };
+  const next = () => {
+    if (canNext) {
+      setDirection(1);
+      setStep((s) => s + 1);
+    }
+  };
+  const back = () => {
+    if (step > 0) {
+      setDirection(-1);
+      setStep((s) => s - 1);
+    }
+  };
 
   const pickOption = (val: string) => {
     if (!currentQ) return;
     if (currentQ.multi) {
       const arr = Array.isArray(currentVal) ? [...currentVal] : [];
       const idx = arr.indexOf(val);
-      if (idx >= 0) arr.splice(idx, 1); else arr.push(val);
+      if (idx >= 0) arr.splice(idx, 1);
+      else arr.push(val);
       setAnswers((a) => ({ ...a, [currentQ.key]: arr }));
     } else {
       setAnswers((a) => ({ ...a, [currentQ.key]: val }));
@@ -93,11 +122,14 @@ function SurveyPage() {
 
       // Logged-in: also write into profile
       if (user) {
-        await supabase.from("profiles").update({
-          persona,
-          onboarding_data: { persona, ...answers },
-          onboarding_completed: true,
-        }).eq("user_id", user.id);
+        await supabase
+          .from("profiles")
+          .update({
+            persona,
+            onboarding_data: { persona, ...answers },
+            onboarding_completed: true,
+          })
+          .eq("user_id", user.id);
       }
 
       setDone(true);
@@ -126,11 +158,15 @@ function SurveyPage() {
           </p>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
             <Button asChild variant="outline" className="gap-1.5">
-              <Link to="/"><Home className="h-4 w-4" /> กลับหน้าแรก</Link>
+              <Link to="/">
+                <Home className="h-4 w-4" /> กลับหน้าแรก
+              </Link>
             </Button>
             {user && (
               <Button asChild className="gap-1.5 bg-gradient-primary text-primary-foreground">
-                <Link to="/dashboard"><LayoutDashboard className="h-4 w-4" /> ไปหลังบ้าน</Link>
+                <Link to="/dashboard">
+                  <LayoutDashboard className="h-4 w-4" /> ไปหลังบ้าน
+                </Link>
               </Button>
             )}
           </div>
@@ -142,15 +178,24 @@ function SurveyPage() {
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
       <div className="ambient-blobs" aria-hidden="true" />
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-[420px]" aria-hidden="true" style={{ backgroundImage: "var(--gradient-mesh)" }} />
+      <div
+        className="pointer-events-none absolute inset-x-0 top-0 h-[420px]"
+        aria-hidden="true"
+        style={{ backgroundImage: "var(--gradient-mesh)" }}
+      />
 
       <div className="sticky top-0 z-10 glass border-b border-border">
         <div className="mx-auto max-w-2xl px-4 py-3">
           <div className="flex items-center justify-between mb-2 gap-3">
-            <Link to="/" className="text-xs font-medium text-muted-foreground hover:text-foreground inline-flex items-center gap-1">
+            <Link
+              to="/"
+              className="text-xs font-medium text-muted-foreground hover:text-foreground inline-flex items-center gap-1"
+            >
               <ArrowLeft className="h-3 w-3" /> กลับ
             </Link>
-            <p className="text-xs font-semibold text-primary tabular-nums">{step + 1} / {totalSteps}</p>
+            <p className="text-xs font-semibold text-primary tabular-nums">
+              {step + 1} / {totalSteps}
+            </p>
           </div>
           <div className="h-1.5 rounded-full bg-muted overflow-hidden">
             <motion.div
@@ -179,11 +224,25 @@ function SurveyPage() {
           >
             {step === 0 ? (
               <div>
-                <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">คุณคือใครในแพลตฟอร์มนี้?</h1>
+                <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
+                  คุณคือใครในแพลตฟอร์มนี้?
+                </h1>
                 <p className="mt-2 text-sm text-muted-foreground">เลือกสิ่งที่ใกล้เคียงคุณที่สุด</p>
                 <div className="mt-6 grid sm:grid-cols-2 gap-3">
-                  <PersonaCard icon={Briefcase} title="ฟรีแลนซ์" desc="รับงาน บริหารผลงาน ลูกค้า และรายได้" active={persona === "freelancer"} onClick={() => setPersona("freelancer")} />
-                  <PersonaCard icon={User} title="ลูกค้า / ผู้จ้าง" desc="หาฟรีแลนซ์เก่งๆ มาทำงานให้" active={persona === "client"} onClick={() => setPersona("client")} />
+                  <PersonaCard
+                    icon={Briefcase}
+                    title="ฟรีแลนซ์"
+                    desc="รับงาน บริหารผลงาน ลูกค้า และรายได้"
+                    active={persona === "freelancer"}
+                    onClick={() => setPersona("freelancer")}
+                  />
+                  <PersonaCard
+                    icon={User}
+                    title="ลูกค้า / ผู้จ้าง"
+                    desc="หาฟรีแลนซ์เก่งๆ มาทำงานให้"
+                    active={persona === "client"}
+                    onClick={() => setPersona("client")}
+                  />
                 </div>
               </div>
             ) : currentQ ? (
@@ -205,8 +264,14 @@ function SurveyPage() {
                             : "border-border bg-card/60 hover:bg-card hover:border-primary/40 hover:scale-[1.02] hover:shadow-soft"
                         }`}
                       >
-                        <Icon className={`h-6 w-6 ${picked ? "text-primary" : "text-muted-foreground group-hover:text-foreground"}`} />
-                        <span className={`text-xs font-medium ${picked ? "text-primary" : "text-foreground"}`}>{opt.label}</span>
+                        <Icon
+                          className={`h-6 w-6 ${picked ? "text-primary" : "text-muted-foreground group-hover:text-foreground"}`}
+                        />
+                        <span
+                          className={`text-xs font-medium ${picked ? "text-primary" : "text-foreground"}`}
+                        >
+                          {opt.label}
+                        </span>
                         {picked && (
                           <span className="absolute top-1.5 right-1.5 h-4 w-4 rounded-full bg-primary text-primary-foreground grid place-items-center">
                             <Check className="h-2.5 w-2.5" />
@@ -222,23 +287,42 @@ function SurveyPage() {
         </AnimatePresence>
 
         <div className="mt-8 flex items-center justify-between gap-3">
-          <Button variant="ghost" onClick={back} disabled={step === 0 || saving} className="gap-1.5">
+          <Button
+            variant="ghost"
+            onClick={back}
+            disabled={step === 0 || saving}
+            className="gap-1.5"
+          >
             <ArrowLeft className="h-4 w-4" /> ย้อนกลับ
           </Button>
           {isLast ? (
-            <Button onClick={finish} disabled={!canNext || saving} className="gap-1.5 bg-gradient-primary text-primary-foreground shadow-elevated min-w-[140px]">
-              {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
+            <Button
+              onClick={finish}
+              disabled={!canNext || saving}
+              className="gap-1.5 bg-gradient-primary text-primary-foreground shadow-elevated min-w-[140px]"
+            >
+              {saving ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Check className="h-4 w-4" />
+              )}
               ส่งคำตอบ
             </Button>
           ) : (
-            <Button onClick={next} disabled={!canNext} className="gap-1.5 bg-gradient-primary text-primary-foreground shadow-elevated min-w-[120px]">
+            <Button
+              onClick={next}
+              disabled={!canNext}
+              className="gap-1.5 bg-gradient-primary text-primary-foreground shadow-elevated min-w-[120px]"
+            >
               ถัดไป <ArrowRight className="h-4 w-4" />
             </Button>
           )}
         </div>
 
         <p className="mt-4 text-center text-[11px] text-muted-foreground">
-          {user ? "คำตอบของคุณจะถูกบันทึกในโปรไฟล์เพื่อแนะนำฟีเจอร์ให้เหมาะสม" : "ตอบได้โดยไม่ต้องสมัครสมาชิก — เก็บข้อมูลแบบไม่ระบุตัวตน"}
+          {user
+            ? "คำตอบของคุณจะถูกบันทึกในโปรไฟล์เพื่อแนะนำฟีเจอร์ให้เหมาะสม"
+            : "ตอบได้โดยไม่ต้องสมัครสมาชิก — เก็บข้อมูลแบบไม่ระบุตัวตน"}
         </p>
       </div>
     </div>
@@ -246,10 +330,17 @@ function SurveyPage() {
 }
 
 function PersonaCard({
-  icon: Icon, title, desc, active, onClick,
+  icon: Icon,
+  title,
+  desc,
+  active,
+  onClick,
 }: {
   icon: React.ComponentType<{ className?: string }>;
-  title: string; desc: string; active: boolean; onClick: () => void;
+  title: string;
+  desc: string;
+  active: boolean;
+  onClick: () => void;
 }) {
   return (
     <button
@@ -261,7 +352,9 @@ function PersonaCard({
           : "border-border bg-card/60 hover:bg-card hover:border-primary/40 hover:scale-[1.01] hover:shadow-soft"
       }`}
     >
-      <div className={`h-10 w-10 rounded-xl grid place-items-center ${active ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary"}`}>
+      <div
+        className={`h-10 w-10 rounded-xl grid place-items-center ${active ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary"}`}
+      >
         <Icon className="h-5 w-5" />
       </div>
       <h3 className="text-base font-semibold">{title}</h3>

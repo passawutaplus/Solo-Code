@@ -7,15 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import {
-  Image as ImageIcon,
-  Info,
-  Loader2,
-  QrCode,
-  RotateCcw,
-  Upload,
-  Wallet,
-} from "lucide-react";
+import { Image as ImageIcon, Info, Loader2, QrCode, RotateCcw, Upload, Wallet } from "lucide-react";
 import { compressImageFile, dataUrlToBlob } from "@/lib/imageCompress";
 import { StripeClientPaymentsSection } from "@/components/dashboard/settings/StripeClientPaymentsSection";
 

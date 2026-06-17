@@ -156,7 +156,11 @@ async function uploadTicketFile(userId: string, ticketId: string, file: File) {
   let ext = "jpg";
   let contentType = "image/jpeg";
 
-  if (file.type.startsWith("image/") && file.type !== "image/svg+xml" && file.type !== "image/gif") {
+  if (
+    file.type.startsWith("image/") &&
+    file.type !== "image/svg+xml" &&
+    file.type !== "image/gif"
+  ) {
     const dataUrl = await compressImageFile(file);
     blob = dataUrlToBlob(dataUrl);
     if (blob.size > MAX_BYTES) throw new Error("ไม่สามารถบีบไฟล์ให้เล็กพอได้");
@@ -194,7 +198,9 @@ export function useMyTickets() {
     },
   });
 
-  const openCount = (list.data ?? []).filter((t) => !["closed", "wont_fix"].includes(t.status)).length;
+  const openCount = (list.data ?? []).filter(
+    (t) => !["closed", "wont_fix"].includes(t.status),
+  ).length;
 
   const create = useMutation({
     mutationFn: async (input: CreateTicketInput & { files?: File[] }) => {
@@ -255,7 +261,13 @@ export function useMyTickets() {
   });
 
   const linkBetaFeedback = useMutation({
-    mutationFn: async ({ ticketId, betaFeedbackId }: { ticketId: string; betaFeedbackId: string }) => {
+    mutationFn: async ({
+      ticketId,
+      betaFeedbackId,
+    }: {
+      ticketId: string;
+      betaFeedbackId: string;
+    }) => {
       const { error } = await (supabase as any)
         .from("support_tickets")
         .update({ beta_feedback_id: betaFeedbackId })

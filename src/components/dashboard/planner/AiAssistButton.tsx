@@ -69,7 +69,11 @@ export function AiAssistButton({ topic, mood, platforms, onCaption, onHashtags }
               disabled={loading !== null}
               onClick={() => callAi("caption")}
             >
-              {loading === "caption" ? <Loader2 className="h-3 w-3 animate-spin" /> : <Type className="h-3 w-3" />}
+              {loading === "caption" ? (
+                <Loader2 className="h-3 w-3 animate-spin" />
+              ) : (
+                <Type className="h-3 w-3" />
+              )}
               เขียนแคปชัน
             </Button>
             <Button
@@ -80,7 +84,11 @@ export function AiAssistButton({ topic, mood, platforms, onCaption, onHashtags }
               disabled={loading !== null}
               onClick={() => callAi("hashtags")}
             >
-              {loading === "hashtags" ? <Loader2 className="h-3 w-3 animate-spin" /> : <Hash className="h-3 w-3" />}
+              {loading === "hashtags" ? (
+                <Loader2 className="h-3 w-3 animate-spin" />
+              ) : (
+                <Hash className="h-3 w-3" />
+              )}
               แฮชแท็ก
             </Button>
           </div>
@@ -98,7 +106,9 @@ export function AiAssistButton({ topic, mood, platforms, onCaption, onHashtags }
                   }}
                   className="w-full text-left rounded-xl border border-border/60 p-2 text-xs hover:border-primary/50 hover:bg-primary/5 transition-colors"
                 >
-                  <div className="text-[9px] font-medium text-primary uppercase mb-1">{v.length}</div>
+                  <div className="text-[9px] font-medium text-primary uppercase mb-1">
+                    {v.length}
+                  </div>
                   <div className="line-clamp-4">{v.text}</div>
                 </button>
               ))}
@@ -109,7 +119,10 @@ export function AiAssistButton({ topic, mood, platforms, onCaption, onHashtags }
             <div className="space-y-2">
               <div className="flex flex-wrap gap-1">
                 {hashtags.map((h, i) => (
-                  <span key={i} className="text-[10px] rounded-md bg-primary/10 text-primary px-1.5 py-0.5">
+                  <span
+                    key={i}
+                    className="text-[10px] rounded-md bg-primary/10 text-primary px-1.5 py-0.5"
+                  >
                     {h}
                   </span>
                 ))}

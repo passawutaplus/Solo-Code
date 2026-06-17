@@ -117,7 +117,9 @@ export function JobTrackerMiniWidget({ onGo }: { onGo: (tab: string, sub?: strin
                   className="w-full text-left rounded-lg border border-border/40 bg-card/60 p-2.5 hover:border-primary/40 hover:bg-primary-soft/30 transition-colors group"
                 >
                   <div className="flex items-center justify-between gap-2 mb-1">
-                    <p className="text-xs font-medium truncate flex-1">{j.title || "(ไม่มีชื่อ)"}</p>
+                    <p className="text-xs font-medium truncate flex-1">
+                      {j.title || "(ไม่มีชื่อ)"}
+                    </p>
                     <span className={`text-[10px] flex items-center gap-0.5 shrink-0 ${due.tone}`}>
                       <CalendarClock className="h-2.5 w-2.5" />
                       {due.text}

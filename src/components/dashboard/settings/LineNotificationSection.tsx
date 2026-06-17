@@ -38,8 +38,7 @@ export function LineNotificationSection() {
   const { data: inhouseOrgs = [] } = useMyInhouseOrgs();
 
   const t = (th: string, en: string) => (locale === "en" ? en : th);
-  const tierLabel =
-    TIER_LABEL[tier]?.[locale as UserLocale] ?? (locale === "en" ? "Pro" : "โปร");
+  const tierLabel = TIER_LABEL[tier]?.[locale as UserLocale] ?? (locale === "en" ? "Pro" : "โปร");
   const showInhouseGroup = tier === "inhouse" || inhouseOrgs.length > 0;
 
   if (!isPro) {

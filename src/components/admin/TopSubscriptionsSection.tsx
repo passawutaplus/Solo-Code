@@ -47,10 +47,7 @@ export function TopSubscriptionsSection() {
 
   const maxUsers = rows[0]?.user_count ?? 0;
   const totalUsers = rows.reduce((s, r) => s + Number(r.user_count), 0);
-  const totalMonthly = rows.reduce(
-    (s, r) => s + Number(r.total_monthly_value),
-    0,
-  );
+  const totalMonthly = rows.reduce((s, r) => s + Number(r.total_monthly_value), 0);
 
   return (
     <div className="space-y-5">
@@ -85,9 +82,7 @@ export function TopSubscriptionsSection() {
               <Users className="h-3 w-3" /> Subscriptions รวม
             </p>
             <p className="text-2xl font-semibold mt-1">
-              {rows
-                .reduce((s, r) => s + Number(r.total_subscriptions), 0)
-                .toLocaleString()}
+              {rows.reduce((s, r) => s + Number(r.total_subscriptions), 0).toLocaleString()}
             </p>
           </CardContent>
         </Card>
@@ -96,9 +91,7 @@ export function TopSubscriptionsSection() {
             <p className="text-[11px] text-muted-foreground flex items-center gap-1">
               <Wallet className="h-3 w-3" /> มูลค่ารวม/เดือน
             </p>
-            <p className="text-2xl font-semibold mt-1">
-              ฿{fmtTHB(totalMonthly)}
-            </p>
+            <p className="text-2xl font-semibold mt-1">฿{fmtTHB(totalMonthly)}</p>
           </CardContent>
         </Card>
         <Card>
@@ -106,9 +99,7 @@ export function TopSubscriptionsSection() {
             <p className="text-[11px] text-muted-foreground flex items-center gap-1">
               <Trophy className="h-3 w-3" /> อันดับ 1
             </p>
-            <p className="text-base font-semibold mt-1 truncate">
-              {rows[0]?.name ?? "—"}
-            </p>
+            <p className="text-base font-semibold mt-1 truncate">{rows[0]?.name ?? "—"}</p>
           </CardContent>
         </Card>
       </div>
@@ -132,14 +123,9 @@ export function TopSubscriptionsSection() {
           ) : (
             <div className="space-y-2">
               {rows.map((r, i) => {
-                const pct =
-                  maxUsers > 0
-                    ? (Number(r.user_count) / maxUsers) * 100
-                    : 0;
+                const pct = maxUsers > 0 ? (Number(r.user_count) / maxUsers) * 100 : 0;
                 const sharePct =
-                  totalUsers > 0
-                    ? ((Number(r.user_count) / totalUsers) * 100).toFixed(1)
-                    : "0";
+                  totalUsers > 0 ? ((Number(r.user_count) / totalUsers) * 100).toFixed(1) : "0";
                 return (
                   <div
                     key={r.name}
@@ -159,12 +145,10 @@ export function TopSubscriptionsSection() {
                           {i + 1}
                         </Badge>
                         <div className="min-w-0">
-                          <p className="text-sm font-medium truncate">
-                            {r.name}
-                          </p>
+                          <p className="text-sm font-medium truncate">{r.name}</p>
                           <p className="text-[10px] text-muted-foreground truncate">
-                            {r.category || "ไม่ระบุหมวด"} · เฉลี่ย ฿
-                            {fmtTHB(Number(r.avg_price))}/เดือน
+                            {r.category || "ไม่ระบุหมวด"} · เฉลี่ย ฿{fmtTHB(Number(r.avg_price))}
+                            /เดือน
                           </p>
                         </div>
                       </div>
@@ -173,8 +157,7 @@ export function TopSubscriptionsSection() {
                           {Number(r.user_count).toLocaleString()} คน
                         </p>
                         <p className="text-[10px] text-muted-foreground tabular-nums">
-                          {sharePct}% · ฿
-                          {fmtTHB(Number(r.total_monthly_value))}/ด.
+                          {sharePct}% · ฿{fmtTHB(Number(r.total_monthly_value))}/ด.
                         </p>
                       </div>
                     </div>

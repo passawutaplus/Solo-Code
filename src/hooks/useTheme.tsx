@@ -20,7 +20,9 @@ export function useTheme() {
 
   React.useEffect(() => {
     apply(theme);
-    try { localStorage.setItem(KEY, theme); } catch {}
+    try {
+      localStorage.setItem(KEY, theme);
+    } catch {}
   }, [theme]);
 
   const setTheme = React.useCallback((t: Theme) => setThemeState(t), []);

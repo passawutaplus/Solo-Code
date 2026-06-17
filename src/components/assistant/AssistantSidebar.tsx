@@ -1,14 +1,6 @@
 import * as React from "react";
 import { Link } from "@tanstack/react-router";
-import {
-  Sparkles,
-  X,
-  Minimize2,
-  BarChart3,
-  PenLine,
-  Scale,
-  ExternalLink,
-} from "lucide-react";
+import { Sparkles, X, Minimize2, BarChart3, PenLine, Scale, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { useAssistant, type AssistantPreset } from "@/context/AssistantContext";
@@ -16,10 +8,7 @@ import { ASSISTANT_PRESETS, getPresetConfig } from "@/lib/aiAssistantPresets";
 import { AssistantChatPanel, AssistantCreditBar } from "./AssistantChatPanel";
 import { useAuth } from "@/auth/AuthProvider";
 import { useIsMobile } from "@/hooks/use-mobile";
-import {
-  useResizableSidebar,
-  SIDEBAR_MIN_WIDTH,
-} from "@/hooks/useResizableSidebar";
+import { useResizableSidebar, SIDEBAR_MIN_WIDTH } from "@/hooks/useResizableSidebar";
 import { cn } from "@/lib/utils";
 
 const PRESET_ICONS: Record<AssistantPreset, typeof Sparkles> = {

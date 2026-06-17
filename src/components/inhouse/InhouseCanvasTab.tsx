@@ -8,7 +8,8 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import type { InhouseCanvas, InhouseOrg, InhouseWorkspace } from "@/lib/inhouse/types";
 import { toast } from "sonner";
 
-const inhouseFrom = (table: string) => (supabase as unknown as { from: (t: string) => ReturnType<typeof supabase.from> }).from(table);
+const inhouseFrom = (table: string) =>
+  (supabase as unknown as { from: (t: string) => ReturnType<typeof supabase.from> }).from(table);
 
 interface Props {
   org: InhouseOrg;
@@ -61,14 +62,19 @@ export function InhouseCanvasTab({ org, workspace }: Props) {
   });
 
   React.useEffect(() => {
-    void import("@excalidraw/excalidraw").then((mod) => {
-      setExcalidrawComp(() => mod.Excalidraw as React.ComponentType<{
-        initialData?: { elements?: unknown[]; appState?: Record<string, unknown> };
-        onChange?: (elements: unknown[], appState: Record<string, unknown>) => void;
-      }>);
-    }).catch(() => {
-      /* package optional until installed */
-    });
+    void import("@excalidraw/excalidraw")
+      .then((mod) => {
+        setExcalidrawComp(
+          () =>
+            mod.Excalidraw as React.ComponentType<{
+              initialData?: { elements?: unknown[]; appState?: Record<string, unknown> };
+              onChange?: (elements: unknown[], appState: Record<string, unknown>) => void;
+            }>,
+        );
+      })
+      .catch(() => {
+        /* package optional until installed */
+      });
   }, []);
 
   React.useEffect(() => {
@@ -76,7 +82,9 @@ export function InhouseCanvasTab({ org, workspace }: Props) {
   }, [canvases, activeId]);
 
   const active = canvases.find((c) => c.id === activeId);
-  const scene = active?.scene_data as { elements?: unknown[]; appState?: Record<string, unknown> } | undefined;
+  const scene = active?.scene_data as
+    | { elements?: unknown[]; appState?: Record<string, unknown> }
+    | undefined;
 
   const handleChange = (elements: unknown[], appState: Record<string, unknown>) => {
     if (!active) return;

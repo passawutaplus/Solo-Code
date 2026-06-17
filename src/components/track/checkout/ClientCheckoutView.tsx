@@ -300,7 +300,11 @@ function CheckoutStepper({ step, accent }: { step: 1 | 2 | 3; accent?: string })
                     ? "text-emerald-600"
                     : "text-muted-foreground"
               }`}
-              style={active && accent ? { color: accent, background: `color-mix(in srgb, ${accent} 12%, transparent)` } : undefined}
+              style={
+                active && accent
+                  ? { color: accent, background: `color-mix(in srgb, ${accent} 12%, transparent)` }
+                  : undefined
+              }
             >
               {done ? (
                 <CheckCircle2 className="h-3.5 w-3.5" />
@@ -340,13 +344,7 @@ function Row({
   );
 }
 
-function QuotationTotals({
-  q,
-  itemsSubtotal,
-}: {
-  q: CheckoutQuotation;
-  itemsSubtotal: number;
-}) {
+function QuotationTotals({ q, itemsSubtotal }: { q: CheckoutQuotation; itemsSubtotal: number }) {
   return (
     <div className="rounded-xl bg-muted/20 p-3 text-xs space-y-1.5 max-w-md ml-auto">
       <Row label="รวมรายการ" value={`฿${itemsSubtotal.toLocaleString("th-TH")}`} />
@@ -360,10 +358,16 @@ function QuotationTotals({
         <Row label="ส่วนลด" value={`−฿${q.totals.discountAmount!.toLocaleString("th-TH")}`} />
       )}
       {q.vat_enabled && q.totals.vatAmount > 0 && (
-        <Row label={`VAT ${q.vat_rate ?? 0}%`} value={`฿${q.totals.vatAmount.toLocaleString("th-TH")}`} />
+        <Row
+          label={`VAT ${q.vat_rate ?? 0}%`}
+          value={`฿${q.totals.vatAmount.toLocaleString("th-TH")}`}
+        />
       )}
       {q.wht_enabled && q.totals.whtAmount > 0 && (
-        <Row label={`หัก ณ ที่จ่าย ${q.wht_rate ?? 0}%`} value={`−฿${q.totals.whtAmount.toLocaleString("th-TH")}`} />
+        <Row
+          label={`หัก ณ ที่จ่าย ${q.wht_rate ?? 0}%`}
+          value={`−฿${q.totals.whtAmount.toLocaleString("th-TH")}`}
+        />
       )}
       <div className="border-t pt-1.5 flex justify-between font-semibold text-sm">
         <span>ยอดรวมโปรเจกต์</span>

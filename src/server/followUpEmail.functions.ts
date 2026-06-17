@@ -70,7 +70,8 @@ export const sendPaymentFollowUpEmail = createServerFn({ method: "POST" })
 
     const q = mapRowToQuotation(row as Record<string, unknown>);
     const amount = outstandingAmount(q);
-    const tone: FollowUpTone = data.tone ?? (daysOverdue(q) >= 14 ? "urgent" : daysOverdue(q) >= 7 ? "formal" : "soft");
+    const tone: FollowUpTone =
+      data.tone ?? (daysOverdue(q) >= 14 ? "urgent" : daysOverdue(q) >= 7 ? "formal" : "soft");
     const message = buildFollowUpMessage(q, amount, tone);
 
     const { data: profile } = await supabaseAdmin

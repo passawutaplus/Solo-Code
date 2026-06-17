@@ -45,10 +45,14 @@ function TaskCard({
         ) : null}
       </div>
       {task.description ? (
-        <p className="text-[11px] text-muted-foreground line-clamp-3 whitespace-pre-line">{task.description}</p>
+        <p className="text-[11px] text-muted-foreground line-clamp-3 whitespace-pre-line">
+          {task.description}
+        </p>
       ) : null}
       <div className="flex flex-wrap items-center gap-2 text-[10px]">
-        <span className={`font-medium ${PRIORITY_STYLE[task.priority] ?? ""}`}>{task.priority}</span>
+        <span className={`font-medium ${PRIORITY_STYLE[task.priority] ?? ""}`}>
+          {task.priority}
+        </span>
         <select
           value={task.status}
           disabled={busy}
@@ -83,7 +87,13 @@ export function DevTasksSection() {
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
-          <Button size="sm" variant="outline" className="h-8" onClick={() => refetch()} disabled={isFetching}>
+          <Button
+            size="sm"
+            variant="outline"
+            className="h-8"
+            onClick={() => refetch()}
+            disabled={isFetching}
+          >
             {isFetching ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-1" /> : null}
             รีเฟรช
           </Button>

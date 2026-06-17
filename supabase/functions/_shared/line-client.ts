@@ -9,10 +9,7 @@ export interface LinePushResult {
   error?: string;
 }
 
-export async function pushLineText(
-  lineUserId: string,
-  text: string,
-): Promise<LinePushResult> {
+export async function pushLineText(lineUserId: string, text: string): Promise<LinePushResult> {
   const token = Deno.env.get("LINE_CHANNEL_ACCESS_TOKEN");
   if (!token) {
     return { ok: false, status: 503, error: "LINE_CHANNEL_ACCESS_TOKEN not configured" };

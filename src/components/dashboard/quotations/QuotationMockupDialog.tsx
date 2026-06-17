@@ -1,6 +1,12 @@
 import * as React from "react";
 import { createPortal } from "react-dom";
-import { Dialog, DialogContent, DialogCloseButton, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogCloseButton,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ZoomIn, ZoomOut, Download, FileText } from "lucide-react";
@@ -169,9 +175,7 @@ export function QuotationMockupDialog({
     };
   }, [open, zoom, brief, includeBrief, includeTimeline, q]);
 
-  const canPrint =
-    !briefLoading &&
-    !(includeBrief && q?.briefId && !brief && !briefError);
+  const canPrint = !briefLoading && !(includeBrief && q?.briefId && !brief && !briefError);
 
   const runPrint = React.useCallback(
     (source: "auto" | "manual") => {
@@ -184,9 +188,7 @@ export function QuotationMockupDialog({
         bodyClass: "printing-mockup",
         showHint: source === "manual",
         delayMs: includeBrief && brief ? 450 : undefined,
-        successMessage: pageCount
-          ? `ส่งออก PDF สำเร็จ (~${pageCount} หน้า)`
-          : "ส่งออก PDF สำเร็จ",
+        successMessage: pageCount ? `ส่งออก PDF สำเร็จ (~${pageCount} หน้า)` : "ส่งออก PDF สำเร็จ",
         onAfterPrint: () => {
           setPrinting(false);
           if (source === "auto") onOpenChange(false);
@@ -229,8 +231,7 @@ export function QuotationMockupDialog({
             </DialogTitle>
             {pageCount !== null && (
               <Badge variant="secondary" className="gap-1 text-[10px] font-medium shrink-0">
-                <FileText className="h-3 w-3" />
-                ~{pageCount} หน้า
+                <FileText className="h-3 w-3" />~{pageCount} หน้า
               </Badge>
             )}
             {(includeBrief || includeTimeline) && (

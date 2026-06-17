@@ -66,7 +66,9 @@ function commentOutTableBlocks(sql, table) {
     `DROP POLICY [\\s\\S]*? ON public\\.${table}[\\s\\S]*?;`,
   ];
   for (const p of patterns) {
-    out = out.replace(new RegExp(p, "gi"), (block) => block.split("\n").map(commentLine).join("\n"));
+    out = out.replace(new RegExp(p, "gi"), (block) =>
+      block.split("\n").map(commentLine).join("\n"),
+    );
   }
   return out;
 }
@@ -108,15 +110,15 @@ function rewriteSql(sql, fileName) {
     /(INSERT INTO public\.profiles[\s\S]*?)ON CONFLICT\s*\(\s*id\s*\)/gi,
     "$1ON CONFLICT (user_id)",
   );
-  out = out.replace(
-    /ON public\.profiles[\s\S]*?auth\.uid\(\)\s*=\s*id\b/gi,
-    (m) => m.replace(/auth\.uid\(\)\s*=\s*id\b/gi, "auth.uid() = user_id"),
+  out = out.replace(/ON public\.profiles[\s\S]*?auth\.uid\(\)\s*=\s*id\b/gi, (m) =>
+    m.replace(/auth\.uid\(\)\s*=\s*id\b/gi, "auth.uid() = user_id"),
   );
 
   // So1o already ships public.has_role — skip anthem duplicate
   out = out.replace(
     /CREATE OR REPLACE FUNCTION anthem\.has_role[\s\S]*?\$\$;/gi,
-    (block) => `-- SKIP anthem.has_role (use public.has_role)\n${block.split("\n").map(commentLine).join("\n")}`,
+    (block) =>
+      `-- SKIP anthem.has_role (use public.has_role)\n${block.split("\n").map(commentLine).join("\n")}`,
   );
 
   // So1o already has public.handle_new_user + on_auth_user_created
@@ -124,16 +126,19 @@ function rewriteSql(sql, fileName) {
     /CREATE OR REPLACE FUNCTION anthem\.handle_new_user[\s\S]*?\$\$;/gi,
     (block) => `-- SKIP anthem.handle_new_user\n${block.split("\n").map(commentLine).join("\n")}`,
   );
-  out = out.replace(
-    /CREATE TRIGGER on_auth_user_created[\s\S]*?;/gi,
-    (block) => block.split("\n").map(commentLine).join("\n"),
+  out = out.replace(/CREATE TRIGGER on_auth_user_created[\s\S]*?;/gi, (block) =>
+    block.split("\n").map(commentLine).join("\n"),
   );
 
   // Realtime publication — idempotent + correct schema
   out = out.replace(
     /ALTER PUBLICATION supabase_realtime ADD TABLE public\.([a-z_][a-z0-9_]*)\s*;/gi,
     (_, table) => {
-      const schema = SKIP_CREATE.has(table) ? "public" : SHARED_TABLES.has(table) ? "shared" : "anthem";
+      const schema = SKIP_CREATE.has(table)
+        ? "public"
+        : SHARED_TABLES.has(table)
+          ? "shared"
+          : "anthem";
       return `DO $pub$ BEGIN ALTER PUBLICATION supabase_realtime ADD TABLE ${schema}.${table}; EXCEPTION WHEN duplicate_object THEN NULL; END $pub$;`;
     },
   );
@@ -202,10 +207,7 @@ function rewriteSql(sql, fileName) {
   out = out.replace(/::public\./g, "::public.");
 
   // Functions referencing anthem tables — set search_path
-  out = out.replace(
-    /SET search_path = public/gi,
-    "SET search_path = anthem, shared, public",
-  );
+  out = out.replace(/SET search_path = public/gi, "SET search_path = anthem, shared, public");
 
   return out;
 }

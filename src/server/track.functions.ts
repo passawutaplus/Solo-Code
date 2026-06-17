@@ -23,27 +23,52 @@ const num = (n: unknown) => (typeof n === "number" && Number.isFinite(n) ? n : 0
 const round2 = (n: number) => Math.round((n + Number.EPSILON) * 100) / 100;
 
 function computePublicTotals(q: {
-  items?: unknown; addons?: unknown; difficulties?: unknown;
-  hidden_cost?: number; discount_value?: number; discount_kind?: string;
-  vat_enabled?: boolean; vat_rate?: number; wht_enabled?: boolean; wht_rate?: number;
+  items?: unknown;
+  addons?: unknown;
+  difficulties?: unknown;
+  hidden_cost?: number;
+  discount_value?: number;
+  discount_kind?: string;
+  vat_enabled?: boolean;
+  vat_rate?: number;
+  wht_enabled?: boolean;
+  wht_rate?: number;
   deposit_preset?: number;
 }) {
   const items = Array.isArray(q.items) ? (q.items as QItem[]) : [];
   const addons = Array.isArray(q.addons) ? (q.addons as QPct[]) : [];
   const diffs = Array.isArray(q.difficulties) ? (q.difficulties as QPct[]) : [];
-  const itemsSubtotal = round2(items.reduce((s, it) => s + num(it.unitPrice) * num(it.quantity), 0));
-  const addonAmount = round2(addons.filter(a => a.enabled).reduce((s, a) => s + itemsSubtotal * (num(a.percent) / 100), 0));
-  const diffAmount = round2(diffs.filter(d => d.enabled).reduce((s, d) => s + itemsSubtotal * (num(d.percent) / 100), 0));
+  const itemsSubtotal = round2(
+    items.reduce((s, it) => s + num(it.unitPrice) * num(it.quantity), 0),
+  );
+  const addonAmount = round2(
+    addons.filter((a) => a.enabled).reduce((s, a) => s + itemsSubtotal * (num(a.percent) / 100), 0),
+  );
+  const diffAmount = round2(
+    diffs.filter((d) => d.enabled).reduce((s, d) => s + itemsSubtotal * (num(d.percent) / 100), 0),
+  );
   const preTaxBefore = round2(itemsSubtotal + addonAmount + diffAmount + num(q.hidden_cost));
-  const discountAmount = round2(q.discount_kind === "percent"
-    ? (preTaxBefore * num(q.discount_value)) / 100
-    : num(q.discount_value));
+  const discountAmount = round2(
+    q.discount_kind === "percent"
+      ? (preTaxBefore * num(q.discount_value)) / 100
+      : num(q.discount_value),
+  );
   const preTax = round2(Math.max(0, preTaxBefore - discountAmount));
   const vatAmount = round2(q.vat_enabled ? preTax * (num(q.vat_rate) / 100) : 0);
   const whtAmount = round2(q.wht_enabled ? preTax * (num(q.wht_rate) / 100) : 0);
   const grandTotal = round2(preTax + vatAmount - whtAmount);
   const depositAmount = round2(grandTotal * (num(q.deposit_preset) / 100));
-  return { itemsSubtotal, addonAmount, diffAmount, discountAmount, preTax, vatAmount, whtAmount, grandTotal, depositAmount };
+  return {
+    itemsSubtotal,
+    addonAmount,
+    diffAmount,
+    discountAmount,
+    preTax,
+    vatAmount,
+    whtAmount,
+    grandTotal,
+    depositAmount,
+  };
 }
 
 export const getPublicTrackingJob = createServerFn({ method: "GET" })
@@ -55,13 +80,18 @@ export const getPublicTrackingJob = createServerFn({ method: "GET" })
       .eq("share_token", data.token)
       .maybeSingle();
     if (error) throwClientError("track.getPublicTrackingJob", error);
-    if (!job) return { job: null, events: [], slips: [], quotation: null, brief: null, portal: null };
+    if (!job)
+      return { job: null, events: [], slips: [], quotation: null, brief: null, portal: null };
 
     const jobData = job as Record<string, unknown>;
     const ownerUserId = typeof jobData.user_id === "string" ? jobData.user_id : undefined;
     const { user_id: _omit, ...publicJob } = jobData;
     void _omit;
-    const jobRow = publicJob as unknown as { id: string; quotation_id: string | null; brief_id: string | null };
+    const jobRow = publicJob as unknown as {
+      id: string;
+      quotation_id: string | null;
+      brief_id: string | null;
+    };
 
     const portal = ownerUserId
       ? await resolveQuotationPortalBranding(jobRow.quotation_id, ownerUserId)
@@ -76,7 +106,9 @@ export const getPublicTrackingJob = createServerFn({ method: "GET" })
     if (ownerUserId) {
       const { data: ownerProfile } = await supabaseAdmin
         .from("profiles")
-        .select("connect_onboarding_complete, connect_payouts_enabled, stripe_client_payments_enabled")
+        .select(
+          "connect_onboarding_complete, connect_payouts_enabled, stripe_client_payments_enabled",
+        )
         .eq("user_id", ownerUserId)
         .maybeSingle();
 
@@ -95,9 +127,7 @@ export const getPublicTrackingJob = createServerFn({ method: "GET" })
           deposit_paid: boolean;
           final_paid: boolean;
         };
-        const depositAmt = Math.round(
-          jobTotals.total_amount * (jobTotals.deposit_percent / 100),
-        );
+        const depositAmt = Math.round(jobTotals.total_amount * (jobTotals.deposit_percent / 100));
         const finalAmt =
           jobTotals.amount_due > 0
             ? Math.round(jobTotals.amount_due)
@@ -130,20 +160,33 @@ export const getPublicTrackingJob = createServerFn({ method: "GET" })
     type PublicItem = { name: string; unit: string; quantity: number; unitPrice: number };
     type PublicMilestone = { id?: string; label: string; date: string | null; percent: number };
     type PublicQuotation = {
-      id: string; number: string; project_name: string;
-      start_date: string | null; end_date: string | null;
-      items: PublicItem[]; milestones: PublicMilestone[];
-      payment_terms: string; notes: string; status: string;
-      invoice_number: string | null; receipt_number: string | null;
-      revisions_count: number; deposit_percent: number;
-      vat_enabled: boolean; vat_rate: number; wht_enabled: boolean; wht_rate: number;
+      id: string;
+      number: string;
+      project_name: string;
+      start_date: string | null;
+      end_date: string | null;
+      items: PublicItem[];
+      milestones: PublicMilestone[];
+      payment_terms: string;
+      notes: string;
+      status: string;
+      invoice_number: string | null;
+      receipt_number: string | null;
+      revisions_count: number;
+      deposit_percent: number;
+      vat_enabled: boolean;
+      vat_rate: number;
+      wht_enabled: boolean;
+      wht_rate: number;
       totals: ReturnType<typeof computePublicTotals>;
     };
     let quotation: PublicQuotation | null = null;
     if (jobRow.quotation_id) {
       const { data: q } = await supabaseAdmin
         .from("quotations")
-        .select("id, number, project_name, start_date, end_date, items, addons, difficulties, hidden_cost, discount_value, discount_kind, vat_enabled, vat_rate, wht_enabled, wht_rate, deposit_preset, payment_terms, notes, status, milestones, invoice_number, receipt_number, revisions_count")
+        .select(
+          "id, number, project_name, start_date, end_date, items, addons, difficulties, hidden_cost, discount_value, discount_kind, vat_enabled, vat_rate, wht_enabled, wht_rate, deposit_preset, payment_terms, notes, status, milestones, invoice_number, receipt_number, revisions_count",
+        )
         .eq("id", jobRow.quotation_id)
         .maybeSingle();
       if (q) {
@@ -174,7 +217,8 @@ export const getPublicTrackingJob = createServerFn({ method: "GET" })
 
     // Whitelisted brief summary
     type PublicBrief = {
-      id: string; title: string;
+      id: string;
+      title: string;
       project_overview: Record<string, Json>;
       audience: Record<string, Json>;
       design_direction: Record<string, Json>;
@@ -187,7 +231,9 @@ export const getPublicTrackingJob = createServerFn({ method: "GET" })
     if (jobRow.brief_id) {
       const { data: b } = await supabaseAdmin
         .from("design_briefs")
-        .select("id, title, project_overview, audience, design_direction, tech_specs, timeline_budget, notes, references")
+        .select(
+          "id, title, project_overview, audience, design_direction, tech_specs, timeline_budget, notes, references",
+        )
         .eq("id", jobRow.brief_id)
         .maybeSingle();
       if (b) {
@@ -200,12 +246,22 @@ export const getPublicTrackingJob = createServerFn({ method: "GET" })
           tech_specs: (b.tech_specs ?? {}) as Record<string, Json>,
           timeline_budget: (b.timeline_budget ?? {}) as Record<string, Json>,
           notes: b.notes ?? "",
-          references: (Array.isArray(b.references) ? b.references : []) as Array<Record<string, Json>>,
+          references: (Array.isArray(b.references) ? b.references : []) as Array<
+            Record<string, Json>
+          >,
         };
       }
     }
 
-    return { job: publicJob, events: events ?? [], slips: slips ?? [], quotation, brief, portal, payments };
+    return {
+      job: publicJob,
+      events: events ?? [],
+      slips: slips ?? [],
+      quotation,
+      brief,
+      portal,
+      payments,
+    };
   });
 
 const SlipUploadSchema = z.object({
@@ -219,7 +275,9 @@ export const submitTrackingSlip = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const { data: job, error: jErr } = await supabaseAdmin
       .from("job_trackers")
-      .select("id, user_id, title, client_name, deposit_paid, final_paid, total_amount, deposit_percent, share_token")
+      .select(
+        "id, user_id, title, client_name, deposit_paid, final_paid, total_amount, deposit_percent, share_token",
+      )
       .eq("share_token", data.token)
       .maybeSingle();
     if (jErr) throwClientError("track.submitTrackingSlip.lookup", jErr, "Invalid tracking token");
@@ -228,7 +286,8 @@ export const submitTrackingSlip = createServerFn({ method: "POST" })
     const { error } = await supabaseAdmin
       .from("job_slips")
       .insert({ job_id: job.id, slip_url: data.slip_url, note: data.note ?? "" });
-    if (error) throwClientError("track.submitTrackingSlip.insert", error, "ไม่สามารถอัปโหลดสลิปได้");
+    if (error)
+      throwClientError("track.submitTrackingSlip.insert", error, "ไม่สามารถอัปโหลดสลิปได้");
 
     if (job.user_id) {
       const paymentType = !job.deposit_paid ? "deposit" : !job.final_paid ? "final" : "partial";
@@ -329,4 +388,3 @@ export const replaceTrackingSlip = createServerFn({ method: "POST" })
     if (error) throwClientError("track.replaceTrackingSlip", error, "ไม่สามารถอัปเดตสลิปได้");
     return { ok: true };
   });
-

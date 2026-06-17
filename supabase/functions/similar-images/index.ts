@@ -22,7 +22,14 @@ async function embed(text: string): Promise<number[]> {
   return geminiEmbedText(getGeminiApiKey(), text);
 }
 
-type SimilarItem = { project_id: string; title: string; category: string; owner_id: string; image_url: string; similarity: number };
+type SimilarItem = {
+  project_id: string;
+  title: string;
+  category: string;
+  owner_id: string;
+  image_url: string;
+  similarity: number;
+};
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeadersForRequest(req) });
@@ -41,7 +48,11 @@ Deno.serve(async (req) => {
   const callerId = claims.claims.sub as string;
 
   let raw: unknown;
-  try { raw = await req.json(req, ); } catch { return json(req, { error: "invalid json" }, 400); }
+  try {
+    raw = await req.json(req);
+  } catch {
+    return json(req, { error: "invalid json" }, 400);
+  }
   const parsed = BodySchema.safeParse(raw);
   if (!parsed.success) return json(req, { error: parsed.error.flatten().fieldErrors }, 400);
   const { project_id } = parsed.data;
@@ -52,7 +63,9 @@ Deno.serve(async (req) => {
 
     const { data: project, error } = await admin
       .from("projects")
-      .select("id, title, subtitle, description, category, tags, tools, embedding, gallery_urls, cover_url, owner_id, status")
+      .select(
+        "id, title, subtitle, description, category, tags, tools, embedding, gallery_urls, cover_url, owner_id, status",
+      )
       .eq("id", project_id)
       .maybeSingle();
     if (error || !project) return json(req, { error: "project not found", images: [] }, 404);
@@ -85,20 +98,33 @@ Deno.serve(async (req) => {
         const pick = urls[0] || m.cover_url;
         if (!pick) continue;
         images.push({
-          project_id: m.id, title: m.title, category: m.category, owner_id: m.owner_id,
-          image_url: pick, similarity: score / Math.max(srcTags.size, 1),
+          project_id: m.id,
+          title: m.title,
+          category: m.category,
+          owner_id: m.owner_id,
+          image_url: pick,
+          similarity: score / Math.max(srcTags.size, 1),
         });
       }
     } else {
       let queryVec = project.embedding as unknown as number[] | null;
       if (!queryVec) {
         const text = [
-          project.title, project.subtitle ?? "", project.category, project.description ?? "",
-          (project.tags ?? []).join(", "), (project.tools ?? []).join(", "),
-        ].filter(Boolean).join("\n");
+          project.title,
+          project.subtitle ?? "",
+          project.category,
+          project.description ?? "",
+          (project.tags ?? []).join(", "),
+          (project.tools ?? []).join(", "),
+        ]
+          .filter(Boolean)
+          .join("\n");
         queryVec = await embed(text);
         if (project.owner_id === callerId) {
-          await admin.from("projects").update({ embedding: queryVec as unknown as string }).eq("id", project_id);
+          await admin
+            .from("projects")
+            .update({ embedding: queryVec as unknown as string })
+            .eq("id", project_id);
         }
       }
 
@@ -114,8 +140,12 @@ Deno.serve(async (req) => {
         const pick = urls[0] || m.cover_url;
         if (!pick) continue;
         images.push({
-          project_id: m.id, title: m.title, category: m.category, owner_id: m.owner_id,
-          image_url: pick, similarity: m.similarity,
+          project_id: m.id,
+          title: m.title,
+          category: m.category,
+          owner_id: m.owner_id,
+          image_url: pick,
+          similarity: m.similarity,
         });
       }
     }
@@ -133,8 +163,12 @@ Deno.serve(async (req) => {
         const pick = urls[0] || m.cover_url;
         if (!pick) continue;
         images.push({
-          project_id: m.id, title: m.title, category: m.category, owner_id: m.owner_id,
-          image_url: pick, similarity: 0,
+          project_id: m.id,
+          title: m.title,
+          category: m.category,
+          owner_id: m.owner_id,
+          image_url: pick,
+          similarity: 0,
         });
       }
     }

@@ -91,20 +91,52 @@ type QuickAction = { label: string; icon: typeof Palette; prompt: string };
 
 const QUICK_BY_PRESET: Record<AssistantPreset, QuickAction[]> = {
   mentor: [
-    { label: "ช่วยออกแบบ", icon: Wand2, prompt: "ช่วยออกแบบ [ใส่รายละเอียดงาน เช่น โลโก้ร้านกาแฟสไตล์มินิมอล] ให้หน่อย..." },
-    { label: "ช่วยเลือกสี", icon: Palette, prompt: "ช่วยเลือกคู่สีสำหรับงานออกแบบ [ชื่อโปรเจกต์/แบรนด์] ให้หน่อย..." },
+    {
+      label: "ช่วยออกแบบ",
+      icon: Wand2,
+      prompt: "ช่วยออกแบบ [ใส่รายละเอียดงาน เช่น โลโก้ร้านกาแฟสไตล์มินิมอล] ให้หน่อย...",
+    },
+    {
+      label: "ช่วยเลือกสี",
+      icon: Palette,
+      prompt: "ช่วยเลือกคู่สีสำหรับงานออกแบบ [ชื่อโปรเจกต์/แบรนด์] ให้หน่อย...",
+    },
   ],
   business: [
-    { label: "ลูกค้าท็อป 10", icon: Users, prompt: "ลูกค้า 10 คนแรกที่ทำเงินให้ฉันได้มากที่สุดคือใคร?" },
-    { label: "ใบค้างชำระ", icon: AlertCircle, prompt: "ลูกค้าคนไหนที่ควรทวงเงินก่อน หรือ priority สูงสุดตามกำหนดชำระ?" },
+    {
+      label: "ลูกค้าท็อป 10",
+      icon: Users,
+      prompt: "ลูกค้า 10 คนแรกที่ทำเงินให้ฉันได้มากที่สุดคือใคร?",
+    },
+    {
+      label: "ใบค้างชำระ",
+      icon: AlertCircle,
+      prompt: "ลูกค้าคนไหนที่ควรทวงเงินก่อน หรือ priority สูงสุดตามกำหนดชำระ?",
+    },
   ],
   copy: [
-    { label: "คิดแคปชัน", icon: PenLine, prompt: "ช่วยคิดแคปชันสำหรับงาน [ใส่รายละเอียดงาน/แบรนด์] ให้หน่อย..." },
-    { label: "ข้อความทวงงาน", icon: FileText, prompt: "ช่วยร่างข้อความทวงงาน/ติดตามลูกค้าแบบสุภาพสำหรับ [ชื่องาน/ลูกค้า]..." },
+    {
+      label: "คิดแคปชัน",
+      icon: PenLine,
+      prompt: "ช่วยคิดแคปชันสำหรับงาน [ใส่รายละเอียดงาน/แบรนด์] ให้หน่อย...",
+    },
+    {
+      label: "ข้อความทวงงาน",
+      icon: FileText,
+      prompt: "ช่วยร่างข้อความทวงงาน/ติดตามลูกค้าแบบสุภาพสำหรับ [ชื่องาน/ลูกค้า]...",
+    },
   ],
   legal: [
-    { label: "ส่งมอบงาน", icon: FileText, prompt: "ช่วยร่างข้อความส่งมอบงานและขอชำระเงินสำหรับ [ชื่องาน]..." },
-    { label: "สิทธิ์ใช้งาน", icon: Scale, prompt: "อธิบายข้อควรระวังเรื่องสิทธิ์ใช้งานงานดีไซน์สำหรับ [ประเภทงาน]..." },
+    {
+      label: "ส่งมอบงาน",
+      icon: FileText,
+      prompt: "ช่วยร่างข้อความส่งมอบงานและขอชำระเงินสำหรับ [ชื่องาน]...",
+    },
+    {
+      label: "สิทธิ์ใช้งาน",
+      icon: Scale,
+      prompt: "อธิบายข้อควรระวังเรื่องสิทธิ์ใช้งานงานดีไซน์สำหรับ [ประเภทงาน]...",
+    },
   ],
 };
 
@@ -122,12 +154,14 @@ export function AssistantCreditBar({ compact }: { compact?: boolean }) {
         />
       </div>
       <div className="text-[10px] text-muted-foreground flex justify-between gap-2">
-        <span className="truncate">เหลือ {usage.total_remaining.toLocaleString("th-TH")} เครดิต</span>
-        <span className="shrink-0 tabular-nums">{usage.included_used}/{usage.included_limit}</span>
+        <span className="truncate">
+          เหลือ {usage.total_remaining.toLocaleString("th-TH")} เครดิต
+        </span>
+        <span className="shrink-0 tabular-nums">
+          {usage.included_used}/{usage.included_limit}
+        </span>
       </div>
-      {!compact && (
-        <p className="text-[9px] text-muted-foreground/80 leading-snug">{planHint}</p>
-      )}
+      {!compact && <p className="text-[9px] text-muted-foreground/80 leading-snug">{planHint}</p>}
     </div>
   );
 }
@@ -229,7 +263,9 @@ export function AssistantChatPanel({
 
       if (!resp.ok || !resp.body) {
         // Fallback to non-streaming server function
-        const result = await assistantFn({ data: { message: text, preset, request_id: userMsgId } });
+        const result = await assistantFn({
+          data: { message: text, preset, request_id: userMsgId },
+        });
         setMessages((prev) =>
           prev.map((m) =>
             m.id === assistantMsgId
@@ -279,7 +315,10 @@ export function AssistantChatPanel({
               m={m}
               prevUserPrompt={
                 m.role === "assistant"
-                  ? [...messages].slice(0, idx).reverse().find((x) => x.role === "user")?.content ?? ""
+                  ? ([...messages]
+                      .slice(0, idx)
+                      .reverse()
+                      .find((x) => x.role === "user")?.content ?? "")
                   : ""
               }
               userId={user.id}
@@ -354,7 +393,9 @@ export function AssistantChatPanel({
             {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
           </Button>
         </div>
-        <div className="text-[9px] text-muted-foreground text-right">{body.length}/{MAX_CHARS}</div>
+        <div className="text-[9px] text-muted-foreground text-right">
+          {body.length}/{MAX_CHARS}
+        </div>
       </div>
     </>
   );
@@ -417,8 +458,13 @@ function Bubble({
       >
         <div className="text-xs whitespace-pre-wrap break-words">{m.content}</div>
         <div className="flex items-center justify-between gap-2 mt-1">
-          <div className={`text-[9px] ${mine ? "text-primary-foreground/70" : "text-muted-foreground"}`}>
-            {new Date(m.created_at).toLocaleTimeString("th-TH", { hour: "2-digit", minute: "2-digit" })}
+          <div
+            className={`text-[9px] ${mine ? "text-primary-foreground/70" : "text-muted-foreground"}`}
+          >
+            {new Date(m.created_at).toLocaleTimeString("th-TH", {
+              hour: "2-digit",
+              minute: "2-digit",
+            })}
           </div>
           {!mine && (
             <div className="flex items-center gap-0.5 -mr-1">

@@ -33,9 +33,6 @@ for (const file of readdirSync(templatesDest)) {
 
 const brandMetaPath = join(templatesDest, "brandMeta.ts");
 const brandMeta = readFileSync(brandMetaPath, "utf8");
-writeFileSync(
-  brandMetaPath,
-  brandMeta.replace("from '../brandConfig'", "from '../brandConfig'"),
-);
+writeFileSync(brandMetaPath, brandMeta.replace("from '../brandConfig'", "from '../brandConfig'"));
 
 console.log("[vendor-anthem] vendored email templates → src/lib/email/anthem-vendor");

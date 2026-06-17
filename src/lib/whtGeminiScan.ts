@@ -1,8 +1,4 @@
-import {
-  GoogleGenerativeAI,
-  SchemaType,
-  type ResponseSchema,
-} from "@google/generative-ai";
+import { GoogleGenerativeAI, SchemaType, type ResponseSchema } from "@google/generative-ai";
 
 const GEMINI_MODEL = "gemini-1.5-flash";
 
@@ -37,7 +33,10 @@ const WHT_RESPONSE_SCHEMA: ResponseSchema = {
   type: SchemaType.OBJECT,
   properties: {
     payerName: { type: SchemaType.STRING, description: "ชื่อผู้มีหน้าที่หักภาษี" },
-    payerTaxId: { type: SchemaType.STRING, description: "เลขผู้เสียภาษีผู้จ่าย (13 หลัก ไม่มีขีด)" },
+    payerTaxId: {
+      type: SchemaType.STRING,
+      description: "เลขผู้เสียภาษีผู้จ่าย (13 หลัก ไม่มีขีด)",
+    },
     payeeName: { type: SchemaType.STRING, description: "ชื่อผู้ถูกหักภาษี" },
     payeeTaxId: { type: SchemaType.STRING, description: "เลขผู้เสียภาษีผู้ถูกหัก (13 หลัก)" },
     certificateNo: { type: SchemaType.STRING, description: "เลขที่ใบ 50 ทวิ" },
@@ -48,7 +47,10 @@ const WHT_RESPONSE_SCHEMA: ResponseSchema = {
     grossAmountTextThai: { type: SchemaType.STRING, description: "ข้อความไทยของ grossAmount" },
     whtRate: { type: SchemaType.NUMBER, description: "เปอร์เซ็นต์หัก ณ ที่จ่าย" },
     whtAmount: { type: SchemaType.NUMBER, description: "ภาษีที่หัก (บาท)" },
-    whtAmountTextThai: { type: SchemaType.STRING, description: "ข้อความไทยของ whtAmount เช่น หกร้อยบาทถ้วน" },
+    whtAmountTextThai: {
+      type: SchemaType.STRING,
+      description: "ข้อความไทยของ whtAmount เช่น หกร้อยบาทถ้วน",
+    },
     formType: { type: SchemaType.STRING, description: "pnd1a|pnd2|pnd3|pnd53|..." },
     payerCondition: { type: SchemaType.STRING, description: "withhold|pay_always|pay_once|other" },
     confidence: { type: SchemaType.NUMBER, description: "0-1" },

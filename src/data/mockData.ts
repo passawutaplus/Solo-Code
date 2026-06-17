@@ -110,12 +110,12 @@ export type Client = {
 
 /** ประเภทเงินได้ตามมาตรา 40 (เน้นกลุ่มฟรีแลนซ์) */
 export type IncomeType =
-  | "freelance"   // 40(2) รับจ้างทั่วไป — หักเหมาได้ 50% ไม่เกิน 100,000
-  | "professional"// 40(6) วิชาชีพอิสระ (ออกแบบ, แพทย์, ทนาย ฯลฯ) — เหมา 30%
-  | "online_sales"// 40(8) ขายของออนไลน์ — เหมา 60% หรือหักจริง
-  | "commission"  // 40(2) ค่าคอมมิชชั่น/นายหน้า
-  | "rental"      // 40(5) ค่าเช่า
-  | "other";      // อื่น ๆ
+  | "freelance" // 40(2) รับจ้างทั่วไป — หักเหมาได้ 50% ไม่เกิน 100,000
+  | "professional" // 40(6) วิชาชีพอิสระ (ออกแบบ, แพทย์, ทนาย ฯลฯ) — เหมา 30%
+  | "online_sales" // 40(8) ขายของออนไลน์ — เหมา 60% หรือหักจริง
+  | "commission" // 40(2) ค่าคอมมิชชั่น/นายหน้า
+  | "rental" // 40(5) ค่าเช่า
+  | "other"; // อื่น ๆ
 
 export type IncomeRecord = {
   id: string;
@@ -138,20 +138,23 @@ export type IncomeRecord = {
 };
 
 /** ป้ายชื่อสำหรับ IncomeType (ภาษาไทย) */
-export const INCOME_TYPE_META: Record<IncomeType, { label: string; section: string; lumpSumPct: number; lumpSumCap?: number }> = {
-  freelance:    { label: "รับจ้างทั่วไป",      section: "40(2)", lumpSumPct: 0.5, lumpSumCap: 100_000 },
-  professional: { label: "วิชาชีพอิสระ",       section: "40(6)", lumpSumPct: 0.3 },
-  online_sales: { label: "ขายของออนไลน์",     section: "40(8)", lumpSumPct: 0.6 },
-  commission:   { label: "ค่าคอมมิชชั่น",      section: "40(2)", lumpSumPct: 0.5, lumpSumCap: 100_000 },
-  rental:       { label: "ค่าเช่า",            section: "40(5)", lumpSumPct: 0.3 },
-  other:        { label: "อื่น ๆ",             section: "40(8)", lumpSumPct: 0.6 },
+export const INCOME_TYPE_META: Record<
+  IncomeType,
+  { label: string; section: string; lumpSumPct: number; lumpSumCap?: number }
+> = {
+  freelance: { label: "รับจ้างทั่วไป", section: "40(2)", lumpSumPct: 0.5, lumpSumCap: 100_000 },
+  professional: { label: "วิชาชีพอิสระ", section: "40(6)", lumpSumPct: 0.3 },
+  online_sales: { label: "ขายของออนไลน์", section: "40(8)", lumpSumPct: 0.6 },
+  commission: { label: "ค่าคอมมิชชั่น", section: "40(2)", lumpSumPct: 0.5, lumpSumCap: 100_000 },
+  rental: { label: "ค่าเช่า", section: "40(5)", lumpSumPct: 0.3 },
+  other: { label: "อื่น ๆ", section: "40(8)", lumpSumPct: 0.6 },
 };
 
 /** อัตรา หัก ณ ที่จ่าย แนะนำตามประเภทเงินได้ */
 export const SUGGESTED_WHT_RATE: Record<IncomeType, number> = {
   freelance: 3,
   professional: 3,
-  online_sales: 7,    // ขายของออนไลน์ — มักบันทึก VAT 7%
+  online_sales: 7, // ขายของออนไลน์ — มักบันทึก VAT 7%
   commission: 3,
   rental: 5,
   other: 3,
@@ -214,53 +217,290 @@ export const paymentMethods: PaymentMethod[] = [
 ];
 
 export const subscriptions: Subscription[] = [
-  { id: "s1", name: "Adobe Creative Cloud", category: "Design", amount: 1099, billingDay: 5, paymentMethodId: "pm1", icon: Palette },
-  { id: "s2", name: "Canva Pro", category: "Design", amount: 399, billingDay: 12, paymentMethodId: "pm1", icon: Sparkles },
-  { id: "s3", name: "Figma Professional", category: "Design", amount: 540, billingDay: 18, paymentMethodId: "pm2", icon: Box },
-  { id: "s4", name: "Spotify Premium", category: "Music", amount: 159, billingDay: 8, paymentMethodId: "pm3", icon: Music },
-  { id: "s5", name: "ChatGPT Plus", category: "Dev", amount: 720, billingDay: 22, paymentMethodId: "pm1", icon: MessageSquare },
-  { id: "s6", name: "GitHub Copilot", category: "Dev", amount: 360, billingDay: 14, paymentMethodId: "pm2", icon: Code2 },
-  { id: "s7", name: "Vercel Pro", category: "Dev", amount: 720, billingDay: 3, paymentMethodId: "pm1", icon: Cloud },
-  { id: "s8", name: "AIS Fibre 1Gbps", category: "Internet", amount: 899, billingDay: 25, paymentMethodId: "pm2", icon: Wifi },
+  {
+    id: "s1",
+    name: "Adobe Creative Cloud",
+    category: "Design",
+    amount: 1099,
+    billingDay: 5,
+    paymentMethodId: "pm1",
+    icon: Palette,
+  },
+  {
+    id: "s2",
+    name: "Canva Pro",
+    category: "Design",
+    amount: 399,
+    billingDay: 12,
+    paymentMethodId: "pm1",
+    icon: Sparkles,
+  },
+  {
+    id: "s3",
+    name: "Figma Professional",
+    category: "Design",
+    amount: 540,
+    billingDay: 18,
+    paymentMethodId: "pm2",
+    icon: Box,
+  },
+  {
+    id: "s4",
+    name: "Spotify Premium",
+    category: "Music",
+    amount: 159,
+    billingDay: 8,
+    paymentMethodId: "pm3",
+    icon: Music,
+  },
+  {
+    id: "s5",
+    name: "ChatGPT Plus",
+    category: "Dev",
+    amount: 720,
+    billingDay: 22,
+    paymentMethodId: "pm1",
+    icon: MessageSquare,
+  },
+  {
+    id: "s6",
+    name: "GitHub Copilot",
+    category: "Dev",
+    amount: 360,
+    billingDay: 14,
+    paymentMethodId: "pm2",
+    icon: Code2,
+  },
+  {
+    id: "s7",
+    name: "Vercel Pro",
+    category: "Dev",
+    amount: 720,
+    billingDay: 3,
+    paymentMethodId: "pm1",
+    icon: Cloud,
+  },
+  {
+    id: "s8",
+    name: "AIS Fibre 1Gbps",
+    category: "Internet",
+    amount: 899,
+    billingDay: 25,
+    paymentMethodId: "pm2",
+    icon: Wifi,
+  },
 ];
 
 export const clients: Client[] = [
-  { id: "c1", name: "Studio Mango", project: "Brand Identity", amount: 35000, status: "paid", dueDate: "2025-03-10" },
-  { id: "c2", name: "Cafe Nimman", project: "Web Design", amount: 22000, status: "ontime", dueDate: "2025-04-25" },
-  { id: "c3", name: "Tech Bangkok Co.", project: "Mobile App UI", amount: 48000, status: "late7", dueDate: "2025-04-15" },
-  { id: "c4", name: "Khun Anong", project: "Logo Refresh", amount: 8000, status: "late30", dueDate: "2025-03-20" },
-  { id: "c5", name: "Indie Music Lab", project: "Album Artwork", amount: 15000, status: "ontime", dueDate: "2025-04-30" },
-  { id: "c6", name: "Northern Foods", project: "Packaging", amount: 28000, status: "paid", dueDate: "2025-02-28" },
+  {
+    id: "c1",
+    name: "Studio Mango",
+    project: "Brand Identity",
+    amount: 35000,
+    status: "paid",
+    dueDate: "2025-03-10",
+  },
+  {
+    id: "c2",
+    name: "Cafe Nimman",
+    project: "Web Design",
+    amount: 22000,
+    status: "ontime",
+    dueDate: "2025-04-25",
+  },
+  {
+    id: "c3",
+    name: "Tech Bangkok Co.",
+    project: "Mobile App UI",
+    amount: 48000,
+    status: "late7",
+    dueDate: "2025-04-15",
+  },
+  {
+    id: "c4",
+    name: "Khun Anong",
+    project: "Logo Refresh",
+    amount: 8000,
+    status: "late30",
+    dueDate: "2025-03-20",
+  },
+  {
+    id: "c5",
+    name: "Indie Music Lab",
+    project: "Album Artwork",
+    amount: 15000,
+    status: "ontime",
+    dueDate: "2025-04-30",
+  },
+  {
+    id: "c6",
+    name: "Northern Foods",
+    project: "Packaging",
+    amount: 28000,
+    status: "paid",
+    dueDate: "2025-02-28",
+  },
 ];
 
 export const incomes: IncomeRecord[] = [
-  { id: "i1", month: "2025-01", client: "Studio Mango",     gross: 35000, withholding: 1050, incomeType: "freelance",    whtRate: 3, certificateNo: "WHT-2025-0011", certificateReceived: true },
-  { id: "i2", month: "2025-01", client: "Northern Foods",   gross: 28000, withholding: 840,  incomeType: "freelance",    whtRate: 3, certificateNo: "WHT-2025-0014", certificateReceived: true },
-  { id: "i3", month: "2025-02", client: "Cafe Nimman",      gross: 22000, withholding: 660,  incomeType: "professional", whtRate: 3, certificateReceived: false, note: "รอใบ 50 ทวิ" },
-  { id: "i4", month: "2025-02", client: "Indie Music Lab",  gross: 15000, withholding: 450,  incomeType: "freelance",    whtRate: 3, certificateNo: "IML-25-02", certificateReceived: true },
-  { id: "i5", month: "2025-03", client: "Tech Bangkok Co.", gross: 48000, withholding: 1440, incomeType: "professional", whtRate: 3, certificateNo: "TBC-0325", certificateReceived: true },
-  { id: "i6", month: "2025-03", client: "Studio Mango",     gross: 18000, withholding: 540,  incomeType: "freelance",    whtRate: 3, certificateReceived: false },
-  { id: "i7", month: "2025-04", client: "ลูกค้า Shopee",     gross: 12500, withholding: 0,    incomeType: "online_sales", whtRate: 0, note: "ออเดอร์รวมเดือน เม.ย." },
-  { id: "i8", month: "2025-04", client: "Tech Bangkok Co.", gross: 32000, withholding: 960,  incomeType: "professional", whtRate: 3, certificateNo: "TBC-0425", certificateReceived: true },
-  { id: "i9", month: "2025-04", client: "ลูกค้า TikTok Shop", gross: 8800, withholding: 0,   incomeType: "online_sales", whtRate: 0 },
+  {
+    id: "i1",
+    month: "2025-01",
+    client: "Studio Mango",
+    gross: 35000,
+    withholding: 1050,
+    incomeType: "freelance",
+    whtRate: 3,
+    certificateNo: "WHT-2025-0011",
+    certificateReceived: true,
+  },
+  {
+    id: "i2",
+    month: "2025-01",
+    client: "Northern Foods",
+    gross: 28000,
+    withholding: 840,
+    incomeType: "freelance",
+    whtRate: 3,
+    certificateNo: "WHT-2025-0014",
+    certificateReceived: true,
+  },
+  {
+    id: "i3",
+    month: "2025-02",
+    client: "Cafe Nimman",
+    gross: 22000,
+    withholding: 660,
+    incomeType: "professional",
+    whtRate: 3,
+    certificateReceived: false,
+    note: "รอใบ 50 ทวิ",
+  },
+  {
+    id: "i4",
+    month: "2025-02",
+    client: "Indie Music Lab",
+    gross: 15000,
+    withholding: 450,
+    incomeType: "freelance",
+    whtRate: 3,
+    certificateNo: "IML-25-02",
+    certificateReceived: true,
+  },
+  {
+    id: "i5",
+    month: "2025-03",
+    client: "Tech Bangkok Co.",
+    gross: 48000,
+    withholding: 1440,
+    incomeType: "professional",
+    whtRate: 3,
+    certificateNo: "TBC-0325",
+    certificateReceived: true,
+  },
+  {
+    id: "i6",
+    month: "2025-03",
+    client: "Studio Mango",
+    gross: 18000,
+    withholding: 540,
+    incomeType: "freelance",
+    whtRate: 3,
+    certificateReceived: false,
+  },
+  {
+    id: "i7",
+    month: "2025-04",
+    client: "ลูกค้า Shopee",
+    gross: 12500,
+    withholding: 0,
+    incomeType: "online_sales",
+    whtRate: 0,
+    note: "ออเดอร์รวมเดือน เม.ย.",
+  },
+  {
+    id: "i8",
+    month: "2025-04",
+    client: "Tech Bangkok Co.",
+    gross: 32000,
+    withholding: 960,
+    incomeType: "professional",
+    whtRate: 3,
+    certificateNo: "TBC-0425",
+    certificateReceived: true,
+  },
+  {
+    id: "i9",
+    month: "2025-04",
+    client: "ลูกค้า TikTok Shop",
+    gross: 8800,
+    withholding: 0,
+    incomeType: "online_sales",
+    whtRate: 0,
+  },
 ];
 
 export const workExpenses: ExpenseRecord[] = [
-  { id: "we1", date: "2025-01-15", description: "Stock photos license", amount: 2400, category: "work", subCategory: "Software" },
-  { id: "we2", date: "2025-02-08", description: "iPad stylus + accessories", amount: 4800, category: "work", subCategory: "Equipment" },
-  { id: "we3", date: "2025-03-12", description: "Coworking space (Q1)", amount: 9000, category: "work", subCategory: "Office" },
-  { id: "we4", date: "2025-04-02", description: "Online course - Motion design", amount: 3200, category: "work", subCategory: "Education" },
+  {
+    id: "we1",
+    date: "2025-01-15",
+    description: "Stock photos license",
+    amount: 2400,
+    category: "work",
+    subCategory: "Software",
+  },
+  {
+    id: "we2",
+    date: "2025-02-08",
+    description: "iPad stylus + accessories",
+    amount: 4800,
+    category: "work",
+    subCategory: "Equipment",
+  },
+  {
+    id: "we3",
+    date: "2025-03-12",
+    description: "Coworking space (Q1)",
+    amount: 9000,
+    category: "work",
+    subCategory: "Office",
+  },
+  {
+    id: "we4",
+    date: "2025-04-02",
+    description: "Online course - Motion design",
+    amount: 3200,
+    category: "work",
+    subCategory: "Education",
+  },
 ];
 
 export const personalExpenses: ExpenseRecord[] = [
-  { id: "pe1", date: "2025-04-01", description: "ค่าเช่าบ้าน", amount: 12000, category: "personal" },
-  { id: "pe2", date: "2025-04-05", description: "ค่าน้ำ-ค่าไฟ", amount: 1850, category: "personal" },
+  {
+    id: "pe1",
+    date: "2025-04-01",
+    description: "ค่าเช่าบ้าน",
+    amount: 12000,
+    category: "personal",
+  },
+  {
+    id: "pe2",
+    date: "2025-04-05",
+    description: "ค่าน้ำ-ค่าไฟ",
+    amount: 1850,
+    category: "personal",
+  },
   { id: "pe3", date: "2025-04-08", description: "ค่าโทรศัพท์", amount: 599, category: "personal" },
   { id: "pe4", date: "2025-04-10", description: "ค่าอาหาร", amount: 6200, category: "personal" },
   { id: "pe5", date: "2025-04-15", description: "ฟิตเนส", amount: 1500, category: "personal" },
 ];
 
-export type QuickAddItem = { name: string; category: SubCategory; suggestedAmount: number; icon: LucideIcon };
+export type QuickAddItem = {
+  name: string;
+  category: SubCategory;
+  suggestedAmount: number;
+  icon: LucideIcon;
+};
 
 export const QUICK_ADD_GROUPS: Array<{ group: string; items: QuickAddItem[] }> = [
   {
@@ -346,7 +586,12 @@ export const QUICK_ADD_GROUPS: Array<{ group: string; items: QuickAddItem[] }> =
       { name: "ค่าไฟ", category: "Utilities", suggestedAmount: 1500, icon: Zap },
       { name: "ค่าแก๊ส", category: "Utilities", suggestedAmount: 400, icon: Zap },
       { name: "ค่าโทรศัพท์บ้าน", category: "Utilities", suggestedAmount: 350, icon: Phone },
-      { name: "หนังสือพิมพ์ / นิตยสาร", category: "Productivity", suggestedAmount: 200, icon: Newspaper },
+      {
+        name: "หนังสือพิมพ์ / นิตยสาร",
+        category: "Productivity",
+        suggestedAmount: 200,
+        icon: Newspaper,
+      },
     ],
   },
   {
@@ -368,8 +613,18 @@ export const QUICK_ADD_GROUPS: Array<{ group: string; items: QuickAddItem[] }> =
       { name: "ประกันสุขภาพ", category: "Insurance", suggestedAmount: 1800, icon: Shield },
       { name: "ประกันรถยนต์", category: "Insurance", suggestedAmount: 1500, icon: Shield },
       { name: "DCA หุ้น/กองทุน", category: "Investments", suggestedAmount: 3000, icon: TrendingUp },
-      { name: "เงินออมอัตโนมัติ", category: "Investments", suggestedAmount: 2000, icon: TrendingUp },
-      { name: "ค่าธรรมเนียมบัตรเครดิต", category: "CardFees", suggestedAmount: 100, icon: CreditCard },
+      {
+        name: "เงินออมอัตโนมัติ",
+        category: "Investments",
+        suggestedAmount: 2000,
+        icon: TrendingUp,
+      },
+      {
+        name: "ค่าธรรมเนียมบัตรเครดิต",
+        category: "CardFees",
+        suggestedAmount: 100,
+        icon: CreditCard,
+      },
     ],
   },
   {

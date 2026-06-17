@@ -26,10 +26,7 @@ export function isSharedSquadEnabled(): boolean {
 
 export { isInhouseWorkspaceEnabled } from "@/lib/inhouseAccess";
 
-export function canAddCollaborator(
-  model: SquadPricingModel,
-  currentCount: number,
-): boolean {
+export function canAddCollaborator(model: SquadPricingModel, currentCount: number): boolean {
   const limit =
     model === "monthly_squad"
       ? SQUAD_PRICING.monthlySquad.maxCollaborators

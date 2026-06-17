@@ -10,10 +10,12 @@ export function TaxDisclaimer({ compact = false }: { compact?: boolean }) {
         compact ? "p-2 text-[11px]" : "p-3 text-xs"
       }`}
     >
-      <Info className={`shrink-0 text-warning ${compact ? "h-3.5 w-3.5 mt-0.5" : "h-4 w-4 mt-0.5"}`} />
+      <Info
+        className={`shrink-0 text-warning ${compact ? "h-3.5 w-3.5 mt-0.5" : "h-4 w-4 mt-0.5"}`}
+      />
       <p className="leading-relaxed">
-        <span className="font-semibold">นี่คือการคาดการณ์จากโปรแกรม</span> เพื่อช่วยวางแผนเบื้องต้น —
-        ตัวเลขจริงอาจต่างกันตามเอกสารและกรณีของท่าน{" "}
+        <span className="font-semibold">นี่คือการคาดการณ์จากโปรแกรม</span> เพื่อช่วยวางแผนเบื้องต้น
+        — ตัวเลขจริงอาจต่างกันตามเอกสารและกรณีของท่าน{" "}
         <span className="font-medium">โปรดตรวจสอบความถูกต้องอีกครั้งก่อนยื่นภาษีจริง</span>
       </p>
     </div>
@@ -59,7 +61,20 @@ function daysUntil(d: Date, now = new Date()) {
   return Math.ceil((d.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
 }
 
-const TH_MONTHS = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
+const TH_MONTHS = [
+  "ม.ค.",
+  "ก.พ.",
+  "มี.ค.",
+  "เม.ย.",
+  "พ.ค.",
+  "มิ.ย.",
+  "ก.ค.",
+  "ส.ค.",
+  "ก.ย.",
+  "ต.ค.",
+  "พ.ย.",
+  "ธ.ค.",
+];
 function fmtTh(d: Date) {
   return `${d.getDate()} ${TH_MONTHS[d.getMonth()]} ${d.getFullYear() + 543}`;
 }
@@ -70,10 +85,14 @@ export function TaxFilingReminder() {
   const urgent = daysOnline <= 30;
 
   return (
-    <Card className={`animate-fade-up ${urgent ? "border-destructive/40 bg-destructive/5" : "border-primary/30 bg-primary-soft/40"}`}>
+    <Card
+      className={`animate-fade-up ${urgent ? "border-destructive/40 bg-destructive/5" : "border-primary/30 bg-primary-soft/40"}`}
+    >
       <CardContent className="flex flex-col gap-2 p-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-start gap-2.5">
-          <div className={`rounded-lg p-2 ${urgent ? "bg-destructive/15 text-destructive" : "bg-primary/15 text-primary"}`}>
+          <div
+            className={`rounded-lg p-2 ${urgent ? "bg-destructive/15 text-destructive" : "bg-primary/15 text-primary"}`}
+          >
             {urgent ? <AlertTriangle className="h-4 w-4" /> : <CalendarClock className="h-4 w-4" />}
           </div>
           <div>
@@ -86,7 +105,8 @@ export function TaxFilingReminder() {
             อีก {daysOnline > 0 ? daysOnline : 0} วัน
           </p>
           <p className="text-muted-foreground">
-            กระดาษ <span className="num">{fmtTh(dl.paper)}</span> · ออนไลน์ <span className="num">{fmtTh(dl.online)}</span>
+            กระดาษ <span className="num">{fmtTh(dl.paper)}</span> · ออนไลน์{" "}
+            <span className="num">{fmtTh(dl.online)}</span>
           </p>
         </div>
       </CardContent>

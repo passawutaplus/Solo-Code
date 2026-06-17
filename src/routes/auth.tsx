@@ -29,7 +29,10 @@ export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
       { title: "เข้าสู่ระบบ — So1o Freelancer" },
-      { name: "description", content: "เข้าสู่ระบบหรือสมัครสมาชิก So1o Freelancer หลังบ้านฟรีแลนซ์ครบวงจร" },
+      {
+        name: "description",
+        content: "เข้าสู่ระบบหรือสมัครสมาชิก So1o Freelancer หลังบ้านฟรีแลนซ์ครบวงจร",
+      },
       { name: "robots", content: "noindex,follow" },
     ],
     links: [{ rel: "canonical", href: "https://www.solofreelancer.com/auth" }],
@@ -60,7 +63,12 @@ function AuthPage() {
   }, [user, isAdmin, profile?.is_active, loading, navigate, signOut, postAuthPath, rawRedirect]);
 
   return (
-    <div className={cn("relative min-h-screen bg-background overflow-hidden transition-opacity duration-300", fadeOut && "opacity-0")}>
+    <div
+      className={cn(
+        "relative min-h-screen bg-background overflow-hidden transition-opacity duration-300",
+        fadeOut && "opacity-0",
+      )}
+    >
       <div className="ambient-blobs" aria-hidden="true" />
 
       <Link
@@ -83,10 +91,18 @@ function AuthPage() {
         <div className="flex items-center justify-center p-4 sm:p-6 lg:p-8">
           <div className="w-full max-w-md">
             <div className="flex flex-col items-center mb-6 lg:hidden">
-              <img src={logoUrl} alt="So1o" className="h-12 w-12 rounded-2xl object-cover shadow-elevated" />
+              <img
+                src={logoUrl}
+                alt="So1o"
+                className="h-12 w-12 rounded-2xl object-cover shadow-elevated"
+              />
             </div>
             <div className="hidden lg:flex items-center gap-2 mb-6">
-              <img src={logoUrl} alt="So1o" className="h-10 w-10 rounded-xl object-cover shadow-soft" />
+              <img
+                src={logoUrl}
+                alt="So1o"
+                className="h-10 w-10 rounded-xl object-cover shadow-soft"
+              />
               <span className="font-semibold tracking-tight">
                 So<span className="text-primary">1</span>o Freelancer
               </span>
@@ -133,7 +149,12 @@ function SignupForm({
   signUp,
 }: {
   onSwitch: () => void;
-  signUp: (email: string, password: string, displayName?: string, freelanceField?: string) => Promise<{ error: Error | null }>;
+  signUp: (
+    email: string,
+    password: string,
+    displayName?: string,
+    freelanceField?: string,
+  ) => Promise<{ error: Error | null }>;
 }) {
   const [name, setName] = React.useState("");
   const [email, setEmail] = React.useState("");
@@ -159,7 +180,12 @@ function SignupForm({
       return;
     }
     setBusy(true);
-    const { error } = await signUp(email.trim(), password, name.trim() || undefined, field || undefined);
+    const { error } = await signUp(
+      email.trim(),
+      password,
+      name.trim() || undefined,
+      field || undefined,
+    );
     setBusy(false);
     if (error) {
       toast.error(error.message);
@@ -171,7 +197,9 @@ function SignupForm({
   return (
     <form onSubmit={onSubmit} className={cn("space-y-4", shake && "animate-input-shake")}>
       <div className="space-y-1.5">
-        <Label htmlFor="su-name" className="text-xs">ชื่อ / ชื่อร้าน</Label>
+        <Label htmlFor="su-name" className="text-xs">
+          ชื่อ / ชื่อร้าน
+        </Label>
         <div className="relative">
           <UserIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
@@ -185,7 +213,9 @@ function SignupForm({
         </div>
       </div>
       <div className="space-y-1.5">
-        <Label htmlFor="su-email" className="text-xs">อีเมล</Label>
+        <Label htmlFor="su-email" className="text-xs">
+          อีเมล
+        </Label>
         <div className="relative">
           <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
@@ -196,13 +226,18 @@ function SignupForm({
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             onBlur={() => setTouched(true)}
-            className={cn("pl-9 h-11 rounded-lg input-so1o", touched && !emailValid && email && "border-destructive")}
+            className={cn(
+              "pl-9 h-11 rounded-lg input-so1o",
+              touched && !emailValid && email && "border-destructive",
+            )}
             required
           />
         </div>
       </div>
       <div className="space-y-1.5">
-        <Label htmlFor="su-pass" className="text-xs">รหัสผ่าน (อย่างน้อย 8 ตัว)</Label>
+        <Label htmlFor="su-pass" className="text-xs">
+          รหัสผ่าน (อย่างน้อย 8 ตัว)
+        </Label>
         <PasswordInput
           id="su-pass"
           autoComplete="new-password"
@@ -218,7 +253,9 @@ function SignupForm({
       <div className="space-y-1.5">
         <Label className="text-xs">คุณทำงานฟรีแลนซ์สายไหน?</Label>
         <FreelanceFieldSelect value={field} onChange={setField} />
-        <p className="text-[10px] text-muted-foreground">เพื่อให้ AI Mentor ปรับคำแนะนำให้เหมาะกับคุณ</p>
+        <p className="text-[10px] text-muted-foreground">
+          เพื่อให้ AI Mentor ปรับคำแนะนำให้เหมาะกับคุณ
+        </p>
       </div>
 
       <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 px-3 py-2.5 space-y-2">
@@ -226,7 +263,9 @@ function SignupForm({
           <div className="flex gap-2">
             <Info className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
             <p className="text-[11px] leading-relaxed text-muted-foreground">
-              <span className="font-medium text-foreground">นโยบาย Beta:</span> สิทธิ์มีจำกัด ขออนุญาตระงับสิทธิ์ผู้ที่ไม่มีความเคลื่อนไหวเกิน <span className="font-medium">7 วัน</span>
+              <span className="font-medium text-foreground">นโยบาย Beta:</span> สิทธิ์มีจำกัด
+              ขออนุญาตระงับสิทธิ์ผู้ที่ไม่มีความเคลื่อนไหวเกิน{" "}
+              <span className="font-medium">7 วัน</span>
             </p>
           </div>
         )}
@@ -238,11 +277,32 @@ function SignupForm({
           />
           <span className="text-[11px] leading-relaxed text-foreground">
             ฉันยอมรับ{" "}
-            <a href="/privacy" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline font-medium">นโยบายความเป็นส่วนตัว (PDPA)</a>
+            <a
+              href="/privacy"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-primary hover:underline font-medium"
+            >
+              นโยบายความเป็นส่วนตัว (PDPA)
+            </a>
             ,{" "}
-            <a href="/terms" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline font-medium">ข้อกำหนดการใช้งาน</a>
-            {" "}และ{" "}
-            <a href="/cookies" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline font-medium">นโยบายคุกกี้</a>
+            <a
+              href="/terms"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-primary hover:underline font-medium"
+            >
+              ข้อกำหนดการใช้งาน
+            </a>{" "}
+            และ{" "}
+            <a
+              href="/cookies"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-primary hover:underline font-medium"
+            >
+              นโยบายคุกกี้
+            </a>
             {isEarlyAccessMode() ? " และนโยบายระงับสิทธิ์ Beta 7 วัน" : ""}
           </span>
         </label>
@@ -258,7 +318,11 @@ function SignupForm({
       </Button>
       <p className="text-center text-xs text-muted-foreground">
         มีบัญชีอยู่แล้ว?{" "}
-        <button type="button" onClick={onSwitch} className="text-primary hover:underline font-medium">
+        <button
+          type="button"
+          onClick={onSwitch}
+          className="text-primary hover:underline font-medium"
+        >
           เข้าสู่ระบบ
         </button>
       </p>

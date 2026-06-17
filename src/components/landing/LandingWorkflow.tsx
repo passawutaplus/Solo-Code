@@ -41,9 +41,13 @@ export function LandingWorkflow() {
                     </div>
                   )}
                   <div className="p-3">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-primary">{step.label}</span>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-primary">
+                      {step.label}
+                    </span>
                     <h4 className="mt-0.5 text-sm font-semibold">{step.title}</h4>
-                    <p className="mt-1 text-[11px] text-muted-foreground leading-relaxed line-clamp-3">{step.desc}</p>
+                    <p className="mt-1 text-[11px] text-muted-foreground leading-relaxed line-clamp-3">
+                      {step.desc}
+                    </p>
                     <Link
                       to={step.helpTo}
                       className="mt-2 inline-flex items-center gap-0.5 text-[11px] font-medium text-primary hover:underline opacity-80 group-hover:opacity-100 transition-opacity"
