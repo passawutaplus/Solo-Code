@@ -2,8 +2,12 @@
 export const ANTHEM_SHOWCASE_URL =
   (import.meta.env.VITE_ANTHEM_APP_URL as string | undefined) ?? "http://localhost:8081/";
 
+const OPS_HUB_FALLBACK = import.meta.env.DEV
+  ? "http://localhost:3090"
+  : "https://so1o-ops-hub.vercel.app";
+
 export const OPS_HUB_URL =
-  (import.meta.env.VITE_OPS_HUB_URL as string | undefined) ?? "http://localhost:3090";
+  (import.meta.env.VITE_OPS_HUB_URL as string | undefined)?.replace(/\/$/, "") ?? OPS_HUB_FALLBACK;
 
 function anthemBaseUrl() {
   return ANTHEM_SHOWCASE_URL.replace(/\/$/, "");

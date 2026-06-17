@@ -45,6 +45,7 @@ BUILD_ENVS=(
 if [[ -n "${VITE_SUPABASE_PROJECT_ID:-}" ]]; then
   BUILD_ENVS+=(--build-env "VITE_SUPABASE_PROJECT_ID=${VITE_SUPABASE_PROJECT_ID}")
 fi
+BUILD_ENVS+=(--build-env "VITE_OPS_HUB_URL=${VITE_OPS_HUB_URL:-https://so1o-ops-hub.vercel.app}")
 
 DEPLOY_OUTPUT="$(mktemp)"
 npx vercel deploy --yes "${BUILD_ENVS[@]}" | tee "$DEPLOY_OUTPUT"
