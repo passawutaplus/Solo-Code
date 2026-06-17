@@ -10,7 +10,7 @@ export const Route = createFileRoute("/terms")({
     buildPublicPageHead({
       title: "ข้อกำหนดการใช้งาน",
       description:
-        "ข้อกำหนดและเงื่อนไข So1o Freelancer — แพ็ก Pro/Pro+ Stripe Connect Support Hub หน้าลูกค้า Track/Brief และ ecosystem an1hem",
+        "ข้อกำหนดและเงื่อนไข So1o Freelancer — แพ็ก Pro/Pro+ Stripe Connect Support Hub หน้าลูกค้า Track/Brief และ ecosystem Pixel100",
       path: "/terms",
     }),
   component: TermsPage,
@@ -52,11 +52,11 @@ function TermsPage() {
         </p>
       </LegalSectionBlock>
 
-      <LegalSectionBlock id="ecosystem" title="3. So1o + an1hem (Ecosystem)">
+      <LegalSectionBlock id="ecosystem" title="3. So1o + Pixel100 (Ecosystem)">
         <ul className="list-disc pl-5 space-y-1.5">
           <li>
             <strong>So1o</strong> = หลังบ้านฟรีแลนซ์ ({LEGAL.siteUrl}) ·{" "}
-            <strong>an1hem</strong> = โชว์เคสผลงาน ({LEGAL.ecosystemUrl}) — บัญชีเดียว สมัครครั้งเดียว
+            <strong>Pixel100</strong> = โชว์เคสผลงาน ({LEGAL.ecosystemUrl}) — บัญชีเดียว สมัครครั้งเดียว
           </li>
           <li>
             แพ็ก Pro / Pro+ / In-House ปลดล็อกโควต้าและฟีเจอร์ข้ามทั้งสองแอป ตามตารางที่{" "}
@@ -69,11 +69,11 @@ function TermsPage() {
         <p className="text-sm text-muted-foreground">
           เอกสารกฎหมายของ {LEGAL.ecosystemName}:{" "}
           <a href={`${LEGAL.ecosystemUrl}/legal/terms`} className="text-primary hover:underline" target="_blank" rel="noopener noreferrer">
-            ข้อกำหนด an1hem
+            ข้อกำหนด Pixel100
           </a>
           {" · "}
           <a href={`${LEGAL.ecosystemUrl}/legal/privacy`} className="text-primary hover:underline" target="_blank" rel="noopener noreferrer">
-            PDPA an1hem
+            PDPA Pixel100
           </a>
         </p>
       </LegalSectionBlock>

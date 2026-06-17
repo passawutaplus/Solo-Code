@@ -8,6 +8,7 @@ import {
   Flame,
   Lock,
   Sparkles,
+  ChevronDown,
 } from "lucide-react";
 import {
   DRILL_CATEGORY_META,
@@ -41,6 +42,46 @@ type Tab = "daily" | "custom";
 const CATEGORIES = Object.keys(DRILL_CATEGORY_META) as DrillCategory[];
 const DIFFICULTIES = Object.keys(DRILL_DIFFICULTY_META) as DrillDifficulty[];
 
+function ChipRow({
+  children,
+  className = "",
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return (
+    <div
+      className={`flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 scrollbar-none ${className}`}
+    >
+      {children}
+    </div>
+  );
+}
+
+function FilterChip({
+  active,
+  onClick,
+  children,
+}: {
+  active: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`shrink-0 rounded-full px-3 py-1.5 text-xs font-semibold border transition-all ${
+        active
+          ? "bg-primary text-primary-foreground border-primary shadow-soft"
+          : "bg-background text-muted-foreground border-border hover:border-primary/40"
+      }`}
+    >
+      {children}
+    </button>
+  );
+}
+
 export function DesignDrillSection() {
   const [tab, setTab] = React.useState<Tab>("daily");
   const [category, setCategory] = React.useState<DrillCategory>("logo");
@@ -71,6 +112,14 @@ export function DesignDrillSection() {
   );
 
   const activeDrill: PickedDrill = tab === "daily" ? dailyDrill : customDrill;
+  const drillMatchesProgress = !inProgress || savedBrief === activeDrill.brief;
+
+  React.useEffect(() => {
+    if (!inProgress || savedBrief === activeDrill.brief) return;
+    clearDrillInProgress();
+    setInProgress(false);
+    setSavedBrief(null);
+  }, [tab, category, difficulty, mode, rollSeed, activeDrill.brief, inProgress, savedBrief]);
 
   const handleRoll = () => setRollSeed((s) => s + 1);
 
@@ -117,18 +166,16 @@ export function DesignDrillSection() {
     setProgressTick((t) => t + 1);
   };
 
-  const showDrill = !inProgress || savedBrief === activeDrill.brief;
-
   return (
-    <div className="space-y-5">
+    <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2.5">
           <span className="rounded-lg bg-primary-soft text-primary p-2 shrink-0">
             <Target className="h-4 w-4" aria-hidden />
           </span>
           <div>
             <h2 className="text-lg font-bold tracking-tight">Design Drill</h2>
-            <p className="text-xs text-muted-foreground">ฝึกดีไซน์ด้วยโจทย์สุ่ม แล้วโพสผลงานที่ an1hem</p>
+            <p className="text-xs text-muted-foreground">โจทย์ฝึกดีไซน์รายวัน → โพสผลงานที่ Pixel100</p>
           </div>
         </div>
         {streak > 0 && (
@@ -139,91 +186,59 @@ export function DesignDrillSection() {
         )}
       </div>
 
-      <div className="flex gap-2">
+      <ChipRow>
         {(["daily", "custom"] as Tab[]).map((t) => (
-          <button
-            key={t}
-            type="button"
-            onClick={() => setTab(t)}
-            className={`rounded-full px-4 py-1.5 text-xs font-semibold border transition-all ${
-              tab === t
-                ? "bg-primary text-primary-foreground border-primary shadow-soft"
-                : "bg-card text-muted-foreground border-border hover:border-primary/40"
-            }`}
-          >
+          <FilterChip key={t} active={tab === t} onClick={() => setTab(t)}>
             {t === "daily" ? "โจทย์ประจำวัน" : "สุ่มเอง"}
-          </button>
+          </FilterChip>
         ))}
-      </div>
+      </ChipRow>
 
       {tab === "custom" && (
-        <div className="space-y-3">
-          <div className="flex flex-wrap gap-2">
-            {CATEGORIES.map((c) => (
-              <button
-                key={c}
-                type="button"
-                onClick={() => setCategory(c)}
-                className={`rounded-full px-3 py-1 text-xs font-semibold border transition-all ${
-                  category === c
-                    ? "bg-primary/15 text-primary border-primary/40"
-                    : "bg-card text-muted-foreground border-border hover:border-primary/30"
-                }`}
-              >
-                {DRILL_CATEGORY_META[c].label}
-              </button>
-            ))}
+        <details className="rounded-xl border border-border/70 bg-muted/30 px-4 py-3 group">
+          <summary className="cursor-pointer list-none flex items-center justify-between gap-2 text-xs font-semibold text-muted-foreground">
+            <span>ตั้งค่าโจทย์</span>
+            <ChevronDown className="h-4 w-4 transition-transform group-open:rotate-180" aria-hidden />
+          </summary>
+          <div className="mt-3 space-y-3 pt-3 border-t border-border/60">
+            <ChipRow>
+              {CATEGORIES.map((c) => (
+                <FilterChip key={c} active={category === c} onClick={() => setCategory(c)}>
+                  {DRILL_CATEGORY_META[c].label}
+                </FilterChip>
+              ))}
+            </ChipRow>
+            <ChipRow>
+              {DIFFICULTIES.map((d) => (
+                <FilterChip key={d} active={difficulty === d} onClick={() => setDifficulty(d)}>
+                  <span className="inline-flex items-center gap-1">
+                    <DrillDifficultyIcon difficulty={d} />
+                    {DRILL_DIFFICULTY_META[d].label}
+                  </span>
+                </FilterChip>
+              ))}
+              {(["constraints", "free"] as DrillMode[]).map((m) => (
+                <FilterChip key={m} active={mode === m} onClick={() => setMode(m)}>
+                  <span className="inline-flex items-center gap-1">
+                    {m === "constraints" ? (
+                      <Lock className="h-3 w-3" aria-hidden />
+                    ) : (
+                      <Sparkles className="h-3 w-3" aria-hidden />
+                    )}
+                    {m === "constraints" ? "มีข้อจำกัด" : "ฟรีสไตล์"}
+                  </span>
+                </FilterChip>
+              ))}
+            </ChipRow>
+            <Button variant="outline" size="sm" onClick={handleRoll} className="gap-1.5">
+              <Shuffle className="h-3.5 w-3.5" aria-hidden />
+              สุ่มโจทย์ใหม่
+            </Button>
           </div>
-
-          <div className="flex flex-wrap gap-2">
-            {DIFFICULTIES.map((d) => (
-              <button
-                key={d}
-                type="button"
-                onClick={() => setDifficulty(d)}
-                className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold border transition-all ${
-                  difficulty === d
-                    ? "bg-primary/15 text-primary border-primary/40"
-                    : "bg-card text-muted-foreground border-border hover:border-primary/30"
-                }`}
-              >
-                <DrillDifficultyIcon difficulty={d} />
-                {DRILL_DIFFICULTY_META[d].label}
-              </button>
-            ))}
-          </div>
-
-          <div className="flex gap-2">
-            {(["constraints", "free"] as DrillMode[]).map((m) => (
-              <button
-                key={m}
-                type="button"
-                onClick={() => setMode(m)}
-                className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold border transition-all ${
-                  mode === m
-                    ? "bg-primary/15 text-primary border-primary/40"
-                    : "bg-card text-muted-foreground border-border hover:border-primary/30"
-                }`}
-              >
-                {m === "constraints" ? (
-                  <Lock className="h-3 w-3" aria-hidden />
-                ) : (
-                  <Sparkles className="h-3 w-3" aria-hidden />
-                )}
-                {m === "constraints" ? "มีข้อจำกัด" : "ฟรีสไตล์"}
-              </button>
-            ))}
-          </div>
-
-          <Button variant="outline" size="sm" onClick={handleRoll} className="gap-1.5">
-            <Shuffle className="h-3.5 w-3.5" aria-hidden />
-            สุ่มโจทย์ใหม่
-          </Button>
-        </div>
+        </details>
       )}
 
-      {showDrill && (
-        <article className="rounded-2xl border border-border bg-card p-5 sm:p-6 shadow-soft space-y-4">
+      <article className="rounded-xl border border-border bg-background/80 p-5 space-y-4">
           <div className="flex flex-wrap items-center gap-2">
             <Badge variant="secondary">{activeDrill.meta.label}</Badge>
             <Badge variant="outline" className="gap-1">
@@ -234,9 +249,7 @@ export function DesignDrillSection() {
               {activeDrill.mode === "constraints" ? "มีข้อจำกัด" : "ฟรีสไตล์"}
             </Badge>
             {activeDrill.template.timeHint && (
-              <span className="text-[11px] text-muted-foreground">
-                {activeDrill.template.timeHint}
-              </span>
+              <span className="text-[11px] text-muted-foreground">{activeDrill.template.timeHint}</span>
             )}
           </div>
 
@@ -257,14 +270,14 @@ export function DesignDrillSection() {
             <p className="text-sm text-muted-foreground italic">{activeDrill.template.freeHint}</p>
           )}
 
-          <div className="flex flex-wrap gap-2 pt-2">
+          <div className="flex flex-wrap gap-2 pt-1">
             {!inProgress && !completedToday && (
               <Button onClick={handleStart} className="gap-1.5">
                 <Play className="h-3.5 w-3.5" aria-hidden />
                 เริ่มทำ
               </Button>
             )}
-            {inProgress && (
+            {inProgress && drillMatchesProgress && (
               <>
                 <Button onClick={handleComplete} className="gap-1.5">
                   <CheckCircle2 className="h-3.5 w-3.5" aria-hidden />
@@ -275,10 +288,10 @@ export function DesignDrillSection() {
                 </Button>
               </>
             )}
-            {(inProgress || completedToday) && (
+            {((inProgress && drillMatchesProgress) || completedToday) && (
               <Button variant="outline" onClick={handlePost} className="gap-1.5">
                 <ExternalLink className="h-3.5 w-3.5" aria-hidden />
-                โพส an1hem
+                โพส Pixel100
               </Button>
             )}
           </div>
@@ -286,8 +299,7 @@ export function DesignDrillSection() {
           {completedToday && (
             <p className="text-xs text-primary font-medium">ทำโจทย์วันนี้เสร็จแล้ว — เก่งมาก!</p>
           )}
-        </article>
-      )}
+      </article>
     </div>
   );
 }

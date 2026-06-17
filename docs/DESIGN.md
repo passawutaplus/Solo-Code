@@ -28,14 +28,12 @@ Visual / UX rules for **So1o Freelancer** — use with [`conventions.md`](./conv
 ```
 Hero + insight
 So1o Daily (featured + compact grid)
-[ What's new | Inspire today ]
-Changelog expand
-Blog (2 articles)
+[ Blog | Inspire today ]
 Design Drill
 Inspire catalog
 ```
 
-Deep links: `#news` `#updates` `#insights` `#drill` `#inspire`
+Deep links: `#news` `#insights` `#drill` `#inspire`
 
 ## Components
 

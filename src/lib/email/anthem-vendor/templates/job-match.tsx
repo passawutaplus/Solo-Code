@@ -30,7 +30,7 @@ export const JobMatchEmail = ({
     footerNote={EMAIL_FOOTER_NOTIFICATION}
   >
     <EmailText>
-      สวัสดี {recipientName} — พบงานที่ตรงกับโปรไฟล์ของคุณบน 1PX
+      สวัสดี {recipientName} — พบงานที่ตรงกับโปรไฟล์ของคุณบน Pixel100
     </EmailText>
     <EmailCard>
       <EmailCardLabel>ตำแหน่ง</EmailCardLabel>
@@ -61,7 +61,7 @@ export const JobMatchEmail = ({
 export const jobMatchTemplate = {
   component: JobMatchEmail,
   subject: (data: Record<string, unknown>) =>
-    `[1PX] งานแนะนำ — ${(data.jobTitle as string) ?? 'งานใหม่'}`,
+    `[Pixel100] งานแนะนำ — ${(data.jobTitle as string) ?? 'งานใหม่'}`,
   displayName: 'Job match',
   previewData: {
     recipientName: 'พี่บอส',

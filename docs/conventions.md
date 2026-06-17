@@ -70,3 +70,18 @@ Conventional commits:
 - [ ] Touched a server fn? Has `requireSupabaseAuth` unless intentionally public
 - [ ] Touched UI? Tested at 375px (mobile), 768px (tablet), 1280px (desktop)
 - [ ] Touched DB? Migration file under `supabase/migrations/`
+
+## Before adding code
+
+Before creating a new file, abstraction, or dependency:
+
+1. **Must this exist?** Speculative "for later" → skip unless requested.
+2. **Already in the stack?** React Query, Zod, shadcn, existing hooks/utils in `src/lib/` or `src/server/`.
+3. **Can an existing file absorb it?** Prefer extending over a new module with one caller.
+4. **Minimum that works** — then stop.
+
+Stack patterns in this doc (React Query, Zod, server queries/mutations, RLS) are **not** over-engineering.
+
+Intentional shortcuts: `// ponytail: <ceiling> — upgrade when <condition>`
+
+After a large change, ask the agent to run the **review-bloat** skill (`.cursor/skills/review-bloat/`) on the diff.

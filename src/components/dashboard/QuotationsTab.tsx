@@ -154,11 +154,11 @@ export function QuotationsTab() {
         email: anthemInit.clientEmail,
         phone: anthemInit.clientPhone,
         sourceNote: anthemInit.requestId
-          ? `จาก an1hem (request ${anthemInit.requestId})`
-          : "จาก an1hem handoff",
+          ? `จาก Pixel100 (request ${anthemInit.requestId})`
+          : "จาก Pixel100 handoff",
       });
       if (saved?.created) {
-        toast.success("เพิ่มลูกค้าใน CRM จากงาน an1hem แล้ว");
+        toast.success("เพิ่มลูกค้าใน CRM จากงาน Pixel100 แล้ว");
       }
     };
 
@@ -169,7 +169,7 @@ export function QuotationsTab() {
 
     const noteBlock = [
       anthemInit.notes,
-      anthemInit.conversationId ? `แชท Anthem: ${anthemInit.conversationId}` : "",
+      anthemInit.conversationId ? `แชท Pixel100: ${anthemInit.conversationId}` : "",
       requestId ? `anthem_request:${requestId}` : "",
     ]
       .filter(Boolean)
@@ -187,7 +187,7 @@ export function QuotationsTab() {
       })
         .then(() => {
           setEditingId(existing.id);
-          toast.success(`เปิดใบเสนอราคา ${existing.number} จากงาน Anthem`);
+          toast.success(`เปิดใบเสนอราคา ${existing.number} จากงาน Pixel100`);
         })
         .catch((e) => toast.error(e instanceof Error ? e.message : "อัปเดตไม่สำเร็จ"));
       return;
@@ -205,7 +205,7 @@ export function QuotationsTab() {
       .then((q) => {
         if (q?.id) {
           setEditingId(q.id);
-          toast.success("สร้างใบเสนอราคาจากงาน Anthem แล้ว — กรอกราคาให้ครบได้เลย");
+          toast.success("สร้างใบเสนอราคาจากงาน Pixel100 แล้ว — กรอกราคาให้ครบได้เลย");
         }
       })
       .catch((e) => toast.error(e instanceof Error ? e.message : "สร้างไม่สำเร็จ"));
@@ -657,7 +657,7 @@ export function QuotationsTab() {
           <AlertDialogHeader>
             <AlertDialogTitle>ใบเสนอราคารวม Studio</AlertDialogTitle>
             <AlertDialogDescription>
-              ฟีเจอร์นี้ใช้ได้เฉพาะแพ็ก In-House — อัปเกรดเพื่อรับ handoff จาก an1hem และจัดการทีมใน So1o
+              ฟีเจอร์นี้ใช้ได้เฉพาะแพ็ก In-House — อัปเกรดเพื่อรับ handoff จาก Pixel100 และจัดการทีมใน So1o
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

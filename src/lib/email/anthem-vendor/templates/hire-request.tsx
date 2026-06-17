@@ -33,7 +33,7 @@ export const HireRequestEmail = ({
   >
     <EmailText>
       สวัสดี {recipientName} — <strong style={{ color: brand.ink }}>{clientName}</strong>{' '}
-      ส่งคำขอจ้างผ่าน 1PX สำหรับ{' '}
+      ส่งคำขอจ้างผ่าน Pixel100 สำหรับ{' '}
       <strong style={{ color: brand.ink }}>{projectTitle}</strong>
     </EmailText>
     <EmailCard>
@@ -67,7 +67,7 @@ export const HireRequestEmail = ({
 export const hireRequestTemplate = {
   component: HireRequestEmail,
   subject: (data: Record<string, unknown>) =>
-    `[1PX] คำขอจ้างใหม่ — ${(data.projectTitle as string) ?? 'งานจ้างใหม่'}`,
+    `[Pixel100] คำขอจ้างใหม่ — ${(data.projectTitle as string) ?? 'งานจ้างใหม่'}`,
   displayName: 'Hire request',
   previewData: {
     recipientName: 'พี่บอส',

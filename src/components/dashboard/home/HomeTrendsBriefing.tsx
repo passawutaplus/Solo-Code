@@ -64,7 +64,7 @@ export function HomeTrendsBriefing() {
       {!isLoading && featured && <TrendFeaturedCard item={featured} />}
 
       {!isLoading && preview.length > 0 && (
-        <div className="grid md:grid-cols-2 gap-4">
+        <div className="grid sm:grid-cols-2 gap-4">
           {preview.map((t, i) => (
             <TrendGridCard key={`${i}-${t.title}`} item={t} index={i} />
           ))}

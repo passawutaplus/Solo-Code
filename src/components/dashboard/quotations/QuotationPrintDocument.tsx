@@ -35,12 +35,14 @@ export function ThemedQuotationPrintBody({
   itemsSubtotal,
   branding,
   printAreaId = "quotation-print-area",
+  docKind = "quotation",
 }: {
   q: PrintQuotationData;
   clientName: string;
   itemsSubtotal: number;
   branding?: ThemeSource | null;
   printAreaId?: string;
+  docKind?: "quotation" | "invoice" | "receipt";
 }) {
   const colors = colorsFrom(branding);
   const accent = colors?.primary ?? "#F37021";
@@ -51,6 +53,13 @@ export function ThemedQuotationPrintBody({
   const showPoweredBy = branding && "showPoweredBy" in branding ? branding.showPoweredBy : true;
   const showLogo =
     branding && "showLogo" in branding ? branding.showLogo !== false : true;
+
+  const docLabels = {
+    quotation: { th: "ใบเสนอราคา", en: "QUOTATION" },
+    invoice: { th: "ใบแจ้งหนี้", en: "INVOICE" },
+    receipt: { th: "ใบเสร็จรับเงิน", en: "RECEIPT" },
+  } as const;
+  const docLabel = docLabels[docKind];
 
   return (
     <div id={printAreaId} className="px-6 pb-6 sm:px-10 sm:pb-10 bg-white text-neutral-800">
@@ -64,9 +73,9 @@ export function ThemedQuotationPrintBody({
           )}
           <div>
             <h2 className="text-2xl font-bold" style={{ color: accent }}>
-              ใบเสนอราคา
+              {docLabel.th}
             </h2>
-            <p className="text-xs text-muted-foreground mt-1">QUOTATION</p>
+            <p className="text-xs text-muted-foreground mt-1">{docLabel.en}</p>
             {!showPoweredBy && brandName && (
               <p className="text-[10px] text-muted-foreground mt-1">{brandName}</p>
             )}

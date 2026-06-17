@@ -64,10 +64,10 @@ function FullFooter({ className }: { className?: string }) {
               <li><a href="/#calculator" className="hover:text-primary transition-colors">คำนวณราคา</a></li>
               <li><a href="/#features" className="hover:text-primary transition-colors">ฟีเจอร์ทั้งหมด</a></li>
               <li><Link to="/dashboard" className="hover:text-primary transition-colors">Dashboard</Link></li>
-              <li><Link to="/labs" className="hover:text-primary transition-colors">Color Lab</Link></li>
+              <li><Link to="/labs" className="hover:text-primary transition-colors">Creative Labs</Link></li>
               <li>
                 <a href={ANTHEM_SHOWCASE_URL} target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">
-                  an1hem Showcase
+                  Pixel100 Showcase
                 </a>
               </li>
             </ul>

@@ -46,7 +46,7 @@ export function AnthemJobsPanel({ onOpenQuotations }: { onOpenQuotations?: () =>
       .filter(Boolean)
       .join("\n\n");
     storeAnthemQuotationHandoff({
-      projectName: hire.project_title || "งานจาก Anthem",
+      projectName: hire.project_title || "งานจาก Pixel100",
       clientName: hire.client_name || "ลูกค้า",
       clientEmail: hire.email ?? undefined,
       clientPhone: hire.phone ?? undefined,
@@ -60,7 +60,7 @@ export function AnthemJobsPanel({ onOpenQuotations }: { onOpenQuotations?: () =>
   if (isLoading) {
     return (
       <Card className="glass border-border shadow-soft">
-        <CardContent className="p-4 text-sm text-muted-foreground">กำลังโหลดงานจาก Anthem…</CardContent>
+        <CardContent className="p-4 text-sm text-muted-foreground">กำลังโหลดงานจาก Pixel100…</CardContent>
       </Card>
     );
   }
@@ -70,7 +70,7 @@ export function AnthemJobsPanel({ onOpenQuotations }: { onOpenQuotations?: () =>
       <CardHeader className="pb-2">
         <CardTitle className="text-sm font-semibold flex items-center gap-2">
           <Handshake className="h-4 w-4 text-primary" />
-          งานจาก Anthem
+          งานจาก Pixel100
         </CardTitle>
         <p className="text-xs text-muted-foreground">
           คำขอจ้างจากหน้าร้าน — สร้างใบเสนอราคาใน So1o ได้ทันที
@@ -81,7 +81,7 @@ export function AnthemJobsPanel({ onOpenQuotations }: { onOpenQuotations?: () =>
           <p className="text-xs text-muted-foreground py-2">
             ยังไม่มีคำขอจ้าง — ลงผลงานบน{" "}
             <a href={ANTHEM_APP_URL} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
-              Anthem
+              Pixel100
             </a>{" "}
             เพื่อรับงาน
           </p>
@@ -113,7 +113,7 @@ export function AnthemJobsPanel({ onOpenQuotations }: { onOpenQuotations?: () =>
                 <Button type="button" size="sm" variant="ghost" className="h-7 text-xs" asChild>
                   <a href={`${ANTHEM_APP_URL}/portfolio/manage`} target="_blank" rel="noopener noreferrer">
                     <ExternalLink className="h-3 w-3 mr-1" />
-                    Anthem
+                    Pixel100
                   </a>
                 </Button>
               </div>
@@ -123,7 +123,7 @@ export function AnthemJobsPanel({ onOpenQuotations }: { onOpenQuotations?: () =>
         {hires.length > 0 && (
           <p className="text-[10px] text-muted-foreground flex items-center gap-1 pt-1">
             <MessageCircle className="h-3 w-3" />
-            เปิดแชทจ้างงานได้จาก Anthem → แชท
+            เปิดแชทจ้างงานได้จาก Pixel100 → แชท
           </p>
         )}
       </CardContent>

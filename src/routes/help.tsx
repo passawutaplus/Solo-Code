@@ -190,7 +190,7 @@ function HelpIndexPage() {
                 </h2>
                 <p className="text-sm text-muted-foreground leading-relaxed max-w-2xl">
                   คู่มือภาษาไทยสำหรับฟรีแลนซ์ — ตั้งแต่สมัครครั้งแรก ส่งใบเสนอราคา รับเงิน
-                  ทำภาษี ไปจนถึง white-label และ an1hem ทุกหัวข้อกดแล้วไปบทความที่เกี่ยวข้อง
+                  ทำภาษี ไปจนถึง white-label และ Pixel100 ทุกหัวข้อกดแล้วไปบทความที่เกี่ยวข้อง
                 </p>
               </div>
             </div>

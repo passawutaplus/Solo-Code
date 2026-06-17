@@ -36,13 +36,6 @@ export function LandingPage({ stats }: { stats: LandingStats | null | undefined 
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-background">
-      <div className="ambient-blobs" aria-hidden="true" />
-      <div
-        className="pointer-events-none absolute inset-x-0 top-0 h-[520px] -z-0"
-        aria-hidden="true"
-        style={{ backgroundImage: "var(--gradient-mesh)" }}
-      />
-
       <LandingHeader
         user={!!user}
         isAdmin={!!isAdmin}

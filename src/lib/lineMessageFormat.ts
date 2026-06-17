@@ -2,7 +2,7 @@ import type { LineNotifyKind } from "@/lib/lineNotificationKinds";
 import { SITE_URL } from "@/lib/siteUrl";
 
 export const LINE_NOTIFICATION_HEADER = "[So1o Freelancer Notification]";
-export const ANTHEM_LINE_HEADER = "[1PX Notification]";
+export const ANTHEM_LINE_HEADER = "[Pixel100 Notification]";
 
 const ANTHEM_KINDS = new Set<string>([
   "anthem_hire",
@@ -22,7 +22,7 @@ function lineHeader(kind: LineNotifyKind): string {
 
 const ANTHEM_BASE =
   (import.meta.env.VITE_ANTHEM_APP_URL as string | undefined)?.replace(/\/$/, "") ??
-  "https://an1hem.app";
+  "https://pixel100.com";
 
 type KindCopy = {
   hook: string;

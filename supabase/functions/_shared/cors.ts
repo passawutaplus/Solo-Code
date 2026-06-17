@@ -1,5 +1,5 @@
 /**
- * Shared CORS allowlist for Supabase Edge Functions invoked from So1o / 1PX browsers.
+ * Shared CORS allowlist for Supabase Edge Functions invoked from So1o / Pixel100 browsers.
  */
 
 const STATIC_ORIGINS = [
@@ -7,6 +7,7 @@ const STATIC_ORIGINS = [
   "https://www.solofreelancer.com",
   "https://so1o-freelancer-managment.lovable.app",
   "https://1px-demo.vercel.app",
+  "https://pixel100.com",
   "https://an1hem.app",
   "https://hq.solofreelancer.com",
   "https://so1o-ops-hub.vercel.app",

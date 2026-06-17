@@ -5,6 +5,7 @@ export interface DailyTrendItem {
   title: string;
   body: string;
   iconKey?: TrendIconKey;
+  coverVariant?: number;
   image_url?: string;
   source?: string;
   source_url?: string;

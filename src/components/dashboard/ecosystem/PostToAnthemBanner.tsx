@@ -59,7 +59,7 @@ export function PostToAnthemBanner({
       <div className="flex items-start gap-2 min-w-0 flex-1">
         <Sparkles className="h-4 w-4 text-primary shrink-0 mt-0.5" />
         <div className="min-w-0">
-          <p className="text-xs font-semibold text-foreground">ปิดลูป — โพสต์ผลงานบน Anthem</p>
+          <p className="text-xs font-semibold text-foreground">ปิดลูป — โพสต์ผลงานบน Pixel100</p>
           <p className="text-[11px] text-muted-foreground mt-0.5 leading-relaxed">
             งานเสร็จแล้ว? นำผลงานไปหน้าร้านเพื่อรับงานใหม่ — ชื่อโปรเจกต์จะถูก prefill จาก Job Tracker
           </p>

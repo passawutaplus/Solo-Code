@@ -19,13 +19,13 @@ export const Route = createFileRoute("/labs")({
       {
         name: "description",
         content:
-          "ห้องแล็บเครื่องมือสำหรับฟรีแลนซ์สายดีไซน์ — Color Lab, Vision Canvas, Typo Matcher, Grid Master, Mockup Box และ Spec Checklist",
+          "Color Lab สำหรับฟรีแลนซ์สายดีไซน์ — ทดลองสี ตรวจ contrast export Tailwind บันทึกพาเลท และใช้สีใน Smart Brief",
       },
       { name: "robots", content: "noindex,nofollow" },
       { property: "og:title", content: "So1o Creative Labs — ห้องทดลองนักออกแบบ" },
       {
         property: "og:description",
-        content: "ทดลอง สร้าง และ export ผลงานดีไซน์ได้ทันทีในที่เดียว",
+        content: "ทดลองสี บันทึกพาเลท และ export โค้ดสำหรับงานดีไซน์",
       },
       { property: "og:url", content: "https://solofreelancer.com/labs" },
       { property: "og:image", content: logoUrl },

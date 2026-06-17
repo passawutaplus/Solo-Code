@@ -50,7 +50,7 @@ export const JobApplicationEmail = ({
 export const jobApplicationTemplate = {
   component: JobApplicationEmail,
   subject: (data: Record<string, unknown>) =>
-    `[1PX] ผู้สมัครใหม่ — ${(data.jobTitle as string) ?? 'งาน'}`,
+    `[Pixel100] ผู้สมัครใหม่ — ${(data.jobTitle as string) ?? 'งาน'}`,
   displayName: 'Job application',
   previewData: {
     recipientName: 'พี่บอส',

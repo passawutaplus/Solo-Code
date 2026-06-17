@@ -33,7 +33,7 @@ export const GiftReceivedEmail = ({
   >
     <EmailText>
       สวัสดี {recipientName} — <strong style={{ color: brand.ink }}>{senderName}</strong>{' '}
-      ส่ง <strong style={{ color: brand.orange }}>{giftName}</strong> สนับสนุนคุณบน 1PX
+      ส่ง <strong style={{ color: brand.orange }}>{giftName}</strong> สนับสนุนคุณบน Pixel100
     </EmailText>
     <EmailCard>
       <EmailCardLabel>จาก</EmailCardLabel>
@@ -62,7 +62,7 @@ export const GiftReceivedEmail = ({
 export const giftReceivedTemplate = {
   component: GiftReceivedEmail,
   subject: (data: Record<string, unknown>) =>
-    `[1PX] ${(data.senderName as string) ?? 'มีคน'} ส่งของขวัญ ${(data.giftName as string) ?? ''}`,
+    `[Pixel100] ${(data.senderName as string) ?? 'มีคน'} ส่งของขวัญ ${(data.giftName as string) ?? ''}`,
   displayName: 'Gift received',
   previewData: {
     recipientName: 'พี่บอส',

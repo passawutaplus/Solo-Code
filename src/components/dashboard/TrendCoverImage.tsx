@@ -1,6 +1,7 @@
 import * as React from "react";
 import { safeHref } from "@/lib/security";
 import type { DailyTrendItem } from "@/lib/dailyTrends.types";
+import { trendCoverFallback } from "@/lib/trendCoverImages";
 import { TrendIcon } from "@/lib/trendIcons";
 
 interface TrendCoverImageProps {
@@ -10,16 +11,24 @@ interface TrendCoverImageProps {
 }
 
 export function TrendCoverImage({ item, variant = "card", className = "" }: TrendCoverImageProps) {
-  const src = item.image_url ? safeHref(item.image_url) : null;
-  const [broken, setBroken] = React.useState(false);
+  const primary = item.image_url ? safeHref(item.image_url) : null;
+  const fallback = safeHref(trendCoverFallback(item.iconKey, item.category));
+  const [src, setSrc] = React.useState(primary ?? fallback);
 
-  if (src && !broken) {
+  React.useEffect(() => {
+    setSrc(primary ?? fallback);
+  }, [primary, fallback]);
+
+  if (src) {
     return (
       <img
         src={src}
         alt=""
         className={`object-cover ${className}`}
-        onError={() => setBroken(true)}
+        onError={() => {
+          if (fallback && src !== fallback) setSrc(fallback);
+          else setSrc(null);
+        }}
         loading="lazy"
         referrerPolicy="no-referrer"
       />

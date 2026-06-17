@@ -330,13 +330,13 @@ function PricingPage() {
                 บัญชีเดียว · สมัครครั้งเดียว
               </p>
               <h2 className="mt-1 text-lg sm:text-xl font-bold tracking-tight">
-                So1o Pro ปลดล็อกทั้งหลังบ้านและ an1hem
+                So1o Pro ปลดล็อกทั้งหลังบ้านและ Pixel100
               </h2>
               <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
                 <strong className="text-foreground font-medium">So1o Freelancer (My Desk)</strong> คือหลังบ้านสำหรับฟรีแลนซ์ —
                 ออกใบเสนอราคา จัดการลูกค้า การเงิน บันทึกงาน Brief และ Labs ·{" "}
-                <strong className="text-foreground font-medium">an1hem</strong> คือหน้าร้องโชว์ผลงานและรับงานจากชุมชน
-                ลงผลงานใน an1hem มีคนติดต่อจ้าง → ไปทำใบเสนอราคาที่ So1o · งานลูกค้าเสร็จที่หลังบ้าน → นำผลงานมาโพสต์ใน an1hem ต่อ
+                <strong className="text-foreground font-medium">Pixel100</strong> คือหน้าร้องโชว์ผลงานและรับงานจากชุมชน
+                ลงผลงานใน Pixel100 มีคนติดต่อจ้าง → ไปทำใบเสนอราคาที่ So1o · งานลูกค้าเสร็จที่หลังบ้าน → นำผลงานมาโพสต์ใน Pixel100 ต่อ
               </p>
               <p className="mt-2 text-xs text-muted-foreground">
                 เมื่อคุณสมัคร Pro ที่หน้านี้ สิทธิ์จะผูกกับบัญชีของคุณและใช้ได้ทั้งสองแอป (อนาคตจะเชื่อมข้อมูล การเงิน และฟีเจอร์ร่วมกันเพิ่มเติม)
@@ -347,7 +347,7 @@ function PricingPage() {
                 rel="noopener noreferrer"
                 className="mt-3 inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
               >
-                เปิด an1hem Showcase
+                เปิด Pixel100 Showcase
                 <ExternalLink className="h-3.5 w-3.5" />
               </a>
             </div>

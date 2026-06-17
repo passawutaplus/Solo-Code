@@ -44,7 +44,7 @@ export const ChatMessageEmail = ({
 export const chatMessageTemplate = {
   component: ChatMessageEmail,
   subject: (data: Record<string, unknown>) =>
-    `[1PX] ข้อความใหม่จาก ${(data.senderName as string) ?? 'แชท'}`,
+    `[Pixel100] ข้อความใหม่จาก ${(data.senderName as string) ?? 'แชท'}`,
   displayName: 'Chat message',
   previewData: {
     recipientName: 'พี่บอส',

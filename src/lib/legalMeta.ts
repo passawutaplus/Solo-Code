@@ -2,8 +2,8 @@
 export const LEGAL = {
   siteName: "So1o Freelancer",
   siteUrl: "https://solofreelancer.com",
-  ecosystemName: "an1hem (1PX Showcase)",
-  ecosystemUrl: "https://an1hem.app",
+  ecosystemName: "Pixel100",
+  ecosystemUrl: "https://pixel100.com",
   contactEmail: "hello@solofreelancer.com",
   /** Fixed date — update when policies change materially. */
   lastUpdated: "17 มิถุนายน 2569",
@@ -41,7 +41,7 @@ export const PRIVACY_SECTIONS: LegalSection[] = [
   { id: "data-collected", title: "ข้อมูลที่เก็บ" },
   { id: "purposes", title: "วัตถุประสงค์และฐานทางกฎหมาย" },
   { id: "third-parties", title: "บุคคลที่สาม" },
-  { id: "ecosystem", title: "So1o + an1hem" },
+  { id: "ecosystem", title: "So1o + Pixel100" },
   { id: "transfer", title: "การโอนข้อมูลต่างประเทศ" },
   { id: "retention", title: "ระยะเวลเก็บรักษา" },
   { id: "security", title: "ความปลอดภัย" },
@@ -65,7 +65,7 @@ export const COOKIE_SECTIONS: LegalSection[] = [
 export const TERMS_SECTIONS: LegalSection[] = [
   { id: "accept", title: "การยอมรับ" },
   { id: "service", title: "ลักษณะบริการ" },
-  { id: "ecosystem", title: "So1o + an1hem" },
+  { id: "ecosystem", title: "So1o + Pixel100" },
   { id: "account", title: "บัญชีผู้ใช้" },
   { id: "prohibited", title: "การใช้งานที่ห้าม" },
   { id: "content", title: "กรรมสิทธิ์เนื้อหา" },

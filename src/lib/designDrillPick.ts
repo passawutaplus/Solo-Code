@@ -106,7 +106,7 @@ export function buildDrillDescription(drill: PickedDrill): string {
     lines.push("", `เวลาแนะนำ: ${drill.template.timeHint}`);
   }
 
-  lines.push("", "ทำเสร็จแล้วโพสผลงานที่ an1hem Showcase พร้อม tag #So1oDrill");
+  lines.push("", "ทำเสร็จแล้วโพสผลงานที่ Pixel100 Showcase พร้อม tag #So1oDrill");
   return lines.join("\n");
 }
 

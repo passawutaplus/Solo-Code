@@ -21,6 +21,8 @@
 | [`csp-report.md`](./csp-report.md) | Security | CSP rollout |
 | [`seo-deploy.md`](./seo-deploy.md) | Ops | SEO checklist solofreelancer.com |
 | [`vercel-demo-deploy.md`](./vercel-demo-deploy.md) | Ops | UX demo บน Vercel |
+| [`ux-research-demo.md`](./ux-research-demo.md) | UX / Research | คู่มือ demo สั้น |
+| [`ux-research-review.md`](./ux-research-review.md) | UX / Research | **เช็คลิสครบ A–T** + `/research` |
 | [`docker.md`](./docker.md) | Dev / Ops | Docker SSR |
 | [`ai-gemini.md`](./ai-gemini.md) | Dev / Ops | Gemini + Edge Functions |
 | [`full-test-plan.md`](./full-test-plan.md) | QA | แผนเทสจัดเต็ม |

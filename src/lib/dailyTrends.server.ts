@@ -1,6 +1,7 @@
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { fetchNewsFromFeeds, type RawNewsArticle } from "@/lib/fetchNewsFeeds";
 import type { DailyTrendItem, DailyTrendsResponse } from "@/lib/dailyTrends.types";
+import { ensureUniqueTrendCovers, imageDedupeKey, isLikelyGenericFeedImage } from "@/lib/trendCoverImages";
 import { resolveTrendIconKey } from "@/lib/trendIcons";
 
 const TREND_ITEM_COUNT = 10;
@@ -56,6 +57,8 @@ const FALLBACK_TRENDS: DailyTrendItem[] = [
   },
 ];
 
+const FALLBACK_TRENDS_READY = ensureUniqueTrendCovers(FALLBACK_TRENDS) as DailyTrendItem[];
+
 const BANGKOK_TZ = "Asia/Bangkok";
 
 export function todayISO(): string {
@@ -83,7 +86,9 @@ function buildAllowedLinks(articles: RawNewsArticle[]): Map<string, RawNewsArtic
 }
 
 function hasCoverImage(article: RawNewsArticle): boolean {
-  return Boolean(article.image_url?.trim());
+  const url = article.image_url?.trim();
+  if (!url) return false;
+  return !isLikelyGenericFeedImage(url);
 }
 
 function validateTrendItems(
@@ -127,7 +132,7 @@ async function summarizeArticlesViaAI(articles: RawNewsArticle[]): Promise<Daily
 
   const systemPrompt = `คุณเป็นเพื่อนนักดีไซน์ฟรีแลนซ์ที่ช่วยสรุปข่าว design/branding/AI tools รายวัน
 ตอบเป็น JSON array ${TREND_ITEM_COUNT} รายการ แต่ละรายการมี keys: category, title, body, source, source_url
-- เลือก ${TREND_ITEM_COUNT} ข่าวจากรายการที่ให้มา ให้หลากหลายหมวด (ทุกข่าวในรายการมีรูปปกแล้ว)
+- เลือก ${TREND_ITEM_COUNT} ข่าวจากรายการที่ให้มา ให้หลากหลายหมวด
 - title: แปล/สรุปเป็นภาษาไทย ไม่เกิน 60 ตัวอักษร ใช้น้ำเสียงกันเอง สบายๆ ไม่ทางการ
 - body: ภาษาไทยน้ำเสียงกันเอง 1-2 ประโยค ไม่เกิน 140 ตัวอักษร บอกว่าเกี่ยวกับอะไรและเอาไปใช้กับงานฟรีแลนซ์ยังไง
 - source: ชื่อเว็บอ้างอิงจาก input
@@ -172,19 +177,29 @@ async function summarizeArticlesViaAI(articles: RawNewsArticle[]): Promise<Daily
 function pickArticles(articles: RawNewsArticle[]): RawNewsArticle[] {
   const withCover = articles.filter(hasCoverImage);
   const categories = new Set<string>();
+  const usedImages = new Set<string>();
   const picked: RawNewsArticle[] = [];
 
-  for (const a of withCover) {
-    if (picked.length >= TREND_ITEM_COUNT) break;
-    if (categories.has(a.category) && picked.some((p) => p.category === a.category)) continue;
+  const tryPick = (a: RawNewsArticle, preferNewCategory: boolean) => {
+    if (picked.length >= TREND_ITEM_COUNT) return;
+    const imgKey = imageDedupeKey(a.image_url!);
+    if (usedImages.has(imgKey)) return;
+    if (preferNewCategory && categories.has(a.category) && picked.some((p) => p.category === a.category)) {
+      return;
+    }
     categories.add(a.category);
+    usedImages.add(imgKey);
     picked.push(a);
+  };
+
+  for (const a of withCover) {
+    tryPick(a, true);
   }
 
   for (const a of withCover) {
     if (picked.length >= TREND_ITEM_COUNT) break;
     if (picked.some((p) => normalizeUrl(p.link) === normalizeUrl(a.link))) continue;
-    picked.push(a);
+    tryPick(a, false);
   }
 
   return picked;
@@ -271,20 +286,28 @@ export async function fetchAndSummarizeTrends(): Promise<{
   const articles = allArticles.filter(hasCoverImage);
 
   if (articles.length === 0) {
-    return { items: FALLBACK_TRENDS, feedCount: allArticles.length, source: "fallback" };
+    return { items: FALLBACK_TRENDS_READY, feedCount: allArticles.length, source: "fallback" };
   }
 
   const summarized = await summarizeArticlesViaAI(articles);
   if (summarized.length >= Math.min(6, TREND_ITEM_COUNT)) {
-    return { items: summarized.slice(0, TREND_ITEM_COUNT), feedCount: allArticles.length, source: "rss+ai" };
+    return {
+      items: ensureUniqueTrendCovers(summarized.slice(0, TREND_ITEM_COUNT)) as DailyTrendItem[],
+      feedCount: allArticles.length,
+      source: "rss+ai",
+    };
   }
 
   const direct = await translateArticlesViaAI(articles);
   if (direct.length >= Math.min(6, TREND_ITEM_COUNT)) {
-    return { items: direct.slice(0, TREND_ITEM_COUNT), feedCount: allArticles.length, source: "rss" };
+    return {
+      items: ensureUniqueTrendCovers(direct.slice(0, TREND_ITEM_COUNT)) as DailyTrendItem[],
+      feedCount: allArticles.length,
+      source: "rss",
+    };
   }
 
-  return { items: FALLBACK_TRENDS, feedCount: allArticles.length, source: "fallback" };
+  return { items: FALLBACK_TRENDS_READY, feedCount: allArticles.length, source: "fallback" };
 }
 
 export async function cacheDailyTrends(
@@ -309,7 +332,7 @@ export async function readDailyTrends(): Promise<DailyTrendsResponse> {
   if (cached && Array.isArray(cached.items) && cached.items.length > 0) {
     return {
       date,
-      items: cached.items as unknown as DailyTrendItem[],
+      items: ensureUniqueTrendCovers(cached.items as unknown as DailyTrendItem[]) as DailyTrendItem[],
       status: "ready",
     };
   }
@@ -331,7 +354,7 @@ export async function runDailyTrendsGeneration(force = false): Promise<DailyTren
     if (cached && Array.isArray(cached.items) && cached.items.length > 0) {
       return {
         date,
-        items: cached.items as unknown as DailyTrendItem[],
+        items: ensureUniqueTrendCovers(cached.items as unknown as DailyTrendItem[]) as DailyTrendItem[],
         status: "ready",
       };
     }
@@ -350,7 +373,11 @@ export async function runDailyTrendsGeneration(force = false): Promise<DailyTren
       return { date, items: [], status: "pending" };
     }
 
-    return { date, items, status: "ready" };
+    return {
+      date,
+      items: ensureUniqueTrendCovers(items) as DailyTrendItem[],
+      status: "ready",
+    };
   })();
 
   if (!force) {

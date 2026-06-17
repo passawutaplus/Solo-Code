@@ -9,7 +9,7 @@ export const Route = createFileRoute("/privacy")({
     buildPublicPageHead({
       title: "นโยบายความเป็นส่วนตัว (PDPA)",
       description:
-        "นโยบาย PDPA ของ So1o Freelancer — วิธีเก็บ ใช้ เปิดเผย และปกป้องข้อมูล รวม Stripe Connect LINE AI และ ecosystem an1hem",
+        "นโยบาย PDPA ของ So1o Freelancer — วิธีเก็บ ใช้ เปิดเผย และปกป้องข้อมูล รวม Stripe Connect LINE AI และ ecosystem Pixel100",
       path: "/privacy",
     }),
   component: PrivacyPage,
@@ -78,7 +78,7 @@ function PrivacyPage() {
             <strong>ข้อมูลจาก AI:</strong> ข้อความที่ส่งให้ AI Mentor, ไฟล์รูป/PDF ที่อัปโหลดเพื่อสแกน 50 ทวิ
           </li>
           <li>
-            <strong>ข้อมูล an1hem:</strong> โปรไฟล์และผลงานโชว์เคส (เมื่อใช้ ecosystem บัญชีเดียว)
+            <strong>ข้อมูล Pixel100:</strong> โปรไฟล์และผลงานโชว์เคส (เมื่อใช้ ecosystem บัญชีเดียว)
           </li>
         </ul>
       </LegalSectionBlock>
@@ -118,7 +118,7 @@ function PrivacyPage() {
                 <td className="px-3 py-2">สัญญา / ความยินยอม</td>
               </tr>
               <tr>
-                <td className="px-3 py-2">Ecosystem an1hem (โชว์เคส)</td>
+                <td className="px-3 py-2">Ecosystem Pixel100 (โชว์เคส)</td>
                 <td className="px-3 py-2">สัญญา / บริการที่ร้องขอ</td>
               </tr>
               <tr>
@@ -158,13 +158,13 @@ function PrivacyPage() {
         </p>
       </LegalSectionBlock>
 
-      <LegalSectionBlock id="ecosystem" title="6. So1o + an1hem (บัญชีเดียว)">
+      <LegalSectionBlock id="ecosystem" title="6. So1o + Pixel100 (บัญชีเดียว)">
         <p>
-          บัญชี So1o และ an1hem ({LEGAL.ecosystemUrl}) ใช้ระบบยืนยันตัวตนร่วมกัน
+          บัญชี So1o และ Pixel100 ({LEGAL.ecosystemUrl}) ใช้ระบบยืนยันตัวตนร่วมกัน
           ข้อมูลโปรไฟล์ แพ็กเกจ และโควต้าบางส่วนแชร์ข้ามแอปเพื่อให้ ecosystem ทำงาน
         </p>
         <ul className="list-disc pl-5 space-y-1.5">
-          <li>การลบบัญชี So1o อาจส่งผลต่อการเข้า an1hem — ติดต่อเราก่อนลบหากมีข้อสงสัย</li>
+          <li>การลบบัญชี So1o อาจส่งผลต่อการเข้า Pixel100 — ติดต่อเราก่อนลบหากมีข้อสงสัย</li>
           <li>ลูกค้าที่เข้าหน้า Track/Brief ผ่าน token ไม่ได้สมัครบัญชี — ข้อมูลของพวกเขาอยู่ภายใต้ความรับผิดชอบของคุณในฐานะฟรีแลนซ์</li>
         </ul>
         <p className="text-sm text-muted-foreground">

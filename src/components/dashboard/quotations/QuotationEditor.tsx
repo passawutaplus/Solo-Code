@@ -342,7 +342,7 @@ export function QuotationEditor({ id, onBack }: Props) {
 
           {(q.quotationKind === "inhouse" || q.quotationKind === "studio") && (
             <QuotationCollapsibleBlock
-              title={q.quotationKind === "inhouse" ? "สมาชิกทีม (In-House)" : "สมาชิก Studio (an1hem nest)"}
+              title={q.quotationKind === "inhouse" ? "สมาชิกทีม (In-House)" : "สมาชิก Studio (Pixel100 nest)"}
               icon={<Users className="h-3.5 w-3.5" />}
             >
               <QuotationCollaboratorsPanel

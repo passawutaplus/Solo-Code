@@ -129,13 +129,13 @@ export const HELP_JOURNEYS: HelpJourney[] = [
   {
     id: "pro",
     title: "อัพเกรด Pro",
-    description: "white-label · AI · LINE · an1hem",
+    description: "white-label · AI · LINE · Pixel100",
     icon: Sparkles,
     steps: [
       { to: "/help/plans", label: "เปรียบเทียบแพ็ก" },
       { to: "/help/branding", label: "ตั้งธีมเอกสาร & Portal" },
       { to: "/help/line", label: "เชื่อม LINE แจ้งเตือน" },
-      { to: "/help/plans", hash: "ecosystem", label: "โชว์เคส an1hem" },
+      { to: "/help/plans", hash: "ecosystem", label: "โชว์เคส Pixel100" },
     ],
   },
 ];
@@ -150,7 +150,7 @@ export const HELP_QUICK_TOPICS: HelpLink[] = [
   { to: "/help/branding", label: "ปรับสีเอกสาร & Portal", description: "White-label Pro ธีมลูกค้า" },
   { to: "/help/plans", label: "แพ็กเกจ Pro และเครดิต AI", description: "Free vs Pro โควต้า AI" },
   { to: "/help/line", label: "แจ้งเตือน LINE", description: "เชื่อม LINE OA รับแจ้งเตือนงาน" },
-  { to: "/help/plans", hash: "ecosystem", label: "So1o + an1hem คืออะไร", description: "บัญชีเดียว สมัครครั้งเดียว" },
+  { to: "/help/plans", hash: "ecosystem", label: "So1o + Pixel100 คืออะไร", description: "บัญชีเดียว สมัครครั้งเดียว" },
 ];
 
 export const HELP_CATEGORIES: HelpCategory[] = [
@@ -161,7 +161,7 @@ export const HELP_CATEGORIES: HelpCategory[] = [
     icon: LayoutDashboard,
     topics: [
       { to: "/help/getting-started", label: "3 ขั้นแรกหลังสมัคร", description: "โปรไฟล์ · ลูกค้า · Pipeline" },
-      { to: "/help/plans", hash: "ecosystem", label: "So1o กับ an1hem", description: "หลังบ้าน + โชว์เคส" },
+      { to: "/help/plans", hash: "ecosystem", label: "So1o กับ Pixel100", description: "หลังบ้าน + โชว์เคส" },
       { to: "/help/plans", label: "แพ็กเกจ Free / Pro / Pro+ / In-House", description: "ราคา โควต้า AI storage" },
       { to: "/pricing", label: "ตารางเปรียบเทียบแพ็ก", description: "ดูราคาเต็มทุกฟีเจอร์" },
     ],
@@ -240,13 +240,13 @@ export const HELP_FAQ: HelpFaqItem[] = [
     category: "account",
     question: "Pro คุ้มเมื่อไหร่?",
     answer:
-      "เมื่อต้องการ Job ไม่จำกัด white-label เอกสาร/Portal เครดิต AI มากขึ้น LINE แจ้งเตือน และปลดล็อก an1hem โชว์เคส",
+      "เมื่อต้องการ Job ไม่จำกัด white-label เอกสาร/Portal เครดิต AI มากขึ้น LINE แจ้งเตือน และปลดล็อก Pixel100 โชว์เคส",
     link: { to: "/pricing", label: "ตารางเปรียบเทียบ" },
   },
   {
     id: "ecosystem",
     category: "account",
-    question: "So1o กับ an1hem ต้องสมัครแยกไหม?",
+    question: "So1o กับ Pixel100 ต้องสมัครแยกไหม?",
     answer: "ไม่ — บัญชีเดียว สมัครครั้งเดียว แพ็ก Pro ขึ้นไปปลดล็อกทั้งหลังบ้านและโชว์เคส",
     link: { to: "/help/plans", hash: "ecosystem", label: "Ecosystem" },
   },
@@ -341,7 +341,7 @@ export const HELP_GLOSSARY: HelpGlossaryTerm[] = [
   { term: "Portal", definition: "หน้าลูกค้า Track/Brief ที่ใช้สีแบรนด์ของคุณ (Pro)", link: { to: "/help/branding", label: "ธีม Portal" } },
   { term: "Connect", definition: "Stripe Connect — รับชำระบัตรเข้าบัญชีของคุณ", link: { to: "/help/payments", hash: "online", label: "Stripe" } },
   { term: "50ทวิ", definition: "ใบหัก ณ ที่จ่าย — บันทึกใน My Desk / สแกนด้วย AI", link: { to: "/help/tax", label: "ภาษี" } },
-  { term: "an1hem", definition: "โชว์เคสผลงาน — ecosystem คู่กับ So1o บัญชีเดียว", link: { to: "/help/plans", hash: "ecosystem", label: "Ecosystem" } },
+  { term: "Pixel100", definition: "โชว์เคสผลงาน — ecosystem คู่กับ So1o บัญชีเดียว", link: { to: "/help/plans", hash: "ecosystem", label: "Ecosystem" } },
 ];
 
 export const HELP_POLICY_LINKS: HelpLink[] = [

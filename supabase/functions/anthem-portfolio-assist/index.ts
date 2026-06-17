@@ -29,7 +29,7 @@ const BodySchema = z.object({
   categoryHint: z.string().max(40).optional(),
 });
 
-const SYSTEM_PROMPT = `คุณคือ Senior Creative Director ช่วยฟรีแลนซ์ไทยลง portfolio บน 1PX
+const SYSTEM_PROMPT = `คุณคือ Senior Creative Director ช่วยฟรีแลนซ์ไทยลง portfolio บน Pixel100
 วิเคราะห์รูปผลงานที่แนบมา แล้วตอบเป็น JSON เท่านั้น ห้ามมีข้อความนอก JSON
 
 โครงสร้างที่ต้องการ:

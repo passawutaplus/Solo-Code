@@ -51,7 +51,7 @@ export type VercelUsageSnapshot = {
 };
 
 const VERCEL_PROJECTS = [
-  { slug: "1px-demo", label: "an1hem", prodUrl: "https://an1hem.app" },
+  { slug: "1px-demo", label: "Pixel100", prodUrl: "https://pixel100.com" },
   { slug: "solo-demo-liart", label: "So1o", prodUrl: "https://www.solofreelancer.com" },
 ] as const;
 
@@ -93,7 +93,7 @@ function buildVercelUpgradeAdvice(
   if (plan === "hobby" || plan === "free") {
     reasons.push("Vercel Hobby — ไม่มี spend management และอาจ pause เมื่อเกิน quota");
     if (soloProject) {
-      reasons.push("So1o ใช้ SSR บน Vercel — ใช้ serverless มากกว่า static SPA (an1hem)");
+      reasons.push("So1o ใช้ SSR บน Vercel — ใช้ serverless มากกว่า static SPA (Pixel100)");
       verdict = "watch";
     }
   }

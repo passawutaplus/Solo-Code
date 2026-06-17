@@ -76,11 +76,9 @@ export function TrendsSidebar({ collapsed, onToggle }: TrendsSidebarProps) {
                 <div className="inline-flex items-center gap-1 rounded-full bg-primary/15 text-primary px-2 py-0.5 text-[10px] font-semibold mb-2">
                   <Sparkles className="h-3 w-3" /> {featured.category}
                 </div>
-                {featured.image_url && safeHref(featured.image_url) && (
-                  <div className="mb-2 h-24 rounded-lg overflow-hidden border border-border/60">
-                    <TrendCoverImage item={featured} variant="card" className="w-full h-full" />
-                  </div>
-                )}
+                <div className="mb-2 h-28 rounded-lg overflow-hidden border border-border/60 bg-muted">
+                  <TrendCoverImage item={featured} variant="card" className="w-full h-full" />
+                </div>
                 <h3 className="text-sm font-semibold leading-snug mb-1">{featured.title}</h3>
                 <p className="text-xs text-muted-foreground leading-relaxed line-clamp-3">{featured.body}</p>
                 {featured.source_url && safeHref(featured.source_url) && (
@@ -112,7 +110,7 @@ export function TrendsSidebar({ collapsed, onToggle }: TrendsSidebarProps) {
                   className="block rounded-xl border border-border/60 bg-card hover:shadow-soft hover:-translate-y-0.5 transition-all p-3"
                 >
                   <div className="flex items-start gap-2">
-                    <div className="h-10 w-10 shrink-0 rounded-md overflow-hidden bg-muted flex items-center justify-center">
+                    <div className="h-12 w-12 shrink-0 rounded-lg overflow-hidden border border-border/50 bg-muted">
                       <TrendCoverImage item={t} variant="thumb" className="w-full h-full" />
                     </div>
                     <div className="min-w-0 flex-1">
@@ -135,7 +133,7 @@ export function TrendsSidebar({ collapsed, onToggle }: TrendsSidebarProps) {
 
           {data?.date && (
             <p className="text-center text-[10px] text-muted-foreground/70 pt-2">
-              อัปเดตล่าสุด {new Date(data.date).toLocaleDateString("th-TH", { day: "numeric", month: "short" })} · auto by AI
+              อัปเดตล่าสุด {new Date(data.date).toLocaleDateString("th-TH", { day: "numeric", month: "short" })} · คัดสรรประจำวัน
             </p>
           )}
         </div>

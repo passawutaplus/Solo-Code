@@ -4,6 +4,7 @@ import { useAuth } from "@/auth/AuthProvider";
 import { EmailVerificationGate } from "@/components/auth/EmailVerificationGate";
 import { isEmailVerified } from "@/lib/emailVerification";
 import { isEarlyAccessMode } from "@/lib/publicAccess";
+import { safeRelativePath } from "@/lib/safeUrl";
 import { Loader2 } from "lucide-react";
 
 interface Props {
@@ -25,15 +26,16 @@ export function RequireAuth({ children, requireAdmin = false }: Props) {
   React.useEffect(() => {
     if (loading) return;
     if (!user) {
-      navigate({ to: "/auth" });
+      const redirect = safeRelativePath(pathname, "/dashboard");
+      navigate({ to: "/auth", search: { redirect } });
     } else if (profile?.is_active === false) {
-      navigate({ to: "/auth" });
+      navigate({ to: "/auth", search: { redirect: "/dashboard" } });
     } else if (requireAdmin && !isAdmin) {
       navigate({ to: "/dashboard" });
     } else if (needsTesterApproval) {
       navigate({ to: "/apply" });
     }
-  }, [user, isAdmin, profile?.is_active, loading, requireAdmin, navigate, needsTesterApproval]);
+  }, [user, isAdmin, profile?.is_active, loading, requireAdmin, navigate, needsTesterApproval, pathname]);
 
   const blocked =
     !user ||

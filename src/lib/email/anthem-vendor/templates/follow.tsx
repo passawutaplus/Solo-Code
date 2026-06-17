@@ -23,7 +23,7 @@ export const FollowEmail = ({
   >
     <EmailText>
       สวัสดี {recipientName} — <strong style={{ color: brand.ink }}>{followerName}</strong>{' '}
-      เริ่มติดตามโปรไฟล์ของคุณบน 1PX
+      เริ่มติดตามโปรไฟล์ของคุณบน Pixel100
     </EmailText>
     <EmailCard>
       <EmailCardLabel>ผู้ติดตาม</EmailCardLabel>
@@ -36,7 +36,7 @@ export const FollowEmail = ({
 export const followTemplate = {
   component: FollowEmail,
   subject: (data: Record<string, unknown>) =>
-    `[1PX] ${(data.followerName as string) ?? 'มีคน'} เริ่มติดตามคุณ`,
+    `[Pixel100] ${(data.followerName as string) ?? 'มีคน'} เริ่มติดตามคุณ`,
   displayName: 'New follower',
   previewData: {
     recipientName: 'พี่บอส',

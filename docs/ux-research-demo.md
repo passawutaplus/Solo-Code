@@ -1,5 +1,7 @@
 # So1o Freelancer — UX Research Demo Guide
 
+> **เช็คลิสครบ A–T:** [`ux-research-review.md`](./ux-research-review.md) · **ในแอป:** `/research`
+
 > สำหรับทีม UX/UI Research ทดลองใช้งานเวอร์ชันเดโม่บน Vercel
 
 ---

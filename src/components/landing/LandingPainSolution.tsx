@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 
 export function LandingPainSolution() {
   return (
-    <section className="mx-auto max-w-6xl px-4 py-14 sm:py-16">
+    <section className="mx-auto max-w-6xl px-4 py-14 sm:py-16 bg-muted/20 rounded-3xl my-2 sm:my-4">
       <FadeUp className="text-center max-w-2xl mx-auto mb-10">
         <h3 className="text-2xl sm:text-3xl font-bold tracking-tight">เคยเจอปัญหานี้ไหม?</h3>
         <p className="mt-3 text-sm sm:text-base text-muted-foreground">

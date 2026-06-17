@@ -149,7 +149,7 @@ export function LandingHeader({ user, isAdmin, theme, onToggleTheme }: Props) {
                   rel="noopener noreferrer"
                   className="px-3 py-2.5 rounded-lg hover:bg-accent transition-colors flex items-center gap-2.5"
                 >
-                  <ExternalLink className="h-4 w-4 text-primary" /> an1hem Showcase
+                  <ExternalLink className="h-4 w-4 text-primary" /> Pixel100 Showcase
                 </a>
                 <a href="#how" className="px-3 py-2.5 rounded-lg hover:bg-accent transition-colors flex items-center gap-2.5">
                   <ListChecks className="h-4 w-4 text-primary" /> วิธีใช้

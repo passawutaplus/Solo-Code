@@ -1,4 +1,4 @@
-// 1PX brand styles for emails — clean white + subtle orange fade.
+// Pixel100 brand styles for emails — clean white + subtle orange fade.
 
 export const brand = {
   orange: '#FF4F18',

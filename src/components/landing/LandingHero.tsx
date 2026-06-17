@@ -15,8 +15,15 @@ type Props = {
 
 export function LandingHero({ user, approved, target, remaining, pct }: Props) {
   return (
-    <section id="hero" className="mx-auto max-w-6xl px-4 pt-10 pb-12 sm:pt-16 sm:pb-16">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-12 items-center">
+    <section id="hero" className="relative mx-auto max-w-6xl px-4 pt-10 pb-12 sm:pt-16 sm:pb-16">
+      <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden" aria-hidden="true">
+        <div className="ambient-blobs" />
+        <div
+          className="absolute inset-x-0 top-0 h-full opacity-90"
+          style={{ backgroundImage: "var(--gradient-mesh)" }}
+        />
+      </div>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-12 items-center relative">
         <FadeUp onScroll={false} className="text-center lg:text-left order-1">
           <div className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card/60 backdrop-blur px-3 py-1 text-[11px] font-medium text-muted-foreground shadow-soft">
             <Sparkles className="h-3 w-3 text-primary" />

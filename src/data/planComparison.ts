@@ -188,12 +188,12 @@ export const PLAN_COMPARISON_CATEGORIES: PlanComparisonCategory[] = [
   },
   {
     id: "an1hem",
-    title: "an1hem Showcase",
+    title: "Pixel100 Showcase",
     description: "หน้าร้องโชว์ผลงานและรับงานจากชุมชน",
     info: "โชว์เคสผลงานรับงานจากชุมชน — บัญชีเดียวกับ So1o สมัคร Pro ครั้งเดียวใช้ทั้งสองแอป",
     rows: [
       {
-        label: "So1o + an1hem บัญชีเดียว",
+        label: "So1o + Pixel100 บัญชีเดียว",
         values: {
           free: ecosystemUnlock("free"),
           pro: ecosystemUnlock("pro"),
@@ -202,7 +202,7 @@ export const PLAN_COMPARISON_CATEGORIES: PlanComparisonCategory[] = [
         },
       },
       {
-        label: "an1hem Storage",
+        label: "Pixel100 Storage",
         values: {
           free: ANTHEM_STORAGE_LABEL.free,
           pro: ANTHEM_STORAGE_LABEL.pro,
@@ -251,7 +251,7 @@ export const PLAN_COMPARISON_CATEGORIES: PlanComparisonCategory[] = [
   {
     id: "integrations",
     title: "การเชื่อมต่อ & แจ้งเตือน",
-    info: "LINE แจ้งเตือนเมื่องาน/การชำระมีอัปเดต — Pro+ จะมี Auto CRM จากแชท an1hem (เร็วๆ นี้)",
+    info: "LINE แจ้งเตือนเมื่องาน/การชำระมีอัปเดต — Pro+ จะมี Auto CRM จากแชท Pixel100 (เร็วๆ นี้)",
     rows: [
       {
         label: "LINE แจ้งเตือน",
@@ -263,7 +263,7 @@ export const PLAN_COMPARISON_CATEGORIES: PlanComparisonCategory[] = [
         },
       },
       {
-        label: "Auto CRM จากแชท an1hem",
+        label: "Auto CRM จากแชท Pixel100",
         values: {
           free: false,
           pro: false,
@@ -289,7 +289,7 @@ export const PLAN_COMPARISON_CATEGORIES: PlanComparisonCategory[] = [
         },
       },
       {
-        label: "ใบเสนอราคารวม Studio (an1hem nest)",
+        label: "ใบเสนอราคารวม Studio (Pixel100 nest)",
         values: {
           free: false,
           pro: false,

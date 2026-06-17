@@ -72,9 +72,9 @@ export const cashoutStatusTemplate = {
   component: CashoutStatusEmail,
   subject: (data: Record<string, unknown>) => {
     const s = (data.status as string) ?? 'submitted'
-    if (s === 'paid') return `[1PX] ถอนเงินสำเร็จ ฿${Number(data.netPx ?? 0).toLocaleString('th-TH')}`
-    if (s === 'rejected') return `[1PX] คำขอถอนถูกปฏิเสธ`
-    return `[1PX] รับคำขอถอน ${Number(data.grossPx ?? 0).toLocaleString('th-TH')} px แล้ว`
+    if (s === 'paid') return `[Pixel100] ถอนเงินสำเร็จ ฿${Number(data.netPx ?? 0).toLocaleString('th-TH')}`
+    if (s === 'rejected') return `[Pixel100] คำขอถอนถูกปฏิเสธ`
+    return `[Pixel100] รับคำขอถอน ${Number(data.grossPx ?? 0).toLocaleString('th-TH')} px แล้ว`
   },
   displayName: 'Cashout status',
   previewData: {

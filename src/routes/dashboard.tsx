@@ -257,11 +257,11 @@ function Dashboard() {
       const notesParts: string[] = [];
       if (message) notesParts.push(message);
       if (deadline) notesParts.push(`กำหนดส่ง: ${deadline}`);
-      if (params.conversationId) notesParts.push(`แชท Anthem: ${params.conversationId}`);
+      if (params.conversationId) notesParts.push(`แชท Pixel100: ${params.conversationId}`);
 
       storeAnthemQuotationHandoff({
-        projectName: projectTitle || "งานจาก Anthem",
-        clientName: clientName || "ลูกค้า Anthem",
+        projectName: projectTitle || "งานจาก Pixel100",
+        clientName: clientName || "ลูกค้า Pixel100",
         clientEmail,
         clientPhone,
         endDate: deadline,

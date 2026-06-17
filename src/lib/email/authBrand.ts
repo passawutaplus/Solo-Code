@@ -1,6 +1,6 @@
 export type AuthEmailBrand = 'solo' | 'anthem'
 
-const ANTHEM_HOST_PATTERNS = ['1px.app', '1px.net', 'px1.app', 'anthem']
+const ANTHEM_HOST_PATTERNS = ['pixel100.com', '1px.app', '1px.net', 'px1.app', 'anthem', 'an1hem.app']
 
 /**
  * Pick auth email brand from the confirmation redirect URL in the Supabase hook payload.

@@ -31,7 +31,7 @@ export const CollabRequestEmail = ({
   >
     <EmailText>
       สวัสดี {recipientName} — <strong style={{ color: brand.ink }}>{senderName}</strong>{' '}
-      ส่งคำขอร่วมงานผ่าน 1PX
+      ส่งคำขอร่วมงานผ่าน Pixel100
     </EmailText>
     <EmailCard>
       <EmailCardLabel>จาก</EmailCardLabel>
@@ -62,7 +62,7 @@ export const CollabRequestEmail = ({
 export const collabRequestTemplate = {
   component: CollabRequestEmail,
   subject: (data: Record<string, unknown>) =>
-    `[1PX] คำขอคอลแลปจาก ${(data.senderName as string) ?? 'ครีเอเตอร์'}`,
+    `[Pixel100] คำขอคอลแลปจาก ${(data.senderName as string) ?? 'ครีเอเตอร์'}`,
   displayName: 'Collab request',
   previewData: {
     recipientName: 'พี่บอส',

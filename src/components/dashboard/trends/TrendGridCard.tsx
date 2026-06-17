@@ -14,31 +14,24 @@ export function TrendGridCard({ item, index }: { item: DailyTrendItem; index: nu
     <Wrapper
       key={`${index}-${item.title}`}
       {...wrapperProps}
-      className="group block overflow-hidden rounded-xl border border-border bg-card hover:shadow-elevated hover:-translate-y-1 hover:border-primary/40 transition-all"
+      className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-card hover:shadow-elevated hover:-translate-y-0.5 hover:border-primary/30 transition-all duration-300"
     >
-      <div className="relative h-28 bg-gradient-to-br from-primary/15 via-primary-soft/40 to-card flex items-center justify-center overflow-hidden">
-        {item.image_url && safeHref(item.image_url) ? (
-          <TrendCoverImage
-            item={item}
-            variant="card"
-            className="absolute inset-0 w-full h-full group-hover:scale-105 transition-transform duration-300"
-          />
-        ) : (
-          <TrendCoverImage
-            item={item}
-            variant="card"
-            className="group-hover:scale-110 transition-transform duration-300"
-          />
-        )}
-        <span className="absolute top-2.5 left-2.5 rounded-full bg-card/90 backdrop-blur text-primary text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 border border-border">
+      <div className="relative aspect-[16/10] overflow-hidden bg-muted">
+        <TrendCoverImage
+          item={item}
+          variant="card"
+          className="absolute inset-0 w-full h-full group-hover:scale-105 transition-transform duration-500 ease-out"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/10 to-transparent pointer-events-none" />
+        <span className="absolute top-3 left-3 rounded-full bg-black/45 backdrop-blur-sm text-white text-[9px] font-bold uppercase tracking-wider px-2.5 py-1">
           {item.category}
         </span>
       </div>
-      <div className="p-4">
+      <div className="flex flex-1 flex-col p-4">
         <h4 className="text-sm font-bold leading-snug line-clamp-2 group-hover:text-primary transition-colors">
           {item.title}
         </h4>
-        <p className="mt-1.5 text-xs text-muted-foreground leading-relaxed line-clamp-3">
+        <p className="mt-2 text-xs text-muted-foreground leading-relaxed line-clamp-2 flex-1">
           {item.body}
         </p>
         {item.source && (

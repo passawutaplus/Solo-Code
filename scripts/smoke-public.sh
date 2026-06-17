@@ -32,6 +32,7 @@ EXTENDED_PATHS=(
   "/labs"
   "/refund"
   "/survey"
+  "/research"
 )
 
 fail=0
@@ -199,6 +200,13 @@ if [[ "$dash_url" == *"/dashboard"* && "$dash_url" != *"/auth"* ]]; then
   echo "WARN /dashboard final URL still on /dashboard — verify redirect in browser (Puppeteer)"
 else
   echo "OK   /dashboard guest redirect (final: ${dash_url})"
+fi
+
+labs_url=$(curl -sS -o /dev/null -w "%{url_effective}" -L --max-time 30 "${BASE_URL}/labs" || echo "")
+if [[ "$labs_url" == *"/labs"* && "$labs_url" != *"/auth"* ]]; then
+  echo "WARN /labs final URL still on /labs — verify RequireAuth redirect"
+else
+  echo "OK   /labs guest redirect (final: ${labs_url})"
 fi
 
 rm -f "$body_file"

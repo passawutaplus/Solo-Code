@@ -254,7 +254,7 @@ export function SettingsTab() {
               </Select>
             </Field>
 
-            <Field label="ลิงก์โซเชียล / โชว์เคสภายนอก (เช่น an1hem, Behance)">
+            <Field label="ลิงก์โซเชียล / โชว์เคสภายนอก (เช่น Pixel100, Behance)">
               <Input value={form.social_link} onChange={(e) => setField("social_link", e.target.value)} maxLength={300} placeholder="เช่น https://instagram.com/your_handle" inputMode="url" />
             </Field>
 

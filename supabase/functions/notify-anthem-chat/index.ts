@@ -94,7 +94,7 @@ Deno.serve(async (req) => {
     templateData: {
       recipientName: notify.displayName ?? "คุณ",
       senderName,
-      conversationTitle: conv.project_title ?? "แชท 1PX",
+      conversationTitle: conv.project_title ?? "แชท Pixel100",
       preview,
       actionUrl: `${siteUrl}/chat/${conv.id}`,
     },

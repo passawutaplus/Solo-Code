@@ -5,25 +5,48 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
-  DropdownMenu, DropdownMenuContent, DropdownMenuItem,
-  DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
-  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
-  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Palette, Trash2, Pencil, Plus, X, Eye, FolderInput, MoreVertical } from "lucide-react";
+import {
+  Palette,
+  Trash2,
+  Pencil,
+  Plus,
+  X,
+  Eye,
+  FolderInput,
+  MoreVertical,
+  Copy,
+} from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useColorPalettes, type ColorPalette } from "@/hooks/useColorPalettes";
 import { getColorBreakdown, preferWhiteText } from "@/lib/colorUtils";
 import { ColorCodesTable } from "@/components/dashboard/briefs/ColorLab/ColorCodesTable";
+import { toast } from "sonner";
 
 interface Props {
   onPickColor: (hex: string) => void;
 }
 
 export function MyPalettes({ onPickColor }: Props) {
-  const { palettes, loading, createPalette, renamePalette, deletePalette, removeColor, moveColor } = useColorPalettes();
+  const { palettes, loading, createPalette, renamePalette, deletePalette, removeColor, moveColor } =
+    useColorPalettes();
   const [newName, setNewName] = React.useState("");
   const [activeId, setActiveId] = React.useState<string | null>(null);
   const [editingId, setEditingId] = React.useState<string | null>(null);
@@ -46,12 +69,44 @@ export function MyPalettes({ onPickColor }: Props) {
     if (id) setActiveId(id);
   };
 
+  const copyActivePalette = async () => {
+    if (!active || active.colors.length === 0) {
+      toast.error("ยังไม่มีสีในหมวดนี้");
+      return;
+    }
+    const lines = active.colors.map((c) => {
+      const label = c.label?.trim();
+      return label ? `${c.hex}  /* ${label} */` : c.hex;
+    });
+    const text = [`/* ${active.name} */`, ...lines].join("\n");
+    try {
+      await navigator.clipboard.writeText(text);
+      toast.success(`คัดลอก ${active.colors.length} สีจาก "${active.name}" แล้ว`);
+    } catch {
+      toast.error("ก๊อปปี้ไม่สำเร็จ");
+    }
+  };
+
   return (
     <Card className="p-4 sm:p-5 glass">
       <div className="flex items-center gap-2 mb-4">
         <Palette className="h-4 w-4 text-primary" />
         <h3 className="text-sm font-semibold">พาเลทสีของฉัน</h3>
-        <Badge variant="outline" className="text-[10px]">{palettes.length} หมวด</Badge>
+        <Badge variant="outline" className="text-[10px]">
+          {palettes.length} หมวด
+        </Badge>
+        {active && active.colors.length > 0 && (
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="ml-auto h-7 gap-1.5 text-[11px] rounded-lg"
+            onClick={copyActivePalette}
+          >
+            <Copy className="h-3 w-3" />
+            คัดลอกหมวดนี้
+          </Button>
+        )}
       </div>
 
       <div className="flex flex-col sm:flex-row gap-2 mb-4">
@@ -106,9 +161,16 @@ export function MyPalettes({ onPickColor }: Props) {
                       }}
                     />
                     <Button
-                      size="sm" variant="ghost" className="h-7 px-2"
-                      onClick={async () => { await renamePalette(p.id, editName); setEditingId(null); }}
-                    >บันทึก</Button>
+                      size="sm"
+                      variant="ghost"
+                      className="h-7 px-2"
+                      onClick={async () => {
+                        await renamePalette(p.id, editName);
+                        setEditingId(null);
+                      }}
+                    >
+                      บันทึก
+                    </Button>
                   </div>
                 ) : (
                   <button
@@ -125,7 +187,11 @@ export function MyPalettes({ onPickColor }: Props) {
                     <span
                       role="button"
                       tabIndex={0}
-                      onClick={(e) => { e.stopPropagation(); setEditingId(p.id); setEditName(p.name); }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setEditingId(p.id);
+                        setEditName(p.name);
+                      }}
                       className="ml-1 p-1 rounded-full hover:bg-black/10 transition opacity-60 hover:opacity-100"
                       aria-label="แก้ชื่อ"
                     >
@@ -152,7 +218,9 @@ export function MyPalettes({ onPickColor }: Props) {
                         </AlertDialogHeader>
                         <AlertDialogFooter>
                           <AlertDialogCancel>ยกเลิก</AlertDialogCancel>
-                          <AlertDialogAction onClick={() => deletePalette(p.id)}>ลบ</AlertDialogAction>
+                          <AlertDialogAction onClick={() => deletePalette(p.id)}>
+                            ลบ
+                          </AlertDialogAction>
                         </AlertDialogFooter>
                       </AlertDialogContent>
                     </AlertDialog>
@@ -194,7 +262,13 @@ export function MyPalettes({ onPickColor }: Props) {
 }
 
 function ColorChip({
-  hex, label, onPick, onDelete, palettes, currentPaletteId, onMove,
+  hex,
+  label,
+  onPick,
+  onDelete,
+  palettes,
+  currentPaletteId,
+  onMove,
 }: {
   hex: string;
   label: string | null;
@@ -261,7 +335,9 @@ function ColorChip({
                   className="text-xs cursor-pointer"
                 >
                   {p.name}
-                  <span className="ml-auto text-[10px] text-muted-foreground">{p.colors.length}</span>
+                  <span className="ml-auto text-[10px] text-muted-foreground">
+                    {p.colors.length}
+                  </span>
                 </DropdownMenuItem>
               ))
             )}

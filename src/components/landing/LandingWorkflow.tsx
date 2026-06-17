@@ -4,6 +4,7 @@ import { WORKFLOW_STEPS } from "@/data/landingContent";
 import { LANDING_MOCKUPS } from "@/data/landingAssets";
 import { FadeUp } from "@/components/motion/FadeUp";
 import { MockupImage } from "@/components/landing/BrowserFrame";
+import { cn } from "@/lib/utils";
 
 export function LandingWorkflow() {
   const thumbs = LANDING_MOCKUPS.workflow;
@@ -22,10 +23,22 @@ export function LandingWorkflow() {
           {WORKFLOW_STEPS.map((step, i) => {
             const thumb = thumbs[i];
             return (
-              <div key={step.id} className="min-w-0">
-                <div className="rounded-xl border border-border bg-card/70 overflow-hidden shadow-soft h-full">
+              <div key={step.id} className="min-w-0 group">
+                <div
+                  className={cn(
+                    "rounded-xl border border-border bg-card overflow-hidden shadow-soft h-full",
+                    "transition-all duration-300 ease-out",
+                    "hover:border-primary/35 hover:shadow-elevated hover:-translate-y-1",
+                  )}
+                >
                   {thumb && (
-                    <MockupImage src={thumb.src} alt={thumb.alt} className="aspect-[400/280] object-cover object-top w-full" />
+                    <div className="overflow-hidden">
+                      <MockupImage
+                        src={thumb.src}
+                        alt={thumb.alt}
+                        className="aspect-[400/280] object-cover object-top w-full transition-transform duration-500 group-hover:scale-[1.03]"
+                      />
+                    </div>
                   )}
                   <div className="p-3">
                     <span className="text-[10px] font-bold uppercase tracking-wider text-primary">{step.label}</span>
@@ -33,10 +46,10 @@ export function LandingWorkflow() {
                     <p className="mt-1 text-[11px] text-muted-foreground leading-relaxed line-clamp-3">{step.desc}</p>
                     <Link
                       to={step.helpTo}
-                      className="mt-2 inline-flex items-center gap-0.5 text-[11px] font-medium text-primary hover:underline"
+                      className="mt-2 inline-flex items-center gap-0.5 text-[11px] font-medium text-primary hover:underline opacity-80 group-hover:opacity-100 transition-opacity"
                     >
                       {step.helpLabel}
-                      <ChevronRight className="h-3 w-3" />
+                      <ChevronRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
                     </Link>
                   </div>
                 </div>
