@@ -4,6 +4,12 @@ export interface DocumentThemeInput {
   receiptColor?: string;
   briefAccent?: string;
   unifiedColors?: boolean;
+  /** Pro+ override — when omitted, tier default (Free: show, Pro: hide). */
+  showSo1oBadge?: boolean;
+  /** Pro+ override for portal footer — when omitted, tier default. */
+  showPoweredBy?: boolean;
+  portalUseDocumentColors?: boolean;
+  portalPrimary?: string;
   portalShowLogo?: boolean;
   portalWelcomeMessage?: string;
 }

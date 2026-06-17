@@ -27,8 +27,15 @@ import {
 import { getStripeEnvironment } from "@/lib/stripe";
 import { upgradeSubscriptionTier } from "@/utils/payments.functions";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
-export function SubscriptionUpgradeBlock() {
+export function SubscriptionUpgradeBlock({
+  embedded,
+  className,
+}: {
+  embedded?: boolean;
+  className?: string;
+}) {
   const { profile } = useAuth();
   const locale = pickLocale(profile?.locale);
   const { tier, subscription, isPro, isActive, isLoading, refetch } = useSubscription();
@@ -78,7 +85,12 @@ export function SubscriptionUpgradeBlock() {
 
   return (
     <>
-      <div className="border-t border-border/40 pt-3 space-y-2">
+      <div
+        className={cn(
+          embedded ? "space-y-2" : "border-t border-border/40 pt-3 space-y-2",
+          className,
+        )}
+      >
         <div className="flex items-center gap-2">
           <ArrowUpCircle className="h-4 w-4 text-primary shrink-0" />
           <div className="min-w-0">

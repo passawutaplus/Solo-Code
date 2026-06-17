@@ -311,18 +311,18 @@ export function DashboardSidebar({ active, activeSub, setActive }: DashboardSide
           )}
         >
           <SidebarMenuItem className="min-w-0">
-            <SupportSidebarButton collapsed={collapsed} onOpen={() => setSupportOpen(true)} />
-          </SidebarMenuItem>
-          <SidebarMenuItem className="min-w-0">
             <SidebarMenuButton
               isActive={active === "settings"}
               onClick={() => setActive("settings")}
               tooltip="Settings"
-              className={cn(MENU_BTN, "w-full")}
+              className={cn(MENU_BTN, "w-full justify-center")}
             >
               <Settings className="h-4 w-4 shrink-0" />
               {!collapsed && <span className="text-xs font-medium truncate">Settings</span>}
             </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem className="min-w-0">
+            <SupportSidebarButton collapsed={collapsed} onOpen={() => setSupportOpen(true)} />
           </SidebarMenuItem>
         </SidebarMenu>
 

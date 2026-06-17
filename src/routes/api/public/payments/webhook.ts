@@ -380,6 +380,65 @@ async function handleCheckoutCompleted(session: any, env: StripeEnv) {
       message: `เติม Pixel +${pxAmount} px`,
       metadata: { sessionId: session.id },
     });
+    return;
+  }
+
+  if (kind === "client_job") {
+    const jobId = session.metadata?.jobId;
+    const paymentType = session.metadata?.paymentType;
+    const amountThbRaw = session.metadata?.amountThb;
+    const amountThb =
+      typeof amountThbRaw === "string" ? parseFloat(amountThbRaw) : Number(amountThbRaw);
+
+    if (!jobId || (paymentType !== "deposit" && paymentType !== "final") || !Number.isFinite(amountThb)) {
+      throw new Error("client_job checkout missing metadata");
+    }
+
+    const { error } = await sb.rpc("fulfill_client_job_payment_stripe", {
+      _stripe_session_id: session.id,
+      _job_id: jobId,
+      _freelancer_user_id: userId,
+      _payment_type: paymentType,
+      _amount_thb: amountThb,
+      _environment: env,
+    });
+    if (error) {
+      console.error("[stripe-webhook] fulfill_client_job_payment_stripe failed:", error);
+      throw error;
+    }
+
+    const { data: jobRow } = await sb
+      .from("job_trackers")
+      .select("title, client_name")
+      .eq("id", jobId)
+      .maybeSingle();
+
+    const paymentLabel = paymentType === "deposit" ? "มัดจำ" : "ยอดสุดท้าย";
+    await enqueueEmail({
+      userId,
+      templateName: "deposit-received",
+      templateData: {
+        recipientName: "คุณ",
+        clientName: jobRow?.client_name ?? "ลูกค้า",
+        projectName: jobRow?.title ?? "โปรเจกต์",
+        paymentType,
+        amount: `฿${Math.round(amountThb).toLocaleString("th-TH")}`,
+        note: `ชำระ${paymentLabel}ผ่าน Stripe Checkout`,
+        actionUrl: "https://solofreelancer.com/dashboard?tab=finance&sub=jobs",
+      },
+      idempotencyKey: `client-job-${session.id}`,
+    });
+
+    await logPaymentNotification({
+      userId,
+      eventType: "client_job.paid",
+      env,
+      amountCents: session.amount_total ?? null,
+      currency: session.currency ?? null,
+      priceId,
+      message: `ลูกค้าชำระ${paymentLabel} ฿${Math.round(amountThb).toLocaleString("th-TH")} ผ่าน Stripe`,
+      metadata: { sessionId: session.id, jobId, paymentType },
+    });
   }
 }
 

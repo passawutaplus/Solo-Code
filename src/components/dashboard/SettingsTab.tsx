@@ -19,7 +19,7 @@ import { LineNotificationSection } from "@/components/dashboard/settings/LineNot
 import { SettingsQuickLinksSection } from "@/components/dashboard/settings/SettingsQuickLinksSection";
 import { DisplayThemeSection } from "@/components/dashboard/settings/DisplayThemeSection";
 import { DocumentBrandingSection } from "@/components/dashboard/settings/DocumentBrandingSection";
-import { BillingSettingsSection } from "@/components/dashboard/settings/BillingSettingsSection";
+import { PaymentSettingsSection } from "@/components/dashboard/settings/PaymentSettingsSection";
 import { TierMembershipCard } from "@/components/tier/TierMembershipCard";
 
 const CURRENCIES = [
@@ -40,13 +40,9 @@ interface FormState {
   address: string;
   tax_id: string;
   currency: string;
-  bank_name: string;
-  bank_account_name: string;
-  bank_account_number: string;
   social_link: string;
   terms: string;
   logo_url: string;
-  payment_qr_url: string;
 }
 
 const EMPTY: FormState = {
@@ -58,13 +54,9 @@ const EMPTY: FormState = {
   address: "",
   tax_id: "",
   currency: "THB",
-  bank_name: "",
-  bank_account_name: "",
-  bank_account_number: "",
   social_link: "",
   terms: "",
   logo_url: "",
-  payment_qr_url: "",
 };
 
 function fromProfile(p: ReturnType<typeof useAuth>["profile"], email: string): FormState {
@@ -77,13 +69,9 @@ function fromProfile(p: ReturnType<typeof useAuth>["profile"], email: string): F
     address: p?.address ?? "",
     tax_id: p?.tax_id ?? "",
     currency: p?.currency ?? "THB",
-    bank_name: p?.bank_name ?? "",
-    bank_account_name: p?.bank_account_name ?? "",
-    bank_account_number: p?.bank_account_number ?? "",
     social_link: p?.social_link ?? "",
     terms: p?.terms ?? "",
     logo_url: p?.logo_url ?? "",
-    payment_qr_url: p?.payment_qr_url ?? "",
   };
 }
 
@@ -92,9 +80,7 @@ export function SettingsTab() {
   const [form, setForm] = React.useState<FormState>(EMPTY);
   const [saving, setSaving] = React.useState(false);
   const [uploadingLogo, setUploadingLogo] = React.useState(false);
-  const [uploadingQR, setUploadingQR] = React.useState(false);
   const logoRef = React.useRef<HTMLInputElement>(null);
-  const qrRef = React.useRef<HTMLInputElement>(null);
 
   React.useEffect(() => {
     setForm(fromProfile(profile, user?.email ?? ""));
@@ -104,12 +90,11 @@ export function SettingsTab() {
     setForm((f) => ({ ...f, [k]: v }));
   }
 
-  async function uploadFile(file: File, prefix: "logo" | "qr"): Promise<string | null> {
+  async function uploadFile(file: File): Promise<string | null> {
     if (!user) return null;
     let blob: Blob = file;
     let contentType = file.type;
     let ext = (file.name.split(".").pop() ?? "jpg").toLowerCase();
-    // Compress raster images; keep SVG as-is
     if (file.type !== "image/svg+xml") {
       try {
         const dataUrl = await compressImageFile(file);
@@ -124,7 +109,7 @@ export function SettingsTab() {
       toast.error("ไฟล์ SVG ใหญ่เกิน 400 KB");
       return null;
     }
-    const path = `${user.id}/${prefix}-${Date.now()}.${ext}`;
+    const path = `${user.id}/logo-${Date.now()}.${ext}`;
     const { error: upErr } = await supabase.storage
       .from("brand-logos")
       .upload(path, blob, { upsert: true, contentType });
@@ -140,25 +125,12 @@ export function SettingsTab() {
     const file = e.target.files?.[0];
     if (!file) return;
     setUploadingLogo(true);
-    const url = await uploadFile(file, "logo");
+    const url = await uploadFile(file);
     if (url) {
       setField("logo_url", url);
       toast.success("อัปโหลดโลโก้แล้ว — กดบันทึกเพื่อยืนยัน");
     }
     setUploadingLogo(false);
-    e.target.value = "";
-  }
-
-  async function onUploadQR(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setUploadingQR(true);
-    const url = await uploadFile(file, "qr");
-    if (url) {
-      setField("payment_qr_url", url);
-      toast.success("อัปโหลด QR แล้ว — กดบันทึกเพื่อยืนยัน");
-    }
-    setUploadingQR(false);
     e.target.value = "";
   }
 
@@ -177,13 +149,9 @@ export function SettingsTab() {
         address: trim(form.address, 300),
         tax_id: trim(form.tax_id, 30),
         currency: form.currency || "THB",
-        bank_name: trim(form.bank_name, 80),
-        bank_account_name: trim(form.bank_account_name, 80),
-        bank_account_number: trim(form.bank_account_number, 50),
         social_link: trim(form.social_link, 300),
         terms: form.terms.trim().slice(0, 2000) || null,
         logo_url: form.logo_url.trim() || null,
-        payment_qr_url: form.payment_qr_url.trim() || null,
       })
       .eq("user_id", user.id);
     setSaving(false);
@@ -203,7 +171,6 @@ export function SettingsTab() {
   return (
     <div className="space-y-4 pb-24 lg:pb-4">
       <TierMembershipCard />
-      <BillingSettingsSection />
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
         <AiUsageSettingsSection />
         <StorageUsageSection />
@@ -229,13 +196,12 @@ export function SettingsTab() {
           </div>
 
           <form onSubmit={onSave} className="space-y-5">
-            {/* LOGO */}
             <div className="space-y-2">
               <Label className="text-xs font-medium">โลโก้ร้าน</Label>
               <div className="flex items-center gap-3">
                 <div className="h-20 w-20 rounded-2xl border border-border bg-muted overflow-hidden shrink-0 flex items-center justify-center">
                   {form.logo_url ? (
-                    <img src={form.logo_url} alt="brand logo" className="h-full w-full object-cover"  loading="lazy" decoding="async" />
+                    <img src={form.logo_url} alt="brand logo" className="h-full w-full object-cover" loading="lazy" decoding="async" />
                   ) : (
                     <ImageIcon className="h-6 w-6 text-muted-foreground" />
                   )}
@@ -249,7 +215,6 @@ export function SettingsTab() {
               <p className="text-[10px] text-muted-foreground">รูปสี่เหลี่ยมจัตุรัสสวยที่สุด · ไม่เกิน 500KB</p>
             </div>
 
-            {/* BRAND */}
             <Field label="ชื่อร้าน/สตูดิโอ">
               <Input value={form.brand_name} onChange={(e) => setField("brand_name", e.target.value)} maxLength={80} placeholder="So1o Freelancer" />
             </Field>
@@ -278,7 +243,6 @@ export function SettingsTab() {
               <Input value={form.tax_id} onChange={(e) => setField("tax_id", e.target.value)} maxLength={30} placeholder="เช่น 1234567890123" inputMode="numeric" />
             </Field>
 
-            {/* CURRENCY */}
             <Field label="สกุลเงิน">
               <Select value={form.currency} onValueChange={(v) => setField("currency", v)}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
@@ -289,48 +253,6 @@ export function SettingsTab() {
                 </SelectContent>
               </Select>
             </Field>
-
-            {/* PAYMENT */}
-            <div className="pt-1">
-              <div className="relative my-3">
-                <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-border/60" /></div>
-                <div className="relative flex justify-center text-[10px] uppercase tracking-wider">
-                  <span className="bg-card px-3 text-muted-foreground">ช่องทางการชำระเงิน</span>
-                </div>
-              </div>
-            </div>
-
-            <Field label="ชื่อธนาคาร">
-              <Input value={form.bank_name} onChange={(e) => setField("bank_name", e.target.value)} maxLength={80} placeholder="เช่น กสิกรไทย, PromptPay" />
-            </Field>
-
-            <Field label="ชื่อบัญชี">
-              <Input value={form.bank_account_name} onChange={(e) => setField("bank_account_name", e.target.value)} maxLength={80} placeholder="เช่น สมชาย ใจดี" />
-            </Field>
-
-            <Field label="เลขบัญชี">
-              <Input value={form.bank_account_number} onChange={(e) => setField("bank_account_number", e.target.value)} maxLength={50} placeholder="เช่น 123-4-56789-0" />
-            </Field>
-
-            {/* QR */}
-            <div className="space-y-2">
-              <Label className="text-xs font-medium">QR Code สำหรับชำระเงิน</Label>
-              <div className="flex items-center gap-3">
-                <div className="h-20 w-20 rounded-2xl border border-border bg-muted overflow-hidden shrink-0 flex items-center justify-center">
-                  {form.payment_qr_url ? (
-                    <img src={form.payment_qr_url} alt="payment QR" className="h-full w-full object-contain"  loading="lazy" decoding="async" />
-                  ) : (
-                    <ImageIcon className="h-6 w-6 text-muted-foreground" />
-                  )}
-                </div>
-                <input ref={qrRef} type="file" accept="image/png,image/jpeg,image/webp" className="hidden" onChange={onUploadQR} />
-                <Button type="button" variant="outline" onClick={() => qrRef.current?.click()} disabled={uploadingQR} className="flex-1 h-12">
-                  {uploadingQR ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
-                  อัปโหลด QR
-                </Button>
-              </div>
-              <p className="text-[10px] text-muted-foreground">จะปรากฏในใบเสนอราคา · ไม่เกิน 500KB</p>
-            </div>
 
             <Field label="ลิงก์โซเชียล / โชว์เคสภายนอก (เช่น an1hem, Behance)">
               <Input value={form.social_link} onChange={(e) => setField("social_link", e.target.value)} maxLength={300} placeholder="เช่น https://instagram.com/your_handle" inputMode="url" />
@@ -347,7 +269,6 @@ export function SettingsTab() {
               <p className="text-[10px] text-muted-foreground mt-1">แต่ละบรรทัดจะเป็น bullet ในใบเสนอราคา</p>
             </Field>
 
-            {/* ACTIONS */}
             <div className="flex items-center gap-2 pt-3 border-t border-border/40">
               <Button type="button" variant="ghost" onClick={onReset} className="text-muted-foreground gap-1.5">
                 <RotateCcw className="h-3.5 w-3.5" /> รีเซ็ต
@@ -374,6 +295,8 @@ export function SettingsTab() {
           </form>
         </CardContent>
       </Card>
+
+      <PaymentSettingsSection />
 
       <SettingsQuickLinksSection />
 

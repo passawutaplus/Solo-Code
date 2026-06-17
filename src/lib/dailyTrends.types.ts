@@ -1,8 +1,10 @@
+import type { TrendIconKey } from "@/lib/trendIcons";
+
 export interface DailyTrendItem {
   category: string;
   title: string;
   body: string;
-  emoji?: string;
+  iconKey?: TrendIconKey;
   image_url?: string;
   source?: string;
   source_url?: string;

@@ -31,6 +31,7 @@ import {
   scheduleSubscriptionTierDowngrade,
 } from "@/utils/payments.functions";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 type ConfirmAction =
   | { kind: "cancel-free" }
@@ -51,7 +52,13 @@ function paymentFnError(res: unknown, fallback: string): string {
   return fallback;
 }
 
-export function SubscriptionDowngradeBlock() {
+export function SubscriptionDowngradeBlock({
+  embedded,
+  className,
+}: {
+  embedded?: boolean;
+  className?: string;
+}) {
   const { profile } = useAuth();
   const locale = pickLocale(profile?.locale);
   const { tier, subscription, isPro, isActive, isLoading: subLoading, refetch } = useSubscription();
@@ -187,7 +194,12 @@ export function SubscriptionDowngradeBlock() {
 
   return (
     <>
-      <div className="border-t border-border/40 pt-3 space-y-2">
+      <div
+        className={cn(
+          embedded ? "space-y-2" : "border-t border-border/40 pt-3 space-y-2",
+          className,
+        )}
+      >
         <div className="flex items-center gap-2">
           <ArrowDownCircle className="h-4 w-4 text-muted-foreground shrink-0" />
           <div className="min-w-0">

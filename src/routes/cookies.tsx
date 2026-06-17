@@ -4,22 +4,16 @@ import { LegalPageLayout, LegalSectionBlock } from "@/components/legal/LegalPage
 import { CookiePreferencesLink } from "@/components/CookiePreferencesLink";
 import { CATEGORY_LABELS } from "@/lib/cookieConsent";
 import { COOKIE_INVENTORY, COOKIE_SECTIONS, LEGAL } from "@/lib/legalMeta";
+import { buildPublicPageHead } from "@/lib/seoHead";
 
 export const Route = createFileRoute("/cookies")({
-  head: () => ({
-    meta: [
-      { title: "นโยบายคุกกี้ — So1o Freelancer" },
-      {
-        name: "description",
-        content:
-          "นโยบายคุกกี้ของ So1o Freelancer ประเภทคุกกี้ที่เราใช้ วิธีจัดการความยินยอม และรายการ Local Storage",
-      },
-      { property: "og:title", content: "นโยบายคุกกี้ — So1o Freelancer" },
-      { property: "og:description", content: "ประเภทคุกกี้ที่เราใช้ และวิธีจัดการคุกกี้" },
-      { property: "og:url", content: "https://solofreelancer.com/cookies" },
-    ],
-    links: [{ rel: "canonical", href: "https://solofreelancer.com/cookies" }],
-  }),
+  head: () =>
+    buildPublicPageHead({
+      title: "นโยบายคุกกี้",
+      description:
+        "นโยบายคุกกี้ So1o Freelancer — ประเภทคุกกี้ Local Storage Stripe Supabase วิธีจัดการความยินยอมตาม PDPA",
+      path: "/cookies",
+    }),
   component: CookiesPage,
 });
 
@@ -96,7 +90,7 @@ function CookiesPage() {
             <strong>Google OAuth</strong> — อาจตั้งคุกกี้ระหว่างการล็อกอิน (จำเป็น)
           </li>
           <li>
-            <strong>Stripe</strong> — อาจตั้งคุกกี้เมื่อชำระเงิน (จำเป็น)
+            <strong>Stripe</strong> — Checkout แผน Pro/Pro+/In-House และ Stripe Connect (จำเป็นเมื่อชำระ/เชื่อมบัญชี)
           </li>
           <li>
             <strong>Google Fonts</strong> — อาจบันทึก log การโหลดฟอนต์ (ไม่ใช่คุกกี้โดยตรงจาก So1o)

@@ -516,7 +516,12 @@ function JobCard({ job, allJobs, onChanged }: { job: Job; allJobs: Job[]; onChan
           </Button>
         )}
         {(isLast || job.status === "completed") && (
-          <PostToAnthemBanner jobId={job.id} jobTitle={job.title} clientName={job.client_name} />
+          <PostToAnthemBanner
+            jobId={job.id}
+            jobTitle={job.title}
+            clientName={job.client_name}
+            previewImageUrl={job.preview_image_url}
+          />
         )}
 
         <div className="flex gap-1.5">

@@ -33,6 +33,18 @@ export function parseCashoutProcessApiBody(body: unknown) {
   return cashoutProcessApiInput.parse(body);
 }
 
+export const clientCheckoutApiInput = z.object({
+  token: z.string().uuid(),
+  paymentType: z.enum(["deposit", "final"]),
+  environment: paymentsEnvSchema.optional(),
+  successUrl: z.string().url().max(500).optional(),
+  cancelUrl: z.string().url().max(500).optional(),
+});
+
+export function parseClientCheckoutApiBody(body: unknown) {
+  return clientCheckoutApiInput.parse(body);
+}
+
 const STATIC_ALLOWED_ORIGINS = [
   "https://solofreelancer.com",
   "https://www.solofreelancer.com",

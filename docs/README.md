@@ -10,6 +10,7 @@
 | [`architecture.md`](./architecture.md) | Dev | ภาพรวม stack + data flow |
 | [`folder-structure.md`](./folder-structure.md) | Dev | นิยาม 3 layer: core / features / server |
 | [`conventions.md`](./conventions.md) | Dev | กฎการเขียนโค้ด |
+| [`DESIGN.md`](./DESIGN.md) | Dev / Design | Design system — icons, tokens, Home layout |
 | [`data-model.md`](./data-model.md) | Dev / QA | ตาราง Supabase หลัก |
 | [`adding-a-feature.md`](./adding-a-feature.md) | Dev ใหม่ | Playbook migration → UI |
 | [`stripe.md`](./stripe.md) | Dev / Ops | Stripe sync, lookup keys, webhooks |

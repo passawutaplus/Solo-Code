@@ -24,6 +24,10 @@ import {
   type UpgradeTargetTier,
 } from "@/lib/subscriptionTiers";
 import { assertAllowedPaymentRedirectUrl, paymentApiCorsHeaders } from "@/lib/paymentsApiValidation";
+import {
+  estimateClientPaymentCheckout,
+  thbToStripeCents,
+} from "@/lib/stripeClientPaymentFees";
 import type Stripe from "stripe";
 
 function getServiceSupabase() {
@@ -171,6 +175,184 @@ export async function createCheckoutSessionForUser(opts: {
               metadata: { userId: opts.userId, priceId: opts.priceId },
             },
           }),
+    });
+
+    if (!session.url) return { error: "Checkout session has no URL" };
+    return { url: session.url };
+  } catch (error) {
+    return { error: getStripeErrorMessage(error) };
+  }
+}
+
+function resolveSiteOrigin(): string {
+  for (const key of ["SITE_URL", "VITE_SITE_URL"] as const) {
+    const raw = process.env[key]?.trim();
+    if (raw) return raw.replace(/\/$/, "");
+  }
+  return "https://solofreelancer.com";
+}
+
+async function ensureConnectCardPayments(
+  stripe: ReturnType<typeof createStripeClient>,
+  accountId: string,
+): Promise<{ ok: true } | { error: string }> {
+  const account = await stripe.accounts.retrieve(accountId);
+  const status = account.capabilities?.card_payments;
+  if (status === "active") return { ok: true };
+  if (status === "pending") {
+    return { error: "บัญชี Stripe กำลังตรวจสอบ — ลองใหม่ภายหลัง" };
+  }
+  await stripe.accounts.update(accountId, {
+    capabilities: { card_payments: { requested: true } },
+  });
+  const updated = await stripe.accounts.retrieve(accountId);
+  if (updated.capabilities?.card_payments === "active") return { ok: true };
+  if (updated.capabilities?.card_payments === "pending") {
+    return { error: "บัญชี Stripe กำลังตรวจสอบ — ลองใหม่ภายหลัง" };
+  }
+  return { error: "บัญชี Stripe ยังไม่พร้อมรับชำระด้วยบัตร" };
+}
+
+/** Public client payment — Stripe Checkout with Connect destination transfer. */
+export async function createClientJobCheckoutSession(opts: {
+  shareToken: string;
+  paymentType: "deposit" | "final";
+  environment: StripeEnv;
+  successUrl?: string;
+  cancelUrl?: string;
+}): Promise<{ url: string } | { error: string }> {
+  try {
+    const setupErr = getStripeSetupError(opts.environment);
+    if (setupErr) return { error: setupErr };
+
+    const sb = getServiceSupabase();
+    const { data: job, error: jobErr } = await sb
+      .from("job_trackers")
+      .select(
+        "id, user_id, title, share_token, total_amount, deposit_percent, amount_due, deposit_paid, final_paid",
+      )
+      .eq("share_token", opts.shareToken)
+      .maybeSingle();
+
+    if (jobErr || !job?.user_id) return { error: "ไม่พบลิงก์ติดตามงาน" };
+
+    const { data: profile } = await sb
+      .from("profiles")
+      .select(
+        "connect_onboarding_complete, connect_payouts_enabled, stripe_client_payments_enabled, brand_name, display_name",
+      )
+      .eq("user_id", job.user_id)
+      .maybeSingle();
+
+    const stripeEnabled =
+      profile?.connect_onboarding_complete &&
+      profile?.connect_payouts_enabled &&
+      profile?.stripe_client_payments_enabled !== false;
+
+    if (!stripeEnabled) {
+      return { error: "ฟรีแลนซ์ยังไม่เปิดรับชำระออนไลน์" };
+    }
+
+    const depositAmt = Math.round(job.total_amount * (job.deposit_percent / 100));
+    const finalAmt =
+      job.amount_due > 0
+        ? Math.round(job.amount_due)
+        : Math.max(0, Math.round(job.total_amount - depositAmt));
+
+    let jobAmount: number;
+    if (opts.paymentType === "deposit") {
+      if (job.deposit_paid) return { error: "ชำระมัดจำแล้ว" };
+      if (depositAmt <= 0) return { error: "ไม่มียอดมัดจำ" };
+      jobAmount = depositAmt;
+    } else {
+      if (!job.deposit_paid) return { error: "ต้องชำระมัดจำก่อน" };
+      if (job.final_paid) return { error: "ชำระยอดสุดท้ายแล้ว" };
+      if (finalAmt <= 0) return { error: "ไม่มียอดคงเหลือ" };
+      jobAmount = finalAmt;
+      if (job.amount_due <= 0) {
+        await sb.from("job_trackers").update({ amount_due: finalAmt }).eq("id", job.id);
+      }
+    }
+
+    const accountId = await getConnectAccountIdForEnv(sb, job.user_id, opts.environment);
+    if (!accountId) return { error: "ฟรีแลนซ์ยังไม่ได้เชื่อม Stripe Connect" };
+
+    const stripe = createStripeClient(opts.environment);
+    const cardReady = await ensureConnectCardPayments(stripe, accountId);
+    if ("error" in cardReady) return cardReady;
+
+    const { jobAmount: roundedJob, feeAmount, totalAmount } =
+      estimateClientPaymentCheckout(jobAmount);
+    const jobCents = thbToStripeCents(roundedJob);
+    const feeCents = thbToStripeCents(feeAmount);
+    const priceId = `client_job_${opts.paymentType}`;
+    const brandName = profile?.brand_name || profile?.display_name || "ฟรีแลนซ์";
+    const paymentLabel =
+      opts.paymentType === "deposit"
+        ? `มัดจำ — ${job.title}`
+        : `ยอดสุดท้าย — ${job.title}`;
+
+    const origin = resolveSiteOrigin();
+    const successUrl = assertAllowedPaymentRedirectUrl(
+      opts.successUrl ?? `${origin}/track/${opts.shareToken}?stripe=${opts.paymentType}`,
+    );
+    const cancelUrl = assertAllowedPaymentRedirectUrl(
+      opts.cancelUrl ??
+        `${origin}/track/${opts.shareToken}/checkout?payment=${opts.paymentType}`,
+    );
+
+    const session = await stripe.checkout.sessions.create({
+      mode: "payment",
+      line_items: [
+        {
+          price_data: {
+            currency: "thb",
+            product_data: { name: paymentLabel },
+            unit_amount: jobCents,
+          },
+          quantity: 1,
+        },
+        {
+          price_data: {
+            currency: "thb",
+            product_data: { name: "ค่าธรรมเนียมชำระออนไลน์" },
+            unit_amount: feeCents,
+          },
+          quantity: 1,
+        },
+      ],
+      payment_intent_data: {
+        transfer_data: {
+          destination: accountId,
+          amount: jobCents,
+        },
+        metadata: {
+          kind: "client_job",
+          userId: job.user_id,
+          jobId: job.id,
+          paymentType: opts.paymentType,
+          priceId,
+          amountThb: String(roundedJob),
+        },
+      },
+      custom_text: {
+        submit: {
+          message: `ยอดค่างาน ฿${roundedJob.toLocaleString("th-TH")} โอนเข้าบัญชี ${brandName}`,
+        },
+      },
+      success_url: successUrl,
+      cancel_url: cancelUrl,
+      client_reference_id: job.user_id,
+      metadata: {
+        kind: "client_job",
+        userId: job.user_id,
+        jobId: job.id,
+        paymentType: opts.paymentType,
+        priceId,
+        amountThb: String(roundedJob),
+        feeThb: String(feeAmount),
+        totalThb: String(totalAmount),
+      },
     });
 
     if (!session.url) return { error: "Checkout session has no URL" };
@@ -343,6 +525,7 @@ export async function createConnectOnboardingLinkForUser(opts: {
         email: opts.email ?? undefined,
         capabilities: {
           transfers: { requested: true },
+          card_payments: { requested: true },
         },
         metadata: { userId: opts.userId, environment: opts.environment },
       });

@@ -14,8 +14,14 @@ export const Route = createFileRoute("/llms.txt")({
 
 - [Home](${SITE_URL}/): ภาพรวมแอปและเครื่องคำนวณราคางานฟรีแลนซ์ฟรี
 - [Blog](${SITE_URL}/blog): บทความและเทคนิคสำหรับฟรีแลนซ์ไทย
-- [Pricing](${SITE_URL}/pricing): แพ็กเกจ Free / Pro / In-House
+- [Help Center](${SITE_URL}/help): ศูนย์ช่วยเหลือ คู่มือ FAQ เส้นทางแนะนำ และ Support Hub
+- [Help — Getting started](${SITE_URL}/help/getting-started): เริ่มต้นใช้งาน 3 ขั้นแรก
+- [Help — Payments](${SITE_URL}/help/payments): QR PromptPay และ Stripe Connect บนหน้า Track
+- [Help — Tax](${SITE_URL}/help/tax): คู่มือภาษีฟรีแลนซ์ไทย
+- [Pricing](${SITE_URL}/pricing): แพ็กเกจ Free / Pro / Pro+ / In-House
 - [Creative Partner AI](${SITE_URL}/creative-partner): AI ที่ปรึกษาด้านงานออกแบบ สี ฟอนต์ คอนเซปต์
+- [Privacy](${SITE_URL}/privacy): นโยบายความเป็นส่วนตัว (PDPA)
+- [Terms](${SITE_URL}/terms): ข้อกำหนดการใช้งาน
 - [Sign in](${SITE_URL}/auth): เข้าสู่ระบบหรือสมัครสมาชิก
 
 ## Related products (external)

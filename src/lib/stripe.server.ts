@@ -70,6 +70,17 @@ export function createStripeClient(env: StripeEnv): Stripe {
   });
 }
 
+export function getStripeConnectSetupHint(message: string): string | null {
+  if (/signed up for Connect/i.test(message)) {
+    return (
+      "บัญชี Stripe ยังไม่ได้เปิด Connect — เปิด Test mode แล้วไปที่ " +
+      "https://dashboard.stripe.com/test/connect/overview กด Get started / Complete setup ก่อน " +
+      "(ใช้ key ชุดเดียวกับ STRIPE_SANDBOX_API_KEY ใน .env)"
+    );
+  }
+  return null;
+}
+
 export function getStripeErrorMessage(error: unknown): string {
   if (error && typeof error === "object") {
     const e = error as {
@@ -80,6 +91,8 @@ export function getStripeErrorMessage(error: unknown): string {
     };
     const message = e.raw?.message ?? e.message;
     if (message) {
+      const connectHint = getStripeConnectSetupHint(message);
+      if (connectHint) return connectHint;
       const details = [e.raw?.type ?? e.type, e.raw?.code ?? e.code].filter(Boolean);
       return details.length ? `${message} (${details.join(", ")})` : message;
     }

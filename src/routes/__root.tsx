@@ -14,6 +14,7 @@ import type { RouterAppContext } from "@/router";
 import "@/integrations/supabase/server-fn-fetch";
 import { DemoModeBanner } from "@/components/DemoModeBanner";
 import { installCspReporter } from "@/lib/cspReporter";
+import { initErrorMonitoring } from "@/lib/errorMonitoring";
 import { SITE_NAME, SITE_URL, DEFAULT_OG_IMAGE } from "@/lib/siteUrl";
 
 import appCss from "../styles.css?url";
@@ -23,6 +24,9 @@ function NotFoundComponent() {
 }
 
 function RootErrorComponent({ error }: { error: Error }) {
+  if (typeof window !== "undefined") {
+    void import("@/lib/errorMonitoring").then(({ captureException }) => captureException(error));
+  }
   return (
     <HttpErrorPage kind="500" code={500} errorMessage={error?.message} showRetry showSupport />
   );
@@ -132,6 +136,7 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   React.useEffect(() => {
     installCspReporter();
+    void initErrorMonitoring();
   }, []);
   return (
     <QueryClientProvider client={queryClient}>

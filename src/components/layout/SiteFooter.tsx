@@ -78,6 +78,8 @@ function FullFooter({ className }: { className?: string }) {
             <ul className="space-y-2 text-xs text-muted-foreground">
               <li><Link to="/help" className="hover:text-primary transition-colors">ศูนย์ช่วยเหลือ</Link></li>
               <li><Link to="/help/getting-started" className="hover:text-primary transition-colors">เริ่มต้นใช้งาน</Link></li>
+              <li><Link to="/help/payments" className="hover:text-primary transition-colors">รับชำระเงิน</Link></li>
+              <li><Link to="/help/quotations" className="hover:text-primary transition-colors">ใบเสนอราคา</Link></li>
               <li><Link to="/help/tax" className="hover:text-primary transition-colors">คู่มือภาษี</Link></li>
               <li><Link to="/blog" className="hover:text-primary transition-colors">Blog</Link></li>
               <li><Link to="/creative-partner" className="hover:text-primary transition-colors">Creative Partner</Link></li>

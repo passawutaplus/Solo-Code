@@ -1,20 +1,33 @@
+import * as React from "react";
 import { Link } from "@tanstack/react-router";
-import { ArrowUpRight, ChevronRight, Info, Loader2 } from "lucide-react";
+import { useServerFn } from "@tanstack/react-start";
+import {
+  ArrowUpRight,
+  ChevronRight,
+  CreditCard,
+  Crown,
+  Info,
+  Loader2,
+  Sparkles,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import type { PlanId } from "@/data/plans";
 import { useSubscription } from "@/hooks/useSubscription";
+import { createPortalSession } from "@/utils/payments.functions";
+import { currentOriginReturnUrl } from "@/lib/paymentRedirect";
+import { getStripeEnvironment } from "@/lib/stripe";
 import {
   allowedUpgradeTargets,
   isPaidTier,
   tierLabel,
 } from "@/lib/subscriptionTiers";
 import {
-  getNextTier,
   getTierMetrics,
   getTierTagline,
   TIER_CARD_STYLES,
-  tierProgress,
 } from "@/lib/tierMembership";
+import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
 type Props = {
@@ -23,11 +36,13 @@ type Props = {
 
 export function TierMembershipCard({ className }: Props) {
   const { tier, isPro, isActive, isLoading, subscription } = useSubscription();
+  const portal = useServerFn(createPortalSession);
+  const [portalBusy, setPortalBusy] = React.useState(false);
+
   const style = TIER_CARD_STYLES[tier];
   const Icon = style.icon;
   const metrics = getTierMetrics(tier);
   const tagline = getTierTagline(tier);
-  const nextTier = getNextTier(tier);
   const paidTier = isPaidTier(tier) ? tier : null;
   const upgradeTargets = paidTier ? allowedUpgradeTargets(paidTier) : [];
   const nextUpgrade: PlanId | null =
@@ -36,10 +51,25 @@ export function TierMembershipCard({ className }: Props) {
   const renewsAt = subscription?.current_period_end
     ? new Date(subscription.current_period_end).toLocaleDateString("th-TH", {
         day: "numeric",
-        month: "short",
+        month: "long",
         year: "numeric",
       })
     : null;
+
+  async function openPortal() {
+    setPortalBusy(true);
+    try {
+      const res = await portal({
+        data: { environment: getStripeEnvironment(), returnUrl: currentOriginReturnUrl() },
+      });
+      if ("error" in res) throw new Error(res.error);
+      window.open(res.url, "_blank");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "เปิดหน้าจัดการไม่ได้");
+    } finally {
+      setPortalBusy(false);
+    }
+  }
 
   return (
     <section
@@ -74,15 +104,44 @@ export function TierMembershipCard({ className }: Props) {
               )}
             </div>
           </div>
-          <Link
-            to="/pricing"
-            hash="tier-details"
-            className="shrink-0 rounded-full p-2 text-muted-foreground transition-colors hover:bg-white/10 hover:text-foreground"
-            aria-label="ดูรายละเอียดแพ็กเกจ"
-          >
-            <Info className="h-4 w-4" />
-          </Link>
+          <div className="flex shrink-0 flex-col items-end gap-1.5">
+            {isPro && isActive && renewsAt && !isLoading && (
+              <p className="text-[10px] sm:text-xs text-muted-foreground text-right leading-snug max-w-[180px]">
+                {subscription?.cancel_at_period_end
+                  ? `สิ้นสุด ${renewsAt}`
+                  : `ต่ออายุถัดไป: ${renewsAt}`}
+              </p>
+            )}
+            <div className="flex items-center gap-1">
+              {!isLoading && (
+                <Badge
+                  variant="secondary"
+                  className={cn(
+                    "border-white/10 bg-white/10",
+                    isPro && "text-primary border-primary/20 bg-primary/15",
+                  )}
+                >
+                  {isPro ? <Crown className="h-3 w-3 mr-1" /> : null}
+                  {tierLabel(tier)}
+                </Badge>
+              )}
+              <Link
+                to="/pricing"
+                hash="tier-details"
+                className="rounded-full p-2 text-muted-foreground transition-colors hover:bg-white/10 hover:text-foreground"
+                aria-label="ดูรายละเอียดแพ็กเกจ"
+              >
+                <Info className="h-4 w-4" />
+              </Link>
+            </div>
+          </div>
         </div>
+
+        {subscription?.status === "past_due" && (
+          <p className="mt-3 text-xs text-destructive">
+            การชำระเงินล่าสุดไม่สำเร็จ — กรุณาอัปเดตบัตร
+          </p>
+        )}
 
         <div className="mt-4 grid grid-cols-3 gap-2">
           {metrics.map((m) => (
@@ -98,31 +157,31 @@ export function TierMembershipCard({ className }: Props) {
           ))}
         </div>
 
-        {nextTier && tier !== "inhouse" && (
-          <div className="mt-4">
-            <div className="mb-1 flex justify-between text-[10px] text-muted-foreground">
-              <span>ระดับสมาชิก</span>
-              <span>ถัดไป: {tierLabel(nextTier)}</span>
-            </div>
-            <div className="h-1.5 overflow-hidden rounded-full bg-black/20">
-              <div
-                className="h-full rounded-full bg-primary/80 transition-all"
-                style={{ width: `${tierProgress(tier)}%` }}
-              />
-            </div>
-          </div>
-        )}
-
-        {isPro && isActive && renewsAt && (
-          <p className="mt-3 text-xs text-muted-foreground">
-            {subscription?.cancel_at_period_end
-              ? `สิ้นสุด ${renewsAt}`
-              : `ต่ออายุถัดไป ${renewsAt}`}
-          </p>
-        )}
-
         <div className="mt-4 flex flex-wrap gap-2">
-          {nextUpgrade && (
+          {!isPro ? (
+            <Button asChild size="sm" className="gap-1.5 rounded-full">
+              <Link to="/pricing">
+                <Sparkles className="h-3.5 w-3.5" />
+                อัพเกรด Pro
+              </Link>
+            </Button>
+          ) : (
+            <Button
+              size="sm"
+              variant="outline"
+              className="gap-1.5 rounded-full border-white/15 bg-white/5"
+              onClick={openPortal}
+              disabled={portalBusy}
+            >
+              {portalBusy ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <CreditCard className="h-3.5 w-3.5" />
+              )}
+              จัดการการชำระเงิน
+            </Button>
+          )}
+          {nextUpgrade && isPro && (
             <Button asChild size="sm" className="gap-1.5 rounded-full">
               <Link to="/pricing" hash="tier-details">
                 อัพเกรด {tierLabel(nextUpgrade)}
@@ -140,6 +199,12 @@ export function TierMembershipCard({ className }: Props) {
               ดูสิทธิ์ทั้งหมด
               <ChevronRight className="h-3.5 w-3.5" />
             </Link>
+          </Button>
+          <Button asChild size="sm" variant="ghost" className="text-muted-foreground">
+            <Link to="/pricing">ดูแผนราคา</Link>
+          </Button>
+          <Button asChild size="sm" variant="ghost" className="text-muted-foreground">
+            <Link to="/refund">นโยบายคืนเงิน</Link>
           </Button>
         </div>
       </div>

@@ -2,25 +2,16 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ShieldCheck } from "lucide-react";
 import { LegalPageLayout, LegalSectionBlock } from "@/components/legal/LegalPageLayout";
 import { LEGAL, PRIVACY_SECTIONS } from "@/lib/legalMeta";
+import { buildPublicPageHead } from "@/lib/seoHead";
 
 export const Route = createFileRoute("/privacy")({
-  head: () => ({
-    meta: [
-      { title: "นโยบายความเป็นส่วนตัว (PDPA) — So1o Freelancer" },
-      {
-        name: "description",
-        content:
-          "นโยบายความเป็นส่วนตัวตาม PDPA ของ So1o Freelancer — วิธีเก็บ ใช้ เปิดเผย และปกป้องข้อมูลส่วนบุคคลของฟรีแลนซ์ไทย",
-      },
-      { property: "og:title", content: "นโยบายความเป็นส่วนตัว (PDPA) — So1o Freelancer" },
-      {
-        property: "og:description",
-        content: "วิธีที่ So1o Freelancer เก็บและปกป้องข้อมูลส่วนบุคคลตาม PDPA",
-      },
-      { property: "og:url", content: "https://solofreelancer.com/privacy" },
-    ],
-    links: [{ rel: "canonical", href: "https://solofreelancer.com/privacy" }],
-  }),
+  head: () =>
+    buildPublicPageHead({
+      title: "นโยบายความเป็นส่วนตัว (PDPA)",
+      description:
+        "นโยบาย PDPA ของ So1o Freelancer — วิธีเก็บ ใช้ เปิดเผย และปกป้องข้อมูล รวม Stripe Connect LINE AI และ ecosystem an1hem",
+      path: "/privacy",
+    }),
   component: PrivacyPage,
 });
 
@@ -66,7 +57,18 @@ function PrivacyPage() {
           </li>
           <li>
             <strong>ข้อมูลธุรกิจ:</strong> ชื่อแบรนด์, เลขประจำตัวผู้เสียภาษี, ที่อยู่, เบอร์โทร,
-            ข้อมูลธนาคาร, ลูกค้า, ใบเสนอราคา, ใบบรีฟ, รายรับ-รายจ่าย, ใบหัก ณ ที่จ่าย (50 ทวิ)
+            ข้อมูลธนาคาร/QR PromptPay, ลูกค้า, ใบเสนอราคา, ใบบรีฟ, รายรับ-รายจ่าย, ใบหัก ณ ที่จ่าย (50 ทวิ),
+            สลิปโอนเงินที่ลูกค้าอัปโหลด
+          </li>
+          <li>
+            <strong>ข้อมูลการชำระเงิน:</strong> สถานะ subscription Pro/Pro+/In-House ผ่าน Stripe;
+            บัญชี Stripe Connect และสถานะชำระออนไลน์จากลูกค้า (เราไม่เก็บเลขบัตรเครดิตโดยตรง)
+          </li>
+          <li>
+            <strong>LINE:</strong> LINE user ID และการตั้งค่าแจ้งเตือน (เมื่อคุณเชื่อม LINE OA)
+          </li>
+          <li>
+            <strong>Support:</strong> ข้อความแชทกับทีม, ตั๋วแจ้งปัญหา (TKT), รูปแนบ, Give Feedback
           </li>
           <li>
             <strong>ข้อมูลการใช้งาน:</strong> หน้าที่เข้าชม, ฟีเจอร์ที่ใช้, เวลาใช้งานล่าสุด,
@@ -76,8 +78,7 @@ function PrivacyPage() {
             <strong>ข้อมูลจาก AI:</strong> ข้อความที่ส่งให้ AI Mentor, ไฟล์รูป/PDF ที่อัปโหลดเพื่อสแกน 50 ทวิ
           </li>
           <li>
-            <strong>ข้อมูลการชำระเงิน:</strong> สถานะการสมัครแผน Pro/In House ผ่าน Stripe
-            (เราไม่เก็บเลขบัตรเครดิตโดยตรง)
+            <strong>ข้อมูล an1hem:</strong> โปรไฟล์และผลงานโชว์เคส (เมื่อใช้ ecosystem บัญชีเดียว)
           </li>
         </ul>
       </LegalSectionBlock>
@@ -109,6 +110,18 @@ function PrivacyPage() {
                 <td className="px-3 py-2">ความยินยอม / สัญญา</td>
               </tr>
               <tr>
+                <td className="px-3 py-2">รับชำระจากลูกค้า (Stripe Connect / สลิป)</td>
+                <td className="px-3 py-2">สัญญา / ประโยชน์โดยชอบด้วยกฎหมาย</td>
+              </tr>
+              <tr>
+                <td className="px-3 py-2">แจ้งเตือน LINE และ Support Hub</td>
+                <td className="px-3 py-2">สัญญา / ความยินยอม</td>
+              </tr>
+              <tr>
+                <td className="px-3 py-2">Ecosystem an1hem (โชว์เคส)</td>
+                <td className="px-3 py-2">สัญญา / บริการที่ร้องขอ</td>
+              </tr>
+              <tr>
                 <td className="px-3 py-2">แจ้งข่าวสารและอัปเดตสำคัญ</td>
                 <td className="px-3 py-2">ประโยชน์โดยชอบด้วยกฎหมาย / ความยินยอม</td>
               </tr>
@@ -130,7 +143,10 @@ function PrivacyPage() {
             <strong>Google Gemini</strong> — ประมวลผล AI สำหรับสแกน 50 ทวิ และ AI Mentor
           </li>
           <li>
-            <strong>Stripe</strong> — ชำระเงินแผน Pro/In House
+            <strong>Stripe</strong> — subscription แผน Pro และ Stripe Connect รับชำระจากลูกค้า
+          </li>
+          <li>
+            <strong>LINE</strong> — แจ้งเตือนงาน (เมื่อคุณเชื่อมบัญชี)
           </li>
           <li>
             <strong>Google Fonts</strong> — แสดงฟอนต์ (อาจมีการส่ง IP ไปยัง Google CDN)
@@ -142,7 +158,24 @@ function PrivacyPage() {
         </p>
       </LegalSectionBlock>
 
-      <LegalSectionBlock id="transfer" title="6. การโอนข้อมูลไปต่างประเทศ">
+      <LegalSectionBlock id="ecosystem" title="6. So1o + an1hem (บัญชีเดียว)">
+        <p>
+          บัญชี So1o และ an1hem ({LEGAL.ecosystemUrl}) ใช้ระบบยืนยันตัวตนร่วมกัน
+          ข้อมูลโปรไฟล์ แพ็กเกจ และโควต้าบางส่วนแชร์ข้ามแอปเพื่อให้ ecosystem ทำงาน
+        </p>
+        <ul className="list-disc pl-5 space-y-1.5">
+          <li>การลบบัญชี So1o อาจส่งผลต่อการเข้า an1hem — ติดต่อเราก่อนลบหากมีข้อสงสัย</li>
+          <li>ลูกค้าที่เข้าหน้า Track/Brief ผ่าน token ไม่ได้สมัครบัญชี — ข้อมูลของพวกเขาอยู่ภายใต้ความรับผิดชอบของคุณในฐานะฟรีแลนซ์</li>
+        </ul>
+        <p className="text-sm text-muted-foreground">
+          ดูข้อกำหนดฝั่งโชว์เคส:{" "}
+          <a href={`${LEGAL.ecosystemUrl}/legal/privacy`} className="text-primary hover:underline" target="_blank" rel="noopener noreferrer">
+            PDPA {LEGAL.ecosystemName}
+          </a>
+        </p>
+      </LegalSectionBlock>
+
+      <LegalSectionBlock id="transfer" title="7. การโอนข้อมูลไปต่างประเทศ">
         <p>
           ผู้ให้บริการบางรายอาจเก็บข้อมูลบนเซิร์ฟเวอร์ต่างประเทศ
           เราเลือกผู้ให้บริการที่มีมาตรการคุ้มครองข้อมูลที่เหมาะสม
@@ -150,16 +183,17 @@ function PrivacyPage() {
         </p>
       </LegalSectionBlock>
 
-      <LegalSectionBlock id="retention" title="7. ระยะเวลเก็บรักษา">
+      <LegalSectionBlock id="retention" title="8. ระยะเวลเก็บรักษา">
         <ul className="list-disc pl-5 space-y-1.5">
           <li>ข้อมูลบัญชีและงาน: ตลอดระยะเวลาที่บัญชียังใช้งาน</li>
           <li>หลังยกเลิกบัญชี: ลบหรือทำให้ไม่สามารถระบุตัวตนได้ภายใน 30–90 วัน (ยกเว้นที่กฎหมายกำหนด)</li>
           <li>ไฟล์ 50 ทวิ: เก็บใน Storage ของคุณจนกว่าจะลบเอง</li>
+          <li>ตั๋ว Support และแชท: เก็บตามความจำเป็นในการแก้ปัญหาและปฏิบัติตามกฎหมาย</li>
           <li>Log การใช้งาน: เก็บตามความจำเป็นเพื่อวิเคราะห์และความปลอดภัย ไม่เกิน 24 เดือน</li>
         </ul>
       </LegalSectionBlock>
 
-      <LegalSectionBlock id="security" title="8. ความปลอดภัย">
+      <LegalSectionBlock id="security" title="9. ความปลอดภัย">
         <p>
           ข้อมูลถูกเก็บบน Cloud Database ที่เข้ารหัสในการส่ง (HTTPS/TLS)
           มี Row-Level Security ทำให้ผู้ใช้แต่ละคนเข้าถึงได้เฉพาะข้อมูลของตนเอง
@@ -167,7 +201,7 @@ function PrivacyPage() {
         </p>
       </LegalSectionBlock>
 
-      <LegalSectionBlock id="rights" title="9. สิทธิของเจ้าของข้อมูล (PDPA)">
+      <LegalSectionBlock id="rights" title="10. สิทธิของเจ้าของข้อมูล (PDPA)">
         <p>คุณมีสิทธิตาม PDPA ดังนี้:</p>
         <ul className="list-disc pl-5 space-y-1.5">
           <li>ขอเข้าถึงและขอสำเนาข้อมูลส่วนบุคคล</li>
@@ -187,7 +221,7 @@ function PrivacyPage() {
         </p>
       </LegalSectionBlock>
 
-      <LegalSectionBlock id="cookies" title="10. คุกกี้และเทคโนโลยีที่คล้ายกัน">
+      <LegalSectionBlock id="cookies" title="11. คุกกี้และเทคโนโลยีที่คล้ายกัน">
         <p>
           เราใช้คุกกี้ Local Storage และ Session Storage เพื่อให้ระบบทำงาน
           จดจำการตั้งค่า และวิเคราะห์การใช้งาน (เมื่อคุณยินยอม)
@@ -198,7 +232,7 @@ function PrivacyPage() {
         </p>
       </LegalSectionBlock>
 
-      <LegalSectionBlock id="ai" title="11. การใช้ปัญญาประดิษฐ์ (AI)">
+      <LegalSectionBlock id="ai" title="12. การใช้ปัญญาประดิษฐ์ (AI)">
         <p>
           ฟีเจอร์ AI Mentor และสแกน 50 ทวิ ส่งข้อมูลไปประมวลผลที่ Google Gemini
           เราไม่ใช้ข้อมูลของคุณเพื่อฝึกโมเดล AI สาธารณะ
@@ -206,7 +240,7 @@ function PrivacyPage() {
         </p>
       </LegalSectionBlock>
 
-      <LegalSectionBlock id="minors" title="12. ผู้เยาว์">
+      <LegalSectionBlock id="minors" title="13. ผู้เยาว์">
         <p>
           บริการนี้มุ่งเป้าผู้ใช้ที่มีอายุ 18 ปีขึ้นไป
           หากทราบว่ามีการเก็บข้อมูลผู้เยาว์โดยไม่ได้รับความยินยอมจากผู้ปกครอง
@@ -214,7 +248,7 @@ function PrivacyPage() {
         </p>
       </LegalSectionBlock>
 
-      <LegalSectionBlock id="changes" title="13. การเปลี่ยนแปลงนโยบาย">
+      <LegalSectionBlock id="changes" title="14. การเปลี่ยนแปลงนโยบาย">
         <p>
           เราอาจปรับปรุงนโยบายนี้เป็นระยะ โดยแสดงวันที่อัปเดตด้านบน
           การใช้งานต่อหลังการเปลี่ยนแปลงถือเป็นการยอมรับฉบับใหม่
@@ -222,7 +256,7 @@ function PrivacyPage() {
         </p>
       </LegalSectionBlock>
 
-      <LegalSectionBlock id="contact" title="14. ติดต่อเรา">
+      <LegalSectionBlock id="contact" title="15. ติดต่อเรา">
         <p>
           หากมีคำถาม ข้อร้องเรียน หรือต้องการใช้สิทธิตาม PDPA ติดต่อ:
           <br />

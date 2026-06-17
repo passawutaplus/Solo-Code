@@ -13,20 +13,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { DISCLAIMER_TAX_ACCOUNTING } from "@/lib/copyConstants";
+import { helpGuideHead } from "@/lib/helpSeo";
 
 export const Route = createFileRoute("/help/tax")({
-  head: () => ({
-    meta: [
-      { title: "คู่มือภาษีฟรีแลนซ์ — So1o Freelancer" },
-      {
-        name: "description",
-        content:
-          "คู่มือภาษีสำหรับฟรีแลนซ์ไทย — บันทึกรายได้ ใบ 50ทวิ หักค่าใช้จ่าย ประมาณการ และส่งนักบัญชี ทีละขั้น",
-      },
-      { name: "robots", content: "index,follow" },
-    ],
-    links: [{ rel: "canonical", href: "https://solofreelancer.com/help/tax" }],
-  }),
+  head: () => helpGuideHead("/help/tax"),
   component: TaxHelpPage,
 });
 

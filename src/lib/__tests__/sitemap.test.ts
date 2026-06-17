@@ -7,6 +7,9 @@ describe("sitemap", () => {
     expect(paths).toContain("/");
     expect(paths).toContain("/pricing");
     expect(paths).toContain("/blog");
+    expect(paths).toContain("/help");
+    expect(paths).toContain("/help/payments");
+    expect(paths).toContain("/help/line");
   });
 
   it("excludes private and auth routes from PUBLIC_ROUTES", () => {

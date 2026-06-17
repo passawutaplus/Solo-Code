@@ -12,7 +12,7 @@ import {
 import type { DashSection } from "./layout/DashboardSidebar";
 
 const NAV_ITEMS: { label: string; section: DashSection; sub?: string; keywords?: string }[] = [
-  { label: "Home", section: "home", keywords: "ข่าว inspire เทรนด์ welcome" },
+  { label: "Home", section: "home", keywords: "ข่าว inspire เทรนด์ welcome drill โจทย์ ฝึก design" },
   { label: "Dashboard", section: "overview", keywords: "หน้าหลัก my desk" },
   { label: "Pipeline", section: "finance", sub: "pipeline", keywords: "ดีล kanban" },
   { label: "ใบเสนอราคา", section: "finance", sub: "quotations", keywords: "quotation" },

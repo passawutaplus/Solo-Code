@@ -61,9 +61,9 @@ export function OnboardingFlow() {
       toast.error("บันทึกไม่สำเร็จ ลองใหม่อีกครั้ง");
       return;
     }
-    toast.success("ยินดีต้อนรับ! ขั้นถัดไป: ตั้งค่าโปรไฟล์ร้านของคุณ");
+    toast.success("ยินดีต้อนรับ! เริ่มจาก 3 ขั้นแรกใน Dashboard");
     await refreshProfile();
-    navigate({ to: "/dashboard", search: { tab: "settings" }, replace: true });
+    navigate({ to: "/dashboard", search: { tab: "overview" }, replace: true });
   };
 
   const pickOption = (val: string) => {

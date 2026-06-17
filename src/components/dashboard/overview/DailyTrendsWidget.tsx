@@ -4,6 +4,7 @@ import { Sparkles, ChevronLeft, ChevronRight } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { DAILY_TRENDS } from "@/data/dailyTrends";
+import { TrendIcon } from "@/lib/trendIcons";
 
 const ROTATE_MS = 10_000;
 
@@ -75,9 +76,13 @@ export function DailyTrendsWidget() {
               transition={{ duration: 0.4, ease: "easeOut" }}
               className="flex gap-3"
             >
-              <div className="text-2xl sm:text-3xl shrink-0 leading-none mt-0.5">
-                {trend.emoji}
-              </div>
+              <TrendIcon
+                iconKey={trend.iconKey}
+                category={trend.category}
+                size="sm"
+                variant="soft"
+                className="shrink-0 mt-0.5"
+              />
               <div className="min-w-0">
                 <span className="inline-block text-[10px] font-semibold uppercase tracking-wide text-primary bg-primary/10 rounded-full px-2 py-0.5 mb-1">
                   {trend.category}

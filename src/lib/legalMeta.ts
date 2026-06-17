@@ -1,11 +1,13 @@
-/** Shared legal page metadata — keep in sync across privacy / terms / cookies. */
+/** Shared legal page metadata — keep in sync across privacy / terms / cookies / refund. */
 export const LEGAL = {
   siteName: "So1o Freelancer",
   siteUrl: "https://solofreelancer.com",
+  ecosystemName: "an1hem (1PX Showcase)",
+  ecosystemUrl: "https://an1hem.app",
   contactEmail: "hello@solofreelancer.com",
   /** Fixed date — update when policies change materially. */
-  lastUpdated: "31 พฤษภาคม 2569",
-  lastUpdatedIso: "2026-05-31",
+  lastUpdated: "17 มิถุนายน 2569",
+  lastUpdatedIso: "2026-06-17",
   controllerName: "So1o Freelancer",
   jurisdiction: "ประเทศไทย",
 } as const;
@@ -14,6 +16,8 @@ export const LEGAL = {
 export const PRICING = {
   proMonthly: 249,
   proYearly: 2388,
+  proPlusMonthly: 399,
+  proPlusYearly: 3828,
   inhouseMonthlyPerSeat: 599,
   inhouseYearlyPerSeat: 5750,
   freeMonthlyJobs: 3,
@@ -21,9 +25,10 @@ export const PRICING = {
 
 export const REFUND_SECTIONS: LegalSection[] = [
   { id: "intro", title: "บทนำ" },
-  { id: "subscription", title: "การสมัครแบบรายเดือน" },
+  { id: "subscription", title: "การสมัครแบบ subscription" },
   { id: "eligible", title: "กรณีที่อาจคืนเงิน" },
   { id: "not-eligible", title: "กรณีที่ไม่คืนเงิน" },
+  { id: "client-payments", title: "ชำระจากลูกค้า (Stripe Connect)" },
   { id: "how", title: "วิธีขอคืนเงิน" },
   { id: "contact", title: "ติดต่อเรา" },
 ];
@@ -36,6 +41,7 @@ export const PRIVACY_SECTIONS: LegalSection[] = [
   { id: "data-collected", title: "ข้อมูลที่เก็บ" },
   { id: "purposes", title: "วัตถุประสงค์และฐานทางกฎหมาย" },
   { id: "third-parties", title: "บุคคลที่สาม" },
+  { id: "ecosystem", title: "So1o + an1hem" },
   { id: "transfer", title: "การโอนข้อมูลต่างประเทศ" },
   { id: "retention", title: "ระยะเวลเก็บรักษา" },
   { id: "security", title: "ความปลอดภัย" },
@@ -59,11 +65,15 @@ export const COOKIE_SECTIONS: LegalSection[] = [
 export const TERMS_SECTIONS: LegalSection[] = [
   { id: "accept", title: "การยอมรับ" },
   { id: "service", title: "ลักษณะบริการ" },
+  { id: "ecosystem", title: "So1o + an1hem" },
   { id: "account", title: "บัญชีผู้ใช้" },
   { id: "prohibited", title: "การใช้งานที่ห้าม" },
   { id: "content", title: "กรรมสิทธิ์เนื้อหา" },
+  { id: "client-portals", title: "หน้าลูกค้า (Track/Brief)" },
+  { id: "payments-client", title: "รับชำระจากลูกค้า" },
   { id: "ai-tax", title: "AI และภาษี" },
   { id: "subscription", title: "แผนราคาและการชำระเงิน" },
+  { id: "support", title: "Support Hub" },
   { id: "beta", title: "Early Access / Beta" },
   { id: "liability", title: "ข้อจำกัดความรับผิด" },
   { id: "termination", title: "การยกเลิกบัญชี" },
@@ -164,5 +174,12 @@ export const COOKIE_INVENTORY: CookieInventoryRow[] = [
     category: "preferences",
     purpose: "Draft งาน, มุมมองแท็บ, ค่าตั้งต้น Dashboard",
     duration: "จนกว่าจะลบ",
+  },
+  {
+    name: "__stripe_* / stripe.*",
+    storage: "Cookie",
+    category: "essential",
+    purpose: "Checkout แผน Pro และ Stripe Connect (เมื่อชำระ/เชื่อมบัญชี)",
+    duration: "ตาม Stripe (มัก ≤ 1 ปี)",
   },
 ];

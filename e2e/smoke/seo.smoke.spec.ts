@@ -27,4 +27,13 @@ test.describe("SEO @public", () => {
     await page.goto("/auth");
     await expect(page.locator('meta[name="robots"]').first()).toHaveAttribute("content", /noindex/i);
   });
+
+  test("help center has OG tags and FAQ JSON-LD", async ({ page }) => {
+    await page.goto("/help");
+    const html = await page.content();
+    expect(html).toContain('property="og:title"');
+    expect(html).toContain('property="og:description"');
+    expect(html).toContain('"FAQPage"');
+    await expect(page).toHaveTitle(/ช่วยเหลือ|So1o/i);
+  });
 });

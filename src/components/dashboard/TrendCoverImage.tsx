@@ -1,6 +1,7 @@
 import * as React from "react";
 import { safeHref } from "@/lib/security";
 import type { DailyTrendItem } from "@/lib/dailyTrends.types";
+import { TrendIcon } from "@/lib/trendIcons";
 
 interface TrendCoverImageProps {
   item: DailyTrendItem;
@@ -25,14 +26,15 @@ export function TrendCoverImage({ item, variant = "card", className = "" }: Tren
     );
   }
 
-  const emojiSize =
-    variant === "featured" ? "text-[120px]" : variant === "thumb" ? "text-lg" : "text-5xl";
+  const iconSize = variant === "featured" ? "xl" : variant === "thumb" ? "xs" : "lg";
 
   return (
-    <span
-      className={`flex items-center justify-center leading-none drop-shadow-sm ${emojiSize} ${className}`}
-    >
-      {item.emoji ?? "📰"}
-    </span>
+    <TrendIcon
+      category={item.category}
+      iconKey={item.iconKey}
+      size={iconSize}
+      variant="soft"
+      className={className}
+    />
   );
 }

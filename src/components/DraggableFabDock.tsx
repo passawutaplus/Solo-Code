@@ -12,10 +12,19 @@ function useModalOpen() {
   React.useEffect(() => {
     if (typeof document === "undefined") return;
     const body = document.body;
-    const check = () => setOpen(body.hasAttribute("data-scroll-locked"));
+    const check = () => {
+      const scrollLocked = body.hasAttribute("data-scroll-locked");
+      const dialogOpen = !!document.querySelector('[role="dialog"][data-state="open"]');
+      setOpen(scrollLocked || dialogOpen);
+    };
     check();
     const obs = new MutationObserver(check);
-    obs.observe(body, { attributes: true, attributeFilter: ["data-scroll-locked"] });
+    obs.observe(body, { attributes: true, attributeFilter: ["data-scroll-locked", "data-state"] });
+    obs.observe(document.documentElement, {
+      attributes: true,
+      subtree: true,
+      attributeFilter: ["data-state"],
+    });
     return () => obs.disconnect();
   }, []);
   return open;

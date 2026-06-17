@@ -58,9 +58,10 @@ export function isOneTimePrice(priceId: string): boolean {
   return isCreditsPrice(priceId) || isPxPrice(priceId);
 }
 
-export type CheckoutKind = "subscription" | "credits" | "px";
+export type CheckoutKind = "subscription" | "credits" | "px" | "client_job";
 
 export function checkoutKind(priceId: string): CheckoutKind {
+  if (priceId.startsWith("client_job_")) return "client_job";
   if (isPxPrice(priceId)) return "px";
   if (isCreditsPrice(priceId)) return "credits";
   return "subscription";

@@ -15,7 +15,7 @@ export function SupportSidebarButton({
   return (
     <SidebarMenuButton
       tooltip="Help"
-      className={cn(MENU_BTN, "w-full")}
+      className={cn(MENU_BTN, "w-full justify-center")}
       onClick={onOpen}
     >
       <LifeBuoy className="h-4 w-4 shrink-0" />

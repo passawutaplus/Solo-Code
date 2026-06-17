@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { RouteError } from "@/components/RouteError";
 import { HttpErrorPage } from "@/components/HttpErrorPage";
@@ -20,7 +20,7 @@ import { Dialog, DialogContent, DialogCloseButton, DialogHeader, DialogTitle } f
 import {
   Loader2, Lock, Unlock, Download, Upload, CheckCircle2, Receipt, Copy, Hash, RefreshCw,
   LayoutDashboard, Wallet, Clock, FolderOpen, FileText, ClipboardList, ChevronDown,
-  Printer, Trash2, RotateCw, ThumbsUp,
+  Printer, Trash2, RotateCw, ThumbsUp, CreditCard,
 } from "lucide-react";
 import { toast } from "sonner";
 import { celebrateFromEdges as celebrate } from "@/lib/celebrate";
@@ -28,6 +28,7 @@ import { JOB_STEPS } from "@/components/dashboard/jobtracker/steps";
 import { uploadJobTrackerImage } from "@/components/dashboard/jobtracker/uploadImage";
 import { StepComments } from "@/components/dashboard/jobtracker/StepComments";
 import type { PortalBranding } from "@/lib/documentTheme/types";
+import type { ClientPaymentEstimate } from "@/lib/stripeClientPaymentFees";
 import {
   ThemedQuotationMiniPreview,
   ThemedQuotationPrintBody,
@@ -134,6 +135,11 @@ function TrackPage() {
   const [quotation, setQuotation] = React.useState<PublicQuotation | null>(null);
   const [brief, setBrief] = React.useState<PublicBrief | null>(null);
   const [portal, setPortal] = React.useState<PortalBranding | null>(null);
+  const [payments, setPayments] = React.useState<{
+    stripeEnabled: boolean;
+    deposit?: ClientPaymentEstimate;
+    final?: ClientPaymentEstimate;
+  }>({ stripeEnabled: false });
   const [loading, setLoading] = React.useState(true);
   const [notFound, setNotFound] = React.useState(false);
   const prevUnlocked = React.useRef(false);
@@ -152,6 +158,9 @@ function TrackPage() {
       setQuotation((res.quotation ?? null) as PublicQuotation | null);
       setBrief((res.brief ?? null) as PublicBrief | null);
       setPortal((res.portal ?? null) as PortalBranding | null);
+      setPayments(
+        (res.payments as typeof payments) ?? { stripeEnabled: false },
+      );
     } catch {
       setNotFound(true);
     } finally {
@@ -160,7 +169,24 @@ function TrackPage() {
   }, [token, job]);
 
   React.useEffect(() => { load(); }, [token]); // eslint-disable-line
-  // Realtime subscription replaces polling. Note: RLS gates realtime delivery
+
+  React.useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const stripe = params.get("stripe");
+    if (stripe === "deposit") {
+      toast.success("ชำระมัดจำสำเร็จ — กำลังอัปเดตสถานะงาน");
+      celebrate();
+      window.history.replaceState({}, "", `/track/${token}`);
+      load();
+    } else if (stripe === "final") {
+      toast.success("ชำระยอดสุดท้ายสำเร็จ — ไฟล์งานจะปลดล็อกเมื่อฟรีแลนซ์ยืนยัน");
+      celebrate();
+      window.history.replaceState({}, "", `/track/${token}`);
+      load();
+    }
+  }, [token]); // eslint-disable-line
+
+  // Realtime subscription replaces polling.
   // for anonymous viewers, so we keep a slow 60s safety poll as fallback.
   React.useEffect(() => {
     if (!job?.id) return;
@@ -365,12 +391,16 @@ function TrackPage() {
               <PaymentBlock
                 kind="deposit" amount={depositAmount} job={job} token={token}
                 slips={slips} onUploaded={load}
+                stripeEnabled={payments.stripeEnabled}
+                stripeEstimate={payments.deposit}
               />
             )}
             {showFinalPayBlock && (
               <PaymentBlock
                 kind="final" amount={remainingDue} job={job} token={token}
                 slips={slips} onUploaded={load}
+                stripeEnabled={payments.stripeEnabled}
+                stripeEstimate={payments.final}
               />
             )}
 
@@ -433,12 +463,16 @@ function TrackPage() {
               <PaymentBlock
                 kind="deposit" amount={depositAmount} job={job} token={token}
                 slips={slips} onUploaded={load}
+                stripeEnabled={payments.stripeEnabled}
+                stripeEstimate={payments.deposit}
               />
             )}
             {showFinalPayBlock && (
               <PaymentBlock
                 kind="final" amount={remainingDue} job={job} token={token}
                 slips={slips} onUploaded={load}
+                stripeEnabled={payments.stripeEnabled}
+                stripeEstimate={payments.final}
               />
             )}
 
@@ -569,7 +603,7 @@ function TrackPage() {
 }
 
 function PaymentBlock({
-  kind, amount, job, token, slips, onUploaded,
+  kind, amount, job, token, slips, onUploaded, stripeEnabled, stripeEstimate,
 }: {
   kind: "deposit" | "final";
   amount: number;
@@ -577,6 +611,8 @@ function PaymentBlock({
   token: string;
   slips: Slip[];
   onUploaded: () => void;
+  stripeEnabled?: boolean;
+  stripeEstimate?: ClientPaymentEstimate;
 }) {
   const isFinal = kind === "final";
   return (
@@ -625,6 +661,41 @@ function PaymentBlock({
 
         {/* Always allow uploading additional slip (handles partial payments / re-submission) */}
         <SlipUploader jobId={job.id} token={token} onUploaded={onUploaded} hasExisting={slips.length > 0} />
+
+        {stripeEnabled && stripeEstimate && (
+          <>
+            <div className="relative py-2">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t border-dashed" />
+              </div>
+              <p className="relative flex justify-center text-[10px] uppercase tracking-wide text-muted-foreground bg-orange-50/50 px-2">
+                หรือชำระออนไลน์
+              </p>
+            </div>
+            <div className="rounded-xl bg-white border border-primary/20 p-3 space-y-2">
+              <div className="flex items-center gap-2 text-sm font-medium">
+                <CreditCard className="h-4 w-4 text-primary" />
+                ชำระด้วยบัตร / ออนไลน์
+              </div>
+              <p className="text-[11px] text-muted-foreground leading-snug">
+                ค่างาน ฿{stripeEstimate.jobAmount.toLocaleString("th-TH")} + ค่าธรรมเนียม ฿
+                {stripeEstimate.feeAmount.toLocaleString("th-TH")} = รวม{" "}
+                <span className="font-semibold text-foreground">
+                  ฿{stripeEstimate.totalAmount.toLocaleString("th-TH")}
+                </span>
+              </p>
+              <Button asChild className="w-full gap-1.5 bg-gradient-primary text-primary-foreground">
+                <Link
+                  to="/track/$token/checkout"
+                  params={{ token }}
+                  search={{ payment: kind }}
+                >
+                  ดูรายละเอียดและชำระ
+                </Link>
+              </Button>
+            </div>
+          </>
+        )}
       </CardContent>
     </Card>
   );

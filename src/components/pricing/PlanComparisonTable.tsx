@@ -1,9 +1,11 @@
-import { Check, Loader2, Minus } from "lucide-react";
+import * as React from "react";
+import { Check, Info, Loader2, Minus } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
 import {
-  PLAN_COMPARISON_ROWS,
+  PLAN_COMPARISON_CATEGORIES,
   PLAN_COMPARISON_TIER_LABELS,
   PLAN_COMPARISON_TIER_ORDER,
   type ComparisonCell,
@@ -27,6 +29,29 @@ function ComparisonCellValue({ value }: { value: ComparisonCell }) {
     );
   }
   return <span className="text-foreground/90">{value}</span>;
+}
+
+function CategoryInfoTip({ title, text }: { title: string; text: string }) {
+  return (
+    <HoverCard openDelay={120} closeDelay={80}>
+      <HoverCardTrigger asChild>
+        <button
+          type="button"
+          className="inline-flex shrink-0 rounded-full text-muted-foreground/55 hover:text-muted-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 align-middle"
+          aria-label={`ข้อมูลหมวด ${title}`}
+        >
+          <Info className="h-3.5 w-3.5" />
+        </button>
+      </HoverCardTrigger>
+      <HoverCardContent
+        side="top"
+        align="start"
+        className="w-64 p-3 text-xs leading-relaxed text-popover-foreground"
+      >
+        {text}
+      </HoverCardContent>
+    </HoverCard>
+  );
 }
 
 function UpgradeCell({
@@ -110,12 +135,14 @@ export function PlanComparisonTable({
   onUpgrade,
   loadingTier,
 }: Props) {
+  const colCount = 1 + PLAN_COMPARISON_TIER_ORDER.length;
+
   return (
     <section className={cn("max-w-6xl mx-auto", className)}>
       <div className="text-center mb-6">
         <h2 className="text-xl sm:text-2xl font-bold tracking-tight">เปรียบเทียบแพ็กเกจ</h2>
         <p className="mt-2 text-sm text-muted-foreground">
-          ดูความแตกต่างของ Free, Pro, Pro+ และ In-House ในที่เดียว
+          แบ่งตามหมวด — ดูความแตกต่าง Free, Pro, Pro+ และ In-House ในที่เดียว
         </p>
       </div>
 
@@ -128,7 +155,7 @@ export function PlanComparisonTable({
                   scope="col"
                   className="text-left font-semibold px-4 sm:px-5 py-3 text-muted-foreground w-[28%]"
                 >
-                  หมวด
+                  รายการ
                 </th>
                 {PLAN_COMPARISON_TIER_ORDER.map((tier) => (
                   <th
@@ -150,32 +177,57 @@ export function PlanComparisonTable({
               </tr>
             </thead>
             <tbody>
-              {PLAN_COMPARISON_ROWS.map((row, idx) => (
-                <tr
-                  key={row.label}
-                  className={cn(
-                    "border-b border-border last:border-0",
-                    idx % 2 === 1 && "bg-muted/20",
-                  )}
-                >
-                  <th
-                    scope="row"
-                    className="text-left font-medium px-4 sm:px-5 py-3 text-foreground/90"
-                  >
-                    {row.label}
-                  </th>
-                  {PLAN_COMPARISON_TIER_ORDER.map((tier) => (
-                    <td
-                      key={tier}
+              {PLAN_COMPARISON_CATEGORIES.map((category) => (
+                <React.Fragment key={category.id}>
+                  <tr className="border-b border-border bg-muted/50">
+                    <th
+                      scope="colgroup"
+                      colSpan={colCount}
+                      className="text-left px-4 sm:px-5 py-2.5"
+                    >
+                      <div className="inline-flex items-center gap-1 flex-wrap">
+                        <span className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
+                          {category.title}
+                        </span>
+                        {category.info ? (
+                          <CategoryInfoTip title={category.title} text={category.info} />
+                        ) : null}
+                      </div>
+                      {category.description ? (
+                        <span className="block text-[10px] font-normal normal-case tracking-normal text-muted-foreground/80 mt-0.5">
+                          {category.description}
+                        </span>
+                      ) : null}
+                    </th>
+                  </tr>
+                  {category.rows.map((row, idx) => (
+                    <tr
+                      key={`${category.id}-${row.label}`}
                       className={cn(
-                        "text-center px-3 py-3 tabular-nums",
-                        currentTier === tier && "bg-primary/5",
+                        "border-b border-border/70 last:border-0",
+                        idx % 2 === 1 && "bg-muted/15",
                       )}
                     >
-                      <ComparisonCellValue value={row.values[tier]} />
-                    </td>
+                      <th
+                        scope="row"
+                        className="text-left font-medium px-4 sm:px-5 py-3 pl-6 sm:pl-7 text-foreground/90"
+                      >
+                        {row.label}
+                      </th>
+                      {PLAN_COMPARISON_TIER_ORDER.map((tier) => (
+                        <td
+                          key={tier}
+                          className={cn(
+                            "text-center px-3 py-3 tabular-nums",
+                            currentTier === tier && "bg-primary/5",
+                          )}
+                        >
+                          <ComparisonCellValue value={row.values[tier]} />
+                        </td>
+                      ))}
+                    </tr>
                   ))}
-                </tr>
+                </React.Fragment>
               ))}
               {showUpgradeRow && (
                 <tr className="border-t border-border bg-muted/30">

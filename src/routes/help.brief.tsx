@@ -11,20 +11,10 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { SiteFooter } from "@/components/layout/SiteFooter";
+import { helpGuideHead } from "@/lib/helpSeo";
 
 export const Route = createFileRoute("/help/brief")({
-  head: () => ({
-    meta: [
-      { title: "คู่มือ Smart Brief & Job Tracker — So1o" },
-      {
-        name: "description",
-        content:
-          "วิธีใช้ Smart Brief ส่งบรีฟให้ลูกค้า ติดตามงาน Job Tracker รับ feedback และชำระมัดจำ",
-      },
-      { name: "robots", content: "index,follow" },
-    ],
-    links: [{ rel: "canonical", href: "https://solofreelancer.com/help/brief" }],
-  }),
+  head: () => helpGuideHead("/help/brief"),
   component: BriefHelpPage,
 });
 

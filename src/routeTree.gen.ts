@@ -39,13 +39,20 @@ import { Route as PlannerTokenRouteImport } from './routes/planner.$token'
 import { Route as LicenseTokenRouteImport } from './routes/license.$token'
 import { Route as InhouseOrgSlugRouteImport } from './routes/inhouse.$orgSlug'
 import { Route as HelpTaxRouteImport } from './routes/help.tax'
+import { Route as HelpQuotationsRouteImport } from './routes/help.quotations'
+import { Route as HelpPlansRouteImport } from './routes/help.plans'
+import { Route as HelpPaymentsRouteImport } from './routes/help.payments'
+import { Route as HelpLineRouteImport } from './routes/help.line'
 import { Route as HelpGettingStartedRouteImport } from './routes/help.getting-started'
 import { Route as HelpBriefRouteImport } from './routes/help.brief'
+import { Route as HelpBrandingRouteImport } from './routes/help.branding'
 import { Route as EmailUnsubscribeRouteImport } from './routes/email/unsubscribe'
+import { Route as DevStripeConnectUiRouteImport } from './routes/dev.stripe-connect-ui'
 import { Route as BriefTokenRouteImport } from './routes/brief.$token'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as AuthForgotRouteImport } from './routes/auth.forgot'
 import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
+import { Route as TrackTokenCheckoutRouteImport } from './routes/track.$token.checkout'
 import { Route as LovableEmailSuppressionRouteImport } from './routes/lovable/email/suppression'
 import { Route as InhouseInviteTokenRouteImport } from './routes/inhouse.invite.$token'
 import { Route as InhouseOrgSlugSettingsRouteImport } from './routes/inhouse.$orgSlug.settings'
@@ -64,6 +71,7 @@ import { Route as InhouseOrgSlugWorkspaceSlugKanbanRouteImport } from './routes/
 import { Route as InhouseOrgSlugWorkspaceSlugChatRouteImport } from './routes/inhouse.$orgSlug.$workspaceSlug.chat'
 import { Route as InhouseOrgSlugWorkspaceSlugCanvasRouteImport } from './routes/inhouse.$orgSlug.$workspaceSlug.canvas'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
+import { Route as ApiPublicPaymentsClientCheckoutRouteImport } from './routes/api/public/payments/client-checkout'
 import { Route as ApiPublicCronPaymentRemindersRouteImport } from './routes/api/public/cron/payment-reminders'
 import { Route as ApiPublicCronFetchDailyTrendsRouteImport } from './routes/api/public/cron/fetch-daily-trends'
 import { Route as ApiPublicCronDeadlineRemindersRouteImport } from './routes/api/public/cron/deadline-reminders'
@@ -220,6 +228,26 @@ const HelpTaxRoute = HelpTaxRouteImport.update({
   path: '/tax',
   getParentRoute: () => HelpRoute,
 } as any)
+const HelpQuotationsRoute = HelpQuotationsRouteImport.update({
+  id: '/quotations',
+  path: '/quotations',
+  getParentRoute: () => HelpRoute,
+} as any)
+const HelpPlansRoute = HelpPlansRouteImport.update({
+  id: '/plans',
+  path: '/plans',
+  getParentRoute: () => HelpRoute,
+} as any)
+const HelpPaymentsRoute = HelpPaymentsRouteImport.update({
+  id: '/payments',
+  path: '/payments',
+  getParentRoute: () => HelpRoute,
+} as any)
+const HelpLineRoute = HelpLineRouteImport.update({
+  id: '/line',
+  path: '/line',
+  getParentRoute: () => HelpRoute,
+} as any)
 const HelpGettingStartedRoute = HelpGettingStartedRouteImport.update({
   id: '/getting-started',
   path: '/getting-started',
@@ -230,9 +258,19 @@ const HelpBriefRoute = HelpBriefRouteImport.update({
   path: '/brief',
   getParentRoute: () => HelpRoute,
 } as any)
+const HelpBrandingRoute = HelpBrandingRouteImport.update({
+  id: '/branding',
+  path: '/branding',
+  getParentRoute: () => HelpRoute,
+} as any)
 const EmailUnsubscribeRoute = EmailUnsubscribeRouteImport.update({
   id: '/email/unsubscribe',
   path: '/email/unsubscribe',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DevStripeConnectUiRoute = DevStripeConnectUiRouteImport.update({
+  id: '/dev/stripe-connect-ui',
+  path: '/dev/stripe-connect-ui',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BriefTokenRoute = BriefTokenRouteImport.update({
@@ -254,6 +292,11 @@ const AuthCallbackRoute = AuthCallbackRouteImport.update({
   id: '/callback',
   path: '/callback',
   getParentRoute: () => AuthRoute,
+} as any)
+const TrackTokenCheckoutRoute = TrackTokenCheckoutRouteImport.update({
+  id: '/checkout',
+  path: '/checkout',
+  getParentRoute: () => TrackTokenRoute,
 } as any)
 const LovableEmailSuppressionRoute = LovableEmailSuppressionRouteImport.update({
   id: '/lovable/email/suppression',
@@ -355,6 +398,12 @@ const ApiPublicPaymentsWebhookRoute =
     path: '/api/public/payments/webhook',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicPaymentsClientCheckoutRoute =
+  ApiPublicPaymentsClientCheckoutRouteImport.update({
+    id: '/api/public/payments/client-checkout',
+    path: '/api/public/payments/client-checkout',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicCronPaymentRemindersRoute =
   ApiPublicCronPaymentRemindersRouteImport.update({
     id: '/api/public/cron/payment-reminders',
@@ -413,15 +462,21 @@ export interface FileRoutesByFullPath {
   '/auth/forgot': typeof AuthForgotRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/brief/$token': typeof BriefTokenRoute
+  '/dev/stripe-connect-ui': typeof DevStripeConnectUiRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
+  '/help/branding': typeof HelpBrandingRoute
   '/help/brief': typeof HelpBriefRoute
   '/help/getting-started': typeof HelpGettingStartedRoute
+  '/help/line': typeof HelpLineRoute
+  '/help/payments': typeof HelpPaymentsRoute
+  '/help/plans': typeof HelpPlansRoute
+  '/help/quotations': typeof HelpQuotationsRoute
   '/help/tax': typeof HelpTaxRoute
   '/inhouse/$orgSlug': typeof InhouseOrgSlugRouteWithChildren
   '/license/$token': typeof LicenseTokenRoute
   '/planner/$token': typeof PlannerTokenRoute
   '/supplier/$token': typeof SupplierTokenRoute
-  '/track/$token': typeof TrackTokenRoute
+  '/track/$token': typeof TrackTokenRouteWithChildren
   '/vision/$token': typeof VisionTokenRoute
   '/blog/': typeof BlogIndexRoute
   '/api/assistant/stream': typeof ApiAssistantStreamRoute
@@ -431,11 +486,13 @@ export interface FileRoutesByFullPath {
   '/inhouse/$orgSlug/settings': typeof InhouseOrgSlugSettingsRoute
   '/inhouse/invite/$token': typeof InhouseInviteTokenRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
+  '/track/$token/checkout': typeof TrackTokenCheckoutRoute
   '/api/payments/cashout/process': typeof ApiPaymentsCashoutProcessRoute
   '/api/payments/connect/onboard': typeof ApiPaymentsConnectOnboardRoute
   '/api/public/cron/deadline-reminders': typeof ApiPublicCronDeadlineRemindersRoute
   '/api/public/cron/fetch-daily-trends': typeof ApiPublicCronFetchDailyTrendsRoute
   '/api/public/cron/payment-reminders': typeof ApiPublicCronPaymentRemindersRoute
+  '/api/public/payments/client-checkout': typeof ApiPublicPaymentsClientCheckoutRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/inhouse/$orgSlug/$workspaceSlug/canvas': typeof InhouseOrgSlugWorkspaceSlugCanvasRoute
   '/inhouse/$orgSlug/$workspaceSlug/chat': typeof InhouseOrgSlugWorkspaceSlugChatRoute
@@ -475,15 +532,21 @@ export interface FileRoutesByTo {
   '/auth/forgot': typeof AuthForgotRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/brief/$token': typeof BriefTokenRoute
+  '/dev/stripe-connect-ui': typeof DevStripeConnectUiRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
+  '/help/branding': typeof HelpBrandingRoute
   '/help/brief': typeof HelpBriefRoute
   '/help/getting-started': typeof HelpGettingStartedRoute
+  '/help/line': typeof HelpLineRoute
+  '/help/payments': typeof HelpPaymentsRoute
+  '/help/plans': typeof HelpPlansRoute
+  '/help/quotations': typeof HelpQuotationsRoute
   '/help/tax': typeof HelpTaxRoute
   '/inhouse/$orgSlug': typeof InhouseOrgSlugRouteWithChildren
   '/license/$token': typeof LicenseTokenRoute
   '/planner/$token': typeof PlannerTokenRoute
   '/supplier/$token': typeof SupplierTokenRoute
-  '/track/$token': typeof TrackTokenRoute
+  '/track/$token': typeof TrackTokenRouteWithChildren
   '/vision/$token': typeof VisionTokenRoute
   '/blog': typeof BlogIndexRoute
   '/api/assistant/stream': typeof ApiAssistantStreamRoute
@@ -493,11 +556,13 @@ export interface FileRoutesByTo {
   '/inhouse/$orgSlug/settings': typeof InhouseOrgSlugSettingsRoute
   '/inhouse/invite/$token': typeof InhouseInviteTokenRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
+  '/track/$token/checkout': typeof TrackTokenCheckoutRoute
   '/api/payments/cashout/process': typeof ApiPaymentsCashoutProcessRoute
   '/api/payments/connect/onboard': typeof ApiPaymentsConnectOnboardRoute
   '/api/public/cron/deadline-reminders': typeof ApiPublicCronDeadlineRemindersRoute
   '/api/public/cron/fetch-daily-trends': typeof ApiPublicCronFetchDailyTrendsRoute
   '/api/public/cron/payment-reminders': typeof ApiPublicCronPaymentRemindersRoute
+  '/api/public/payments/client-checkout': typeof ApiPublicPaymentsClientCheckoutRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/inhouse/$orgSlug/$workspaceSlug/canvas': typeof InhouseOrgSlugWorkspaceSlugCanvasRoute
   '/inhouse/$orgSlug/$workspaceSlug/chat': typeof InhouseOrgSlugWorkspaceSlugChatRoute
@@ -538,15 +603,21 @@ export interface FileRoutesById {
   '/auth/forgot': typeof AuthForgotRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/brief/$token': typeof BriefTokenRoute
+  '/dev/stripe-connect-ui': typeof DevStripeConnectUiRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
+  '/help/branding': typeof HelpBrandingRoute
   '/help/brief': typeof HelpBriefRoute
   '/help/getting-started': typeof HelpGettingStartedRoute
+  '/help/line': typeof HelpLineRoute
+  '/help/payments': typeof HelpPaymentsRoute
+  '/help/plans': typeof HelpPlansRoute
+  '/help/quotations': typeof HelpQuotationsRoute
   '/help/tax': typeof HelpTaxRoute
   '/inhouse/$orgSlug': typeof InhouseOrgSlugRouteWithChildren
   '/license/$token': typeof LicenseTokenRoute
   '/planner/$token': typeof PlannerTokenRoute
   '/supplier/$token': typeof SupplierTokenRoute
-  '/track/$token': typeof TrackTokenRoute
+  '/track/$token': typeof TrackTokenRouteWithChildren
   '/vision/$token': typeof VisionTokenRoute
   '/blog/': typeof BlogIndexRoute
   '/api/assistant/stream': typeof ApiAssistantStreamRoute
@@ -556,11 +627,13 @@ export interface FileRoutesById {
   '/inhouse/$orgSlug/settings': typeof InhouseOrgSlugSettingsRoute
   '/inhouse/invite/$token': typeof InhouseInviteTokenRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
+  '/track/$token/checkout': typeof TrackTokenCheckoutRoute
   '/api/payments/cashout/process': typeof ApiPaymentsCashoutProcessRoute
   '/api/payments/connect/onboard': typeof ApiPaymentsConnectOnboardRoute
   '/api/public/cron/deadline-reminders': typeof ApiPublicCronDeadlineRemindersRoute
   '/api/public/cron/fetch-daily-trends': typeof ApiPublicCronFetchDailyTrendsRoute
   '/api/public/cron/payment-reminders': typeof ApiPublicCronPaymentRemindersRoute
+  '/api/public/payments/client-checkout': typeof ApiPublicPaymentsClientCheckoutRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/inhouse/$orgSlug/$workspaceSlug/canvas': typeof InhouseOrgSlugWorkspaceSlugCanvasRoute
   '/inhouse/$orgSlug/$workspaceSlug/chat': typeof InhouseOrgSlugWorkspaceSlugChatRoute
@@ -602,9 +675,15 @@ export interface FileRouteTypes {
     | '/auth/forgot'
     | '/blog/$slug'
     | '/brief/$token'
+    | '/dev/stripe-connect-ui'
     | '/email/unsubscribe'
+    | '/help/branding'
     | '/help/brief'
     | '/help/getting-started'
+    | '/help/line'
+    | '/help/payments'
+    | '/help/plans'
+    | '/help/quotations'
     | '/help/tax'
     | '/inhouse/$orgSlug'
     | '/license/$token'
@@ -620,11 +699,13 @@ export interface FileRouteTypes {
     | '/inhouse/$orgSlug/settings'
     | '/inhouse/invite/$token'
     | '/lovable/email/suppression'
+    | '/track/$token/checkout'
     | '/api/payments/cashout/process'
     | '/api/payments/connect/onboard'
     | '/api/public/cron/deadline-reminders'
     | '/api/public/cron/fetch-daily-trends'
     | '/api/public/cron/payment-reminders'
+    | '/api/public/payments/client-checkout'
     | '/api/public/payments/webhook'
     | '/inhouse/$orgSlug/$workspaceSlug/canvas'
     | '/inhouse/$orgSlug/$workspaceSlug/chat'
@@ -664,9 +745,15 @@ export interface FileRouteTypes {
     | '/auth/forgot'
     | '/blog/$slug'
     | '/brief/$token'
+    | '/dev/stripe-connect-ui'
     | '/email/unsubscribe'
+    | '/help/branding'
     | '/help/brief'
     | '/help/getting-started'
+    | '/help/line'
+    | '/help/payments'
+    | '/help/plans'
+    | '/help/quotations'
     | '/help/tax'
     | '/inhouse/$orgSlug'
     | '/license/$token'
@@ -682,11 +769,13 @@ export interface FileRouteTypes {
     | '/inhouse/$orgSlug/settings'
     | '/inhouse/invite/$token'
     | '/lovable/email/suppression'
+    | '/track/$token/checkout'
     | '/api/payments/cashout/process'
     | '/api/payments/connect/onboard'
     | '/api/public/cron/deadline-reminders'
     | '/api/public/cron/fetch-daily-trends'
     | '/api/public/cron/payment-reminders'
+    | '/api/public/payments/client-checkout'
     | '/api/public/payments/webhook'
     | '/inhouse/$orgSlug/$workspaceSlug/canvas'
     | '/inhouse/$orgSlug/$workspaceSlug/chat'
@@ -726,9 +815,15 @@ export interface FileRouteTypes {
     | '/auth/forgot'
     | '/blog/$slug'
     | '/brief/$token'
+    | '/dev/stripe-connect-ui'
     | '/email/unsubscribe'
+    | '/help/branding'
     | '/help/brief'
     | '/help/getting-started'
+    | '/help/line'
+    | '/help/payments'
+    | '/help/plans'
+    | '/help/quotations'
     | '/help/tax'
     | '/inhouse/$orgSlug'
     | '/license/$token'
@@ -744,11 +839,13 @@ export interface FileRouteTypes {
     | '/inhouse/$orgSlug/settings'
     | '/inhouse/invite/$token'
     | '/lovable/email/suppression'
+    | '/track/$token/checkout'
     | '/api/payments/cashout/process'
     | '/api/payments/connect/onboard'
     | '/api/public/cron/deadline-reminders'
     | '/api/public/cron/fetch-daily-trends'
     | '/api/public/cron/payment-reminders'
+    | '/api/public/payments/client-checkout'
     | '/api/public/payments/webhook'
     | '/inhouse/$orgSlug/$workspaceSlug/canvas'
     | '/inhouse/$orgSlug/$workspaceSlug/chat'
@@ -787,11 +884,12 @@ export interface RootRouteChildren {
   UnsubscribeRoute: typeof UnsubscribeRoute
   BlogSlugRoute: typeof BlogSlugRoute
   BriefTokenRoute: typeof BriefTokenRoute
+  DevStripeConnectUiRoute: typeof DevStripeConnectUiRoute
   EmailUnsubscribeRoute: typeof EmailUnsubscribeRoute
   LicenseTokenRoute: typeof LicenseTokenRoute
   PlannerTokenRoute: typeof PlannerTokenRoute
   SupplierTokenRoute: typeof SupplierTokenRoute
-  TrackTokenRoute: typeof TrackTokenRoute
+  TrackTokenRoute: typeof TrackTokenRouteWithChildren
   VisionTokenRoute: typeof VisionTokenRoute
   BlogIndexRoute: typeof BlogIndexRoute
   ApiAssistantStreamRoute: typeof ApiAssistantStreamRoute
@@ -803,6 +901,7 @@ export interface RootRouteChildren {
   ApiPublicCronDeadlineRemindersRoute: typeof ApiPublicCronDeadlineRemindersRoute
   ApiPublicCronFetchDailyTrendsRoute: typeof ApiPublicCronFetchDailyTrendsRoute
   ApiPublicCronPaymentRemindersRoute: typeof ApiPublicCronPaymentRemindersRoute
+  ApiPublicPaymentsClientCheckoutRoute: typeof ApiPublicPaymentsClientCheckoutRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
   LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
   LovableEmailAuthWebhookRoute: typeof LovableEmailAuthWebhookRoute
@@ -1023,6 +1122,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof HelpTaxRouteImport
       parentRoute: typeof HelpRoute
     }
+    '/help/quotations': {
+      id: '/help/quotations'
+      path: '/quotations'
+      fullPath: '/help/quotations'
+      preLoaderRoute: typeof HelpQuotationsRouteImport
+      parentRoute: typeof HelpRoute
+    }
+    '/help/plans': {
+      id: '/help/plans'
+      path: '/plans'
+      fullPath: '/help/plans'
+      preLoaderRoute: typeof HelpPlansRouteImport
+      parentRoute: typeof HelpRoute
+    }
+    '/help/payments': {
+      id: '/help/payments'
+      path: '/payments'
+      fullPath: '/help/payments'
+      preLoaderRoute: typeof HelpPaymentsRouteImport
+      parentRoute: typeof HelpRoute
+    }
+    '/help/line': {
+      id: '/help/line'
+      path: '/line'
+      fullPath: '/help/line'
+      preLoaderRoute: typeof HelpLineRouteImport
+      parentRoute: typeof HelpRoute
+    }
     '/help/getting-started': {
       id: '/help/getting-started'
       path: '/getting-started'
@@ -1037,11 +1164,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof HelpBriefRouteImport
       parentRoute: typeof HelpRoute
     }
+    '/help/branding': {
+      id: '/help/branding'
+      path: '/branding'
+      fullPath: '/help/branding'
+      preLoaderRoute: typeof HelpBrandingRouteImport
+      parentRoute: typeof HelpRoute
+    }
     '/email/unsubscribe': {
       id: '/email/unsubscribe'
       path: '/email/unsubscribe'
       fullPath: '/email/unsubscribe'
       preLoaderRoute: typeof EmailUnsubscribeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dev/stripe-connect-ui': {
+      id: '/dev/stripe-connect-ui'
+      path: '/dev/stripe-connect-ui'
+      fullPath: '/dev/stripe-connect-ui'
+      preLoaderRoute: typeof DevStripeConnectUiRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/brief/$token': {
@@ -1071,6 +1212,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/auth/callback'
       preLoaderRoute: typeof AuthCallbackRouteImport
       parentRoute: typeof AuthRoute
+    }
+    '/track/$token/checkout': {
+      id: '/track/$token/checkout'
+      path: '/checkout'
+      fullPath: '/track/$token/checkout'
+      preLoaderRoute: typeof TrackTokenCheckoutRouteImport
+      parentRoute: typeof TrackTokenRoute
     }
     '/lovable/email/suppression': {
       id: '/lovable/email/suppression'
@@ -1198,6 +1346,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicPaymentsWebhookRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/payments/client-checkout': {
+      id: '/api/public/payments/client-checkout'
+      path: '/api/public/payments/client-checkout'
+      fullPath: '/api/public/payments/client-checkout'
+      preLoaderRoute: typeof ApiPublicPaymentsClientCheckoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/cron/payment-reminders': {
       id: '/api/public/cron/payment-reminders'
       path: '/api/public/cron/payment-reminders'
@@ -1249,14 +1404,24 @@ const AuthRouteChildren: AuthRouteChildren = {
 const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
 
 interface HelpRouteChildren {
+  HelpBrandingRoute: typeof HelpBrandingRoute
   HelpBriefRoute: typeof HelpBriefRoute
   HelpGettingStartedRoute: typeof HelpGettingStartedRoute
+  HelpLineRoute: typeof HelpLineRoute
+  HelpPaymentsRoute: typeof HelpPaymentsRoute
+  HelpPlansRoute: typeof HelpPlansRoute
+  HelpQuotationsRoute: typeof HelpQuotationsRoute
   HelpTaxRoute: typeof HelpTaxRoute
 }
 
 const HelpRouteChildren: HelpRouteChildren = {
+  HelpBrandingRoute: HelpBrandingRoute,
   HelpBriefRoute: HelpBriefRoute,
   HelpGettingStartedRoute: HelpGettingStartedRoute,
+  HelpLineRoute: HelpLineRoute,
+  HelpPaymentsRoute: HelpPaymentsRoute,
+  HelpPlansRoute: HelpPlansRoute,
+  HelpQuotationsRoute: HelpQuotationsRoute,
   HelpTaxRoute: HelpTaxRoute,
 }
 
@@ -1316,6 +1481,18 @@ const InhouseRouteChildren: InhouseRouteChildren = {
 const InhouseRouteWithChildren =
   InhouseRoute._addFileChildren(InhouseRouteChildren)
 
+interface TrackTokenRouteChildren {
+  TrackTokenCheckoutRoute: typeof TrackTokenCheckoutRoute
+}
+
+const TrackTokenRouteChildren: TrackTokenRouteChildren = {
+  TrackTokenCheckoutRoute: TrackTokenCheckoutRoute,
+}
+
+const TrackTokenRouteWithChildren = TrackTokenRoute._addFileChildren(
+  TrackTokenRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRoute,
@@ -1341,11 +1518,12 @@ const rootRouteChildren: RootRouteChildren = {
   UnsubscribeRoute: UnsubscribeRoute,
   BlogSlugRoute: BlogSlugRoute,
   BriefTokenRoute: BriefTokenRoute,
+  DevStripeConnectUiRoute: DevStripeConnectUiRoute,
   EmailUnsubscribeRoute: EmailUnsubscribeRoute,
   LicenseTokenRoute: LicenseTokenRoute,
   PlannerTokenRoute: PlannerTokenRoute,
   SupplierTokenRoute: SupplierTokenRoute,
-  TrackTokenRoute: TrackTokenRoute,
+  TrackTokenRoute: TrackTokenRouteWithChildren,
   VisionTokenRoute: VisionTokenRoute,
   BlogIndexRoute: BlogIndexRoute,
   ApiAssistantStreamRoute: ApiAssistantStreamRoute,
@@ -1357,6 +1535,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicCronDeadlineRemindersRoute: ApiPublicCronDeadlineRemindersRoute,
   ApiPublicCronFetchDailyTrendsRoute: ApiPublicCronFetchDailyTrendsRoute,
   ApiPublicCronPaymentRemindersRoute: ApiPublicCronPaymentRemindersRoute,
+  ApiPublicPaymentsClientCheckoutRoute: ApiPublicPaymentsClientCheckoutRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
   LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
   LovableEmailAuthWebhookRoute: LovableEmailAuthWebhookRoute,

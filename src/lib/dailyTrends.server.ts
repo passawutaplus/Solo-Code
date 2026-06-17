@@ -1,6 +1,7 @@
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { fetchNewsFromFeeds, type RawNewsArticle } from "@/lib/fetchNewsFeeds";
 import type { DailyTrendItem, DailyTrendsResponse } from "@/lib/dailyTrends.types";
+import { resolveTrendIconKey } from "@/lib/trendIcons";
 
 const TREND_ITEM_COUNT = 10;
 
@@ -9,7 +10,7 @@ const FALLBACK_TRENDS: DailyTrendItem[] = [
     category: "สีเทรนด์",
     title: "Mocha Mousse — สีน้ำตาลกาแฟอบอุ่น",
     body: "Pantone Color of the Year 2025 — เหมาะกับงานแบรนด์ไลฟ์สไตล์, คาเฟ่, สินค้า Eco",
-    emoji: "🎨",
+    iconKey: "palette",
     source: "Pantone",
     source_url: "https://www.pantone.com/color-of-the-year",
   },
@@ -17,7 +18,7 @@ const FALLBACK_TRENDS: DailyTrendItem[] = [
     category: "Typography",
     title: "Variable Fonts ครองวงการ UI",
     body: "Inter, Geist, Satoshi มาแรง — เลือก weight 400/600 คู่กันให้ hierarchy ชัด อ่านง่ายบนมือถือ",
-    emoji: "✍️",
+    iconKey: "type",
     source: "Google Fonts",
     source_url: "https://fonts.google.com/",
   },
@@ -25,7 +26,7 @@ const FALLBACK_TRENDS: DailyTrendItem[] = [
     category: "AI Tools",
     title: "Gemini 3 + Nano Banana 2 มาแล้ว",
     body: "Image gen ที่เข้าใจบริบทไทยดีขึ้น — ลองใช้สำหรับงาน mood board และ key visual",
-    emoji: "🤖",
+    iconKey: "bot",
     source: "Google",
     source_url: "https://gemini.google.com/",
   },
@@ -33,7 +34,7 @@ const FALLBACK_TRENDS: DailyTrendItem[] = [
     category: "Design Style",
     title: "Brutalist Web ยังครองใจ",
     body: "ฟอนต์ใหญ่ คอนทราสต์จัด ขอบเหลี่ยม — เหมาะกับแบรนด์ที่อยากดูกล้า ต่างจากตลาด minimal",
-    emoji: "🟧",
+    iconKey: "layout",
     source: "Awwwards",
     source_url: "https://www.awwwards.com/",
   },
@@ -41,7 +42,7 @@ const FALLBACK_TRENDS: DailyTrendItem[] = [
     category: "Motion",
     title: "Micro-interactions = ราคาบวก",
     body: "ลูกค้ายอมจ่ายเพิ่ม 20-40% สำหรับงานที่มี hover/scroll animation นุ่ม ๆ",
-    emoji: "✨",
+    iconKey: "sparkles",
     source: "Smashing Magazine",
     source_url: "https://www.smashingmagazine.com/",
   },
@@ -49,7 +50,7 @@ const FALLBACK_TRENDS: DailyTrendItem[] = [
     category: "Workflow",
     title: "Figma Sites เปิดสาธารณะแล้ว",
     body: "ออกแบบใน Figma แล้ว publish เป็นเว็บได้เลย — เหมาะกับ landing page งานเล็ก",
-    emoji: "🚀",
+    iconKey: "rocket",
     source: "Figma",
     source_url: "https://www.figma.com/sites/",
   },
@@ -98,7 +99,7 @@ function validateTrendItems(
       category: it.category || match.category,
       title: it.title,
       body: it.body,
-      emoji: match.emoji,
+      iconKey: resolveTrendIconKey(it.category || match.category),
       image_url: match.image_url,
       source: it.source || match.source,
       source_url: match.link,
@@ -196,7 +197,7 @@ async function translateArticlesViaAI(articles: RawNewsArticle[]): Promise<Daily
       category: a.category,
       title: a.title.slice(0, 80),
       body: (a.excerpt || a.title).slice(0, 200),
-      emoji: a.emoji,
+      iconKey: resolveTrendIconKey(a.category),
       image_url: a.image_url,
       source: a.source,
       source_url: a.link,
@@ -253,7 +254,7 @@ async function translateArticlesViaAI(articles: RawNewsArticle[]): Promise<Daily
     category: a.category,
     title: a.title.slice(0, 80),
     body: (a.excerpt || a.title).slice(0, 200),
-    emoji: a.emoji,
+    iconKey: resolveTrendIconKey(a.category),
     image_url: a.image_url,
     source: a.source,
     source_url: a.link,

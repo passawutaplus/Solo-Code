@@ -4431,6 +4431,47 @@ export type Database = {
         }
         Relationships: []
       }
+      job_stripe_payments: {
+        Row: {
+          amount_thb: number
+          created_at: string
+          environment: string
+          freelancer_user_id: string
+          id: string
+          job_id: string
+          payment_type: string
+          stripe_session_id: string
+        }
+        Insert: {
+          amount_thb: number
+          created_at?: string
+          environment: string
+          freelancer_user_id: string
+          id?: string
+          job_id: string
+          payment_type: string
+          stripe_session_id: string
+        }
+        Update: {
+          amount_thb?: number
+          created_at?: string
+          environment?: string
+          freelancer_user_id?: string
+          id?: string
+          job_id?: string
+          payment_type?: string
+          stripe_session_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "job_stripe_payments_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "job_trackers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       job_tracker_step_comments: {
         Row: {
           author_role: string
@@ -5281,6 +5322,7 @@ export type Database = {
           role: string
           skills: string[]
           social_link: string | null
+          stripe_client_payments_enabled: boolean
           stripe_connect_account_id: string | null
           subscription_seats: number
           subscription_tier: string
@@ -5353,6 +5395,7 @@ export type Database = {
           role?: string
           skills?: string[]
           social_link?: string | null
+          stripe_client_payments_enabled?: boolean
           stripe_connect_account_id?: string | null
           subscription_seats?: number
           subscription_tier?: string
@@ -5425,6 +5468,7 @@ export type Database = {
           role?: string
           skills?: string[]
           social_link?: string | null
+          stripe_client_payments_enabled?: boolean
           stripe_connect_account_id?: string | null
           subscription_seats?: number
           subscription_tier?: string
@@ -7260,6 +7304,17 @@ export type Database = {
         }[]
       }
       format_ticket_number: { Args: { n: number }; Returns: string }
+      fulfill_client_job_payment_stripe: {
+        Args: {
+          _amount_thb: number
+          _environment: string
+          _freelancer_user_id: string
+          _job_id: string
+          _payment_type: string
+          _stripe_session_id: string
+        }
+        Returns: Json
+      }
       gen_tracking_code: { Args: never; Returns: string }
       get_admin_activity_feed: {
         Args: { _category?: string; _days?: number; _limit?: number }

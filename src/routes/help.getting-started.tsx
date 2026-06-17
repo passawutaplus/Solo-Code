@@ -3,19 +3,10 @@ import { ArrowLeft, Building2, Users, FileText, CheckCircle2 } from "lucide-reac
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { SiteFooter } from "@/components/layout/SiteFooter";
+import { helpGuideHead } from "@/lib/helpSeo";
 
 export const Route = createFileRoute("/help/getting-started")({
-  head: () => ({
-    meta: [
-      { title: "เริ่มต้นใช้งาน So1o — 3 ขั้นแรก" },
-      {
-        name: "description",
-        content: "คู่มือเริ่มต้น So1o Freelancer — ตั้งค่าแบรนด์ เพิ่มลูกค้า และสร้างใบเสนอราคาแรก",
-      },
-      { name: "robots", content: "index,follow" },
-    ],
-    links: [{ rel: "canonical", href: "https://solofreelancer.com/help/getting-started" }],
-  }),
+  head: () => helpGuideHead("/help/getting-started"),
   component: GettingStartedPage,
 });
 
@@ -23,7 +14,7 @@ const STEPS = [
   {
     icon: Building2,
     title: "ขั้นที่ 1 — ตั้งค่าโปรไฟล์ร้าน",
-    body: "ใส่โลโก้ ชื่อแบรนด์ และบัญชีธนาคารใน Settings — ข้อมูลนี้จะแสดงบนใบเสนอราคา PDF และลิงก์ติดตามงานให้ลูกค้า",
+    body: "ใส่โลโก้และชื่อแบรนด์ใน Settings — ตั้งช่องทางชำระเงิน (QR/โอน) ในหมวด «การเงิน» ด้านล่าง",
     cta: { label: "เปิด Settings", tab: "settings" as const },
     tip: "โลโก้ควรเป็น PNG พื้นโปร่งใส ขนาดประมาณ 512×512 px",
   },

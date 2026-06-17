@@ -8,14 +8,20 @@ import { useAuth } from "@/auth/AuthProvider";
 import { supabase } from "@/integrations/supabase/client";
 import { pickLocale, type UserLocale } from "@/lib/lineNotificationKinds";
 import { toast } from "sonner";
+import { useSubscription } from "@/hooks/useSubscription";
+import { isPaidTier } from "@/lib/subscriptionTiers";
 import { SubscriptionUpgradeBlock } from "@/components/dashboard/settings/SubscriptionUpgradeBlock";
 import { SubscriptionDowngradeBlock } from "@/components/dashboard/settings/SubscriptionDowngradeBlock";
 
 export function DisplayThemeSection() {
   const { theme, setTheme } = useTheme();
   const { profile, refreshProfile } = useAuth();
+  const { tier, isPro, isActive } = useSubscription();
   const locale = pickLocale(profile?.locale);
   const [savingLocale, setSavingLocale] = React.useState(false);
+
+  const paidTier = isPaidTier(tier) ? tier : null;
+  const showPlanChange = isPro && isActive && !!paidTier;
 
   async function setLocale(next: UserLocale) {
     if (!profile?.user_id || next === locale) return;
@@ -102,8 +108,12 @@ export function DisplayThemeSection() {
           {savingLocale && <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" />}
         </div>
 
-        <SubscriptionUpgradeBlock />
-        <SubscriptionDowngradeBlock />
+        {showPlanChange && (
+          <div className="border-t border-border/40 pt-3 flex flex-col sm:flex-row sm:items-start gap-4 sm:gap-6">
+            <SubscriptionUpgradeBlock embedded className="sm:flex-1 min-w-0" />
+            <SubscriptionDowngradeBlock embedded className="sm:flex-1 min-w-0" />
+          </div>
+        )}
       </CardContent>
     </Card>
   );

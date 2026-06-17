@@ -26,6 +26,8 @@ EXTENDED_PATHS=(
   "/auth/forgot"
   "/help"
   "/help/getting-started"
+  "/help/payments"
+  "/help/line"
   "/creative-partner"
   "/labs"
   "/refund"
@@ -107,6 +109,14 @@ check_sitemap_xml() {
       echo "WARN /sitemap.xml missing /pricing (set SMOKE_SEO_STRICT=1 to fail)"
     fi
   fi
+  if ! grep -q '/help/payments' "$body_file"; then
+    if [[ "${SMOKE_SEO_STRICT:-}" == "1" ]]; then
+      echo "FAIL /sitemap.xml missing /help/payments"
+      seo_fail=1
+    else
+      echo "WARN /sitemap.xml missing /help/payments (set SMOKE_SEO_STRICT=1 to fail)"
+    fi
+  fi
   if grep -qE '<loc>[^<]*/dashboard</loc>|<loc>[^<]*/admin</loc>' "$body_file"; then
     echo "FAIL /sitemap.xml contains private route"
     seo_fail=1
@@ -144,7 +154,7 @@ check_llms_txt() {
     fail=1
     return
   fi
-  for needle in 'So1o Freelancer' '/pricing' '/blog'; do
+  for needle in 'So1o Freelancer' '/pricing' '/blog' '/help'; do
     if ! grep -qF "$needle" "$body_file"; then
       if [[ "${SMOKE_SEO_STRICT:-}" == "1" ]]; then
         echo "FAIL /llms.txt missing ${needle}"

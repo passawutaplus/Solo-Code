@@ -7,12 +7,20 @@ type Props = {
   jobId?: string;
   jobTitle: string;
   clientName?: string | null;
+  previewImageUrl?: string | null;
+  tags?: string[];
 };
 
 /** Deep-link to Anthem project editor with prefill + ecosystem_links tracking. */
-export function PostToAnthemBanner({ jobId, jobTitle, clientName }: Props) {
+export function PostToAnthemBanner({
+  jobId,
+  jobTitle,
+  clientName,
+  previewImageUrl,
+  tags,
+}: Props) {
   const [href, setHref] = React.useState(() =>
-    anthemPortfolioNewUrl({ jobTitle, clientName, jobId }),
+    anthemPortfolioNewUrl({ jobTitle, clientName, jobId, coverUrl: previewImageUrl, tags }),
   );
 
   React.useEffect(() => {
@@ -20,15 +28,27 @@ export function PostToAnthemBanner({ jobId, jobTitle, clientName }: Props) {
     void trackCrossLink({
       source: "job_tracker_post_anthem",
       refId: jobId,
-      meta: { job_title: jobTitle.slice(0, 80) },
+      meta: {
+        job_title: jobTitle.slice(0, 80),
+        has_preview: previewImageUrl ? 1 : 0,
+      },
     }).then((linkId) => {
       if (cancelled) return;
-      setHref(anthemPortfolioNewUrl({ jobTitle, clientName, jobId, linkId }));
+      setHref(
+        anthemPortfolioNewUrl({
+          jobTitle,
+          clientName,
+          jobId,
+          linkId,
+          coverUrl: previewImageUrl,
+          tags,
+        }),
+      );
     });
     return () => {
       cancelled = true;
     };
-  }, [jobId, jobTitle, clientName]);
+  }, [jobId, jobTitle, clientName, previewImageUrl, tags]);
 
   const openAnthem = () => {
     window.open(href, "_blank", "noopener,noreferrer");

@@ -27,6 +27,11 @@ export function resolveDocumentColors(input?: DocumentThemeInput | null): Resolv
     ? primary
     : pickColor(input?.briefAccent, SOLO_DEFAULT_BRIEF);
 
+  const portalPrimary =
+    input?.portalUseDocumentColors === false
+      ? pickColor(input?.portalPrimary, primary)
+      : primary;
+
   return {
     primary,
     invoiceAccent,
@@ -35,7 +40,7 @@ export function resolveDocumentColors(input?: DocumentThemeInput | null): Resolv
     primarySoft: deriveSoft(primary),
     primaryBorder: deriveBorder(primary),
     headerTextOnPrimary: headerTextOn(primary),
-    portalPrimary: primary,
+    portalPrimary,
   };
 }
 
@@ -48,10 +53,19 @@ export function resolveDocumentTheme(
     ? resolveDocumentColors(input)
     : resolveDocumentColors(null);
 
+  const tierBadge = showSo1oBadge(tier);
+  const tierPowered = showPoweredBy(tier);
+
   return {
     colors,
-    showSo1oBadge: showSo1oBadge(tier),
-    showPoweredBy: showPoweredBy(tier),
+    showSo1oBadge:
+      canCustomize && input?.showSo1oBadge !== undefined
+        ? input.showSo1oBadge
+        : tierBadge,
+    showPoweredBy:
+      canCustomize && input?.showPoweredBy !== undefined
+        ? input.showPoweredBy
+        : tierPowered,
     canCustomize,
   };
 }

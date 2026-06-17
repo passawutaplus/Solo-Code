@@ -50,11 +50,12 @@ import { useSubscription } from "@/hooks/useSubscription";
 import { useAuth } from "@/auth/AuthProvider";
 import type { DocumentThemeInput } from "@/lib/documentTheme";
 import { canUseStudioQuote } from "@/lib/inhouseAccess";
+import { ensureSavedClient } from "@/lib/ensureSavedClient";
 
 export function QuotationsTab() {
   const { list, create, remove, duplicate, advanceStatus, update } = useQuotations();
   const { tier } = useSubscription();
-  const { profile } = useAuth();
+  const { profile, user } = useAuth();
   const [editingId, setEditingId] = React.useState<string | null>(null);
   const [query, setQuery] = React.useState("");
   const [filter, setFilter] = React.useState<"all" | QuotationStatus>("all");
@@ -145,6 +146,22 @@ export function QuotationsTab() {
     if (!anthemInit) return;
     anthemHandoffConsumedRef.current = true;
 
+    const syncClient = async () => {
+      if (!user?.id) return;
+      const saved = await ensureSavedClient({
+        userId: user.id,
+        name: anthemInit.clientName,
+        email: anthemInit.clientEmail,
+        phone: anthemInit.clientPhone,
+        sourceNote: anthemInit.requestId
+          ? `จาก an1hem (request ${anthemInit.requestId})`
+          : "จาก an1hem handoff",
+      });
+      if (saved?.created) {
+        toast.success("เพิ่มลูกค้าใน CRM จากงาน an1hem แล้ว");
+      }
+    };
+
     const requestId = anthemInit.requestId;
     const existing = requestId
       ? list.find((q) => q.notes?.includes(`anthem_request:${requestId}`))
@@ -159,6 +176,7 @@ export function QuotationsTab() {
       .join("\n\n");
 
     if (existing) {
+      void syncClient();
       update(existing.id, {
         projectName: anthemInit.projectName || existing.projectName,
         clientName: anthemInit.clientName || existing.clientName,
@@ -175,6 +193,7 @@ export function QuotationsTab() {
       return;
     }
 
+    void syncClient();
     create({
       projectName: anthemInit.projectName,
       clientName: anthemInit.clientName,
@@ -190,7 +209,7 @@ export function QuotationsTab() {
         }
       })
       .catch((e) => toast.error(e instanceof Error ? e.message : "สร้างไม่สำเร็จ"));
-  }, [create, update, list, anthemHandoffVersion]);
+  }, [create, update, list, anthemHandoffVersion, user?.id]);
 
   React.useEffect(() => {
     if (studioHandoffConsumedRef.current) return;

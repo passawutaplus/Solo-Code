@@ -33,13 +33,12 @@ import { useAuth } from "@/auth/AuthProvider";
 import { useSubscription } from "@/hooks/useSubscription";
 import { createCheckoutSession, createPortalSession, upgradeSubscriptionTier } from "@/utils/payments.functions";
 import { buildCheckoutRedirectUrls, currentOriginReturnUrl } from "@/lib/paymentRedirect";
-import { getStripeEnvironment, PRICE_IDS, CREDITS_PER_PRICE, PX_PER_PRICE } from "@/lib/stripe";
+import { getStripeEnvironment, PRICE_IDS, CREDITS_PER_PRICE } from "@/lib/stripe";
 import { isPaymentFnError, tierLabel, type UpgradeTargetTier } from "@/lib/subscriptionTiers";
 import type { Tier } from "@/hooks/useSubscription";
 import { PLANS, type BillingCycle as Cycle } from "@/data/plans";
 import { ANTHEM_SHOWCASE_URL } from "@/lib/productLinks";
 import {
-  AI_CREDIT_TABLE,
   TOPUP_PACK_ANALYSIS,
   USAGE_MIX_ASSUMPTION,
   weightedCreditsPerAction,
@@ -98,20 +97,6 @@ const TOPUPS: TopupPack[] = [
     perUnit: "≈ 0.65฿/เครดิต",
     badge: "คุ้มสุด",
   },
-];
-
-interface PxPack {
-  id: keyof typeof PX_PER_PRICE;
-  name: string;
-  amount: number;
-  px: number;
-  badge?: string;
-}
-
-const PX_TOPUPS: PxPack[] = [
-  { id: "px_500", name: "Starter", amount: 500, px: 500 },
-  { id: "px_2000", name: "Creator", amount: 2000, px: 2000, badge: "ยอดนิยม" },
-  { id: "px_10000", name: "Studio", amount: 10000, px: 10000, badge: "คุ้มสุด" },
 ];
 
 const PLAN_RANK: Record<Tier | "free", number> = {
@@ -244,39 +229,6 @@ function PricingPage() {
         defaultCancelPath: "/pricing",
         successQuery: "topup=success",
         cancelQuery: "canceled=1",
-      });
-      const result = await checkout({
-        data: {
-          priceId: pack.id,
-          environment: getStripeEnvironment(),
-          successUrl,
-          cancelUrl,
-        },
-      });
-      const err = checkoutFail(result, "ไม่สามารถเริ่ม checkout ได้");
-      if (err) throw new Error(err);
-      window.location.href = (result as { url: string }).url;
-    } catch (e: unknown) {
-      failCheckout(formatCheckoutError(e, "ไม่สามารถเริ่ม checkout ได้"));
-    } finally {
-      setLoadingId(null);
-    }
-  };
-
-  const handlePxTopup = async (pack: PxPack) => {
-    if (!ensureAuth("/pricing")) return;
-    setCheckoutError(null);
-    setLoadingId(pack.id);
-    try {
-      const origin = window.location.origin;
-      const params = new URLSearchParams(window.location.search);
-      const { successUrl, cancelUrl } = buildCheckoutRedirectUrls({
-        origin,
-        returnParam: params.get("return"),
-        defaultSuccessPath: "/pricing",
-        defaultCancelPath: "/pricing",
-        successQuery: "px=success",
-        cancelQuery: "px=canceled",
       });
       const result = await checkout({
         data: {
@@ -787,91 +739,6 @@ function PricingPage() {
             Smart Brief {Math.round((USAGE_MIX_ASSUMPTION.ai_brief_extract ?? 0) * 100)}%
             (เฉลี่ย {weightedCreditsPerAction().toFixed(2)} เครดิต/ครั้ง)
           </p>
-        </section>
-
-        {/* Top-up Pixel (an1hem) */}
-        <section className="mt-16 sm:mt-20">
-          <div className="text-center max-w-2xl mx-auto mb-8">
-            <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 text-primary border border-primary/30 px-3 py-1 text-xs font-semibold mb-3">
-              <Sparkles className="h-3.5 w-3.5" /> an1hem Pixel
-            </div>
-            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">
-              เติม Pixel ส่งของขวัญ
-            </h2>
-            <p className="mt-2 text-sm text-muted-foreground">
-              1 px = 1 บาท · ใช้ส่งของขวัญบน an1hem · ยอดที่เติมมีช่วงพัก 24 ชม. ก่อนใช้ (AML)
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 lg:gap-5 max-w-4xl mx-auto">
-            {PX_TOPUPS.map((pack) => (
-              <Card
-                key={pack.id}
-                className={cn(
-                  "relative p-5 sm:p-6 flex flex-col bg-card border transition-all hover:shadow-md",
-                  pack.badge ? "border-primary/40 ring-1 ring-primary/20" : "border-border",
-                )}
-              >
-                {pack.badge && (
-                  <div className="absolute -top-2.5 right-4">
-                    <Badge className="bg-primary text-primary-foreground border-0 text-[10px] px-2 py-0.5">
-                      {pack.badge}
-                    </Badge>
-                  </div>
-                )}
-                <div className="flex items-center justify-between gap-2">
-                  <h3 className="font-bold text-base">{pack.name}</h3>
-                  <Sparkles className="h-4 w-4 text-primary" />
-                </div>
-                <div className="mt-3 flex items-baseline gap-1.5">
-                  <span className="text-3xl font-bold tracking-tight">
-                    {pack.amount.toLocaleString("th-TH")}
-                  </span>
-                  <span className="text-xs text-muted-foreground">THB</span>
-                </div>
-                <p className="mt-2 text-sm font-semibold text-foreground/90">
-                  +{pack.px.toLocaleString("th-TH")} px
-                </p>
-                <Button
-                  onClick={() => handlePxTopup(pack)}
-                  disabled={loadingId === pack.id}
-                  variant="outline"
-                  className="mt-4 w-full"
-                >
-                  {loadingId === pack.id ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    "เติม Pixel"
-                  )}
-                </Button>
-              </Card>
-            ))}
-          </div>
-        </section>
-
-        {/* Credit weights */}
-        <section className="mt-14 sm:mt-16 max-w-3xl mx-auto">
-          <div className="text-center mb-6">
-            <h2 className="text-xl sm:text-2xl font-bold tracking-tight">น้ำหนักเครดิตต่อฟีเจอร์</h2>
-            <p className="mt-2 text-sm text-muted-foreground">
-              ราคาแพ็กเดิม · ปรับเฉพาะเครดิตที่หักต่อครั้งใช้งาน ตามต้นทุนโมเดลและความซับซ้อน
-            </p>
-          </div>
-          <Card className="overflow-hidden border border-border">
-            <div className="divide-y divide-border">
-              {AI_CREDIT_TABLE.map((row) => (
-                <div
-                  key={row.feature}
-                  className="flex items-center justify-between gap-4 px-4 sm:px-5 py-3 text-sm"
-                >
-                  <span className="text-foreground/90">{row.label}</span>
-                  <Badge variant="secondary" className="shrink-0 font-mono tabular-nums">
-                    {row.credits} เครดิต
-                  </Badge>
-                </div>
-              ))}
-            </div>
-          </Card>
         </section>
 
         {/* Trust note */}

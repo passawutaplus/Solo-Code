@@ -2,19 +2,16 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { RotateCcw } from "lucide-react";
 import { LegalPageLayout, LegalSectionBlock } from "@/components/legal/LegalPageLayout";
 import { LEGAL, PRICING, REFUND_SECTIONS } from "@/lib/legalMeta";
+import { buildPublicPageHead } from "@/lib/seoHead";
 
 export const Route = createFileRoute("/refund")({
-  head: () => ({
-    meta: [
-      { title: "นโยบายคืนเงิน — So1o Freelancer" },
-      {
-        name: "description",
-        content: "นโยบายการคืนเงินสำหรับแผน Pro และ In-House ของ So1o Freelancer",
-      },
-      { property: "og:url", content: "https://solofreelancer.com/refund" },
-    ],
-    links: [{ rel: "canonical", href: "https://solofreelancer.com/refund" }],
-  }),
+  head: () =>
+    buildPublicPageHead({
+      title: "นโยบายคืนเงิน",
+      description:
+        "นโยบายคืนเงิน So1o Freelancer สำหรับแผน Pro Pro+ In-House — เงื่อนไข subscription และชำระจากลูกค้า Stripe Connect",
+      path: "/refund",
+    }),
   component: RefundPage,
 });
 
@@ -29,9 +26,9 @@ function RefundPage() {
     >
       <LegalSectionBlock id="intro" title="1. บทนำ">
         <p>
-          นโยบายนี้อธิบายเงื่อนไขการคืนเงินสำหรับการสมัครแผน Solo Pro (฿{PRICING.proMonthly}/เดือน)
-          และ In-House (฿{PRICING.inhouseMonthlyPerSeat}/ที่นั่ง/เดือน) ของ {LEGAL.siteName}
-          แผน Free ไม่มีค่าใช้จ่าย จึงไม่เกี่ยวข้องกับนโยบายนี้
+          นโยบายนี้อธิบายเงื่อนไขการคืนเงินสำหรับการสมัครแผน Solo Pro (฿{PRICING.proMonthly}/เดือน),
+          Pro+ (฿{PRICING.proPlusMonthly}/เดือน), และ In-House (฿{PRICING.inhouseMonthlyPerSeat}/ที่นั่ง/เดือน)
+          ของ {LEGAL.siteName} แผน Free ไม่มีค่าใช้จ่าย จึงไม่เกี่ยวข้องกับนโยบายนี้
         </p>
       </LegalSectionBlock>
 
@@ -54,15 +51,22 @@ function RefundPage() {
       <LegalSectionBlock id="not-eligible" title="4. กรณีที่ไม่คืนเงิน">
         <ul className="list-disc pl-5 space-y-1.5">
           <li>เปลี่ยนใจหลังใช้งานไปแล้วในช่วงรอบบิลปัจจุบัน</li>
-          <li>ไม่ได้ใช้งานฟีเจอร์ Pro แต่ไม่ได้ยกเลิก subscription</li>
-          <li>Credit top-up ที่ใช้ไปแล้วบางส่วน</li>
+          <li>ไม่ได้ใช้งานฟีเจอร์ Pro/Pro+ แต่ไม่ได้ยกเลิก subscription</li>
+          <li>เครดิต AI ที่ใช้ไปแล้วบางส่วนในรอบบิล</li>
           <li>การละเมิด{" "}
             <Link to="/terms" className="text-primary hover:underline">ข้อกำหนดการใช้งาน</Link>
           </li>
         </ul>
       </LegalSectionBlock>
 
-      <LegalSectionBlock id="how" title="5. วิธีขอคืนเงิน">
+      <LegalSectionBlock id="client-payments" title="5. ชำระจากลูกค้า (Stripe Connect)">
+        <p>
+          เงินที่ลูกค้าชำระผ่าน QR/โอนหรือ Stripe Connect บนหน้า Track เป็นธุรกรรมระหว่างคุณกับลูกค้า
+          So1o ไม่รับผิดชอบการคืนเงินในกรณีนั้น — จัดการโดยตรงกับลูกค้าหรือผ่าน Stripe Dashboard ของคุณ
+        </p>
+      </LegalSectionBlock>
+
+      <LegalSectionBlock id="how" title="6. วิธีขอคืนเงิน">
         <p>
           ส่งคำขอมาที่{" "}
           <a href={`mailto:${LEGAL.contactEmail}`} className="text-primary hover:underline">
@@ -73,7 +77,7 @@ function RefundPage() {
         </p>
       </LegalSectionBlock>
 
-      <LegalSectionBlock id="contact" title="6. ติดต่อเรา">
+      <LegalSectionBlock id="contact" title="7. ติดต่อเรา">
         <p>
           คำถามเพิ่มเติม:{" "}
           <a href={`mailto:${LEGAL.contactEmail}`} className="text-primary hover:underline">

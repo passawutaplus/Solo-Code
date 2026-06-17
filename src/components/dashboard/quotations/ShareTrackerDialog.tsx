@@ -62,8 +62,12 @@ export function ShareTrackerDialog({
     if (!open || !isNew || !hasQuotation || emailPrompted) return;
     const t = window.setTimeout(() => {
       toast("ส่งใบเสนอราคาให้ลูกค้าทางอีเมลได้เลย", {
-        description: "กดปุ่มด้านล่าง — ต้องมีอีเมลลูกค้าในใบเสนอราคาก่อน",
-        duration: 6000,
+        description: "กด «ส่งอีเมลให้ลูกค้า» — ต้องมีอีเมลลูกค้าในใบเสนอราคาก่อน",
+        duration: 8000,
+        action: {
+          label: "ส่งเลย",
+          onClick: () => void emailClient(),
+        },
       });
     }, 400);
     return () => window.clearTimeout(t);

@@ -20,8 +20,17 @@ Checklist สำหรับ `solofreelancer.com` (So1o Freelancer / My Desk)
 ### หน้าที่อยู่ใน sitemap (index ได้)
 
 - `/`, `/blog`, `/pricing`, `/creative-partner`
+- `/help` และคู่มือย่อยทั้งหมด (`/help/getting-started`, `/help/brief`, `/help/quotations`, `/help/payments`, `/help/tax`, `/help/branding`, `/help/plans`, `/help/line`)
 - `/privacy`, `/terms`, `/cookies`, `/refund`
 - `/blog/{slug}` — จาก Supabase articles
+
+### SEO helpers ในโค้ด
+
+| ไฟล์ | บทบาท |
+|------|--------|
+| `src/lib/seoHead.ts` | `buildPublicPageHead()` — canonical, OG, Twitter, JSON-LD |
+| `src/lib/helpSeo.ts` | meta ศูนย์ช่วยเหลือ + FAQPage schema |
+| `src/lib/sitemap.ts` | รายการ URL สาธารณะ ( derive คู่มือจาก `helpSeo`) |
 
 ### หน้าที่ **ไม่** index (robots + noindex)
 
@@ -140,6 +149,7 @@ node scripts/performance/run-performance.mjs
 | `/auth` มี `noindex` (So1o) | `npm run smoke:public` |
 | `llms.txt` content (So1o) | `npm run smoke:public` |
 | Sitemap route exclusions (unit) | `vitest` ใน Solo-Code |
+| `seoHead` / `helpSeo` helpers | `vitest` ใน Solo-Code |
 | `buildTitle`, `truncateDescription`, `absoluteUrl` | `vitest` ใน Anthem-Code |
 | SSR meta / JSON-LD (So1o) | `npm run e2e:seo` |
 | SPA meta หลัง hydration (1PX) | `npm run e2e:seo` |

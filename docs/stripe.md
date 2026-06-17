@@ -83,14 +83,27 @@ Source of truth: `scripts/stripe/provision-sandbox.mjs` + `src/lib/stripe.ts`
 2. Admin อนุมัติที่ `/admin/gifts` → `processCashoutTransfer`
 3. สถานะ `processing` → `paid` / `failed`
 
-ดูรายละเอียด KYC/AML: [Anthem-Code/docs/aml-compliance.md](../../Anthem-Code/docs/aml-compliance.md)
+### Client job payment (ลูกค้าชำระมัดจำ/งวดสุดท้าย)
 
-SQL: `scripts/ecosystem/stripe-payments.sql`
+1. ฟรีแลนซ์เชื่อม Connect ที่ **Settings → รับชำระออนไลน์จากลูกค้า** (หรือ an1hem `/earnings`)
+2. ลูกค้าเปิด `/track/:token` → **ดูรายละเอียดและชำระ** → `/track/:token/checkout?payment=deposit|final`
+3. หน้า review แสดงรายการจากใบเสนอราคา + ค่าธรรมเนียม card (ลูกค้ารับ fee)
+4. Redirect Stripe Checkout → Connect destination (ฟรีแลนซ์ได้ยอดงานเต็ม)
+5. Webhook `client_job` → `fulfill_client_job_payment_stripe` (mark `deposit_paid` / `final_paid`)
+
+**Gating:** Connect complete + payouts enabled + `stripe_client_payments_enabled` — **ทุก tier**
+
+SQL: `supabase/migrations/20250617000000_stripe_client_payments.sql`
+
+ดูรายละเอียด KYC/AML cashout: [Anthem-Code/docs/aml-compliance.md](../../Anthem-Code/docs/aml-compliance.md)
+
+SQL (PX/credits): `scripts/ecosystem/stripe-payments.sql`
 
 ## Sandbox setup
 
 1. สร้าง Stripe test account
-2. ใส่ `STRIPE_SANDBOX_API_KEY` ใน `Solo-Code/.env`
+2. **เปิด Connect (จำเป็นก่อนสร้าง Express account):** [Dashboard → Connect (Test)](https://dashboard.stripe.com/test/connect/overview) → Get started / Complete platform setup
+3. ใส่ `STRIPE_SANDBOX_API_KEY` ใน `Solo-Code/.env`
 3. รัน `npm run stripe:sync`
 4. ตั้ง webhook ใน Stripe Dashboard → endpoint ด้านบน
 5. ใส่ `VITE_PAYMENTS_CLIENT_TOKEN=pk_test_...` ทั้ง So1o และ Anthem (ถ้าใช้ shared checkout)

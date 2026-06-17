@@ -32,12 +32,48 @@ export function anthemPortfolioNewUrl(params: {
   clientName?: string | null;
   jobId?: string;
   linkId?: string;
+  coverUrl?: string;
+  tags?: string[];
 }): string {
+  const safeCover =
+    params.coverUrl?.trim().startsWith("https://")
+      ? params.coverUrl.trim().slice(0, 512)
+      : undefined;
+  const tagParam = params.tags?.length
+    ? params.tags.map((t) => t.trim()).filter(Boolean).slice(0, 8).join(",")
+    : undefined;
+
   return anthemUrl("/portfolio/new", {
     title: params.jobTitle.slice(0, 120),
     client: params.clientName?.trim().slice(0, 80),
     job_id: params.jobId,
     link_id: params.linkId,
+    cover: safeCover,
+    tags: tagParam,
+  });
+}
+
+/** Deep-link to an1hem portfolio editor with So1o Design Drill context. */
+export function anthemDesignDrillUrl(params: {
+  brief: string;
+  description: string;
+  anthemCategory: string;
+  tags?: string[];
+  coverUrl?: string;
+}): string {
+  const tagParam = params.tags?.length
+    ? params.tags.map((t) => t.trim()).filter(Boolean).slice(0, 8).join(",")
+    : undefined;
+
+  return anthemUrl("/portfolio/new", {
+    title: params.brief.slice(0, 120),
+    description: params.description.slice(0, 4000),
+    category: params.anthemCategory,
+    tags: tagParam,
+    cover:
+      params.coverUrl?.trim().startsWith("https://")
+        ? params.coverUrl.trim().slice(0, 512)
+        : undefined,
   });
 }
 

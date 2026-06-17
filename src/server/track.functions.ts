@@ -7,6 +7,7 @@ import { canonicalUrl } from "@/lib/siteUrl";
 import { throwClientError } from "@/lib/security";
 
 import { resolveQuotationPortalBranding } from "@/lib/documentTheme/resolveOwnerBranding.server";
+import { estimateClientPaymentCheckout } from "@/lib/stripeClientPaymentFees";
 
 const TokenSchema = z.object({ token: z.string().uuid() });
 
@@ -65,6 +66,51 @@ export const getPublicTrackingJob = createServerFn({ method: "GET" })
     const portal = ownerUserId
       ? await resolveQuotationPortalBranding(jobRow.quotation_id, ownerUserId)
       : null;
+
+    let payments: {
+      stripeEnabled: boolean;
+      deposit?: ReturnType<typeof estimateClientPaymentCheckout>;
+      final?: ReturnType<typeof estimateClientPaymentCheckout>;
+    } = { stripeEnabled: false };
+
+    if (ownerUserId) {
+      const { data: ownerProfile } = await supabaseAdmin
+        .from("profiles")
+        .select("connect_onboarding_complete, connect_payouts_enabled, stripe_client_payments_enabled")
+        .eq("user_id", ownerUserId)
+        .maybeSingle();
+
+      const stripeEnabled =
+        !!ownerProfile?.connect_onboarding_complete &&
+        !!ownerProfile?.connect_payouts_enabled &&
+        ownerProfile?.stripe_client_payments_enabled !== false;
+
+      payments = { stripeEnabled };
+
+      if (stripeEnabled) {
+        const jobTotals = publicJob as {
+          total_amount: number;
+          deposit_percent: number;
+          amount_due: number;
+          deposit_paid: boolean;
+          final_paid: boolean;
+        };
+        const depositAmt = Math.round(
+          jobTotals.total_amount * (jobTotals.deposit_percent / 100),
+        );
+        const finalAmt =
+          jobTotals.amount_due > 0
+            ? Math.round(jobTotals.amount_due)
+            : Math.max(0, Math.round(jobTotals.total_amount - depositAmt));
+
+        if (!jobTotals.deposit_paid && depositAmt > 0) {
+          payments.deposit = estimateClientPaymentCheckout(depositAmt);
+        }
+        if (jobTotals.deposit_paid && !jobTotals.final_paid && finalAmt > 0) {
+          payments.final = estimateClientPaymentCheckout(finalAmt);
+        }
+      }
+    }
 
     const [{ data: events }, { data: slips }] = await Promise.all([
       supabaseAdmin
@@ -159,7 +205,7 @@ export const getPublicTrackingJob = createServerFn({ method: "GET" })
       }
     }
 
-    return { job: publicJob, events: events ?? [], slips: slips ?? [], quotation, brief, portal };
+    return { job: publicJob, events: events ?? [], slips: slips ?? [], quotation, brief, portal, payments };
   });
 
 const SlipUploadSchema = z.object({

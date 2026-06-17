@@ -1,7 +1,8 @@
 import * as React from "react";
+import { useNavigate } from "@tanstack/react-router";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
-import { Button } from "@/components/ui/button";
 import { X, ArrowLeft, MessageCircle, BookOpen, Lightbulb, Sparkles, Ticket, ClipboardList } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { CreateTicketForm } from "./CreateTicketSheet";
 import { MyTicketsPanel } from "./MyTicketsPanel";
 import { useMyTickets } from "@/store/supportTickets";
@@ -134,7 +135,7 @@ export function SupportFab({
         <SheetContent
           side="right"
           showCloseButton={false}
-          className="p-0 w-full sm:max-w-[400px] sm:right-6 sm:bottom-6 sm:top-auto sm:h-[640px] sm:max-h-[calc(100vh-3rem)] sm:rounded-2xl border-0 overflow-hidden shadow-2xl flex flex-col bg-white"
+          className="z-[70] p-0 w-full sm:max-w-[400px] sm:right-6 sm:bottom-6 sm:top-auto sm:h-[640px] sm:max-h-[calc(100vh-3rem)] sm:rounded-2xl border-0 overflow-hidden shadow-2xl flex flex-col bg-white"
         >
           {/* Header — orange gradient */}
           <div
@@ -152,10 +153,12 @@ export function SupportFab({
                     <ArrowLeft className="h-4 w-4" />
                   </button>
                 )}
-                <div className="flex -space-x-2">
-                  <div className="h-9 w-9 rounded-full bg-white/90 text-[#FF5F05] flex items-center justify-center font-bold text-sm border-2 border-white">S</div>
-                  <div className="h-9 w-9 rounded-full bg-white/90 text-[#FF5F05] flex items-center justify-center font-bold text-sm border-2 border-white">o</div>
-                  <div className="h-9 w-9 rounded-full bg-white/90 text-[#FF5F05] flex items-center justify-center font-bold text-sm border-2 border-white">1</div>
+                <div className="h-10 w-10 rounded-xl bg-white p-1.5 shadow-sm shrink-0 overflow-hidden ring-2 ring-white/40">
+                  <img
+                    src={so1oLogoMark}
+                    alt="So1o"
+                    className="h-full w-full object-contain"
+                  />
                 </div>
               </div>
               <button
@@ -166,15 +169,31 @@ export function SupportFab({
                 <X className="h-4 w-4" />
               </button>
             </div>
-            <h2 className="mt-4 text-xl font-semibold tracking-tight">{VIEW_TITLES[view]}</h2>
-            {view === "home" && (
-              <p className="mt-1 text-sm text-white/90">ทีม So1o พร้อมช่วยคุณเสมอ ตอบไว ภายใน 15 นาที</p>
+            {view === "home" ? (
+              <>
+                <p className="mt-4 text-[11px] font-medium text-white/75 tracking-wide">
+                  So1o Support Hub · v1.0
+                </p>
+                <h2 className="mt-1 text-xl font-semibold tracking-tight">มีอะไรให้เราช่วยไหม?</h2>
+                <p className="mt-1 text-sm text-white/90">
+                  ทีม So1o พร้อมช่วยคุณเสมอ ตอบไว ภายใน 15 นาที
+                </p>
+              </>
+            ) : (
+              <h2 className="mt-4 text-xl font-semibold tracking-tight">{VIEW_TITLES[view]}</h2>
             )}
           </div>
 
-          {/* Body */}
-          <div className="flex-1 overflow-hidden bg-white">
-            {view === "home" && <HomeView setView={setView} unread={unread} openCount={openCount} />}
+          {/* Body — min-h-0 + inner scroll keeps rounded sheet corners from clipping last row */}
+          <div className="flex-1 min-h-0 bg-white">
+            {view === "home" && (
+              <HomeView
+                setView={setView}
+                setSheetOpen={setSheetOpen}
+                unread={unread}
+                openCount={openCount}
+              />
+            )}
             {view === "chat" && <SupportChat />}
             {view === "faq" && <SupportFaq />}
             {view === "suggest" && <SupportSuggest />}
@@ -195,130 +214,172 @@ export function SupportFab({
 
 function HomeView({
   setView,
+  setSheetOpen,
   unread,
   openCount,
 }: {
   setView: (v: View) => void;
+  setSheetOpen: (open: boolean) => void;
   unread: number;
   openCount: number;
 }) {
+  const navigate = useNavigate();
+
+  const openHelpCenter = () => {
+    setSheetOpen(false);
+    void navigate({ to: "/help" });
+  };
+
   return (
-    <div className="p-4 space-y-3 overflow-y-auto h-full">
-      <button
+    <div className="h-full overflow-y-auto overscroll-contain px-4 pt-4 pb-6 space-y-2.5">
+      <HubMenuItem
+        icon={Ticket}
+        title="แจ้งปัญหา / บั๊ก"
+        description="ได้เลขตั๋ว TKT-xxxx ติดตามสถานะได้"
+        highlighted
         onClick={() => setView("create_ticket")}
-        className="w-full text-left rounded-xl border-2 border-[#FF5F05] bg-gradient-to-br from-[#FF5F05]/5 to-orange-50 p-4 hover:shadow-md transition-all group"
-      >
-        <div className="flex items-start gap-3">
-          <div className="h-10 w-10 rounded-full bg-[#FF5F05]/15 flex items-center justify-center shrink-0">
-            <Ticket className="h-5 w-5 text-[#FF5F05]" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <div className="font-semibold text-gray-900">แจ้งปัญหา / บั๊ก</div>
-            <div className="text-xs text-gray-500 mt-0.5">ได้เลขตั๋ว TKT-xxxx ติดตามสถานะได้</div>
-          </div>
-        </div>
-      </button>
-
-      <button
+      />
+      <HubMenuItem
+        icon={ClipboardList}
+        title="ตั๋วของฉัน"
+        description="ดูสถานะและความคืบหน้า"
+        badge={openCount > 0 ? openCount : undefined}
         onClick={() => setView("my_tickets")}
-        className="w-full text-left rounded-xl border border-gray-200 bg-white p-3 hover:border-[#FF5F05]/40 hover:shadow-sm transition-all"
-      >
-        <div className="flex items-center gap-3">
-          <div className="h-8 w-8 rounded-lg bg-orange-50 flex items-center justify-center shrink-0">
-            <ClipboardList className="h-4 w-4 text-[#FF5F05]" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <div className="text-sm font-medium text-gray-900 flex items-center gap-2">
-              ตั๋วของฉัน
-              {openCount > 0 && (
-                <span className="inline-flex min-w-5 h-5 px-1.5 rounded-full bg-[#FF5F05] text-white text-[10px] font-bold items-center justify-center">
-                  {openCount}
-                </span>
-              )}
-            </div>
-            <div className="text-[11px] text-gray-500">ดูสถานะและความคืบหน้า</div>
-          </div>
-        </div>
-      </button>
-
-      <button
+      />
+      <HubMenuItem
+        icon={MessageCircle}
+        title="คุยกับทีมงาน"
+        description="ปกติเราตอบกลับภายใน 15 นาที"
+        badge={unread > 0 ? unread : undefined}
+        badgeVariant="danger"
         onClick={() => setView("chat")}
-        className="w-full text-left rounded-xl border border-[#FF5F05]/30 bg-white p-4 hover:border-[#FF5F05] hover:shadow-md transition-all group"
-      >
-        <div className="flex items-start gap-3">
-          <div className="h-10 w-10 rounded-full bg-[#FF5F05]/10 flex items-center justify-center shrink-0 group-hover:bg-[#FF5F05]/15">
-            <MessageCircle className="h-5 w-5 text-[#FF5F05]" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2">
-              <div className="font-semibold text-gray-900">💬 คุยกับทีมงาน</div>
-              {unread > 0 && (
-                <span className="inline-flex items-center justify-center min-w-5 h-5 px-1.5 rounded-full bg-red-500 text-white text-[10px] font-bold">
-                  {unread}
-                </span>
-              )}
-            </div>
-            <div className="text-xs text-gray-500 mt-0.5">ปกติเราตอบกลับภายใน 15 นาที</div>
-          </div>
-        </div>
-      </button>
-
-      {/* Secondary */}
-      <SecondaryCard icon={<BookOpen className="h-4 w-4 text-[#FF5F05]" />} title="📖 คู่มือและ FAQ" desc="คำถามที่พบบ่อยทั้งหมด" onClick={() => setView("faq")} />
-      <SecondaryCard icon={<Lightbulb className="h-4 w-4 text-[#FF5F05]" />} title="💡 เสนอแนะฟีเจอร์" desc="อยากได้อะไรเพิ่ม บอกเราได้เลย" onClick={() => setView("suggest")} />
-      <SecondaryCard icon={<Sparkles className="h-4 w-4 text-[#FF5F05]" />} title="✨ อัปเดตฟีเจอร์ใหม่" desc="ดูสิ่งใหม่ๆ ที่เพิ่มเข้ามา" onClick={() => setView("changelog")} />
-      <a
+      />
+      <HubMenuItem
+        icon={BookOpen}
+        title="คู่มือและ FAQ"
+        description="ศูนย์ช่วยเหลือและคำถามที่พบบ่อย"
+        onClick={openHelpCenter}
+      />
+      <HubMenuItem
+        icon={Lightbulb}
+        title="เสนอแนะฟีเจอร์"
+        description="อยากได้อะไรเพิ่ม บอกเราได้เลย"
+        onClick={() => setView("suggest")}
+      />
+      <HubMenuItem
+        icon={Sparkles}
+        title="อัปเดตฟีเจอร์ใหม่"
+        description="ดูสิ่งใหม่ๆ ที่เพิ่มเข้ามา"
+        onClick={() => setView("changelog")}
+      />
+      <HubMenuItem
+        icon={LineIcon}
+        title="แชทผ่าน LINE"
+        description="ทีมตอบเร็ว · @solofreelancer"
         href="https://lin.ee/q3W9Qds"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="block w-full text-left rounded-xl border border-gray-200 bg-white p-3 hover:border-[#06C755]/50 hover:bg-green-50/40 hover:shadow-sm transition-all group"
-      >
-        <div className="flex items-center gap-3">
-          <div className="h-8 w-8 rounded-lg bg-[#06C755]/10 flex items-center justify-center shrink-0">
-            <svg viewBox="0 0 24 24" className="h-4 w-4 text-[#06C755]" fill="currentColor" aria-hidden="true">
-              <path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.346 0 .628.285.628.63 0 .349-.282.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63.346 0 .628.285.628.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.282.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314" />
-            </svg>
-          </div>
-          <div className="flex-1 min-w-0">
-            <div className="text-sm font-medium text-gray-900">💬 แชทผ่าน LINE</div>
-            <div className="text-[11px] text-gray-500">ทีมตอบเร็ว · @solofreelancer</div>
-          </div>
-        </div>
-      </a>
+        iconClassName="text-[#06C755]"
+        iconBgClassName="bg-[#06C755]/10"
+        iconShape="square"
+      />
 
-
-      <div className="pt-2 text-center text-[10px] text-gray-400">
+      <div className="pt-1 text-center text-[10px] text-gray-400">
         So1o Support Hub · v1.0
       </div>
     </div>
   );
 }
 
-function SecondaryCard({
-  icon,
+const FLAT_ICON = { strokeWidth: 1.5 } as const;
+
+function HubMenuItem({
+  icon: Icon,
   title,
-  desc,
+  description,
   onClick,
+  href,
+  highlighted,
+  badge,
+  badgeVariant = "brand",
+  iconClassName = "text-[#FF5F05]",
+  iconBgClassName = "bg-[#FF5F05]/10",
+  iconShape = "circle",
 }: {
-  icon: React.ReactNode;
+  icon: LucideIcon | typeof LineIcon;
   title: string;
-  desc: string;
-  onClick: () => void;
+  description: string;
+  onClick?: () => void;
+  href?: string;
+  highlighted?: boolean;
+  badge?: number;
+  badgeVariant?: "brand" | "danger";
+  iconClassName?: string;
+  iconBgClassName?: string;
+  iconShape?: "circle" | "square";
 }) {
-  return (
-    <button
-      onClick={onClick}
-      className="w-full text-left rounded-xl border border-gray-200 bg-white p-3 hover:border-[#FF5F05]/40 hover:bg-orange-50/30 hover:shadow-sm transition-all group"
-    >
-      <div className="flex items-center gap-3">
-        <div className="h-8 w-8 rounded-lg bg-orange-50 flex items-center justify-center shrink-0">
-          {icon}
-        </div>
-        <div className="flex-1 min-w-0">
-          <div className="text-sm font-medium text-gray-900">{title}</div>
-          <div className="text-[11px] text-gray-500">{desc}</div>
-        </div>
+  const iconWrapClass =
+    iconShape === "square" ? "h-10 w-10 rounded-xl" : "h-10 w-10 rounded-full";
+  const className = [
+    "w-full text-left rounded-xl bg-white p-4 transition-all group",
+    highlighted
+      ? "border-2 border-[#FF5F05] bg-gradient-to-br from-[#FF5F05]/5 to-orange-50 hover:shadow-md"
+      : "border border-gray-200 hover:border-[#FF5F05]/40 hover:shadow-sm",
+  ].join(" ");
+
+  const inner = (
+    <div className="flex items-start gap-3">
+      <div
+        className={`${iconWrapClass} flex items-center justify-center shrink-0 ${iconBgClassName} group-hover:opacity-90`}
+      >
+        {Icon === LineIcon ? (
+          <LineIcon className={`h-5 w-5 ${iconClassName}`} />
+        ) : (
+          <Icon className={`h-5 w-5 ${iconClassName}`} {...FLAT_ICON} />
+        )}
       </div>
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2">
+          <span className="font-semibold text-gray-900 text-sm">{title}</span>
+          {badge != null && badge > 0 ? (
+            <span
+              className={[
+                "inline-flex min-w-5 h-5 px-1.5 rounded-full text-white text-[10px] font-bold items-center justify-center",
+                badgeVariant === "danger" ? "bg-red-500" : "bg-[#FF5F05]",
+              ].join(" ")}
+            >
+              {badge > 9 ? "9+" : badge}
+            </span>
+          ) : null}
+        </div>
+        <p className="text-xs text-gray-500 mt-0.5 leading-snug">{description}</p>
+      </div>
+    </div>
+  );
+
+  if (href) {
+    return (
+      <a href={href} target="_blank" rel="noopener noreferrer" className={className}>
+        {inner}
+      </a>
+    );
+  }
+
+  return (
+    <button type="button" onClick={onClick} className={className}>
+      {inner}
     </button>
+  );
+}
+
+function LineIcon({ className, strokeWidth }: { className?: string; strokeWidth?: number }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      className={className}
+      fill="currentColor"
+      aria-hidden="true"
+      strokeWidth={strokeWidth}
+    >
+      <path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.346 0 .628.285.628.63 0 .349-.282.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63.346 0 .628.285.628.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.282.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314" />
+    </svg>
   );
 }
