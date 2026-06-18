@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 import { queuePipelineQuotation, queueSmartBriefQuickCapture } from "@/lib/pipelineNewDeal";
 
 type Props = {
-  variant?: "sidebar" | "header";
+  variant?: "sidebar" | "header" | "header-icon";
   collapsed?: boolean;
   onNavigate: (section: string, sub?: string) => void;
   /** เมื่ออยู่หน้า Pipeline แล้ว — สร้างใบเสนอราคาทันที */
@@ -46,6 +46,32 @@ export function PipelineNewDealButton({
     }
     setOpen(false);
   };
+
+  if (variant === "header-icon") {
+    return (
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild>
+          <Button
+            size="icon"
+            className="h-8 w-8 shrink-0 rounded-full text-white"
+            style={{ background: "#FF5F05" }}
+            disabled={creating}
+            aria-label="New Deal"
+            title="New Deal"
+          >
+            {creating ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Plus className="h-4 w-4" strokeWidth={2.5} />
+            )}
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent align="end" className="w-72 p-2">
+          <DealOptions onBrief={goBrief} onQuotation={goQuotation} />
+        </PopoverContent>
+      </Popover>
+    );
+  }
 
   if (variant === "header") {
     return (

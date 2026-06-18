@@ -13,6 +13,7 @@ export type StorageCategoryKey =
   | "finance"
   | "brand_assets"
   | "planner"
+  | "portfolio"
   | "other";
 
 export const STORAGE_CATEGORY_LABELS: Record<StorageCategoryKey, string> = {
@@ -22,6 +23,7 @@ export const STORAGE_CATEGORY_LABELS: Record<StorageCategoryKey, string> = {
   finance: "การเงิน & ใบเสร็จ",
   brand_assets: "แบรนด์ & Assets",
   planner: "Planner & โปรเจกต์",
+  portfolio: "Portfolio & CV",
   other: "อื่นๆ",
 };
 

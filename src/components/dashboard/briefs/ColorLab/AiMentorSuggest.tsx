@@ -1,9 +1,11 @@
 import * as React from "react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Sparkles, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { normalizeHex, getComplementary } from "@/lib/colorUtils";
+import { getFeatureCreditCost } from "@/lib/aiCreditWeights";
 
 interface Props {
   hex: string;
@@ -16,17 +18,20 @@ interface MentorResult {
   tip: string;
 }
 
+const CREDIT_COST = getFeatureCreditCost("color_mentor");
+
 export function AiMentorSuggest({ hex, onPick }: Props) {
   const [loading, setLoading] = React.useState(false);
   const [result, setResult] = React.useState<MentorResult | null>(null);
   const [askedFor, setAskedFor] = React.useState<string | null>(null);
 
   const ask = async () => {
+    const idempotencyKey = crypto.randomUUID();
     setLoading(true);
     setAskedFor(hex);
     try {
       const { data, error } = await supabase.functions.invoke("color-mentor", {
-        body: { hex },
+        body: { hex, idempotencyKey },
       });
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
@@ -40,15 +45,18 @@ export function AiMentorSuggest({ hex, onPick }: Props) {
         mood: typeof data?.mood === "string" ? data.mood : "",
         tip: typeof data?.tip === "string" ? data.tip : "",
       };
-      // Local fallback if AI returned no complementary
       if (safe.complementary.length === 0) {
         const c = getComplementary(hex);
         if (c) safe.complementary = [c];
       }
       setResult(safe);
     } catch (e) {
-      toast.error(`AI Mentor ไม่พร้อม: ${(e as Error).message}`);
-      // Fallback offline suggestion
+      const msg = (e as Error).message;
+      if (msg.includes("เครดิต") || msg.includes("limit")) {
+        toast.error(msg);
+      } else {
+        toast.error(`AI Mentor ไม่พร้อม: ${msg}`);
+      }
       const c = getComplementary(hex);
       setResult({
         complementary: c ? [c] : [],
@@ -64,9 +72,12 @@ export function AiMentorSuggest({ hex, onPick }: Props) {
 
   return (
     <div className="rounded-xl border border-primary/20 bg-primary/5 p-3 space-y-2">
-      <div className="flex items-center justify-between gap-2">
+      <div className="flex items-center justify-between gap-2 flex-wrap">
         <div className="flex items-center gap-1.5 text-xs font-semibold text-primary">
           <Sparkles className="h-3.5 w-3.5" /> So1o AI Mentor
+          <Badge variant="outline" className="text-[9px] font-normal border-primary/30">
+            {CREDIT_COST} เครดิต/ครั้ง
+          </Badge>
         </div>
         <Button
           type="button"
@@ -81,11 +92,14 @@ export function AiMentorSuggest({ hex, onPick }: Props) {
       </div>
       {!result && !loading && (
         <p className="text-[11px] text-muted-foreground">
-          กดปุ่มเพื่อให้ AI แนะนำคู่สี + อารมณ์งานสำหรับ {hex}
+          กดปุ่มเพื่อให้ AI แนะนำคู่สี + อารมณ์งานสำหรับ {hex} (ใช้ {CREDIT_COST} เครดิต)
         </p>
       )}
       {result && (
         <div className={`space-y-2 ${stale ? "opacity-50" : ""}`}>
+          {stale && (
+            <p className="text-[10px] text-amber-600">สีเปลี่ยนแล้ว — กดวิเคราะห์ใหม่เพื่ออัปเดต</p>
+          )}
           {result.mood && (
             <p className="text-xs">
               <span className="font-medium">อารมณ์:</span> {result.mood}

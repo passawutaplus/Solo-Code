@@ -10,7 +10,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { useFinance } from "@/store/finance";
-import { ClientsProvider, useClients, type SavedClient } from "@/store/clients";
+import { ClientsProvider, useClients, type SavedClient, type ClientFile } from "@/store/clients";
 import { formatTHB, MONTHLY_GOAL } from "@/data/mockData";
 import {
   Users,
@@ -40,7 +40,8 @@ export function ClientsTab() {
 
 function ClientsTabInner() {
   const { incomes } = useFinance();
-  const { list: saved, add, update, remove } = useClients();
+  const { list: saved, files, add, update, remove, uploadFile, deleteFile, getSignedUrl } =
+    useClients();
   const { list: invoices } = useClientInvoices();
   const [editing, setEditing] = React.useState<SavedClient | "new" | null>(null);
   const [confirmDel, setConfirmDel] = React.useState<SavedClient | null>(null);
@@ -154,6 +155,7 @@ function ClientsTabInner() {
                 <SavedClientCard
                   key={c.id}
                   client={c}
+                  fileCount={files.filter((f: ClientFile) => f.clientId === c.id).length}
                   onEdit={() => setEditing(c)}
                   onDelete={() => setConfirmDel(c)}
                 />
@@ -184,13 +186,34 @@ function ClientsTabInner() {
       <ClientFormDialog
         editing={editing}
         onClose={() => setEditing(null)}
-        onCreate={(payload) => {
-          add(payload);
+        files={
+          editing && editing !== "new" ? files.filter((f: ClientFile) => f.clientId === editing.id) : []
+        }
+        getSignedUrl={getSignedUrl}
+        onUpload={
+          editing && editing !== "new"
+            ? async (file, docCategory) => {
+                await uploadFile(editing.id, file, docCategory);
+              }
+            : undefined
+        }
+        onDeleteFile={async (f) => {
+          await deleteFile(f);
+        }}
+        onCreate={async (payload, staged) => {
+          const created = await add(payload);
+          for (const sf of staged) {
+            try {
+              await uploadFile(created.id, sf.file, sf.docCategory);
+            } catch {
+              /* ignore per-file errors */
+            }
+          }
           toast.success("เพิ่มลูกค้าเรียบร้อย");
           setEditing(null);
         }}
-        onUpdate={(id, payload) => {
-          update(id, payload);
+        onUpdate={async (id, payload) => {
+          await update(id, payload);
           toast.success("อัปเดตลูกค้าเรียบร้อย");
           setEditing(null);
         }}

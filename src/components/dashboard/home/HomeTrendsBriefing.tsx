@@ -32,7 +32,7 @@ export function HomeTrendsBriefing() {
       });
 
   return (
-    <section id="news" className="space-y-4 scroll-mt-24">
+    <section id="news" className="space-y-4 scroll-mt-28">
       <div className="flex items-start gap-2.5">
         <span className="rounded-lg bg-primary-soft text-primary p-2 shrink-0">
           <Newspaper className="h-4 w-4" aria-hidden />

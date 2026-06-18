@@ -43,6 +43,7 @@ export function SupplierPreviewDialog({ open, supplier, onClose, useHiddenFields
               name: supplier.name,
               category: supplier.category,
               contact_name: supplier.contactName,
+              contact_position: supplier.contactPosition,
               phone: supplier.phone,
               email: supplier.email,
               line_id: supplier.lineId,

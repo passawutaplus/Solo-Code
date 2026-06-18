@@ -74,6 +74,10 @@ export function pickDrill(opts: {
   };
 }
 
+export function dailyDrillTag(): string {
+  return `DrillDaily${todayISO()}`;
+}
+
 export function pickDailyDrill(): PickedDrill {
   const dayIndex = new Date().getDay();
   const category = DAILY_CATEGORY_ROTATION[dayIndex % DAILY_CATEGORY_ROTATION.length]!;
@@ -104,8 +108,9 @@ export function buildDrillDescription(drill: PickedDrill): string {
   return lines.join("\n");
 }
 
-export function buildDrillTags(drill: PickedDrill): string[] {
+export function buildDrillTags(drill: PickedDrill, opts?: { daily?: boolean }): string[] {
   const tags = ["So1oDrill", drill.meta.label.replace(/\s+/g, ""), drill.difficulty];
   if (drill.mode === "constraints") tags.push("Constraints");
+  if (opts?.daily) tags.push(dailyDrillTag());
   return tags;
 }

@@ -314,6 +314,17 @@ export function MeetingCapturePanel({
             </div>
           </div>
 
+          <div className="grid sm:grid-cols-2 gap-3">
+            <div className="space-y-1">
+              <Label className="text-xs">ชื่องาน (ไม่บังคับ)</Label>
+              <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="เช่น คุยบรีฟโลโก้ร้าน Bloom" />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs">ลูกค้า (ไม่บังคับ)</Label>
+              <ClientPicker value={clientInfo} onPick={setClientInfo} />
+            </div>
+          </div>
+
           <div className="rounded-2xl border border-dashed border-primary/40 p-6 text-center space-y-3">
             {!recState.recording ? (
               <Button
@@ -361,17 +372,6 @@ export function MeetingCapturePanel({
             accept={mode === "online" ? "audio/*,video/*,.m4a,.mp3,.wav,.webm,.mp4" : "audio/*,.m4a,.mp3,.wav,.webm"}
             onChange={(e) => void onFilePicked(e.target.files)}
           />
-
-          <div className="grid sm:grid-cols-2 gap-3">
-            <div className="space-y-1">
-              <Label className="text-xs">ชื่องาน (ไม่บังคับ)</Label>
-              <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="เช่น คุยบรีฟโลโก้ร้าน Bloom" />
-            </div>
-            <div className="space-y-1">
-              <Label className="text-xs">ลูกค้า (ไม่บังคับ)</Label>
-              <ClientPicker value={clientInfo} onPick={setClientInfo} />
-            </div>
-          </div>
 
           <p className="text-[10px] text-muted-foreground text-center">
             ใช้ประมาณ {estCredits} เครดิต (ถอดเสียง + สรุปรายงาน)

@@ -2,6 +2,7 @@ import * as React from "react";
 import { CheckCircle2, Clock, AlertTriangle, AlertOctagon } from "lucide-react";
 import { fieldLabelClass } from "@/lib/formFieldStyles";
 import { DEFAULT_CONTRACT_CLAUSES } from "@/lib/contractTemplates";
+import { cn } from "@/lib/utils";
 
 export const CLIENT_GRADES: Record<string, { grade: "A" | "B" | "C"; traits: string[] }> = {
   "Nimbus Co.": { grade: "A", traits: ["จ่ายตรงเวลา", "บรีฟชัด"] },
@@ -45,6 +46,49 @@ export function SectionTitle({ children }: { children: React.ReactNode }) {
   );
 }
 
+export function FormSection({
+  title,
+  icon: Icon,
+  variant = "default",
+  children,
+}: {
+  title: React.ReactNode;
+  icon?: React.ElementType;
+  variant?: "company" | "contact" | "default";
+  children: React.ReactNode;
+}) {
+  return (
+    <section
+      className={cn(
+        "rounded-xl border p-4 space-y-3",
+        variant === "company" && "border-primary/30 bg-primary/[0.04]",
+        variant === "contact" && "border-border bg-muted/25",
+        variant === "default" && "border-border/60",
+      )}
+    >
+      <div
+        className={cn(
+          "flex items-center gap-2 pb-2 border-b",
+          variant === "company" && "border-primary/20",
+          variant === "contact" && "border-border/70",
+          variant === "default" && "border-border/50",
+        )}
+      >
+        {Icon && (
+          <Icon
+            className={cn(
+              "h-3.5 w-3.5",
+              variant === "company" ? "text-primary" : "text-muted-foreground",
+            )}
+          />
+        )}
+        <SectionTitle>{title}</SectionTitle>
+      </div>
+      {children}
+    </section>
+  );
+}
+
 export function Field({
   label,
   icon: Icon,
@@ -76,6 +120,38 @@ export const INDUSTRY_PRESETS = [
   "การตลาด / โฆษณา",
   "อื่นๆ",
 ] as const;
+
+export type ClientDocCategory =
+  | "business_card"
+  | "company_profile"
+  | "pp20"
+  | "certificate"
+  | "id_card"
+  | "other";
+
+export const CLIENT_DOC_CATEGORIES: Record<
+  ClientDocCategory,
+  { label: string; forType?: "individual" | "company" }
+> = {
+  business_card: { label: "นามบัตร" },
+  company_profile: { label: "โปรไฟล์บริษัท", forType: "company" },
+  pp20: { label: "ภ.พ.20", forType: "company" },
+  certificate: { label: "หนังสือรับรองบริษัท", forType: "company" },
+  id_card: { label: "บัตรประชาชน", forType: "individual" },
+  other: { label: "อื่นๆ" },
+};
+
+export function clientDocCategoriesForType(
+  type: "individual" | "company" | undefined,
+): ClientDocCategory[] {
+  const t = type ?? "individual";
+  return (Object.keys(CLIENT_DOC_CATEGORIES) as ClientDocCategory[]).filter((k) => {
+    const meta = CLIENT_DOC_CATEGORIES[k];
+    if (!meta.forType) return true;
+    if (k === "business_card") return true;
+    return meta.forType === t;
+  });
+}
 
 export const PAYMENT_TERM_LABELS: Record<string, string> = {
   "100%": "ชำระเต็มจำนวนก่อนเริ่มงาน",

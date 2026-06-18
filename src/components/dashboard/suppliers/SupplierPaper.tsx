@@ -24,6 +24,7 @@ export const SHAREABLE_FIELDS = [
   { key: "category", label: "หมวดหมู่" },
   { key: "rating", label: "เรตติ้ง (ดาว)" },
   { key: "contact_name", label: "ผู้ติดต่อ" },
+  { key: "contact_position", label: "ตำแหน่งผู้ติดต่อ" },
   { key: "phone", label: "เบอร์โทร" },
   { key: "line_id", label: "LINE ID" },
   { key: "email", label: "อีเมล" },
@@ -41,6 +42,7 @@ export interface PaperData {
   name: string;
   category?: string | null;
   contact_name?: string | null;
+  contact_position?: string | null;
   phone?: string | null;
   email?: string | null;
   line_id?: string | null;
@@ -103,6 +105,9 @@ export function SupplierPaper({
           {!hide("contact_name") && data.contact_name && (
             <p className="text-sm text-muted-foreground">
               ผู้ติดต่อ: <span className="text-foreground font-medium">{data.contact_name}</span>
+              {!hide("contact_position") && data.contact_position && (
+                <span className="text-muted-foreground"> · {data.contact_position}</span>
+              )}
             </p>
           )}
         </header>

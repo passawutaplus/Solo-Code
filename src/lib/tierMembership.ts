@@ -2,7 +2,7 @@ import type { LucideIcon } from "lucide-react";
 import { Building2, Crown, Sparkles, User } from "lucide-react";
 import type { PlanId } from "@/data/plans";
 import { PLANS } from "@/data/plans";
-import { AI_TIER_MONTHLY, FREE_STARTER_CREDITS } from "@/lib/aiCredits";
+import { AI_TIER_MONTHLY, DAILY_AI_CREDITS } from "@/lib/aiCredits";
 import { FREE_MONTHLY_JOB_LIMIT } from "@/lib/planLimits";
 import { SO1O_STORAGE_QUOTA_LABEL } from "@/lib/storageQuotas";
 
@@ -32,8 +32,8 @@ export interface TierMetric {
 export function getTierMetrics(tier: PlanId): TierMetric[] {
   const ai =
     tier === "free"
-      ? `${FREE_STARTER_CREDITS} เริ่มต้น`
-      : AI_TIER_MONTHLY[tier].toLocaleString("th-TH");
+      ? `Credit AI ${DAILY_AI_CREDITS}/วัน`
+      : `Credit AI ${DAILY_AI_CREDITS}/วัน + ${AI_TIER_MONTHLY[tier].toLocaleString("th-TH")}`;
   const jobs = tier === "free" ? `${FREE_MONTHLY_JOB_LIMIT}/เดือน` : "ไม่จำกัด";
   return [
     { label: "AI", value: ai },

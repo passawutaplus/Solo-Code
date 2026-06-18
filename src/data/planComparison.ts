@@ -1,6 +1,6 @@
 import type { PlanId } from "@/data/plans";
 import { PLANS } from "@/data/plans";
-import { AI_TIER_MONTHLY, FREE_STARTER_CREDITS } from "@/lib/aiCredits";
+import { AI_TIER_MONTHLY, DAILY_AI_CREDITS, FREE_DAILY_TRIAL_DAYS } from "@/lib/aiCredits";
 import { FREE_MONTHLY_JOB_LIMIT } from "@/lib/planLimits";
 import { SO1O_STORAGE_QUOTA_LABEL } from "@/lib/storageQuotas";
 
@@ -51,8 +51,8 @@ function formatJobs(tier: PlanId): string {
 }
 
 function formatAiCredits(tier: PlanId): string {
-  if (tier === "free") return `${FREE_STARTER_CREDITS} เริ่มต้น`;
-  return `${AI_TIER_MONTHLY[tier].toLocaleString("th-TH")}/รอบบิล`;
+  if (tier === "free") return `Credit AI ${DAILY_AI_CREDITS}/วัน × ${FREE_DAILY_TRIAL_DAYS} วัน`;
+  return `Credit AI ${DAILY_AI_CREDITS}/วัน + ${AI_TIER_MONTHLY[tier].toLocaleString("th-TH")}/รอบบิล`;
 }
 
 function formatPrice(tier: PlanId): string {

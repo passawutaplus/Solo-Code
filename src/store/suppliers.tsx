@@ -6,8 +6,10 @@ import { useAuth } from "@/auth/AuthProvider";
 export interface Supplier {
   id: string;
   name: string;
+  type?: "individual" | "company";
   category?: string;
   contactName?: string;
+  contactPosition?: string;
   phone?: string;
   email?: string;
   lineId?: string;
@@ -52,7 +54,9 @@ interface Row {
   id: string;
   name: string;
   category: string | null;
+  type: string | null;
   contact_name: string | null;
+  contact_position: string | null;
   phone: string | null;
   email: string | null;
   line_id: string | null;
@@ -75,8 +79,10 @@ function rowToSupplier(r: Row): Supplier {
   return {
     id: r.id,
     name: r.name,
+    type: (r.type as Supplier["type"]) ?? undefined,
     category: r.category ?? undefined,
     contactName: r.contact_name ?? undefined,
+    contactPosition: r.contact_position ?? undefined,
     phone: r.phone ?? undefined,
     email: r.email ?? undefined,
     lineId: r.line_id ?? undefined,
@@ -168,8 +174,10 @@ export function useSuppliers() {
         .insert({
           user_id: uid,
           name: init.name,
+          type: init.type ?? null,
           category: init.category ?? null,
           contact_name: init.contactName ?? null,
+          contact_position: init.contactPosition ?? null,
           phone: init.phone ?? null,
           email: init.email ?? null,
           line_id: init.lineId ?? null,
@@ -181,7 +189,7 @@ export function useSuppliers() {
           tags: init.tags ?? [],
           notes: init.notes ?? "",
           cover_image_url: init.coverImageUrl ?? null,
-        })
+        } as never)
         .select()
         .single();
       if (error) throw error;
@@ -194,8 +202,10 @@ export function useSuppliers() {
     mutationFn: async ({ id, patch }: { id: string; patch: Partial<Supplier> }) => {
       const upd: Record<string, unknown> = {};
       if (patch.name !== undefined) upd.name = patch.name;
+      if (patch.type !== undefined) upd.type = patch.type || null;
       if (patch.category !== undefined) upd.category = patch.category || null;
       if (patch.contactName !== undefined) upd.contact_name = patch.contactName || null;
+      if (patch.contactPosition !== undefined) upd.contact_position = patch.contactPosition || null;
       if (patch.phone !== undefined) upd.phone = patch.phone || null;
       if (patch.email !== undefined) upd.email = patch.email || null;
       if (patch.lineId !== undefined) upd.line_id = patch.lineId || null;

@@ -31,6 +31,7 @@ export const AI_FEATURE_CREDITS = {
   anthem_chat_draft: 1,
   anthem_brief_from_chat: 10,
   anthem_assistant_mentor: 1,
+  design_drill_reroll: 1,
 } as const;
 
 export type AiFeatureKey = keyof typeof AI_FEATURE_CREDITS;
@@ -64,6 +65,7 @@ export const AI_FEATURE_LABELS: Record<AiFeatureKey, string> = {
   anthem_chat_draft: "Anthem — ร่างตอบแชท",
   anthem_brief_from_chat: "Anthem — สรุปบรีฟจากแชท",
   anthem_assistant_mentor: "Anthem AI Mentor",
+  design_drill_reroll: "Design Drill — สุ่มโจทย์ใหม่",
 };
 
 /** สมมติฐาน mix การใช้งานเฉลี่ย (ปรับจาก ledger จริงเมื่อมีข้อมูล) */

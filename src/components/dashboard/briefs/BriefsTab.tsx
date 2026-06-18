@@ -65,6 +65,8 @@ import { QuickCapturePanel } from "./QuickCapturePanel";
 import { ClientBrandAssetsField } from "./ClientBrandAssetsField";
 import { mergeFieldClass } from "@/lib/formFieldStyles";
 import { consumeOpenBriefMode } from "@/lib/pipelineNewDeal";
+import { consumeLabsPaletteHandoff } from "@/lib/labsPaletteHandoff";
+import { normalizeHexArray } from "@/lib/colorUtils";
 import { PageFooterActions } from "@/components/dashboard/PageFooterActions";
 
 function rowToBrief(r: any): DesignBrief {
@@ -124,6 +126,38 @@ export function BriefsTab() {
     const mode = consumeOpenBriefMode();
     if (mode === "quick") setQuickCapture(true);
   }, []);
+
+  React.useEffect(() => {
+    const handoff = consumeLabsPaletteHandoff();
+    if (!handoff || !user) return;
+
+    const hexes = normalizeHexArray(handoff.hexes);
+    if (hexes.length === 0) return;
+
+    void (async () => {
+      const title = handoff.paletteName.trim()
+        ? `บรีฟ — ${handoff.paletteName.trim()}`
+        : "บรีฟจาก Color Lab";
+      const { data, error } = await supabase
+        .from("design_briefs")
+        .insert({
+          user_id: user.id,
+          title,
+          status: "draft",
+          design_direction: { liked_color_chips: hexes },
+        } as never)
+        .select("*")
+        .single();
+      if (error) {
+        toast.error(error.message);
+        return;
+      }
+      const b = rowToBrief(data);
+      setItems((arr) => [b, ...arr]);
+      setEditingId(b.id);
+      toast.success(`สร้างบรีฟพร้อม ${hexes.length} สีจาก Labs แล้ว`);
+    })();
+  }, [user]);
 
   const create = () => {
     if (!user) {

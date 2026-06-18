@@ -29,6 +29,7 @@ const MANAGE_LINKS: Partial<Record<StorageCategoryKey, string>> = {
   jobs: "/dashboard?tab=finance&sub=jobs",
   finance: "/dashboard?tab=finance&sub=tax",
   brand_assets: "/dashboard?tab=mydata&sub=assets",
+  portfolio: "/dashboard?tab=mydata&sub=portfolio",
   planner: "/dashboard?tab=planner",
 };
 

@@ -28,6 +28,7 @@ import {
 } from "@/lib/ticketSchema";
 import { useAllTickets, type SupportTicket } from "@/store/supportTickets";
 import { toast } from "sonner";
+import { MemberCodeCopy } from "@/components/MemberCodeCopy";
 
 function notifyPreview(ticket: SupportTicket, resolutionNote: string): string {
   if (ticket.source === "feedback_button") {
@@ -122,6 +123,7 @@ export function AdminTicketDetail({
             {userLabel} ·{" "}
             {formatDistanceToNow(new Date(ticket.createdAt), { addSuffix: true, locale: th })}
           </span>
+          <MemberCodeCopy userId={ticket.userId} size="sm" className="text-muted-foreground" />
 
           <div className="grid grid-cols-2 gap-2">
             <div>

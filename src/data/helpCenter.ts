@@ -170,7 +170,7 @@ export const HELP_QUICK_TOPICS: HelpLink[] = [
     label: "ปรับสีเอกสาร & Portal",
     description: "White-label Pro ธีมลูกค้า",
   },
-  { to: "/help/plans", label: "แพ็กเกจ Pro และเครดิต AI", description: "Free vs Pro โควต้า AI" },
+  { to: "/help/plans", label: "แพ็กเกจ Pro และ Credit AI", description: "Free vs Pro Credit AI" },
   { to: "/help/line", label: "แจ้งเตือน LINE", description: "เชื่อม LINE OA รับแจ้งเตือนงาน" },
   {
     to: "/help/plans",
@@ -201,7 +201,7 @@ export const HELP_CATEGORIES: HelpCategory[] = [
       {
         to: "/help/plans",
         label: "แพ็กเกจ Free / Pro / Pro+ / In-House",
-        description: "ราคา โควต้า AI storage",
+        description: "ราคา Credit AI storage",
       },
       { to: "/pricing", label: "ตารางเปรียบเทียบแพ็ก", description: "ดูราคาเต็มทุกฟีเจอร์" },
     ],
@@ -291,7 +291,7 @@ export const HELP_CATEGORIES: HelpCategory[] = [
       {
         to: "/help/plans",
         hash: "ai",
-        label: "เครดิต AI & Storage",
+        label: "Credit AI & Storage",
         description: "ยอดคงเหลือรอบบิล",
       },
       { to: "/help/line", label: "LINE OAuth", description: "แจ้งเตือนส่วนตัว (ไม่ใช่ลูกค้า)" },
@@ -351,7 +351,7 @@ export const HELP_GUIDES: HelpGuideCard[] = [
   {
     to: "/help/plans",
     icon: Sparkles,
-    title: "แพ็กเกจ & เครดิต AI",
+    title: "แพ็กเกจ & Credit AI",
     description: "Free vs Pro โควต้า storage ecosystem",
     tag: "แพ็กเกจ",
     minutes: 5,
@@ -372,7 +372,7 @@ export const HELP_FAQ: HelpFaqItem[] = [
     category: "account",
     question: "ใช้ So1o ฟรีได้ไหม? จำกัดอะไรบ้าง?",
     answer:
-      "ได้ — แผน Free มี Pipeline CRM ใบเสนอราคา Job Tracker 3 งาน/เดือน QR/โอน และ AI เครดิตเริ่มต้น ไม่ต้องผูกบัตร",
+      "ได้ — แผน Free มี Pipeline CRM ใบเสนอราคา Job Tracker 3 งาน/เดือน QR/โอน และ Credit AI 5/วัน × 14 วัน ไม่ต้องผูกบัตร",
     link: { to: "/help/plans", label: "แพ็กเกจ & โควต้า" },
   },
   {
@@ -380,7 +380,7 @@ export const HELP_FAQ: HelpFaqItem[] = [
     category: "account",
     question: "Pro คุ้มเมื่อไหร่?",
     answer:
-      "เมื่อต้องการ Job ไม่จำกัด white-label เอกสาร/Portal เครดิต AI มากขึ้น LINE แจ้งเตือน และปลดล็อก Pixel100 โชว์เคส",
+      "เมื่อต้องการ Job ไม่จำกัด white-label เอกสาร/Portal Credit AI มากขึ้น LINE แจ้งเตือน และปลดล็อก Pixel100 โชว์เคส",
     link: { to: "/pricing", label: "ตารางเปรียบเทียบ" },
   },
   {
@@ -496,7 +496,7 @@ export const HELP_SETTINGS_MAP: HelpSettingsRow[] = [
     link: { to: "/help/plans", label: "แพ็ก" },
   },
   {
-    task: "เครดิต AI & Storage",
+    task: "Credit AI & Storage",
     settingsPath: "Settings → AI & Storage",
     link: { to: "/help/plans", hash: "ai", label: "AI" },
   },

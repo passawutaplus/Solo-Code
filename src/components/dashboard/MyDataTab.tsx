@@ -3,8 +3,9 @@ import { ClientsTab } from "./ClientsTab";
 import { SuppliersTab } from "./SuppliersTab";
 import { AssetsTab } from "./AssetsTab";
 import { LegalDeskTab } from "@/components/legal-desk/LegalDeskTab";
+import { PortfolioTab } from "@/components/dashboard/portfolio/PortfolioTab";
 
-export type MyDataSub = "clients" | "suppliers" | "assets" | "legal";
+export type MyDataSub = "clients" | "suppliers" | "portfolio" | "assets" | "legal";
 
 export function MyDataTab({
   sub = "clients",
@@ -17,6 +18,7 @@ export function MyDataTab({
     <div className="animate-fade-in">
       {sub === "clients" && <ClientsTab />}
       {sub === "suppliers" && <SuppliersTab />}
+      {sub === "portfolio" && <PortfolioTab />}
       {sub === "assets" && <AssetsTab />}
       {sub === "legal" && <LegalDeskTab onNavigate={onNavigate} />}
     </div>

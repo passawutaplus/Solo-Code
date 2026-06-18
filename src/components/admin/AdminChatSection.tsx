@@ -18,6 +18,12 @@ import {
 } from "lucide-react";
 import { useChatMessages, playBeep, type ChatMessage } from "@/hooks/useChat";
 import { uploadCompressedImage } from "@/lib/imageCompress";
+import { MemberCodeCopy } from "@/components/MemberCodeCopy";
+import {
+  formatMemberCode,
+  memberCodeMatchesUserId,
+  userLabelWithMemberCode,
+} from "@/lib/userDisplayId";
 
 interface ConvSummary {
   user_id: string;
@@ -209,6 +215,8 @@ export function AdminChatSection() {
     if (!q) return convs;
     return convs.filter(
       (c) =>
+        memberCodeMatchesUserId(q, c.user_id) ||
+        formatMemberCode(c.user_id).toLowerCase().includes(q) ||
         (c.email ?? "").toLowerCase().includes(q) ||
         (c.display_name ?? "").toLowerCase().includes(q) ||
         c.last_message.toLowerCase().includes(q),
@@ -252,7 +260,7 @@ export function AdminChatSection() {
               <Input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="ค้นหา..."
+                placeholder="ค้นหาชื่อ อีเมล รหัสสมาชิก..."
                 className="h-8 text-xs pl-7"
               />
             </div>
@@ -261,7 +269,12 @@ export function AdminChatSection() {
             {filteredConvs.length === 0 ? (
               <div className="p-6 text-center text-xs text-muted-foreground">ยังไม่มีแชท</div>
             ) : (
-              filteredConvs.map((c) => (
+              filteredConvs.map((c) => {
+                const label = userLabelWithMemberCode(
+                  c.display_name || c.email || c.user_id.slice(0, 8),
+                  c.user_id,
+                );
+                return (
                 <button
                   key={c.user_id}
                   onClick={() => setActiveUserId(c.user_id)}
@@ -270,9 +283,7 @@ export function AdminChatSection() {
                   }`}
                 >
                   <div className="flex items-center justify-between gap-2 mb-1">
-                    <span className="text-xs font-medium truncate">
-                      {c.display_name || c.email || c.user_id.slice(0, 8)}
-                    </span>
+                    <span className="text-xs font-medium truncate">{label}</span>
                     {c.unread > 0 && (
                       <Badge className="bg-destructive text-destructive-foreground text-[9px] h-4 min-w-4 px-1">
                         {c.unread}
@@ -287,7 +298,8 @@ export function AdminChatSection() {
                     })}
                   </div>
                 </button>
-              ))
+                );
+              })
             )}
           </div>
         </Card>
@@ -299,6 +311,9 @@ export function AdminChatSection() {
             </CardContent>
           ) : (
             <>
+              <div className="shrink-0 border-b border-border px-3 py-2 bg-muted/30">
+                <MemberCodeCopy userId={activeUserId} size="sm" />
+              </div>
               <div ref={scrollRef} className="flex-1 overflow-y-auto p-3 space-y-2">
                 {messages.map((m) => (
                   <div

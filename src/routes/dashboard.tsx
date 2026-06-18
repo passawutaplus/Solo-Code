@@ -9,6 +9,7 @@ import { SidebarProvider, SidebarTrigger, SidebarInset } from "@/components/ui/s
 import { Link } from "@tanstack/react-router";
 import { FlaskConical } from "lucide-react";
 import { DashboardSidebar, type DashSection } from "@/components/dashboard/layout/DashboardSidebar";
+import { PipelineNewDealButton } from "@/components/dashboard/layout/PipelineNewDealButton";
 import { BottomNav } from "@/components/dashboard/layout/BottomNav";
 import { DashboardCommandMenu } from "@/components/dashboard/DashboardCommandMenu";
 import { NotificationBell } from "@/components/NotificationBell";
@@ -128,6 +129,7 @@ const SUB_TITLES: Partial<Record<DashSection, Record<string, string>>> = {
   mydata: {
     clients: "ลูกค้า",
     suppliers: "Suppliers",
+    portfolio: "Portfolio",
     assets: "Assets",
     legal: "Legal Desk",
   },
@@ -342,6 +344,10 @@ function Dashboard() {
                   </div>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
+                  <PipelineNewDealButton
+                    variant="header-icon"
+                    onNavigate={(tab, sub) => updateSection(tab as DashSection, sub)}
+                  />
                   <Link
                     to="/labs"
                     className="inline-flex items-center gap-1.5 rounded-full bg-gradient-primary text-primary-foreground px-3 py-1.5 text-xs font-semibold border border-primary/30 shadow-soft hover:shadow-elevated hover:-translate-y-0.5 transition-all"

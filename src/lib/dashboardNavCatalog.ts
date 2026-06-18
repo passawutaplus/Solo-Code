@@ -18,6 +18,8 @@ import {
   Settings,
   LayoutDashboard,
   Home,
+  IdCard,
+  FlaskConical,
 } from "lucide-react";
 import type { DashSection } from "@/components/dashboard/layout/DashboardSidebar";
 
@@ -31,6 +33,8 @@ export type DashboardShortcutOption = DashboardShortcutRef & {
   label: string;
   group: string;
   icon: LucideIcon;
+  /** When set, navigates to this route instead of dashboard tab */
+  href?: string;
 };
 
 export const DASHBOARD_SHORTCUT_MAX = 4;
@@ -80,6 +84,14 @@ export const DASHBOARD_SHORTCUT_OPTIONS: DashboardShortcutOption[] = [
     section: "planner",
     sub: "briefs",
     icon: Lightbulb,
+  },
+  {
+    id: "labs",
+    label: "Creative Labs",
+    group: "งานลูกค้า",
+    section: "home",
+    icon: FlaskConical,
+    href: "/labs",
   },
   {
     id: "finance:quotations",
@@ -144,6 +156,14 @@ export const DASHBOARD_SHORTCUT_OPTIONS: DashboardShortcutOption[] = [
     section: "planner",
     sub: "feedback",
     icon: MessageSquare,
+  },
+  {
+    id: "mydata:portfolio",
+    label: "Portfolio",
+    group: "ข้อมูล",
+    section: "mydata",
+    sub: "portfolio",
+    icon: IdCard,
   },
   {
     id: "mydata:clients",

@@ -22,7 +22,10 @@ import {
   Kanban,
   Scale,
   Mic,
+  IdCard,
+  FlaskConical,
 } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import {
   Sidebar,
   SidebarContent,
@@ -46,6 +49,7 @@ import { AccountIdentityBadge } from "@/components/dashboard/AccountIdentityBadg
 import { SupportSidebarButton } from "./SupportSidebarButton";
 import { SupportFab } from "@/components/support/SupportFab";
 import { SidebarUpgradeBadge } from "./SidebarUpgradeBadge";
+import { SidebarCreditAiStrip } from "./SidebarCreditAiStrip";
 import { InhouseSidebarNav } from "@/components/inhouse/InhouseSidebarNav";
 
 export type DashSection = "home" | "overview" | "finance" | "planner" | "mydata" | "settings";
@@ -103,6 +107,7 @@ const GROUPS: NavGroup[] = [
     label: "Data",
     icon: Database,
     items: [
+      { label: "Portfolio", icon: IdCard, section: "mydata", sub: "portfolio" },
       { label: "Clients", icon: Users, section: "mydata", sub: "clients" },
       { label: "Suppliers", icon: Truck, section: "mydata", sub: "suppliers" },
       { label: "Assets", icon: FolderOpen, section: "mydata", sub: "assets" },
@@ -250,6 +255,10 @@ export function DashboardSidebar({ active, activeSub, setActive }: DashboardSide
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
+              <SidebarCreditAiStrip
+                collapsed={collapsed}
+                onOpenSettings={() => setActive("settings")}
+              />
               <SidebarMenuItem>
                 <SidebarMenuButton
                   isActive={active === "home"}
@@ -270,6 +279,14 @@ export function DashboardSidebar({ active, activeSub, setActive }: DashboardSide
                 >
                   <LayoutDashboard className="h-4 w-4 shrink-0" />
                   {!collapsed && <span className="text-xs">Dashboard</span>}
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild tooltip="Creative Labs" className={cn(MENU_BTN, "font-semibold")}>
+                  <Link to="/labs">
+                    <FlaskConical className="h-4 w-4 shrink-0" />
+                    {!collapsed && <span className="text-xs">Creative Labs</span>}
+                  </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
 

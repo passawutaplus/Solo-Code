@@ -1,3 +1,4 @@
+import * as React from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { RouteError } from "@/components/RouteError";
 import { RequireAuth } from "@/auth/RequireAuth";
@@ -9,6 +10,7 @@ import { NotificationBell } from "@/components/NotificationBell";
 
 import { useTrackActivity } from "@/hooks/useTrackActivity";
 import { useLogActivity } from "@/hooks/useLogActivity";
+import { markLabsVisited } from "@/lib/designDrillStorage";
 import logoUrl from "@/assets/solo-freelancer-logo.webp";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 
@@ -46,6 +48,10 @@ function LabsPage() {
   const { isAdmin, profile, user } = useAuth();
   useTrackActivity(user?.id);
   useLogActivity(user?.id, "labs_view");
+
+  React.useEffect(() => {
+    markLabsVisited();
+  }, []);
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-background">

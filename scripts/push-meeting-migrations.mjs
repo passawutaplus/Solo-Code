@@ -10,14 +10,17 @@ const migDir = join(root, "supabase", "migrations");
 
 function loadEnv(path) {
   if (!existsSync(path)) return;
-  for (const line of readFileSync(path, "utf8").split("\n")) {
-    const m = line.match(/^([A-Z0-9_]+)=(.*)$/);
-    if (!m) continue;
-    let v = m[2].trim();
+  for (const raw of readFileSync(path, "utf8").split(/\r?\n/)) {
+    const line = raw.trim();
+    if (!line || line.startsWith("#")) continue;
+    const eq = line.indexOf("=");
+    if (eq < 1) continue;
+    const key = line.slice(0, eq).trim();
+    let v = line.slice(eq + 1).trim();
     if ((v.startsWith('"') && v.endsWith('"')) || (v.startsWith("'") && v.endsWith("'"))) {
       v = v.slice(1, -1);
     }
-    if (!process.env[m[1]]) process.env[m[1]] = v;
+    if (!process.env[key]) process.env[key] = v;
   }
 }
 

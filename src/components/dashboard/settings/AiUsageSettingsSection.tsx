@@ -6,13 +6,15 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { CreditAiBar } from "@/components/dashboard/credits/CreditAiBar";
 import { useSubscription } from "@/hooks/useSubscription";
 import { useAiUsage } from "@/hooks/useAiUsage";
 import {
-  aiRemainingBarColor,
-  aiRemainingPercent,
+  creditAiTotalCapacity,
   describeAiCreditsPlan,
   formatAiPeriodEnd,
+  formatDailyResetAt,
+  poolRemainingFromSummary,
 } from "@/lib/aiCredits";
 import { anthemShowcaseUrl } from "@/lib/productLinks";
 import { createPortalSession } from "@/utils/payments.functions";
@@ -30,9 +32,14 @@ export function AiUsageSettingsSection() {
     included_limit,
     included_remaining,
     purchased_balance,
+    daily_remaining,
+    daily_limit,
+    daily_eligible,
+    daily_resets_at,
     total_remaining,
     period_end,
     period_type,
+    free_trial_days_left,
     isLoading: usageLoading,
   } = useAiUsage();
   const portal = useServerFn(createPortalSession);
@@ -40,14 +47,29 @@ export function AiUsageSettingsSection() {
   const [open, setOpen] = React.useState(false);
 
   const isLoading = subLoading || usageLoading;
-  const capacity = Math.max(included_limit, total_remaining, 1);
-  const remainingPercent = aiRemainingPercent(total_remaining, capacity);
-  const barColor = aiRemainingBarColor(total_remaining);
+  const poolRemaining = poolRemainingFromSummary({ included_remaining, purchased_balance });
+  const poolCapacity = Math.max(included_limit, poolRemaining, 0);
+  const barCapacity = creditAiTotalCapacity({
+    dailyRemaining: daily_remaining,
+    dailyLimit: daily_limit,
+    poolRemaining,
+    poolCapacity,
+  });
   const resetsAt = formatAiPeriodEnd(period_end);
-  const planHint = describeAiCreditsPlan({ tier, period_type, included_limit });
+  const dailyResetsAt = formatDailyResetAt(daily_resets_at);
+  const planHint = describeAiCreditsPlan({
+    tier,
+    period_type,
+    included_limit,
+    daily_limit,
+    daily_eligible,
+    free_trial_days_left,
+  });
   const isFree = tier === "free";
-  const creditsEnded = period_type === "free_starter_ended" && isFree;
-  const packLabel = isFree ? "เครดิตเริ่มต้น" : "โควต้าแพ็ก";
+  const creditsEnded =
+    (period_type === "free_starter_ended" || period_type === "free_daily_ended") && isFree;
+  const packLabel =
+    period_type === "free_starter" ? "แพ็กเริ่มต้น" : isFree ? "โควต้าแพ็ก" : "โควต้าแพ็ก";
 
   async function openPortal() {
     setBusy(true);
@@ -85,7 +107,7 @@ export function AiUsageSettingsSection() {
                 <div className="min-w-0">
                   <h3 className="text-sm font-semibold flex items-center gap-2">
                     <Zap className="h-4 w-4 text-amber-500 shrink-0" />
-                    โควต้า AI
+                    Credit AI
                     <ChevronDown
                       className={cn(
                         "h-4 w-4 text-muted-foreground transition-transform",
@@ -115,17 +137,15 @@ export function AiUsageSettingsSection() {
             </CollapsibleTrigger>
 
             <div className="space-y-1.5">
-              <div className="h-2 rounded-full bg-muted overflow-hidden">
-                <div
-                  className={cn(
-                    "h-full rounded-full transition-all duration-500 ease-out",
-                    isLoading ? "bg-primary" : barColor,
-                  )}
-                  style={{ width: `${isLoading ? 0 : remainingPercent}%` }}
-                />
-              </div>
+              <CreditAiBar
+                dailyRemaining={daily_remaining}
+                dailyLimit={daily_limit}
+                poolRemaining={poolRemaining}
+                poolCapacity={poolCapacity}
+                isLoading={isLoading}
+              />
               {!open && !isLoading && (
-                <div className="flex items-center justify-between text-[11px] tabular-nums">
+                <div className="flex items-center justify-between text-[11px] tabular-nums gap-2">
                   <span
                     className={cn(
                       total_remaining < 10
@@ -136,11 +156,15 @@ export function AiUsageSettingsSection() {
                     )}
                   >
                     เหลือ {total_remaining.toLocaleString("th-TH")} /{" "}
-                    {capacity.toLocaleString("th-TH")} เครดิต
+                    {barCapacity.toLocaleString("th-TH")} เครดิต
                   </span>
-                  {resetsAt && !isFree && (
-                    <span className="text-muted-foreground">รีเซ็ต {resetsAt}</span>
-                  )}
+                  <span className="text-muted-foreground text-right shrink-0">
+                    {daily_eligible && dailyResetsAt
+                      ? `Daily รีเซ็ต ${dailyResetsAt}`
+                      : resetsAt && !isFree
+                        ? `รีเซ็ต ${resetsAt}`
+                        : null}
+                  </span>
                 </div>
               )}
             </div>
@@ -155,13 +179,27 @@ export function AiUsageSettingsSection() {
               )}
 
               <div className="rounded-xl border border-border/60 bg-muted/30 px-4 py-3 space-y-2 text-xs">
-                <div className="flex items-center justify-between gap-3">
-                  <span className="font-medium">{packLabel}</span>
-                  <span className="tabular-nums text-muted-foreground">
-                    {included_used.toLocaleString("th-TH")} /{" "}
-                    {included_limit.toLocaleString("th-TH")}
-                  </span>
-                </div>
+                {daily_eligible && daily_limit > 0 && (
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="flex items-center gap-1.5 font-medium">
+                      <span className="inline-block h-2 w-2 rounded-full bg-amber-400" />
+                      Credit AI วันนี้
+                    </span>
+                    <span className="tabular-nums text-muted-foreground">
+                      เหลือ {daily_remaining.toLocaleString("th-TH")} /{" "}
+                      {daily_limit.toLocaleString("th-TH")}
+                    </span>
+                  </div>
+                )}
+                {(included_limit > 0 || included_used > 0) && (
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="font-medium">{packLabel}</span>
+                    <span className="tabular-nums text-muted-foreground">
+                      {included_used.toLocaleString("th-TH")} /{" "}
+                      {included_limit.toLocaleString("th-TH")}
+                    </span>
+                  </div>
+                )}
                 {purchased_balance > 0 && (
                   <div className="flex items-center justify-between gap-3">
                     <span className="flex items-center gap-1.5">
@@ -179,8 +217,18 @@ export function AiUsageSettingsSection() {
                     {total_remaining.toLocaleString("th-TH")} เครดิต
                   </span>
                 </div>
+                {daily_eligible && dailyResetsAt && (
+                  <p className="text-[11px] text-muted-foreground">
+                    Daily รีเซ็ต {dailyResetsAt} (ไม่ทบวันก่อน)
+                  </p>
+                )}
                 {resetsAt && !isFree && (
-                  <p className="text-[11px] text-muted-foreground">รีเซ็ต {resetsAt}</p>
+                  <p className="text-[11px] text-muted-foreground">แพ็กรีเซ็ต {resetsAt}</p>
+                )}
+                {period_type === "free_daily_trial" && free_trial_days_left != null && (
+                  <p className="text-[11px] text-muted-foreground">
+                    ทดลอง Credit AI ฟรีเหลืออีก {free_trial_days_left} วัน
+                  </p>
                 )}
               </div>
             </div>

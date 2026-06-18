@@ -121,7 +121,7 @@ Deno.serve(async (req) => {
       admin.from("user_credits").select("user_id, balance, lifetime_purchased, environment"),
       admin
         .from("user_ai_period")
-        .select("user_id, included_limit, included_used, period_end, updated_at"),
+        .select("user_id, included_limit, included_used, period_end, updated_at, period_key"),
       admin
         .from("ai_chat_usage")
         .select("user_id, usage_date, count")

@@ -14,6 +14,7 @@ import { GradientBuilder } from "./GradientBuilder";
 import { ContrastChecker } from "./ContrastChecker";
 import { ColorBlindnessSimulator } from "./ColorBlindnessSimulator";
 import { PaletteFromImage } from "./PaletteFromImage";
+import { MyPalettesQuickPick } from "./MyPalettesQuickPick";
 
 import { TailwindExport } from "./TailwindExport";
 import { SaveColorDialog } from "@/components/dashboard/labs/SaveColorDialog";
@@ -118,6 +119,8 @@ export function ColorLabInline({
       )}
 
       <div className="p-1 pt-4 space-y-4">
+        <MyPalettesQuickPick onPick={commitHex} />
+
         {/* Hex input row — shared across tabs */}
         <div className="flex flex-wrap items-center gap-2">
           <Input

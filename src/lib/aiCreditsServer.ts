@@ -6,6 +6,8 @@ export type DebitResult = {
   allowed: boolean;
   reason?: string;
   cost?: number;
+  daily_remaining?: number;
+  daily_limit?: number;
   included_used?: number;
   included_limit?: number;
   included_remaining?: number;

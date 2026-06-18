@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useNavigate } from "@tanstack/react-router";
 import { ArrowRight, Plus, X } from "lucide-react";
 import { useAuth } from "@/auth/AuthProvider";
 import { supabase } from "@/integrations/supabase/client";
@@ -25,6 +26,7 @@ type Props = {
 };
 
 export function DashboardShortcuts({ onGo }: Props) {
+  const navigate = useNavigate();
   const { user, profile, refreshProfile } = useAuth();
   const [shortcutIds, setShortcutIds] = React.useState<string[]>([]);
   const [pickerOpen, setPickerOpen] = React.useState(false);
@@ -113,7 +115,12 @@ export function DashboardShortcuts({ onGo }: Props) {
               option={getShortcutOption(id)!}
               onNavigate={() => {
                 const ref = getShortcutOption(id);
-                if (ref) onGo(ref.section, ref.sub);
+                if (!ref) return;
+                if (ref.href) {
+                  void navigate({ to: ref.href });
+                  return;
+                }
+                onGo(ref.section, ref.sub);
               }}
               onRemove={(e) => removeShortcut(index, e)}
             />

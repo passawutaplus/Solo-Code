@@ -8,6 +8,7 @@ import type {
   TicketSource,
   TicketStatus,
 } from "@/lib/ticketSchema";
+import { appendMemberCodeToDescription } from "@/lib/userDisplayId";
 import { compressImageFile, dataUrlToBlob } from "@/lib/imageCompress";
 import { throwIfSupabaseError } from "@/lib/supabaseError";
 
@@ -206,12 +207,14 @@ export function useMyTickets() {
     mutationFn: async (input: CreateTicketInput & { files?: File[] }) => {
       if (!uid) throw new Error("ต้องเข้าสู่ระบบ");
 
+      const description = appendMemberCodeToDescription(input.description, uid);
+
       const { data: ticket, error } = await (supabase as any)
         .from("support_tickets")
         .insert({
           user_id: uid,
           title: input.title,
-          description: input.description?.trim() || null,
+          description: description || null,
           category: input.category,
           source: input.source ?? "support_hub",
           source_feature: input.sourceFeature ?? null,

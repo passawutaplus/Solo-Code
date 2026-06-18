@@ -131,12 +131,12 @@ CREATE POLICY meeting_captures_storage_service ON storage.objects FOR ALL TO ser
   USING (bucket_id = 'meeting-captures') WITH CHECK (bucket_id = 'meeting-captures');
 
 INSERT INTO public.ai_feature_costs (feature, cost, label) VALUES
-  ('ai_meeting_transcribe_15', 3, 'Meeting — ถอดเสียง ≤15 นาที'),
-  ('ai_meeting_transcribe_30', 4, 'Meeting — ถอดเสียง ≤30 นาที'),
-  ('ai_meeting_transcribe_45', 5, 'Meeting — ถอดเสียง ≤45 นาที'),
-  ('ai_meeting_transcribe_60', 6, 'Meeting — ถอดเสียง ≤60 นาที'),
-  ('ai_meeting_brief_extract_15', 9, 'Meeting — สรุปบรีฟ ≤15 นาที'),
-  ('ai_meeting_brief_extract_30', 14, 'Meeting — สรุปบรีฟ ≤30 นาที'),
-  ('ai_meeting_brief_extract_45', 19, 'Meeting — สรุปบรีฟ ≤45 นาที'),
+  ('ai_meeting_transcribe_15', 3, 'จดประชุม AI — ถอดเสียง ≤15 นาที'),
+  ('ai_meeting_transcribe_30', 4, 'จดประชุม AI — ถอดเสียง ≤30 นาที'),
+  ('ai_meeting_transcribe_45', 5, 'จดประชุม AI — ถอดเสียง ≤45 นาที'),
+  ('ai_meeting_transcribe_60', 6, 'จดประชุม AI — ถอดเสียง ≤60 นาที'),
+  ('ai_meeting_brief_extract_15', 9, 'จดประชุม AI — สรุปบรีฟ ≤15 นาที'),
+  ('ai_meeting_brief_extract_30', 14, 'จดประชุม AI — สรุปบรีฟ ≤30 นาที'),
+  ('ai_meeting_brief_extract_45', 19, 'จดประชุม AI — สรุปบรีฟ ≤45 นาที'),
   ('ai_meeting_brief_extract_60', 24, 'Meeting — สรุปบรีฟ ≤60 นาที')
 ON CONFLICT (feature) DO UPDATE SET cost = EXCLUDED.cost, label = EXCLUDED.label;

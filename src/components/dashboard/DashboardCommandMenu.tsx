@@ -25,6 +25,7 @@ const NAV_ITEMS: { label: string; section: DashSection; sub?: string; keywords?:
   { label: "ภาษี", section: "finance", sub: "tax", keywords: "wht ทวิ" },
   { label: "Meeting", section: "planner", sub: "meetings", keywords: "meeting จดประชุม capture อัดเสียง สรุปรายงาน" },
   { label: "Smart Brief", section: "planner", sub: "briefs", keywords: "brief quick capture" },
+  { label: "Portfolio", section: "mydata", sub: "portfolio", keywords: "resume cv pitch แชร์" },
   { label: "ลูกค้า", section: "mydata", sub: "clients", keywords: "client crm" },
   { label: "To Do List", section: "planner", sub: "projects" },
   { label: "ตั้งค่า", section: "settings" },

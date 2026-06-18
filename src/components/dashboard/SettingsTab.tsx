@@ -8,13 +8,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { toast } from "sonner";
 import { Loader2, Upload, LogOut, ShieldCheck, RotateCcw, Image as ImageIcon } from "lucide-react";
 import { compressImageFile, dataUrlToBlob } from "@/lib/imageCompress";
@@ -28,15 +21,6 @@ import { DocumentBrandingSection } from "@/components/dashboard/settings/Documen
 import { PaymentSettingsSection } from "@/components/dashboard/settings/PaymentSettingsSection";
 import { TierMembershipCard } from "@/components/tier/TierMembershipCard";
 
-const CURRENCIES = [
-  { value: "THB", label: "฿ (THB)" },
-  { value: "USD", label: "$ (USD)" },
-  { value: "EUR", label: "€ (EUR)" },
-  { value: "GBP", label: "£ (GBP)" },
-  { value: "JPY", label: "¥ (JPY)" },
-  { value: "SGD", label: "S$ (SGD)" },
-];
-
 interface FormState {
   brand_name: string;
   tagline: string;
@@ -45,9 +29,7 @@ interface FormState {
   email: string;
   address: string;
   tax_id: string;
-  currency: string;
   social_link: string;
-  terms: string;
   logo_url: string;
 }
 
@@ -59,9 +41,7 @@ const EMPTY: FormState = {
   email: "",
   address: "",
   tax_id: "",
-  currency: "THB",
   social_link: "",
-  terms: "",
   logo_url: "",
 };
 
@@ -74,9 +54,7 @@ function fromProfile(p: ReturnType<typeof useAuth>["profile"], email: string): F
     email,
     address: p?.address ?? "",
     tax_id: p?.tax_id ?? "",
-    currency: p?.currency ?? "THB",
     social_link: p?.social_link ?? "",
-    terms: p?.terms ?? "",
     logo_url: p?.logo_url ?? "",
   };
 }
@@ -154,9 +132,7 @@ export function SettingsTab() {
         phone: trim(form.phone, 30),
         address: trim(form.address, 300),
         tax_id: trim(form.tax_id, 30),
-        currency: form.currency || "THB",
         social_link: trim(form.social_link, 300),
-        terms: form.terms.trim().slice(0, 2000) || null,
         logo_url: form.logo_url.trim() || null,
       })
       .eq("user_id", user.id);
@@ -308,21 +284,6 @@ export function SettingsTab() {
               />
             </Field>
 
-            <Field label="สกุลเงิน">
-              <Select value={form.currency} onValueChange={(v) => setField("currency", v)}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {CURRENCIES.map((c) => (
-                    <SelectItem key={c.value} value={c.value}>
-                      {c.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </Field>
-
             <Field label="ลิงก์โซเชียล / โชว์เคสภายนอก (เช่น Pixel100, Behance)">
               <Input
                 value={form.social_link}
@@ -331,21 +292,6 @@ export function SettingsTab() {
                 placeholder="เช่น https://instagram.com/your_handle"
                 inputMode="url"
               />
-            </Field>
-
-            <Field label="เงื่อนไขการใช้บริการ">
-              <Textarea
-                value={form.terms}
-                onChange={(e) => setField("terms", e.target.value)}
-                maxLength={2000}
-                rows={4}
-                placeholder={
-                  "• ชำระมัดจำเพื่อเริ่มงาน\n• โอนลิขสิทธิ์เมื่อชำระเต็ม\n• แก้ไขเพิ่มเติม ฿500 ต่อรอบ"
-                }
-              />
-              <p className="text-[10px] text-muted-foreground mt-1">
-                แต่ละบรรทัดจะเป็น bullet ในใบเสนอราคา
-              </p>
             </Field>
 
             <div className="flex items-center gap-2 pt-3 border-t border-border/40">

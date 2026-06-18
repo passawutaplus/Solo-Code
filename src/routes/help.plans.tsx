@@ -14,11 +14,11 @@ export const Route = createFileRoute("/help/plans")({
 const PLAN_POINTS = [
   {
     title: "Free",
-    body: "เริ่มใช้ได้ทันที — Pipeline CRM ใบเสนอราคา Job Tracker QR/โอน และเครดิต AI จำกัดต่อเดือน",
+    body: "เริ่มใช้ได้ทันที — Pipeline CRM ใบเสนอราคา Job Tracker QR/โอน และ Credit AI 5/วัน × 14 วัน",
   },
   {
     title: "Pro / Pro+",
-    body: "white-label เอกสาร & Portal เครดิต AI และ storage มากขึ้น LINE แจ้งเตือน และฟีเจอร์ขั้นสูง",
+    body: "white-label เอกสาร & Portal · Credit AI 5/วัน + โควต้าแพ็กมากขึ้น · storage · LINE แจ้งเตือน",
   },
   {
     title: "In-House",
@@ -30,7 +30,7 @@ function PlansHelpPage() {
   return (
     <HelpLayout
       route="/help/plans"
-      title="แพ็กเกจ & เครดิต AI"
+      title="แพ็กเกจ & Credit AI"
       subtitle="Free · Pro · ecosystem"
       actions={
         <>
@@ -70,10 +70,10 @@ function PlansHelpPage() {
             <Cpu className="h-5 w-5 text-primary" />
           </div>
           <div>
-            <h2 className="text-base font-semibold">เครดิต AI</h2>
+            <h2 className="text-base font-semibold">Credit AI</h2>
             <p className="text-sm text-muted-foreground mt-2 leading-relaxed">
-              ใช้กับฟีเจอร์ AI ใน My Desk (เช่น ช่วยร่างข้อความ สรุปงาน) — โควต้ารีเซ็ตตามรอบบิล
-              ดูยอดคงเหลือใน Settings → AI & Storage
+              ใช้กับฟีเจอร์ AI ใน My Desk — Free ได้ Credit AI 5/วัน × 14 วัน · Pro+ ได้ 5/วัน + โควต้าแพ็กต่อรอบบิล
+              (ไม่ทบวันก่อน) ดูยอดคงเหลือใน Settings
             </p>
             <p className="text-[11px] text-muted-foreground mt-2 flex items-start gap-1.5">
               <CheckCircle2 className="h-3.5 w-3.5 shrink-0 mt-0.5 text-emerald-600" />

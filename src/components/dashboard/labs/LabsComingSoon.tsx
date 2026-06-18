@@ -3,7 +3,6 @@ import { Badge } from "@/components/ui/badge";
 import { Sparkles } from "lucide-react";
 
 const COMING = [
-  { title: "Typography Lab", note: "ทดลองฟอนต์คู่ · scale · pairing" },
   { title: "Layout Grid", note: "สร้าง grid system สำหรับ brief" },
   { title: "Mood Mixer", note: "ผสม reference + keyword → palette" },
 ];
@@ -22,7 +21,7 @@ export function LabsComingSoon() {
               เร็วๆ นี้
             </Badge>
           </div>
-          <ul className="grid sm:grid-cols-3 gap-2">
+          <ul className="grid sm:grid-cols-2 gap-2">
             {COMING.map((item) => (
               <li
                 key={item.title}

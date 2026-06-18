@@ -24,6 +24,7 @@ interface PublicSupplier {
   name: string;
   category: string | null;
   contact_name: string | null;
+  contact_position: string | null;
   phone: string | null;
   email: string | null;
   line_id: string | null;

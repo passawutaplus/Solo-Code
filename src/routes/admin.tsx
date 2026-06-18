@@ -95,6 +95,11 @@ const PaymentsSection = React.lazy(() =>
 const DevTasksSection = React.lazy(() =>
   import("@/components/admin/DevTasksSection").then((m) => ({ default: m.DevTasksSection })),
 );
+const EcosystemOpsSection = React.lazy(() =>
+  import("@/components/admin/EcosystemOpsSection").then((m) => ({
+    default: m.EcosystemOpsSection,
+  })),
+);
 
 function SectionFallback() {
   return (
@@ -108,8 +113,10 @@ function SectionFallback() {
 export const Route = createFileRoute("/admin")({
   validateSearch: (search: Record<string, unknown>) => {
     const section = typeof search.section === "string" ? search.section : undefined;
+    const q = typeof search.q === "string" ? search.q : undefined;
     return {
       section: isAdminSection(section) ? section : undefined,
+      q,
     };
   },
   head: () => ({
@@ -137,7 +144,7 @@ export const Route = createFileRoute("/admin")({
 function AdminPage() {
   const { profile, signOut } = useAuth();
   const navigate = useNavigate();
-  const { section: urlSection } = Route.useSearch();
+  const { section: urlSection, q: urlQuery } = Route.useSearch();
   const [active, setActive] = React.useState<AdminSection>(() => urlSection ?? "overview");
   const m = useAdminMetrics();
   const isMobile = useIsMobile();
@@ -225,7 +232,7 @@ function AdminPage() {
                 {active === "dev_tasks" && <DevTasksSection />}
                 {active === "activity_feed" && <ActivityFeedSection />}
                 {active === "early_access" && <EarlyAccessSection />}
-                {active === "users" && <UsersSection m={m} />}
+                {active === "users" && <UsersSection m={m} initialQuery={urlQuery ?? ""} />}
                 {active === "chat" && <AdminChatSection />}
                 {active === "tickets" && <AdminTicketsSection />}
                 {active === "announcements" && <AnnouncementsSection />}
@@ -238,6 +245,7 @@ function AdminPage() {
                 {active === "activity" && <ActivityAnalyticsSection />}
                 {active === "device" && <DeviceAnalyticsSection />}
                 {active === "ai_usage" && <AiUsageSection />}
+                {active === "ecosystem_ops" && <EcosystemOpsSection />}
                 {active === "ai_center" && <AiHubSection />}
                 {active === "health" && <HealthSection m={m} />}
                 {active === "usage" && <UsageSection />}

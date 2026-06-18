@@ -23,6 +23,7 @@ import { SupportSuggest } from "./SupportSuggest";
 import { SupportChangelog } from "./SupportChangelog";
 import so1oLogoMark from "@/assets/so1o-logo-mark.png";
 import { trackFeature } from "@/lib/featureUsage";
+import { MemberCodeCopy } from "@/components/MemberCodeCopy";
 
 type View = "home" | "chat" | "faq" | "suggest" | "changelog" | "create_ticket" | "my_tickets";
 
@@ -189,6 +190,7 @@ export function SupportFab({
           <div className="flex-1 min-h-0 bg-white">
             {view === "home" && (
               <HomeView
+                userId={user?.id}
                 setView={setView}
                 setSheetOpen={setSheetOpen}
                 unread={unread}
@@ -211,11 +213,13 @@ export function SupportFab({
 }
 
 function HomeView({
+  userId,
   setView,
   setSheetOpen,
   unread,
   openCount,
 }: {
+  userId?: string;
   setView: (v: View) => void;
   setSheetOpen: (open: boolean) => void;
   unread: number;
@@ -230,6 +234,12 @@ function HomeView({
 
   return (
     <div className="h-full overflow-y-auto overscroll-contain px-4 pt-4 pb-6 space-y-2.5">
+      {userId ? (
+        <div className="rounded-lg border border-gray-100 bg-gray-50 px-3 py-2 mb-1">
+          <MemberCodeCopy userId={userId} size="sm" className="text-gray-600" />
+          <p className="text-[10px] text-gray-400 mt-1">ทีมงานใช้รหัสนี้ระบุบัญชีเมื่อช่วยเหลือ</p>
+        </div>
+      ) : null}
       <HubMenuItem
         icon={Ticket}
         title="แจ้งปัญหา / บั๊ก"

@@ -9,7 +9,11 @@ import {
   Lock,
   Sparkles,
   ChevronDown,
+  Loader2,
+  Users,
 } from "lucide-react";
+import { useServerFn } from "@tanstack/react-start";
+import { toast } from "sonner";
 import {
   DRILL_CATEGORY_META,
   DRILL_DIFFICULTY_META,
@@ -30,12 +34,17 @@ import {
   getDrillStreak,
   isDrillCompletedToday,
   markDrillCompleted,
+  markDrillPostedToPixel100,
   markDrillStarted,
 } from "@/lib/designDrillStorage";
-import { anthemDesignDrillUrl, trackCrossLink } from "@/lib/crossLink";
+import { parseTimeHintToMinutes } from "@/lib/parseTimeHint";
+import { anthemDesignDrillUrl, anthemDrillGalleryUrl, trackCrossLink } from "@/lib/crossLink";
+import { fetchDrillRerollStatus, requestDrillReroll } from "@/lib/designDrillReroll.functions";
+import { saltToRollSeed } from "@/lib/drillRerollClient";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { DrillDifficultyIcon } from "./DrillDifficultyIcon";
+import { DrillDifficultyDot } from "./DrillDifficultyDot";
+import { DrillCountdown } from "./DrillCountdown";
 
 type Tab = "daily" | "custom";
 
@@ -85,6 +94,22 @@ export function DesignDrillSection() {
   const [inProgress, setInProgress] = React.useState(false);
   const [completedToday, setCompletedToday] = React.useState(false);
   const [savedBrief, setSavedBrief] = React.useState<string | null>(null);
+  const [timerStartedAt, setTimerStartedAt] = React.useState<number | null>(null);
+  const [timerTotalMinutes, setTimerTotalMinutes] = React.useState(90);
+  const [rerollRemaining, setRerollRemaining] = React.useState<number | null>(null);
+  const [rolling, setRolling] = React.useState(false);
+
+  const fetchRerollStatusFn = useServerFn(fetchDrillRerollStatus);
+  const requestRerollFn = useServerFn(requestDrillReroll);
+
+  const refreshRerollStatus = React.useCallback(async () => {
+    try {
+      const s = await fetchRerollStatusFn();
+      setRerollRemaining(s.remaining);
+    } catch {
+      setRerollRemaining(null);
+    }
+  }, [fetchRerollStatusFn]);
 
   React.useEffect(() => {
     setStreak(getDrillStreak());
@@ -93,8 +118,16 @@ export function DesignDrillSection() {
     if (saved) {
       setInProgress(true);
       setSavedBrief(saved.brief);
+      setTimerStartedAt(saved.startedAt ?? null);
+      setTimerTotalMinutes(saved.totalMinutes ?? 90);
+    } else {
+      setTimerStartedAt(null);
     }
   }, [progressTick]);
+
+  React.useEffect(() => {
+    if (tab === "custom") refreshRerollStatus();
+  }, [tab, refreshRerollStatus]);
 
   const dailyDrill = React.useMemo(() => pickDailyDrill(), []);
 
@@ -113,21 +146,45 @@ export function DesignDrillSection() {
     setSavedBrief(null);
   }, [tab, category, difficulty, mode, rollSeed, activeDrill.brief, inProgress, savedBrief]);
 
-  const handleRoll = () => setRollSeed((s) => s + 1);
+  const handleRoll = async () => {
+    setRolling(true);
+    try {
+      const result = await requestRerollFn();
+      setRollSeed(saltToRollSeed(result.salt));
+      setRerollRemaining(result.remainingFree);
+      if (result.paid) {
+        toast.info(`ใช้ ${result.creditsUsed} AI credit สุ่มโจทย์ใหม่`);
+      }
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : "สุ่มไม่สำเร็จ";
+      toast.error(msg === "limit_reached" ? "เครดิต AI ไม่พอ — อัปเดตแพ็กเพื่อสุ่มต่อ" : msg);
+    } finally {
+      setRolling(false);
+    }
+  };
 
   const handleStart = () => {
-    markDrillStarted(activeDrill.brief);
+    const totalMinutes = parseTimeHintToMinutes(
+      activeDrill.template.timeHint,
+      activeDrill.difficulty,
+    );
+    markDrillStarted(activeDrill.brief, totalMinutes);
     setInProgress(true);
     setSavedBrief(activeDrill.brief);
+    setTimerStartedAt(Date.now());
+    setTimerTotalMinutes(totalMinutes);
     setProgressTick((t) => t + 1);
+    window.dispatchEvent(new CustomEvent("so1o:creative-path-update"));
   };
 
   const handleComplete = () => {
     markDrillCompleted();
     setInProgress(false);
     setCompletedToday(true);
+    setTimerStartedAt(null);
     setStreak(getDrillStreak());
     setProgressTick((t) => t + 1);
+    window.dispatchEvent(new CustomEvent("so1o:creative-path-update"));
   };
 
   const handlePost = async () => {
@@ -144,10 +201,13 @@ export function DesignDrillSection() {
       brief: activeDrill.brief,
       description: buildDrillDescription(activeDrill),
       anthemCategory: activeDrill.meta.anthemCategory,
-      tags: buildDrillTags(activeDrill),
+      tags: buildDrillTags(activeDrill, { daily: tab === "daily" }),
+      drillType: tab,
     });
 
     const withLink = linkId ? `${url}&link_id=${encodeURIComponent(linkId)}` : url;
+    markDrillPostedToPixel100();
+    window.dispatchEvent(new CustomEvent("so1o:creative-path-update"));
     window.open(withLink, "_blank", "noopener,noreferrer");
   };
 
@@ -155,12 +215,13 @@ export function DesignDrillSection() {
     clearDrillInProgress();
     setInProgress(false);
     setSavedBrief(null);
+    setTimerStartedAt(null);
     setProgressTick((t) => t + 1);
   };
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2.5">
           <span className="rounded-lg bg-primary-soft text-primary p-2 shrink-0">
             <Target className="h-4 w-4" aria-hidden />
@@ -172,12 +233,20 @@ export function DesignDrillSection() {
             </p>
           </div>
         </div>
-        {streak > 0 && (
-          <Badge variant="outline" className="gap-1 border-primary/30 text-primary">
-            <Flame className="h-3 w-3" aria-hidden />
-            {streak} วันติด
-          </Badge>
-        )}
+        <div className="flex items-center gap-2">
+          {streak > 0 && (
+            <Badge variant="outline" className="gap-1 border-primary/30 text-primary">
+              <Flame className="h-3 w-3" aria-hidden />
+              {streak} วันติด
+            </Badge>
+          )}
+          <Button variant="outline" size="sm" asChild className="gap-1.5">
+            <a href={anthemDrillGalleryUrl()} target="_blank" rel="noopener noreferrer">
+              <Users className="h-3.5 w-3.5" aria-hidden />
+              ดูผลงานวันนี้
+            </a>
+          </Button>
+        </div>
       </div>
 
       <ChipRow>
@@ -209,7 +278,7 @@ export function DesignDrillSection() {
               {DIFFICULTIES.map((d) => (
                 <FilterChip key={d} active={difficulty === d} onClick={() => setDifficulty(d)}>
                   <span className="inline-flex items-center gap-1">
-                    <DrillDifficultyIcon difficulty={d} />
+                    <DrillDifficultyDot difficulty={d} />
                     {DRILL_DIFFICULTY_META[d].label}
                   </span>
                 </FilterChip>
@@ -227,28 +296,54 @@ export function DesignDrillSection() {
                 </FilterChip>
               ))}
             </ChipRow>
-            <Button variant="outline" size="sm" onClick={handleRoll} className="gap-1.5">
-              <Shuffle className="h-3.5 w-3.5" aria-hidden />
-              สุ่มโจทย์ใหม่
-            </Button>
+            <div className="flex flex-wrap items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleRoll}
+                disabled={rolling}
+                className="gap-1.5"
+              >
+                {rolling ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden />
+                ) : (
+                  <Shuffle className="h-3.5 w-3.5" aria-hidden />
+                )}
+                สุ่มโจทย์ใหม่
+              </Button>
+              {rerollRemaining != null && (
+                <span className="text-[11px] text-muted-foreground">
+                  {rerollRemaining > 0
+                    ? `เหลือฟรีวันนี้ ${rerollRemaining}/3`
+                    : "ครั้งถัดไปใช้ 1 AI credit"}
+                </span>
+              )}
+            </div>
           </div>
         </details>
       )}
 
       <article className="rounded-xl border border-border bg-background/80 p-5 space-y-4">
-        <div className="flex flex-wrap items-center gap-2">
-          <Badge variant="secondary">{activeDrill.meta.label}</Badge>
-          <Badge variant="outline" className="gap-1">
-            <DrillDifficultyIcon difficulty={activeDrill.difficulty} />
-            {DRILL_DIFFICULTY_META[activeDrill.difficulty].label}
-          </Badge>
-          <Badge variant="outline">
-            {activeDrill.mode === "constraints" ? "มีข้อจำกัด" : "ฟรีสไตล์"}
-          </Badge>
-          {activeDrill.template.timeHint && (
-            <span className="text-[11px] text-muted-foreground">
-              {activeDrill.template.timeHint}
-            </span>
+        <div className="flex flex-wrap items-start justify-between gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <Badge variant="secondary">{activeDrill.meta.label}</Badge>
+            <Badge variant="outline" className="gap-1.5">
+              <DrillDifficultyDot difficulty={activeDrill.difficulty} />
+              {DRILL_DIFFICULTY_META[activeDrill.difficulty].label}
+            </Badge>
+            <Badge variant="outline">
+              {activeDrill.mode === "constraints" ? "มีข้อจำกัด" : "ฟรีสไตล์"}
+            </Badge>
+            {activeDrill.template.timeHint && (
+              <span className="text-[11px] text-muted-foreground">
+                {activeDrill.template.timeHint}
+              </span>
+            )}
+          </div>
+          {completedToday && (
+            <p className="text-xs text-primary font-medium shrink-0 text-right">
+              ทำโจทย์วันนี้เสร็จแล้ว — เก่งมาก!
+            </p>
           )}
         </div>
 
@@ -267,6 +362,10 @@ export function DesignDrillSection() {
 
         {activeDrill.mode === "free" && activeDrill.template.freeHint && (
           <p className="text-sm text-muted-foreground italic">{activeDrill.template.freeHint}</p>
+        )}
+
+        {inProgress && drillMatchesProgress && timerStartedAt != null && (
+          <DrillCountdown startedAt={timerStartedAt} totalMinutes={timerTotalMinutes} />
         )}
 
         <div className="flex flex-wrap gap-2 pt-1">
@@ -295,9 +394,6 @@ export function DesignDrillSection() {
           )}
         </div>
 
-        {completedToday && (
-          <p className="text-xs text-primary font-medium">ทำโจทย์วันนี้เสร็จแล้ว — เก่งมาก!</p>
-        )}
       </article>
     </div>
   );

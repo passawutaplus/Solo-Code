@@ -26,6 +26,10 @@ import {
   StickyNote,
   MessageSquare,
   Sparkles,
+  Building2,
+  User as UserIcon,
+  UserCircle,
+  Briefcase,
 } from "lucide-react";
 import { toast } from "sonner";
 import { uploadCompressedImage } from "@/lib/imageCompress";
@@ -34,6 +38,7 @@ import { useAuth } from "@/auth/AuthProvider";
 import { SUPPLIER_CATEGORIES } from "./categories";
 import { StarRatingInput } from "./StarRatingInput";
 import { cn } from "@/lib/utils";
+import { FormSection } from "@/components/dashboard/clients/shared";
 
 interface Props {
   open: boolean;
@@ -54,8 +59,10 @@ interface Props {
 
 const EMPTY: Partial<Supplier> & { name: string } = {
   name: "",
+  type: "individual",
   category: "",
   contactName: "",
+  contactPosition: "",
   phone: "",
   email: "",
   lineId: "",
@@ -100,16 +107,14 @@ export function SupplierFormDialog({
 
   React.useEffect(() => {
     if (supplier) {
-      setForm({ ...supplier });
-      // auto-expand advanced if any advanced field has data
+      setForm({ ...supplier, type: supplier.type ?? "individual" });
+      const isCo = (supplier.type ?? "individual") === "company";
       const hasAdvanced = Boolean(
-        supplier.contactName ||
-        supplier.email ||
-        supplier.website ||
-        supplier.address ||
+        supplier.mapUrl ||
         supplier.rating > 0 ||
         supplier.tags.length > 0 ||
         supplier.notes ||
+        (!isCo && (supplier.website || supplier.address)) ||
         linksList.length > 0 ||
         files.length > 0,
       );
@@ -131,19 +136,22 @@ export function SupplierFormDialog({
   const set = <K extends keyof Supplier>(k: K, v: Supplier[K]) =>
     setForm((f) => ({ ...f, [k]: v }));
 
+  const isCompany = (form.type ?? "individual") === "company";
+
   const advancedCount = React.useMemo(() => {
     let n = 0;
-    if (form.contactName) n++;
-    if (form.email) n++;
-    if (form.website) n++;
-    if (form.address) n++;
+    if (!isCompany) {
+      if (form.website) n++;
+      if (form.address) n++;
+    }
+    if (form.mapUrl) n++;
     if ((form.rating ?? 0) > 0) n++;
     if ((form.tags ?? []).length > 0) n++;
     if (form.notes) n++;
     n += stagedLinks.length + linksList.length;
     n += stagedFiles.length + files.length;
     return n;
-  }, [form, stagedLinks, stagedFiles, linksList, files]);
+  }, [form, isCompany, stagedLinks, stagedFiles, linksList, files]);
 
   const handleCoverPick = async (file: File) => {
     if (!user) {
@@ -210,6 +218,14 @@ export function SupplierFormDialog({
       toast.error("กรุณาระบุชื่อ Supplier");
       return;
     }
+    if (!form.category?.trim()) {
+      toast.error("กรุณาเลือกหมวดหมู่");
+      return;
+    }
+    if (isCompany && !form.contactName?.trim()) {
+      toast.error("กรุณากรอกชื่อผู้ติดต่อ");
+      return;
+    }
     setSubmitting(true);
     try {
       await onSubmit(form, { links: stagedLinks, files: stagedFiles });
@@ -217,6 +233,91 @@ export function SupplierFormDialog({
       setSubmitting(false);
     }
   };
+
+  const coverField = (
+    <Field label="รูปปก / โลโก้ร้าน" hint="optional">
+      <div className="flex items-center gap-3">
+        <div className="h-16 w-24 rounded-xl border border-border/60 bg-muted/40 overflow-hidden flex items-center justify-center shrink-0">
+          {form.coverImageUrl ? (
+            <img
+              src={form.coverImageUrl}
+              alt="Cover"
+              className="w-full h-full object-cover"
+              loading="lazy"
+            />
+          ) : (
+            <ImageIcon className="h-5 w-5 text-muted-foreground/60" />
+          )}
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            className="h-8 gap-1.5"
+            disabled={uploadingCover}
+            onClick={() => coverInputRef.current?.click()}
+          >
+            {uploadingCover ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            ) : (
+              <Upload className="h-3.5 w-3.5" />
+            )}
+            {form.coverImageUrl ? "เปลี่ยนรูป" : "อัปโหลดรูปปก"}
+          </Button>
+          {form.coverImageUrl && (
+            <button
+              type="button"
+              onClick={() => set("coverImageUrl", "")}
+              className="text-[11px] text-destructive hover:underline inline-flex items-center gap-0.5"
+            >
+              <X className="h-3 w-3" /> ลบรูป
+            </button>
+          )}
+          <input
+            ref={coverInputRef}
+            type="file"
+            className="hidden"
+            accept="image/*"
+            onChange={(e) => {
+              const f = e.target.files?.[0];
+              if (f) handleCoverPick(f);
+              e.target.value = "";
+            }}
+          />
+        </div>
+      </div>
+    </Field>
+  );
+
+  const categoryField = (
+    <Field label="หมวดหมู่" required>
+      <select
+        className="flex h-11 w-full rounded-md border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+        value={form.category ?? ""}
+        onChange={(e) => set("category", e.target.value)}
+      >
+        <option value="">— เลือกหมวดหมู่ —</option>
+        {SUPPLIER_CATEGORIES.map((c) => (
+          <option key={c.key} value={c.label}>
+            {c.label}
+          </option>
+        ))}
+      </select>
+    </Field>
+  );
+
+  const rateNoteField = (
+    <Field label="เรท / บริการหลัก" icon={<Sparkles className="h-3.5 w-3.5" />}>
+      <Input
+        placeholder="เช่น พิมพ์ A4 5 บาท/แผ่น, ขั้นต่ำ 100 ใบ"
+        value={form.rateNote ?? ""}
+        onChange={(e) => set("rateNote", e.target.value)}
+        maxLength={200}
+        className="h-11"
+      />
+    </Field>
+  );
 
   return (
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
@@ -231,119 +332,168 @@ export function SupplierFormDialog({
         </DialogHeader>
 
         <div className="overflow-y-auto px-6 py-5 space-y-5 max-h-[calc(92vh-180px)]">
-          {/* ────────── BASIC ────────── */}
-          <section className="space-y-4">
-            {/* Cover */}
-            <Field label="รูปปก / โลโก้ร้าน" hint="optional">
-              <div className="flex items-center gap-3">
-                <div className="h-16 w-24 rounded-xl border border-border/60 bg-muted/40 overflow-hidden flex items-center justify-center shrink-0">
-                  {form.coverImageUrl ? (
-                    <img
-                      src={form.coverImageUrl}
-                      alt="Cover"
-                      className="w-full h-full object-cover"
-                      loading="lazy"
-                    />
-                  ) : (
-                    <ImageIcon className="h-5 w-5 text-muted-foreground/60" />
-                  )}
-                </div>
-                <div className="flex flex-col gap-1.5">
-                  <Button
+          <section className="space-y-3">
+            <div className="grid grid-cols-2 gap-2">
+              {(["individual", "company"] as const).map((t) => {
+                const Icon = t === "company" ? Building2 : UserIcon;
+                const active = (form.type ?? "individual") === t;
+                return (
+                  <button
+                    key={t}
                     type="button"
-                    size="sm"
-                    variant="outline"
-                    className="h-8 gap-1.5"
-                    disabled={uploadingCover}
-                    onClick={() => coverInputRef.current?.click()}
-                  >
-                    {uploadingCover ? (
-                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                    ) : (
-                      <Upload className="h-3.5 w-3.5" />
+                    onClick={() => set("type", t)}
+                    className={cn(
+                      "flex items-center justify-center gap-2 p-2.5 rounded-xl border-2 text-xs font-semibold transition-all",
+                      active
+                        ? "border-primary bg-primary/5 text-primary"
+                        : "border-border hover:border-border/80",
                     )}
-                    {form.coverImageUrl ? "เปลี่ยนรูป" : "อัปโหลดรูปปก"}
-                  </Button>
-                  {form.coverImageUrl && (
-                    <button
-                      type="button"
-                      onClick={() => set("coverImageUrl", "")}
-                      className="text-[11px] text-destructive hover:underline inline-flex items-center gap-0.5"
-                    >
-                      <X className="h-3 w-3" /> ลบรูป
-                    </button>
-                  )}
-                  <input
-                    ref={coverInputRef}
-                    type="file"
-                    className="hidden"
-                    accept="image/*"
-                    onChange={(e) => {
-                      const f = e.target.files?.[0];
-                      if (f) handleCoverPick(f);
-                      e.target.value = "";
-                    }}
-                  />
-                </div>
-              </div>
-            </Field>
-
-            <Field label="ชื่อ Supplier" required>
-              <Input
-                value={form.name}
-                onChange={(e) => set("name", e.target.value)}
-                placeholder="เช่น โรงพิมพ์พี่หมู, Studio ทอม"
-                maxLength={120}
-                className="h-11"
-              />
-            </Field>
-
-            <Field label="หมวดหมู่" required>
-              <select
-                className="flex h-11 w-full rounded-md border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-                value={form.category ?? ""}
-                onChange={(e) => set("category", e.target.value)}
-              >
-                <option value="">— เลือกหมวดหมู่ —</option>
-                {SUPPLIER_CATEGORIES.map((c) => (
-                  <option key={c.key} value={c.label}>
-                    {c.label}
-                  </option>
-                ))}
-              </select>
-            </Field>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <Field label="เบอร์โทร" icon={<Phone className="h-3.5 w-3.5" />}>
-                <Input
-                  value={form.phone ?? ""}
-                  onChange={(e) => set("phone", e.target.value)}
-                  placeholder="08x-xxx-xxxx"
-                  maxLength={30}
-                  className="h-11"
-                />
-              </Field>
-              <Field label="LINE ID" icon={<MessageSquare className="h-3.5 w-3.5" />}>
-                <Input
-                  value={form.lineId ?? ""}
-                  onChange={(e) => set("lineId", e.target.value)}
-                  placeholder="@yourshop"
-                  maxLength={50}
-                  className="h-11"
-                />
-              </Field>
+                  >
+                    <Icon className="h-4 w-4" />
+                    {t === "individual" ? "บุคคลธรรมดา" : "นิติบุคคล / บริษัท"}
+                  </button>
+                );
+              })}
             </div>
-
-            <Field label="เรท / บริการหลัก" icon={<Sparkles className="h-3.5 w-3.5" />}>
-              <Input
-                placeholder="เช่น พิมพ์ A4 5 บาท/แผ่น, ขั้นต่ำ 100 ใบ"
-                value={form.rateNote ?? ""}
-                onChange={(e) => set("rateNote", e.target.value)}
-                maxLength={200}
-                className="h-11"
-              />
-            </Field>
           </section>
+
+          {isCompany ? (
+            <>
+              <FormSection title="ข้อมูลร้าน / นิติบุคคล" icon={Building2} variant="company">
+                {coverField}
+                <Field label="ชื่อร้าน / บริษัท" required>
+                  <Input
+                    value={form.name}
+                    onChange={(e) => set("name", e.target.value)}
+                    placeholder="เช่น บริษัท โรงพิมพ์พี่หมู จำกัด"
+                    maxLength={120}
+                    className="h-11"
+                  />
+                </Field>
+                {categoryField}
+                <Field label="เว็บไซต์" icon={<Globe className="h-3.5 w-3.5" />}>
+                  <Input
+                    placeholder="https://..."
+                    value={form.website ?? ""}
+                    onChange={(e) => set("website", e.target.value)}
+                    maxLength={200}
+                    className="h-11"
+                  />
+                </Field>
+                <Field label="ที่อยู่" icon={<MapPin className="h-3.5 w-3.5" />}>
+                  <Textarea
+                    rows={2}
+                    value={form.address ?? ""}
+                    onChange={(e) => set("address", e.target.value)}
+                    placeholder="สำหรับก็อปแปะตอนส่งของ"
+                    maxLength={300}
+                  />
+                </Field>
+                {rateNoteField}
+              </FormSection>
+
+              <FormSection title="ผู้ติดต่อหลัก" icon={UserCircle} variant="contact">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <Field label="ชื่อ-นามสกุลผู้ติดต่อ" required>
+                    <Input
+                      value={form.contactName ?? ""}
+                      onChange={(e) => set("contactName", e.target.value)}
+                      placeholder="เช่น พี่สมชาย ฝ่ายขาย"
+                      maxLength={80}
+                      className="h-11"
+                    />
+                  </Field>
+                  <Field label="ตำแหน่ง / แผนก" icon={<Briefcase className="h-3.5 w-3.5" />}>
+                    <Input
+                      value={form.contactPosition ?? ""}
+                      onChange={(e) => set("contactPosition", e.target.value)}
+                      placeholder="เช่น ฝ่ายจัดซื้อ"
+                      maxLength={80}
+                      className="h-11"
+                    />
+                  </Field>
+                  <Field label="เบอร์โทร" icon={<Phone className="h-3.5 w-3.5" />}>
+                    <Input
+                      value={form.phone ?? ""}
+                      onChange={(e) => set("phone", e.target.value)}
+                      placeholder="08x-xxx-xxxx"
+                      maxLength={30}
+                      className="h-11"
+                    />
+                  </Field>
+                  <Field label="LINE ID" icon={<MessageSquare className="h-3.5 w-3.5" />}>
+                    <Input
+                      value={form.lineId ?? ""}
+                      onChange={(e) => set("lineId", e.target.value)}
+                      placeholder="@yourshop"
+                      maxLength={50}
+                      className="h-11"
+                    />
+                  </Field>
+                  <Field label="อีเมล" icon={<Mail className="h-3.5 w-3.5" />}>
+                    <Input
+                      type="email"
+                      value={form.email ?? ""}
+                      onChange={(e) => set("email", e.target.value)}
+                      placeholder="contact@shop.com"
+                      maxLength={120}
+                      className="h-11"
+                    />
+                  </Field>
+                </div>
+              </FormSection>
+            </>
+          ) : (
+            <>
+              <FormSection title="ข้อมูลส่วนตัว" icon={UserIcon} variant="default">
+                {coverField}
+                <Field label="ชื่อ Supplier" required>
+                  <Input
+                    value={form.name}
+                    onChange={(e) => set("name", e.target.value)}
+                    placeholder="เช่น โรงพิมพ์พี่หมู, Studio ทอม"
+                    maxLength={120}
+                    className="h-11"
+                  />
+                </Field>
+                {categoryField}
+                {rateNoteField}
+              </FormSection>
+
+              <FormSection title="ช่องทางติดต่อ" icon={Phone} variant="contact">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <Field label="เบอร์โทร" icon={<Phone className="h-3.5 w-3.5" />}>
+                    <Input
+                      value={form.phone ?? ""}
+                      onChange={(e) => set("phone", e.target.value)}
+                      placeholder="08x-xxx-xxxx"
+                      maxLength={30}
+                      className="h-11"
+                    />
+                  </Field>
+                  <Field label="LINE ID" icon={<MessageSquare className="h-3.5 w-3.5" />}>
+                    <Input
+                      value={form.lineId ?? ""}
+                      onChange={(e) => set("lineId", e.target.value)}
+                      placeholder="@yourshop"
+                      maxLength={50}
+                      className="h-11"
+                    />
+                  </Field>
+                  <Field label="อีเมล" icon={<Mail className="h-3.5 w-3.5" />}>
+                    <Input
+                      type="email"
+                      value={form.email ?? ""}
+                      onChange={(e) => set("email", e.target.value)}
+                      placeholder="hello@email.com"
+                      maxLength={120}
+                      className="h-11"
+                    />
+                  </Field>
+                </div>
+              </FormSection>
+            </>
+          )}
 
           {/* ────────── ADVANCED TOGGLE ────────── */}
           <button
@@ -379,44 +529,28 @@ export function SupplierFormDialog({
           >
             <div className="overflow-hidden">
               <div className="space-y-4 pt-1">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <Field label="ผู้ติดต่อ (Contact Person)">
-                    <Input
-                      value={form.contactName ?? ""}
-                      onChange={(e) => set("contactName", e.target.value)}
-                      placeholder="เช่น พี่สมชาย ฝ่ายขาย"
-                      maxLength={80}
-                    />
-                  </Field>
-                  <Field label="อีเมล" icon={<Mail className="h-3.5 w-3.5" />}>
-                    <Input
-                      type="email"
-                      value={form.email ?? ""}
-                      onChange={(e) => set("email", e.target.value)}
-                      placeholder="contact@shop.com"
-                      maxLength={120}
-                    />
-                  </Field>
-                </div>
+                {!isCompany && (
+                  <>
+                    <Field label="เว็บไซต์" icon={<Globe className="h-3.5 w-3.5" />}>
+                      <Input
+                        placeholder="https://..."
+                        value={form.website ?? ""}
+                        onChange={(e) => set("website", e.target.value)}
+                        maxLength={200}
+                      />
+                    </Field>
 
-                <Field label="เว็บไซต์" icon={<Globe className="h-3.5 w-3.5" />}>
-                  <Input
-                    placeholder="https://..."
-                    value={form.website ?? ""}
-                    onChange={(e) => set("website", e.target.value)}
-                    maxLength={200}
-                  />
-                </Field>
-
-                <Field label="ที่อยู่" icon={<MapPin className="h-3.5 w-3.5" />}>
-                  <Textarea
-                    rows={2}
-                    value={form.address ?? ""}
-                    onChange={(e) => set("address", e.target.value)}
-                    placeholder="สำหรับก็อปแปะตอนส่งของ"
-                    maxLength={300}
-                  />
-                </Field>
+                    <Field label="ที่อยู่" icon={<MapPin className="h-3.5 w-3.5" />}>
+                      <Textarea
+                        rows={2}
+                        value={form.address ?? ""}
+                        onChange={(e) => set("address", e.target.value)}
+                        placeholder="สำหรับก็อปแปะตอนส่งของ"
+                        maxLength={300}
+                      />
+                    </Field>
+                  </>
+                )}
 
                 <Field
                   label="Google Maps URL"

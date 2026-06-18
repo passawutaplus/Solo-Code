@@ -15,6 +15,7 @@ import { Route as SurveyRouteImport } from './routes/survey'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as ResearchRouteImport } from './routes/research'
 import { Route as RefundRouteImport } from './routes/refund'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as PricingRouteImport } from './routes/pricing'
@@ -36,6 +37,7 @@ import { Route as VisionTokenRouteImport } from './routes/vision.$token'
 import { Route as TrackTokenRouteImport } from './routes/track.$token'
 import { Route as SupplierTokenRouteImport } from './routes/supplier.$token'
 import { Route as PlannerTokenRouteImport } from './routes/planner.$token'
+import { Route as PSlugRouteImport } from './routes/p.$slug'
 import { Route as LicenseTokenRouteImport } from './routes/license.$token'
 import { Route as InhouseOrgSlugRouteImport } from './routes/inhouse.$orgSlug'
 import { Route as HelpTaxRouteImport } from './routes/help.tax'
@@ -107,6 +109,11 @@ const RobotsDottxtRoute = RobotsDottxtRouteImport.update({
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
   path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResearchRoute = ResearchRouteImport.update({
+  id: '/research',
+  path: '/research',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RefundRoute = RefundRouteImport.update({
@@ -212,6 +219,11 @@ const SupplierTokenRoute = SupplierTokenRouteImport.update({
 const PlannerTokenRoute = PlannerTokenRouteImport.update({
   id: '/planner/$token',
   path: '/planner/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PSlugRoute = PSlugRouteImport.update({
+  id: '/p/$slug',
+  path: '/p/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LicenseTokenRoute = LicenseTokenRouteImport.update({
@@ -459,6 +471,7 @@ export interface FileRoutesByFullPath {
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/refund': typeof RefundRoute
+  '/research': typeof ResearchRoute
   '/reset-password': typeof ResetPasswordRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -481,6 +494,7 @@ export interface FileRoutesByFullPath {
   '/help/tax': typeof HelpTaxRoute
   '/inhouse/$orgSlug': typeof InhouseOrgSlugRouteWithChildren
   '/license/$token': typeof LicenseTokenRoute
+  '/p/$slug': typeof PSlugRoute
   '/planner/$token': typeof PlannerTokenRoute
   '/supplier/$token': typeof SupplierTokenRoute
   '/track/$token': typeof TrackTokenRouteWithChildren
@@ -530,6 +544,7 @@ export interface FileRoutesByTo {
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/refund': typeof RefundRoute
+  '/research': typeof ResearchRoute
   '/reset-password': typeof ResetPasswordRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -552,6 +567,7 @@ export interface FileRoutesByTo {
   '/help/tax': typeof HelpTaxRoute
   '/inhouse/$orgSlug': typeof InhouseOrgSlugRouteWithChildren
   '/license/$token': typeof LicenseTokenRoute
+  '/p/$slug': typeof PSlugRoute
   '/planner/$token': typeof PlannerTokenRoute
   '/supplier/$token': typeof SupplierTokenRoute
   '/track/$token': typeof TrackTokenRouteWithChildren
@@ -602,6 +618,7 @@ export interface FileRoutesById {
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/refund': typeof RefundRoute
+  '/research': typeof ResearchRoute
   '/reset-password': typeof ResetPasswordRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -624,6 +641,7 @@ export interface FileRoutesById {
   '/help/tax': typeof HelpTaxRoute
   '/inhouse/$orgSlug': typeof InhouseOrgSlugRouteWithChildren
   '/license/$token': typeof LicenseTokenRoute
+  '/p/$slug': typeof PSlugRoute
   '/planner/$token': typeof PlannerTokenRoute
   '/supplier/$token': typeof SupplierTokenRoute
   '/track/$token': typeof TrackTokenRouteWithChildren
@@ -675,6 +693,7 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/privacy'
     | '/refund'
+    | '/research'
     | '/reset-password'
     | '/robots.txt'
     | '/sitemap.xml'
@@ -697,6 +716,7 @@ export interface FileRouteTypes {
     | '/help/tax'
     | '/inhouse/$orgSlug'
     | '/license/$token'
+    | '/p/$slug'
     | '/planner/$token'
     | '/supplier/$token'
     | '/track/$token'
@@ -746,6 +766,7 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/privacy'
     | '/refund'
+    | '/research'
     | '/reset-password'
     | '/robots.txt'
     | '/sitemap.xml'
@@ -768,6 +789,7 @@ export interface FileRouteTypes {
     | '/help/tax'
     | '/inhouse/$orgSlug'
     | '/license/$token'
+    | '/p/$slug'
     | '/planner/$token'
     | '/supplier/$token'
     | '/track/$token'
@@ -817,6 +839,7 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/privacy'
     | '/refund'
+    | '/research'
     | '/reset-password'
     | '/robots.txt'
     | '/sitemap.xml'
@@ -839,6 +862,7 @@ export interface FileRouteTypes {
     | '/help/tax'
     | '/inhouse/$orgSlug'
     | '/license/$token'
+    | '/p/$slug'
     | '/planner/$token'
     | '/supplier/$token'
     | '/track/$token'
@@ -889,6 +913,7 @@ export interface RootRouteChildren {
   PricingRoute: typeof PricingRoute
   PrivacyRoute: typeof PrivacyRoute
   RefundRoute: typeof RefundRoute
+  ResearchRoute: typeof ResearchRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   RobotsDottxtRoute: typeof RobotsDottxtRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
@@ -900,6 +925,7 @@ export interface RootRouteChildren {
   DevStripeConnectUiRoute: typeof DevStripeConnectUiRoute
   EmailUnsubscribeRoute: typeof EmailUnsubscribeRoute
   LicenseTokenRoute: typeof LicenseTokenRoute
+  PSlugRoute: typeof PSlugRoute
   PlannerTokenRoute: typeof PlannerTokenRoute
   SupplierTokenRoute: typeof SupplierTokenRoute
   TrackTokenRoute: typeof TrackTokenRouteWithChildren
@@ -966,6 +992,13 @@ declare module '@tanstack/react-router' {
       path: '/reset-password'
       fullPath: '/reset-password'
       preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/research': {
+      id: '/research'
+      path: '/research'
+      fullPath: '/research'
+      preLoaderRoute: typeof ResearchRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/refund': {
@@ -1113,6 +1146,13 @@ declare module '@tanstack/react-router' {
       path: '/planner/$token'
       fullPath: '/planner/$token'
       preLoaderRoute: typeof PlannerTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/p/$slug': {
+      id: '/p/$slug'
+      path: '/p/$slug'
+      fullPath: '/p/$slug'
+      preLoaderRoute: typeof PSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/license/$token': {
@@ -1531,6 +1571,7 @@ const rootRouteChildren: RootRouteChildren = {
   PricingRoute: PricingRoute,
   PrivacyRoute: PrivacyRoute,
   RefundRoute: RefundRoute,
+  ResearchRoute: ResearchRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   RobotsDottxtRoute: RobotsDottxtRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
@@ -1542,6 +1583,7 @@ const rootRouteChildren: RootRouteChildren = {
   DevStripeConnectUiRoute: DevStripeConnectUiRoute,
   EmailUnsubscribeRoute: EmailUnsubscribeRoute,
   LicenseTokenRoute: LicenseTokenRoute,
+  PSlugRoute: PSlugRoute,
   PlannerTokenRoute: PlannerTokenRoute,
   SupplierTokenRoute: SupplierTokenRoute,
   TrackTokenRoute: TrackTokenRouteWithChildren,

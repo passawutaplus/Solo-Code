@@ -11,7 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Search, ShieldOff, ShieldPlus, Loader2, Trash2 } from "lucide-react";
+import { Search, ShieldOff, ShieldPlus, Loader2, Trash2, ExternalLink } from "lucide-react";
 import { PresenceDot } from "./PresenceDot";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -29,24 +29,47 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { MemberCodeCopy } from "@/components/MemberCodeCopy";
+import { OPS_HUB_URL } from "@/lib/productLinks";
+import {
+  formatMemberCode,
+  memberCodeMatchesUserId,
+} from "@/lib/userDisplayId";
 
-export function UsersSection({ m }: { m: AdminMetrics }) {
+export function UsersSection({
+  m,
+  initialQuery = "",
+}: {
+  m: AdminMetrics;
+  initialQuery?: string;
+}) {
   const { user } = useAuth();
-  const [search, setSearch] = React.useState("");
+  const [search, setSearch] = React.useState(initialQuery);
+
+  React.useEffect(() => {
+    if (initialQuery) setSearch(initialQuery);
+  }, [initialQuery]);
+
+  const filtered = React.useMemo(() => {
+    const q = search.trim();
+    if (!q) return m.profiles;
+    const lower = q.toLowerCase();
+    return m.profiles.filter((p) => {
+      if (memberCodeMatchesUserId(q, p.user_id)) return true;
+      if (formatMemberCode(p.user_id).toLowerCase().includes(lower)) return true;
+      if (p.user_id.toLowerCase().startsWith(lower)) return true;
+      return (
+        (p.email ?? "").toLowerCase().includes(lower) ||
+        (p.display_name ?? "").toLowerCase().includes(lower) ||
+        (p.brand_name ?? "").toLowerCase().includes(lower) ||
+        (p.username ?? "").toLowerCase().includes(lower)
+      );
+    });
+  }, [m.profiles, search]);
+
   const [pendingId, setPendingId] = React.useState<string | null>(null);
   const [deletingId, setDeletingId] = React.useState<string | null>(null);
   const [forceMap, setForceMap] = React.useState<Record<string, boolean>>({});
-
-  const filtered = React.useMemo(() => {
-    const q = search.trim().toLowerCase();
-    if (!q) return m.profiles;
-    return m.profiles.filter(
-      (p) =>
-        (p.email ?? "").toLowerCase().includes(q) ||
-        (p.display_name ?? "").toLowerCase().includes(q) ||
-        (p.brand_name ?? "").toLowerCase().includes(q),
-    );
-  }, [m.profiles, search]);
 
   // user activity map
   const activityCount = React.useMemo(() => {
@@ -173,7 +196,7 @@ export function UsersSection({ m }: { m: AdminMetrics }) {
             <div className="relative w-full sm:w-64">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
               <Input
-                placeholder="ค้นหา อีเมล / ชื่อ / ร้าน"
+                placeholder="อีเมล / ชื่อ / ร้าน / รหัส S…"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="pl-8 h-9 text-xs"
@@ -187,9 +210,9 @@ export function UsersSection({ m }: { m: AdminMetrics }) {
                 <TableRow>
                   <TableHead className="text-xs">อีเมล</TableHead>
                   <TableHead className="text-xs">ชื่อ / แบรนด์</TableHead>
+                  <TableHead className="text-xs">รหัสสมาชิก</TableHead>
                   <TableHead className="text-xs text-right">ใบเสนอ</TableHead>
                   <TableHead className="text-xs text-right">รายได้</TableHead>
-                  <TableHead className="text-xs text-right">พอร์ต</TableHead>
                   <TableHead className="text-xs text-center">AI วันนี้</TableHead>
                   <TableHead className="text-xs text-right">AI รวม</TableHead>
                   <TableHead className="text-xs">ใช้งานล่าสุด</TableHead>
@@ -238,6 +261,9 @@ export function UsersSection({ m }: { m: AdminMetrics }) {
                           {p.brand_name && (
                             <div className="text-[10px] text-muted-foreground">{p.brand_name}</div>
                           )}
+                        </TableCell>
+                        <TableCell className="text-xs">
+                          <MemberCodeCopy userId={p.user_id} size="sm" />
                         </TableCell>
                         <TableCell className="text-xs text-right num">{act?.quotes ?? 0}</TableCell>
                         <TableCell className="text-xs text-right num">
@@ -297,6 +323,21 @@ export function UsersSection({ m }: { m: AdminMetrics }) {
                         </TableCell>
                         <TableCell className="text-right">
                           <div className="flex items-center justify-end gap-1.5">
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="h-7 text-[11px] gap-1"
+                              asChild
+                            >
+                              <a
+                                href={`${OPS_HUB_URL}/users/${p.user_id}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                title="เปิด Ops Hub User 360"
+                              >
+                                <ExternalLink className="h-3 w-3" />
+                              </a>
+                            </Button>
                             <Button
                               size="sm"
                               variant={isAdmin ? "outline" : "default"}

@@ -5,17 +5,36 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { toast } from "sonner";
 import { Image as ImageIcon, Info, Loader2, QrCode, RotateCcw, Upload, Wallet } from "lucide-react";
 import { compressImageFile, dataUrlToBlob } from "@/lib/imageCompress";
 import { StripeClientPaymentsSection } from "@/components/dashboard/settings/StripeClientPaymentsSection";
+
+const CURRENCIES = [
+  { value: "THB", label: "฿ (THB)" },
+  { value: "USD", label: "$ (USD)" },
+  { value: "EUR", label: "€ (EUR)" },
+  { value: "GBP", label: "£ (GBP)" },
+  { value: "JPY", label: "¥ (JPY)" },
+  { value: "SGD", label: "S$ (SGD)" },
+];
 
 type PaymentForm = {
   bank_name: string;
   bank_account_name: string;
   bank_account_number: string;
   payment_qr_url: string;
+  currency: string;
+  terms: string;
 };
 
 const EMPTY: PaymentForm = {
@@ -23,6 +42,8 @@ const EMPTY: PaymentForm = {
   bank_account_name: "",
   bank_account_number: "",
   payment_qr_url: "",
+  currency: "THB",
+  terms: "",
 };
 
 function fromProfile(p: ReturnType<typeof useAuth>["profile"]): PaymentForm {
@@ -31,6 +52,8 @@ function fromProfile(p: ReturnType<typeof useAuth>["profile"]): PaymentForm {
     bank_account_name: p?.bank_account_name ?? "",
     bank_account_number: p?.bank_account_number ?? "",
     payment_qr_url: p?.payment_qr_url ?? "",
+    currency: p?.currency ?? "THB",
+    terms: p?.terms ?? "",
   };
 }
 
@@ -114,6 +137,8 @@ export function PaymentSettingsSection() {
         bank_account_name: trim(form.bank_account_name, 80),
         bank_account_number: trim(form.bank_account_number, 50),
         payment_qr_url: form.payment_qr_url.trim() || null,
+        currency: form.currency || "THB",
+        terms: form.terms.trim().slice(0, 2000) || null,
       })
       .eq("user_id", user.id);
     setSaving(false);
@@ -242,6 +267,36 @@ export function PaymentSettingsSection() {
                 แนะนำ QR PromptPay จากแอปธนาคาร · ไม่เกิน 500KB
               </p>
             </div>
+
+            <Field label="สกุลเงิน">
+              <Select value={form.currency} onValueChange={(v) => setField("currency", v)}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {CURRENCIES.map((c) => (
+                    <SelectItem key={c.value} value={c.value}>
+                      {c.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </Field>
+
+            <Field label="เงื่อนไขการใช้บริการ">
+              <Textarea
+                value={form.terms}
+                onChange={(e) => setField("terms", e.target.value)}
+                maxLength={2000}
+                rows={4}
+                placeholder={
+                  "• ชำระมัดจำเพื่อเริ่มงาน\n• โอนลิขสิทธิ์เมื่อชำระเต็ม\n• แก้ไขเพิ่มเติม ฿500 ต่อรอบ"
+                }
+              />
+              <p className="text-[10px] text-muted-foreground mt-1">
+                แต่ละบรรทัดจะเป็น bullet ในใบเสนอราคา
+              </p>
+            </Field>
 
             <div className="flex items-center gap-2 pt-2 border-t border-border/40">
               <Button

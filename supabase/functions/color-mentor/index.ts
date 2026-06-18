@@ -3,7 +3,7 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
-import { checkAiQuota, isProUser } from "../_shared/ai-quota.ts";
+import { debitAiQuota } from "../_shared/ai-quota.ts";
 import {
   defaultFastModel,
   geminiGenerateWithFunction,
@@ -50,8 +50,13 @@ serve(async (req) => {
       });
     }
 
-    const pro = await isProUser(u.user.id);
-    const quota = await checkAiQuota(u.user.id, "color_mentor", pro);
+    const body = await req.json();
+    const { hex, idempotencyKey } = body as { hex?: string; idempotencyKey?: string };
+    const debitKey =
+      typeof idempotencyKey === "string" && idempotencyKey.trim()
+        ? `color-mentor:${u.user.id}:${idempotencyKey.trim()}`
+        : undefined;
+    const quota = await debitAiQuota(u.user.id, "color_mentor", debitKey);
     if (!quota.allowed) {
       return new Response(
         JSON.stringify({
@@ -62,7 +67,6 @@ serve(async (req) => {
       );
     }
 
-    const { hex } = await req.json();
     if (!hex || typeof hex !== "string" || !HEX_RE.test(hex.trim())) {
       return new Response(JSON.stringify({ error: "Invalid hex" }), {
         status: 400,

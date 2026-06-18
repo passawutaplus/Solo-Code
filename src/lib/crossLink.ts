@@ -3,6 +3,7 @@
  */
 import { supabase } from "@/integrations/supabase/client";
 import { ANTHEM_SHOWCASE_URL } from "@/lib/productLinks";
+import { todayISO } from "@/lib/dailySeedPick";
 
 export type CrossLinkContext = {
   source: string;
@@ -60,6 +61,8 @@ export function anthemDesignDrillUrl(params: {
   anthemCategory: string;
   tags?: string[];
   coverUrl?: string;
+  drillType?: "daily" | "custom";
+  drillDate?: string;
 }): string {
   const tagParam = params.tags?.length
     ? params.tags
@@ -74,10 +77,20 @@ export function anthemDesignDrillUrl(params: {
     description: params.description.slice(0, 4000),
     category: params.anthemCategory,
     tags: tagParam,
+    drill_type: params.drillType,
+    drill_date: params.drillDate ?? (params.drillType === "daily" ? todayISO() : undefined),
     cover: params.coverUrl?.trim().startsWith("https://")
       ? params.coverUrl.trim().slice(0, 512)
       : undefined,
   });
+}
+
+/** Public drill gallery on Pixel100. */
+export function anthemDrillGalleryUrl(date?: string): string {
+  const base = ANTHEM_SHOWCASE_URL.replace(/\/$/, "");
+  const url = new URL("/drill", base);
+  if (date) url.searchParams.set("date", date);
+  return url.toString();
 }
 
 /**

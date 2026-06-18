@@ -7,6 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowRight, FileText, FlaskConical, Palette } from "lucide-react";
 import { PaletteSkeleton } from "@/components/dashboard/skeletons/TabSkeletons";
 import { LabsComingSoon } from "@/components/dashboard/labs/LabsComingSoon";
+import { TypographyLab } from "@/components/dashboard/labs/TypographyLab";
 
 const ColorLabInline = React.lazy(() =>
   import("./briefs/ColorLab/ColorLabInline").then((m) => ({ default: m.ColorLabInline })),
@@ -90,6 +91,8 @@ export function LabsTab() {
       <React.Suspense fallback={<PaletteSkeleton />}>
         <MyPalettes onPickColor={handlePickColor} />
       </React.Suspense>
+
+      <TypographyLab />
 
       <LabsComingSoon />
     </div>

@@ -33,11 +33,14 @@ import {
   FolderInput,
   MoreVertical,
   Copy,
+  FileText,
 } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useColorPalettes, type ColorPalette } from "@/hooks/useColorPalettes";
 import { getColorBreakdown, preferWhiteText } from "@/lib/colorUtils";
 import { ColorCodesTable } from "@/components/dashboard/briefs/ColorLab/ColorCodesTable";
+import { storeLabsPaletteHandoff } from "@/lib/labsPaletteHandoff";
 import { toast } from "sonner";
 
 interface Props {
@@ -69,6 +72,19 @@ export function MyPalettes({ onPickColor }: Props) {
     if (id) setActiveId(id);
   };
 
+  const applyActiveToBrief = (): boolean => {
+    if (!active || active.colors.length === 0) {
+      toast.error("ยังไม่มีสีในหมวดนี้");
+      return false;
+    }
+    storeLabsPaletteHandoff({
+      paletteName: active.name,
+      hexes: active.colors.map((c) => c.hex),
+    });
+    toast.success(`เตรียมพาเลท "${active.name}" สำหรับ Smart Brief แล้ว`);
+    return true;
+  };
+
   const copyActivePalette = async () => {
     if (!active || active.colors.length === 0) {
       toast.error("ยังไม่มีสีในหมวดนี้");
@@ -89,23 +105,43 @@ export function MyPalettes({ onPickColor }: Props) {
 
   return (
     <Card className="p-4 sm:p-5 glass">
-      <div className="flex items-center gap-2 mb-4">
+      <div className="flex items-center gap-2 mb-4 flex-wrap">
         <Palette className="h-4 w-4 text-primary" />
         <h3 className="text-sm font-semibold">พาเลทสีของฉัน</h3>
         <Badge variant="outline" className="text-[10px]">
           {palettes.length} หมวด
         </Badge>
         {active && active.colors.length > 0 && (
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            className="ml-auto h-7 gap-1.5 text-[11px] rounded-lg"
-            onClick={copyActivePalette}
-          >
-            <Copy className="h-3 w-3" />
-            คัดลอกหมวดนี้
-          </Button>
+          <div className="flex items-center gap-1.5 ml-auto flex-wrap">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="ml-auto h-7 gap-1.5 text-[11px] rounded-lg"
+              onClick={copyActivePalette}
+            >
+              <Copy className="h-3 w-3" />
+              คัดลอกหมวดนี้
+            </Button>
+            <Button
+              type="button"
+              variant="default"
+              size="sm"
+              className="h-7 gap-1.5 text-[11px] rounded-lg"
+              asChild
+            >
+              <Link
+                to="/dashboard"
+                search={{ tab: "planner", sub: "briefs" }}
+                onClick={(e) => {
+                  if (!applyActiveToBrief()) e.preventDefault();
+                }}
+              >
+                <FileText className="h-3 w-3" />
+                ใส่ในบรีฟ
+              </Link>
+            </Button>
+          </div>
         )}
       </div>
 

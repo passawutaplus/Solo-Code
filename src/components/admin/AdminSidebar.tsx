@@ -66,7 +66,8 @@ export type AdminSection =
   | "health"
   | "usage"
   | "supabase"
-  | "dev_tasks";
+  | "dev_tasks"
+  | "ecosystem_ops";
 
 export const ADMIN_SECTION_IDS: AdminSection[] = [
   "overview",
@@ -79,6 +80,7 @@ export const ADMIN_SECTION_IDS: AdminSection[] = [
   "activity",
   "device",
   "ai_usage",
+  "ecosystem_ops",
   "business",
   "subscriptions",
   "payments",
@@ -129,6 +131,7 @@ const GROUPS: { label: string; items: SectionItem[] }[] = [
       { id: "activity", label: "รูปแบบการใช้", icon: LineChart, sub: "Activity Stats" },
       { id: "device", label: "อุปกรณ์", icon: Smartphone, sub: "Device Analytics" },
       { id: "ai_usage", label: "AI Monitor", icon: Bot, sub: "Usage & Gemini cost" },
+      { id: "ecosystem_ops", label: "Ecosystem Ops", icon: Link2, sub: "Drill + Meeting" },
     ],
   },
   {

@@ -30,6 +30,11 @@ import {
   type TicketSource,
   type TicketStatus,
 } from "@/lib/ticketSchema";
+import {
+  formatMemberCode,
+  memberCodeMatchesUserId,
+  userLabelWithMemberCode,
+} from "@/lib/userDisplayId";
 
 export function AdminTicketsSection() {
   const { tickets, isLoading, newCount, criticalCount, update } = useAllTickets();
@@ -69,7 +74,8 @@ export function AdminTicketsSection() {
       if (!data) return;
       const map = new Map<string, string>();
       for (const p of data) {
-        map.set(p.user_id, p.display_name || p.email || p.user_id.slice(0, 8));
+        const base = p.display_name || p.email || p.user_id.slice(0, 8);
+        map.set(p.user_id, userLabelWithMemberCode(base, p.user_id));
       }
       setUserMap(map);
     })();
@@ -87,11 +93,15 @@ export function AdminTicketsSection() {
       if (ratingFilter === "low" && (t.rating == null || t.rating > 2)) return false;
       if (ratingFilter === "high" && (t.rating == null || t.rating < 4)) return false;
       if (!q) return true;
+      const memberHit = memberCodeMatchesUserId(q, t.userId);
       return (
+        memberHit ||
         t.ticketNumber.toLowerCase().includes(q) ||
         t.title.toLowerCase().includes(q) ||
+        (t.description ?? "").toLowerCase().includes(q) ||
         (t.sourceFeature ?? "").toLowerCase().includes(q) ||
-        (userMap.get(t.userId) ?? "").toLowerCase().includes(q)
+        (userMap.get(t.userId) ?? "").toLowerCase().includes(q) ||
+        formatMemberCode(t.userId).toLowerCase().includes(q)
       );
     });
   }, [tickets, search, priorityFilter, categoryFilter, sourceFilter, ratingFilter, userMap]);
@@ -163,7 +173,7 @@ export function AdminTicketsSection() {
               <Input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="ค้นหาเลขตั๋ว หัวข้อ feature..."
+                placeholder="ค้นหาเลขตั๋ว รหัสสมาชิก หัวข้อ..."
                 className="pl-8 h-9 text-sm"
               />
             </div>

@@ -5,6 +5,8 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 export interface QuotaResult {
   allowed: boolean;
   cost?: number;
+  daily_remaining?: number;
+  daily_limit?: number;
   included_used?: number;
   included_limit?: number;
   included_remaining?: number;
@@ -13,12 +15,14 @@ export interface QuotaResult {
   reason?: string;
 }
 
-/** LINE / UI suffix — remaining / total pool (included + purchased). */
+/** LINE / UI suffix — remaining credits (daily + pack + purchased). */
 export function formatAiCreditSuffix(
-  quota: Pick<QuotaResult, "total_remaining" | "included_used">,
+  quota: Pick<QuotaResult, "total_remaining" | "daily_remaining" | "included_remaining">,
 ): string {
   const remaining = quota.total_remaining ?? 0;
-  const total = Math.max((quota.included_used ?? 0) + remaining, 1);
+  const daily = quota.daily_remaining ?? 0;
+  const pool = quota.included_remaining ?? Math.max(remaining - daily, 0);
+  const total = Math.max(remaining, daily + pool, 1);
   return `credit ai : ${remaining}/${total}`;
 }
 
