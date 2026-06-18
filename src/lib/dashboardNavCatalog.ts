@@ -1,6 +1,7 @@
 import type { LucideIcon } from "lucide-react";
 import {
   Kanban,
+  Mic,
   Lightbulb,
   FileText,
   Workflow,
@@ -63,6 +64,14 @@ export const DASHBOARD_SHORTCUT_OPTIONS: DashboardShortcutOption[] = [
     section: "finance",
     sub: "pipeline",
     icon: Kanban,
+  },
+  {
+    id: "planner:meetings",
+    label: "Meeting",
+    group: "งานลูกค้า",
+    section: "planner",
+    sub: "meetings",
+    icon: Mic,
   },
   {
     id: "planner:briefs",

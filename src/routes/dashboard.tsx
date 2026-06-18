@@ -122,6 +122,7 @@ const SUB_TITLES: Partial<Record<DashSection, Record<string, string>>> = {
     content: "ปฏิทินคอนเทนต์",
     projects: "To Do List",
     briefs: "Smart Brief",
+    meetings: "Meeting",
     feedback: "Feedback ลูกค้า",
   },
   mydata: {

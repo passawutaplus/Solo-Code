@@ -322,10 +322,10 @@ body.dash-sidebar-gradient [data-sidebar="sidebar"] [data-sidebar="group-label"]
   @page { margin: 14mm; size: A4; }
 
   /* ─── Legacy quotation-only print (no mockup dialog, no brief) ─── */
-  body:not(.printing-brief):not(.printing-mockup):not(.printing-track) * { visibility: hidden !important; }
-  body:not(.printing-brief):not(.printing-mockup):not(.printing-track) #quotation-printable,
-  body:not(.printing-brief):not(.printing-mockup):not(.printing-track) #quotation-printable * { visibility: visible !important; }
-  body:not(.printing-brief):not(.printing-mockup):not(.printing-track) #quotation-printable {
+  body:not(.printing-brief):not(.printing-mockup):not(.printing-track):not(.printing-meeting-report) * { visibility: hidden !important; }
+  body:not(.printing-brief):not(.printing-mockup):not(.printing-track):not(.printing-meeting-report) #quotation-printable,
+  body:not(.printing-brief):not(.printing-mockup):not(.printing-track):not(.printing-meeting-report) #quotation-printable * { visibility: visible !important; }
+  body:not(.printing-brief):not(.printing-mockup):not(.printing-track):not(.printing-meeting-report) #quotation-printable {
     position: absolute !important;
     left: 0; top: 0;
     width: 100% !important;
@@ -338,8 +338,8 @@ body.dash-sidebar-gradient [data-sidebar="sidebar"] [data-sidebar="group-label"]
     color: #1f2937 !important;
     font-size: 11pt !important;
   }
-  body:not(.printing-brief):not(.printing-mockup):not(.printing-track) #quotation-printable .receipt-edge { display: none !important; }
-  body:not(.printing-brief):not(.printing-mockup):not(.printing-track) #quotation-printable > div > div { page-break-inside: avoid; }
+  body:not(.printing-brief):not(.printing-mockup):not(.printing-track):not(.printing-meeting-report) #quotation-printable .receipt-edge { display: none !important; }
+  body:not(.printing-brief):not(.printing-mockup):not(.printing-track):not(.printing-meeting-report) #quotation-printable > div > div { page-break-inside: avoid; }
 
 }
 
@@ -499,7 +499,43 @@ body.dash-sidebar-gradient [data-sidebar="sidebar"] [data-sidebar="group-label"]
     box-shadow: none !important;
     /* IMPORTANT: do NOT hide <header>/<aside>/<footer> here — the template uses them. */
   }
+
+  body.printing-meeting-report > *:not(.meeting-report-print-only) { display: none !important; }
+  body.printing-meeting-report .meeting-report-print-only {
+    display: block !important;
+    position: static !important;
+    width: 100% !important;
+    height: auto !important;
+    overflow: visible !important;
+    background: #fff !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  body.printing-meeting-report .meeting-report-print-only * {
+    color: #111 !important;
+    box-shadow: none !important;
+  }
 }
+
+.meeting-report-print-only { display: none; }
+
+.meeting-report-pdf-root {
+  font-family: "Inter", "IBM Plex Sans Thai", system-ui, -apple-system, sans-serif;
+  color: #1a1a1a;
+  background: #fff;
+  padding: 0;
+  font-size: 11pt;
+  line-height: 1.6;
+}
+.meeting-report-pdf-header { margin-bottom: 1.5rem; border-bottom: 2px solid #e5e7eb; padding-bottom: 1rem; }
+.meeting-report-pdf-kicker { font-size: 9pt; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em; margin: 0 0 0.25rem; }
+.meeting-report-pdf-title { font-size: 18pt; font-weight: 700; margin: 0 0 0.35rem; }
+.meeting-report-pdf-meta { font-size: 10pt; color: #6b7280; margin: 0; }
+.meeting-report-pdf-body h1 { font-size: 16pt; margin: 1.25rem 0 0.5rem; }
+.meeting-report-pdf-body h2 { font-size: 12pt; font-weight: 600; margin: 1rem 0 0.35rem; color: #374151; }
+.meeting-report-pdf-body p { margin: 0.35rem 0; }
+.meeting-report-pdf-body ul { margin: 0.35rem 0 0.75rem 1.25rem; padding: 0; }
+.meeting-report-pdf-body li { margin: 0.2rem 0; }
 
 .brief-pdf-root {
   font-family: "Inter", "IBM Plex Sans Thai", system-ui, -apple-system, sans-serif;

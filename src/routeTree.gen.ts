@@ -15,7 +15,6 @@ import { Route as SurveyRouteImport } from './routes/survey'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
-import { Route as ResearchRouteImport } from './routes/research'
 import { Route as RefundRouteImport } from './routes/refund'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as PricingRouteImport } from './routes/pricing'
@@ -36,7 +35,6 @@ import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as VisionTokenRouteImport } from './routes/vision.$token'
 import { Route as TrackTokenRouteImport } from './routes/track.$token'
 import { Route as SupplierTokenRouteImport } from './routes/supplier.$token'
-import { Route as PromoViewRouteImport } from './routes/promo.$view'
 import { Route as PlannerTokenRouteImport } from './routes/planner.$token'
 import { Route as LicenseTokenRouteImport } from './routes/license.$token'
 import { Route as InhouseOrgSlugRouteImport } from './routes/inhouse.$orgSlug'
@@ -75,6 +73,7 @@ import { Route as InhouseOrgSlugWorkspaceSlugCanvasRouteImport } from './routes/
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
 import { Route as ApiPublicPaymentsClientCheckoutRouteImport } from './routes/api/public/payments/client-checkout'
 import { Route as ApiPublicCronPaymentRemindersRouteImport } from './routes/api/public/cron/payment-reminders'
+import { Route as ApiPublicCronMeetingCaptureCleanupRouteImport } from './routes/api/public/cron/meeting-capture-cleanup'
 import { Route as ApiPublicCronFetchDailyTrendsRouteImport } from './routes/api/public/cron/fetch-daily-trends'
 import { Route as ApiPublicCronDeadlineRemindersRouteImport } from './routes/api/public/cron/deadline-reminders'
 import { Route as ApiPaymentsConnectOnboardRouteImport } from './routes/api/payments/connect/onboard'
@@ -108,11 +107,6 @@ const RobotsDottxtRoute = RobotsDottxtRouteImport.update({
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
   path: '/reset-password',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ResearchRoute = ResearchRouteImport.update({
-  id: '/research',
-  path: '/research',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RefundRoute = RefundRouteImport.update({
@@ -213,11 +207,6 @@ const TrackTokenRoute = TrackTokenRouteImport.update({
 const SupplierTokenRoute = SupplierTokenRouteImport.update({
   id: '/supplier/$token',
   path: '/supplier/$token',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PromoViewRoute = PromoViewRouteImport.update({
-  id: '/promo/$view',
-  path: '/promo/$view',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PlannerTokenRoute = PlannerTokenRouteImport.update({
@@ -422,6 +411,12 @@ const ApiPublicCronPaymentRemindersRoute =
     path: '/api/public/cron/payment-reminders',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicCronMeetingCaptureCleanupRoute =
+  ApiPublicCronMeetingCaptureCleanupRouteImport.update({
+    id: '/api/public/cron/meeting-capture-cleanup',
+    path: '/api/public/cron/meeting-capture-cleanup',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicCronFetchDailyTrendsRoute =
   ApiPublicCronFetchDailyTrendsRouteImport.update({
     id: '/api/public/cron/fetch-daily-trends',
@@ -464,7 +459,6 @@ export interface FileRoutesByFullPath {
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/refund': typeof RefundRoute
-  '/research': typeof ResearchRoute
   '/reset-password': typeof ResetPasswordRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -488,7 +482,6 @@ export interface FileRoutesByFullPath {
   '/inhouse/$orgSlug': typeof InhouseOrgSlugRouteWithChildren
   '/license/$token': typeof LicenseTokenRoute
   '/planner/$token': typeof PlannerTokenRoute
-  '/promo/$view': typeof PromoViewRoute
   '/supplier/$token': typeof SupplierTokenRoute
   '/track/$token': typeof TrackTokenRouteWithChildren
   '/vision/$token': typeof VisionTokenRoute
@@ -505,6 +498,7 @@ export interface FileRoutesByFullPath {
   '/api/payments/connect/onboard': typeof ApiPaymentsConnectOnboardRoute
   '/api/public/cron/deadline-reminders': typeof ApiPublicCronDeadlineRemindersRoute
   '/api/public/cron/fetch-daily-trends': typeof ApiPublicCronFetchDailyTrendsRoute
+  '/api/public/cron/meeting-capture-cleanup': typeof ApiPublicCronMeetingCaptureCleanupRoute
   '/api/public/cron/payment-reminders': typeof ApiPublicCronPaymentRemindersRoute
   '/api/public/payments/client-checkout': typeof ApiPublicPaymentsClientCheckoutRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
@@ -536,7 +530,6 @@ export interface FileRoutesByTo {
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/refund': typeof RefundRoute
-  '/research': typeof ResearchRoute
   '/reset-password': typeof ResetPasswordRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -560,7 +553,6 @@ export interface FileRoutesByTo {
   '/inhouse/$orgSlug': typeof InhouseOrgSlugRouteWithChildren
   '/license/$token': typeof LicenseTokenRoute
   '/planner/$token': typeof PlannerTokenRoute
-  '/promo/$view': typeof PromoViewRoute
   '/supplier/$token': typeof SupplierTokenRoute
   '/track/$token': typeof TrackTokenRouteWithChildren
   '/vision/$token': typeof VisionTokenRoute
@@ -577,6 +569,7 @@ export interface FileRoutesByTo {
   '/api/payments/connect/onboard': typeof ApiPaymentsConnectOnboardRoute
   '/api/public/cron/deadline-reminders': typeof ApiPublicCronDeadlineRemindersRoute
   '/api/public/cron/fetch-daily-trends': typeof ApiPublicCronFetchDailyTrendsRoute
+  '/api/public/cron/meeting-capture-cleanup': typeof ApiPublicCronMeetingCaptureCleanupRoute
   '/api/public/cron/payment-reminders': typeof ApiPublicCronPaymentRemindersRoute
   '/api/public/payments/client-checkout': typeof ApiPublicPaymentsClientCheckoutRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
@@ -609,7 +602,6 @@ export interface FileRoutesById {
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/refund': typeof RefundRoute
-  '/research': typeof ResearchRoute
   '/reset-password': typeof ResetPasswordRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -633,7 +625,6 @@ export interface FileRoutesById {
   '/inhouse/$orgSlug': typeof InhouseOrgSlugRouteWithChildren
   '/license/$token': typeof LicenseTokenRoute
   '/planner/$token': typeof PlannerTokenRoute
-  '/promo/$view': typeof PromoViewRoute
   '/supplier/$token': typeof SupplierTokenRoute
   '/track/$token': typeof TrackTokenRouteWithChildren
   '/vision/$token': typeof VisionTokenRoute
@@ -650,6 +641,7 @@ export interface FileRoutesById {
   '/api/payments/connect/onboard': typeof ApiPaymentsConnectOnboardRoute
   '/api/public/cron/deadline-reminders': typeof ApiPublicCronDeadlineRemindersRoute
   '/api/public/cron/fetch-daily-trends': typeof ApiPublicCronFetchDailyTrendsRoute
+  '/api/public/cron/meeting-capture-cleanup': typeof ApiPublicCronMeetingCaptureCleanupRoute
   '/api/public/cron/payment-reminders': typeof ApiPublicCronPaymentRemindersRoute
   '/api/public/payments/client-checkout': typeof ApiPublicPaymentsClientCheckoutRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
@@ -683,7 +675,6 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/privacy'
     | '/refund'
-    | '/research'
     | '/reset-password'
     | '/robots.txt'
     | '/sitemap.xml'
@@ -707,7 +698,6 @@ export interface FileRouteTypes {
     | '/inhouse/$orgSlug'
     | '/license/$token'
     | '/planner/$token'
-    | '/promo/$view'
     | '/supplier/$token'
     | '/track/$token'
     | '/vision/$token'
@@ -724,6 +714,7 @@ export interface FileRouteTypes {
     | '/api/payments/connect/onboard'
     | '/api/public/cron/deadline-reminders'
     | '/api/public/cron/fetch-daily-trends'
+    | '/api/public/cron/meeting-capture-cleanup'
     | '/api/public/cron/payment-reminders'
     | '/api/public/payments/client-checkout'
     | '/api/public/payments/webhook'
@@ -755,7 +746,6 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/privacy'
     | '/refund'
-    | '/research'
     | '/reset-password'
     | '/robots.txt'
     | '/sitemap.xml'
@@ -779,7 +769,6 @@ export interface FileRouteTypes {
     | '/inhouse/$orgSlug'
     | '/license/$token'
     | '/planner/$token'
-    | '/promo/$view'
     | '/supplier/$token'
     | '/track/$token'
     | '/vision/$token'
@@ -796,6 +785,7 @@ export interface FileRouteTypes {
     | '/api/payments/connect/onboard'
     | '/api/public/cron/deadline-reminders'
     | '/api/public/cron/fetch-daily-trends'
+    | '/api/public/cron/meeting-capture-cleanup'
     | '/api/public/cron/payment-reminders'
     | '/api/public/payments/client-checkout'
     | '/api/public/payments/webhook'
@@ -827,7 +817,6 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/privacy'
     | '/refund'
-    | '/research'
     | '/reset-password'
     | '/robots.txt'
     | '/sitemap.xml'
@@ -851,7 +840,6 @@ export interface FileRouteTypes {
     | '/inhouse/$orgSlug'
     | '/license/$token'
     | '/planner/$token'
-    | '/promo/$view'
     | '/supplier/$token'
     | '/track/$token'
     | '/vision/$token'
@@ -868,6 +856,7 @@ export interface FileRouteTypes {
     | '/api/payments/connect/onboard'
     | '/api/public/cron/deadline-reminders'
     | '/api/public/cron/fetch-daily-trends'
+    | '/api/public/cron/meeting-capture-cleanup'
     | '/api/public/cron/payment-reminders'
     | '/api/public/payments/client-checkout'
     | '/api/public/payments/webhook'
@@ -900,7 +889,6 @@ export interface RootRouteChildren {
   PricingRoute: typeof PricingRoute
   PrivacyRoute: typeof PrivacyRoute
   RefundRoute: typeof RefundRoute
-  ResearchRoute: typeof ResearchRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   RobotsDottxtRoute: typeof RobotsDottxtRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
@@ -913,7 +901,6 @@ export interface RootRouteChildren {
   EmailUnsubscribeRoute: typeof EmailUnsubscribeRoute
   LicenseTokenRoute: typeof LicenseTokenRoute
   PlannerTokenRoute: typeof PlannerTokenRoute
-  PromoViewRoute: typeof PromoViewRoute
   SupplierTokenRoute: typeof SupplierTokenRoute
   TrackTokenRoute: typeof TrackTokenRouteWithChildren
   VisionTokenRoute: typeof VisionTokenRoute
@@ -926,6 +913,7 @@ export interface RootRouteChildren {
   ApiPaymentsConnectOnboardRoute: typeof ApiPaymentsConnectOnboardRoute
   ApiPublicCronDeadlineRemindersRoute: typeof ApiPublicCronDeadlineRemindersRoute
   ApiPublicCronFetchDailyTrendsRoute: typeof ApiPublicCronFetchDailyTrendsRoute
+  ApiPublicCronMeetingCaptureCleanupRoute: typeof ApiPublicCronMeetingCaptureCleanupRoute
   ApiPublicCronPaymentRemindersRoute: typeof ApiPublicCronPaymentRemindersRoute
   ApiPublicPaymentsClientCheckoutRoute: typeof ApiPublicPaymentsClientCheckoutRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
@@ -978,13 +966,6 @@ declare module '@tanstack/react-router' {
       path: '/reset-password'
       fullPath: '/reset-password'
       preLoaderRoute: typeof ResetPasswordRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/research': {
-      id: '/research'
-      path: '/research'
-      fullPath: '/research'
-      preLoaderRoute: typeof ResearchRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/refund': {
@@ -1125,13 +1106,6 @@ declare module '@tanstack/react-router' {
       path: '/supplier/$token'
       fullPath: '/supplier/$token'
       preLoaderRoute: typeof SupplierTokenRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/promo/$view': {
-      id: '/promo/$view'
-      path: '/promo/$view'
-      fullPath: '/promo/$view'
-      preLoaderRoute: typeof PromoViewRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/planner/$token': {
@@ -1400,6 +1374,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicCronPaymentRemindersRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/cron/meeting-capture-cleanup': {
+      id: '/api/public/cron/meeting-capture-cleanup'
+      path: '/api/public/cron/meeting-capture-cleanup'
+      fullPath: '/api/public/cron/meeting-capture-cleanup'
+      preLoaderRoute: typeof ApiPublicCronMeetingCaptureCleanupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/cron/fetch-daily-trends': {
       id: '/api/public/cron/fetch-daily-trends'
       path: '/api/public/cron/fetch-daily-trends'
@@ -1550,7 +1531,6 @@ const rootRouteChildren: RootRouteChildren = {
   PricingRoute: PricingRoute,
   PrivacyRoute: PrivacyRoute,
   RefundRoute: RefundRoute,
-  ResearchRoute: ResearchRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   RobotsDottxtRoute: RobotsDottxtRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
@@ -1563,7 +1543,6 @@ const rootRouteChildren: RootRouteChildren = {
   EmailUnsubscribeRoute: EmailUnsubscribeRoute,
   LicenseTokenRoute: LicenseTokenRoute,
   PlannerTokenRoute: PlannerTokenRoute,
-  PromoViewRoute: PromoViewRoute,
   SupplierTokenRoute: SupplierTokenRoute,
   TrackTokenRoute: TrackTokenRouteWithChildren,
   VisionTokenRoute: VisionTokenRoute,
@@ -1576,6 +1555,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPaymentsConnectOnboardRoute: ApiPaymentsConnectOnboardRoute,
   ApiPublicCronDeadlineRemindersRoute: ApiPublicCronDeadlineRemindersRoute,
   ApiPublicCronFetchDailyTrendsRoute: ApiPublicCronFetchDailyTrendsRoute,
+  ApiPublicCronMeetingCaptureCleanupRoute:
+    ApiPublicCronMeetingCaptureCleanupRoute,
   ApiPublicCronPaymentRemindersRoute: ApiPublicCronPaymentRemindersRoute,
   ApiPublicPaymentsClientCheckoutRoute: ApiPublicPaymentsClientCheckoutRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,

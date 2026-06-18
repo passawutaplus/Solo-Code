@@ -1,6 +1,10 @@
 import { toast } from "sonner";
 
-export type PrintBodyClass = "printing-mockup" | "printing-brief" | "printing-track";
+export type PrintBodyClass =
+  | "printing-mockup"
+  | "printing-brief"
+  | "printing-track"
+  | "printing-meeting-report";
 
 const PRINT_HINT_IOS =
   "บน iPhone/iPad: ในกล่องพิมพ์ให้เลือก «บันทึกเป็น PDF» แล้วกดบันทึก — ไม่ใช่ส่งไปเครื่องพิมพ์จริง";

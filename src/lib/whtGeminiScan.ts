@@ -1,6 +1,6 @@
 import { GoogleGenerativeAI, SchemaType, type ResponseSchema } from "@google/generative-ai";
-
-const GEMINI_MODEL = "gemini-1.5-flash";
+import { defaultVisionModel, normalizeGeminiModel } from "@/lib/geminiModels";
+import { mapGeminiError } from "@/lib/geminiServer";
 
 export const WHT_GEMINI_SYSTEM_PROMPT = `คุณคือ AI ที่อ่านข้อมูลจาก "หนังสือรับรองการหักภาษี ณ ที่จ่าย (50 ทวิ)" ของกรมสรรพากร ประเทศไทย
 แกะข้อมูลจากเอกสาร (PDF ดิจิทัล/สแกน/ถ่ายรูป) แล้วตอบเป็น JSON ตาม schema เท่านั้น
@@ -85,29 +85,16 @@ function parseJsonResponse(raw: string): Record<string, unknown> {
   return parsed as Record<string, unknown>;
 }
 
-function mapGeminiError(err: unknown): Error {
-  const msg = err instanceof Error ? err.message : String(err);
-  if (/429|quota|rate/i.test(msg)) {
-    return new Error("ใช้งาน Gemini หนาแน่นเกินไป กรุณาลองใหม่อีกครั้ง");
-  }
-  if (/401|403|API key|invalid/i.test(msg)) {
-    return new Error("GEMINI_API_KEY ไม่ถูกต้องหรือไม่มีสิทธิ์");
-  }
-  if (/SAFETY|blocked|recitation/i.test(msg)) {
-    return new Error("Gemini ปฏิเสธเนื้อหาเอกสาร — ลองใช้ไฟล์อื่น");
-  }
-  return new Error(`Gemini ไม่ตอบสนอง: ${msg.slice(0, 160)}`);
-}
-
-/** Call Gemini 1.5 Flash with inline PDF/image and return parsed extraction JSON. */
+/** Call Gemini vision model with inline PDF/image and return parsed extraction JSON. */
 export async function extractWhtWithGemini(
   bytes: Uint8Array,
   mimeType: string,
   apiKey: string,
 ): Promise<Record<string, unknown>> {
+  const modelId = normalizeGeminiModel(undefined, defaultVisionModel());
   const genAI = new GoogleGenerativeAI(apiKey);
   const model = genAI.getGenerativeModel({
-    model: GEMINI_MODEL,
+    model: modelId,
     systemInstruction: WHT_GEMINI_SYSTEM_PROMPT,
     generationConfig: {
       temperature: 0,

@@ -6,7 +6,14 @@ import {
   GEMINI_KEY_SURFACES,
   estimateThbFromCredits,
 } from "../_shared/ai-cost-estimate.ts";
-import { defaultFastModel, defaultModel, getGeminiApiKey } from "../_shared/gemini.ts";
+import {
+  defaultFastModel,
+  defaultModel,
+  defaultVisionModel,
+  geminiModelsUpdatedAt,
+  getGeminiApiKey,
+  latestGeminiModelChangelog,
+} from "../_shared/gemini.ts";
 
 const json = (req: Request, body: unknown, status = 200) =>
   new Response(JSON.stringify(body), {
@@ -235,6 +242,9 @@ Deno.serve(async (req) => {
       ...geminiProbe,
       modelFast: defaultFastModel(),
       modelDefault: defaultModel(),
+      modelVision: defaultVisionModel(),
+      modelsUpdatedAt: geminiModelsUpdatedAt(),
+      latestModelUpdate: latestGeminiModelChangelog(),
       estThbPerCredit: EST_THB_PER_CREDIT,
       consoleLinks: GEMINI_CONSOLE_LINKS,
       keySurfaces: GEMINI_KEY_SURFACES,

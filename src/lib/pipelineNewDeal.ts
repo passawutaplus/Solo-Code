@@ -2,6 +2,7 @@
 
 export const PIPELINE_NEW_DEAL_KEY = "so1o.pipelineNewDeal";
 export const OPEN_BRIEF_MODE_KEY = "so1o.openBriefMode";
+export const OPEN_MEETING_CAPTURE_KEY = "so1o.openMeetingCapture";
 
 export type PipelineNewDealAction = "quotation";
 export type OpenBriefMode = "quick";
@@ -32,6 +33,14 @@ export function queueSmartBriefQuickCapture() {
   }
 }
 
+export function queueMeetingCapture() {
+  try {
+    sessionStorage.setItem(OPEN_MEETING_CAPTURE_KEY, "1");
+  } catch {
+    /* noop */
+  }
+}
+
 export function consumeOpenBriefMode(): OpenBriefMode | null {
   try {
     const v = sessionStorage.getItem(OPEN_BRIEF_MODE_KEY);
@@ -39,5 +48,15 @@ export function consumeOpenBriefMode(): OpenBriefMode | null {
     return v === "quick" ? "quick" : null;
   } catch {
     return null;
+  }
+}
+
+export function consumeOpenMeetingCapture(): boolean {
+  try {
+    const v = sessionStorage.getItem(OPEN_MEETING_CAPTURE_KEY);
+    sessionStorage.removeItem(OPEN_MEETING_CAPTURE_KEY);
+    return v === "1";
+  } catch {
+    return false;
   }
 }

@@ -55,6 +55,10 @@ export function AiMonitorSection() {
 
   const { gemini, summary, byFeature, topUsers, recentLedger, legacyGuestChat } = data;
   const geminiOk = gemini.configured && gemini.reachable;
+  const modelUpdate = gemini.latestModelUpdate;
+  const modelUpdateRecent =
+    modelUpdate &&
+    Date.now() - new Date(modelUpdate.at).getTime() < 30 * 86_400_000;
 
   return (
     <div className="space-y-4">
@@ -101,7 +105,29 @@ export function AiMonitorSection() {
             </Badge>
             <Badge variant="outline">{gemini.modelFast}</Badge>
             <Badge variant="outline">{gemini.modelDefault}</Badge>
+            <Badge variant="outline">{gemini.modelVision} · vision</Badge>
           </div>
+          {modelUpdateRecent && modelUpdate && (
+            <div className="rounded-lg border border-primary/30 bg-primary/5 p-3 space-y-1">
+              <p className="text-xs font-medium text-primary flex items-center gap-1">
+                <Sparkles className="h-3.5 w-3.5" />
+                อัปเดต Gemini model ล่าสุด ({fmtWhen(modelUpdate.at)})
+              </p>
+              <ul className="text-[11px] text-muted-foreground space-y-0.5">
+                {modelUpdate.changes.map((c) => (
+                  <li key={`${c.slot}-${c.to}`}>
+                    <span className="font-mono">{c.slot}</span>: {c.from} → {c.to}
+                  </li>
+                ))}
+              </ul>
+              <p className="text-[10px] text-muted-foreground">
+                ดูรายละเอียดใน docs/gemini-models-changelog.md
+              </p>
+            </div>
+          )}
+          <p className="text-[10px] text-muted-foreground">
+            Model pins อัปเดตล่าสุด: {fmtWhen(gemini.modelsUpdatedAt)}
+          </p>
           {gemini.error && (
             <p className="text-xs text-amber-700 dark:text-amber-400 font-mono">{gemini.error}</p>
           )}

@@ -33,7 +33,7 @@ export function SurvivalMode({ subs }: { subs: Subscription[] }) {
         : "text-emerald-600";
 
   return (
-    <Card className="animate-fade-up border-primary/30 bg-gradient-to-br from-primary/5 via-card to-card">
+    <Card className="animate-fade-up border-primary/30 bg-gradient-to-br from-primary/5 via-card to-card h-full">
       <CardHeader className="pb-3">
         <CardTitle className="text-sm flex items-center gap-2">
           <ShieldAlert className="h-4 w-4 text-primary" /> Survival Mode · ภาพรวมความเสี่ยง

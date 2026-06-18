@@ -18,6 +18,7 @@ import { PaymentMethodFormDialog } from "./subs/PaymentMethodFormDialog";
 import { PaymentMethodsManager } from "./subs/PaymentMethodsManager";
 
 import { SurvivalMode } from "./subs/SurvivalMode";
+import { SubIncomeTrendChart } from "./subs/SubIncomeTrendChart";
 
 export function SubscriptionsTab() {
   const { subs, paymentMethods, setPaymentMethods, isLoading } = useFinance();
@@ -41,8 +42,8 @@ export function SubscriptionsTab() {
 
   return (
     <div className="space-y-5">
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="sm:col-span-2 min-w-0">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 items-stretch">
+        <div className="sm:col-span-2 xl:col-span-2 min-w-0">
           <StatCard
             accent
             label="ยอดจ่ายรายเดือน"
@@ -51,13 +52,16 @@ export function SubscriptionsTab() {
             icon={<Receipt className="h-5 w-5" />}
           />
         </div>
-        <div className="sm:col-span-1 min-w-0">
+        <div className="min-w-0">
           <StatCard
             label="ประมาณการต่อปี"
             value={<span className="text-lg sm:text-xl">฿{formatTHB(yearly)}</span>}
             sub="สะสม 12 เดือน"
             icon={<TrendingUp className="h-4 w-4" />}
           />
+        </div>
+        <div className="min-w-0">
+          <BillingAlerts subs={activeSubs} paymentMethods={paymentMethods} compact />
         </div>
       </div>
 
@@ -91,9 +95,9 @@ export function SubscriptionsTab() {
         </div>
       </CollapsibleSection>
 
-      <div className="grid gap-4 lg:grid-cols-2">
-        <BillingAlerts subs={activeSubs} paymentMethods={paymentMethods} />
+      <div className="grid gap-4 lg:grid-cols-2 items-stretch">
         <SurvivalMode subs={subs} />
+        <SubIncomeTrendChart subs={activeSubs} />
       </div>
 
       <CollapsibleSection defaultOpen title="รายการบริการ" action={<AddSubModal />}>

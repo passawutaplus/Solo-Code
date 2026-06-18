@@ -1,6 +1,8 @@
 // Shared Google Gemini client for Supabase Edge Functions (Deno).
 // Uses the Generative Language REST API — no Lovable gateway.
 
+import geminiModels from "./gemini-models.json" with { type: "json" };
+
 const GEMINI_BASE = "https://generativelanguage.googleapis.com/v1beta";
 
 export type GeminiChatRole = "user" | "model";
@@ -27,15 +29,24 @@ export function getGeminiApiKey(): string {
 }
 
 export function defaultFastModel(): string {
-  return Deno.env.get("GEMINI_MODEL_FAST") ?? "gemini-2.5-flash-lite";
+  return Deno.env.get("GEMINI_MODEL_FAST") ?? geminiModels.models.fast;
 }
 
 export function defaultModel(): string {
-  return Deno.env.get("GEMINI_MODEL") ?? "gemini-2.5-flash";
+  return Deno.env.get("GEMINI_MODEL") ?? geminiModels.models.default;
 }
 
 export function defaultEmbeddingModel(): string {
-  return Deno.env.get("GEMINI_EMBEDDING_MODEL") ?? "text-embedding-004";
+  return Deno.env.get("GEMINI_EMBEDDING_MODEL") ?? geminiModels.models.embedding;
+}
+
+export function geminiModelsUpdatedAt(): string {
+  return geminiModels.updated_at;
+}
+
+export function latestGeminiModelChangelog() {
+  const entries = geminiModels.changelog ?? [];
+  return entries.length > 0 ? entries[entries.length - 1] : null;
 }
 
 /** Map legacy Lovable gateway model ids to Gemini API model ids. */
@@ -43,16 +54,8 @@ export function normalizeGeminiModel(model?: string, fallback?: string): string 
   if (!model?.trim()) return fallback ?? defaultFastModel();
   let m = model.trim();
   if (m.startsWith("google/")) m = m.slice(7);
-  const ALIASES: Record<string, string> = {
-    "gemini-3.1-flash-lite-preview": "gemini-2.5-flash-lite",
-    "gemini-3-flash-preview": "gemini-2.5-flash",
-    "gemini-2.0-flash-lite": "gemini-2.5-flash-lite",
-    "gemini-2.0-flash": "gemini-2.5-flash",
-    "gemini-2.5-flash-lite": "gemini-2.5-flash-lite",
-    "gemini-2.5-flash": "gemini-2.5-flash",
-    "openai/text-embedding-3-small": "text-embedding-004",
-  };
-  return ALIASES[m] ?? m;
+  const aliases = geminiModels.aliases as Record<string, string>;
+  return aliases[m] ?? m;
 }
 
 function splitMessages(messages: GeminiChatMessage[]) {
@@ -296,7 +299,11 @@ export async function geminiEmbedText(
 }
 
 export function defaultVisionModel(): string {
-  return Deno.env.get("GEMINI_MODEL_VISION") ?? Deno.env.get("GEMINI_MODEL") ?? "gemini-2.5-flash";
+  return (
+    Deno.env.get("GEMINI_MODEL_VISION") ??
+    Deno.env.get("GEMINI_MODEL") ??
+    geminiModels.models.vision
+  );
 }
 
 /** Block SSRF — only Anthem project-media paths owned by the user. */

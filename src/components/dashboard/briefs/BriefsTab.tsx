@@ -121,9 +121,8 @@ export function BriefsTab() {
   }, [load]);
 
   React.useEffect(() => {
-    if (consumeOpenBriefMode() === "quick") {
-      setQuickCapture(true);
-    }
+    const mode = consumeOpenBriefMode();
+    if (mode === "quick") setQuickCapture(true);
   }, []);
 
   const create = () => {

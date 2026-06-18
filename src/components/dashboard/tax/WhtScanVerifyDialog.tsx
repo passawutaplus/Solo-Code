@@ -53,6 +53,8 @@ const FORM_TYPE_OPTIONS: Array<{ value: WhtFormType; label: string }> = [
 
 export type WhtDraft = {
   fileUrl: string;
+  /** Local blob URL — displays reliably in modal preview */
+  previewUrl?: string;
   fileName: string;
   mimeType: string;
   scan: WhtScanResult | null;
@@ -77,11 +79,13 @@ export function whtDraftFromScan(
   fileName: string,
   mimeType: string,
   scan: WhtScanResult,
+  previewUrl?: string,
 ): WhtDraft {
   const issueDate = parseThaiDate(scan.issueDate) || new Date().toISOString().slice(0, 10);
   const inferredRate = scan.whtRate || inferWhtRate(scan.grossAmount, scan.whtAmount) || 3;
   return {
     fileUrl,
+    previewUrl,
     fileName,
     mimeType,
     scan,
@@ -137,6 +141,7 @@ export function WhtScanVerifyDialog({
   const isPdf = current.mimeType === "application/pdf";
   const conf = current.scan?.confidence ?? 0;
   const lowConf = conf < 0.7;
+  const previewSrc = current.previewUrl || current.fileUrl;
 
   function next() {
     if (idx < drafts.length - 1) {
@@ -207,13 +212,13 @@ export function WhtScanVerifyDialog({
             <div className="min-h-full flex items-start justify-center p-4">
               {isPdf ? (
                 <embed
-                  src={current.fileUrl}
+                  src={previewSrc}
                   type="application/pdf"
                   className="w-full h-[70vh] rounded-lg bg-white shadow-sm"
                 />
               ) : (
                 <img
-                  src={current.fileUrl}
+                  src={previewSrc}
                   alt={current.fileName}
                   style={{ transform: `scale(${zoom})`, transformOrigin: "top center" }}
                   className="rounded-lg shadow-sm max-w-full"

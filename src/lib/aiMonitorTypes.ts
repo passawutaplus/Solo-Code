@@ -6,6 +6,13 @@ export type AiMonitorResponse = {
     error?: string;
     modelFast: string;
     modelDefault: string;
+    modelVision: string;
+    modelsUpdatedAt: string;
+    latestModelUpdate: {
+      at: string;
+      changes: Array<{ slot: string; from: string; to: string }>;
+      source?: string;
+    } | null;
     estThbPerCredit: number;
     consoleLinks: {
       aiStudio: string;

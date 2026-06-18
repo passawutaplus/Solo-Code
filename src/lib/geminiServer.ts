@@ -3,6 +3,14 @@
  * Replaces the former Lovable AI Gateway (`ai.gateway.lovable.dev`).
  */
 import { GoogleGenerativeAI, type Content, type Part } from "@google/generative-ai";
+import {
+  defaultFastModel,
+  defaultModel,
+  defaultVisionModel,
+  geminiModelsUpdatedAt,
+  latestGeminiModelChangelog,
+  normalizeGeminiModel,
+} from "@/lib/geminiModels";
 
 export interface ChatMessage {
   role: "system" | "user" | "assistant";
@@ -15,33 +23,14 @@ export function getGeminiApiKey(): string {
   return key;
 }
 
-export function defaultFastModel(): string {
-  return process.env.GEMINI_MODEL_FAST ?? "gemini-2.5-flash-lite";
-}
-
-export function defaultModel(): string {
-  return process.env.GEMINI_MODEL ?? "gemini-2.5-flash";
-}
-
-export function defaultVisionModel(): string {
-  return process.env.GEMINI_MODEL_VISION ?? "gemini-2.5-flash";
-}
-
-/** Map legacy Lovable gateway model ids to Gemini API model ids. */
-export function normalizeGeminiModel(model?: string, fallback?: string): string {
-  if (!model?.trim()) return fallback ?? defaultFastModel();
-  let m = model.trim();
-  if (m.startsWith("google/")) m = m.slice(7);
-  const ALIASES: Record<string, string> = {
-    "gemini-3.1-flash-lite-preview": "gemini-2.5-flash-lite",
-    "gemini-3-flash-preview": "gemini-2.5-flash",
-    "gemini-2.0-flash-lite": "gemini-2.5-flash-lite",
-    "gemini-2.0-flash": "gemini-2.5-flash",
-    "gemini-2.5-flash-lite": "gemini-2.5-flash-lite",
-    "gemini-2.5-flash": "gemini-2.5-flash",
-  };
-  return ALIASES[m] ?? m;
-}
+export {
+  defaultFastModel,
+  defaultModel,
+  defaultVisionModel,
+  geminiModelsUpdatedAt,
+  latestGeminiModelChangelog,
+  normalizeGeminiModel,
+};
 
 function splitMessages(messages: ChatMessage[]): {
   systemInstruction?: string;
@@ -80,7 +69,7 @@ export function mapGeminiError(err: unknown): Error {
 }
 
 /** Block SSRF — only Supabase storage paths owned by the user. */
-export function assertSafeUserImageUrl(url: string, userId: string): void {
+export function assertSafeUserStorageUrl(url: string, userId: string): void {
   let parsed: URL;
   try {
     parsed = new URL(url);
@@ -118,8 +107,13 @@ export function assertSafeUserImageUrl(url: string, userId: string): void {
       ? segments.slice(2).join("/")
       : segments.slice(1).join("/");
   if (!pathInBucket.startsWith(`${userId}/`)) {
-    throw new Error("ไม่มีสิทธิ์เข้าถึงรูปนี้");
+    throw new Error("ไม่มีสิทธิ์เข้าถึงไฟล์นี้");
   }
+}
+
+/** @deprecated Use assertSafeUserStorageUrl */
+export function assertSafeUserImageUrl(url: string, userId: string): void {
+  assertSafeUserStorageUrl(url, userId);
 }
 
 function buildGenerativeModel(
@@ -195,11 +189,19 @@ export async function* geminiChatStream(options: {
 }
 
 export async function fetchUrlAsInlinePart(url: string, userId?: string): Promise<Part> {
-  if (userId) assertSafeUserImageUrl(url, userId);
+  return fetchUrlAsMediaPart(url, userId);
+}
+
+export async function fetchUrlAsMediaPart(url: string, userId?: string): Promise<Part> {
+  if (userId && !url.includes("/object/sign/")) {
+    assertSafeUserStorageUrl(url, userId);
+  }
   const res = await fetch(url);
-  if (!res.ok) throw new Error(`โหลดรูปไม่สำเร็จ: ${url}`);
+  if (!res.ok) throw new Error(`โหลดไฟล์ไม่สำเร็จ: ${url}`);
   const buf = Buffer.from(await res.arrayBuffer());
-  const mimeType = (res.headers.get("content-type") ?? "image/jpeg").split(";")[0].trim();
+  const mimeType = (res.headers.get("content-type") ?? "application/octet-stream")
+    .split(";")[0]
+    .trim();
   return { inlineData: { mimeType, data: buf.toString("base64") } };
 }
 

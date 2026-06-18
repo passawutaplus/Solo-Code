@@ -1,7 +1,14 @@
 import * as React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Bell, AlertTriangle, CalendarClock, Receipt, CreditCard } from "lucide-react";
+import {
+  Bell,
+  AlertTriangle,
+  CalendarClock,
+  Receipt,
+  CreditCard,
+  CheckCircle2,
+} from "lucide-react";
 import { formatTHB, type PaymentMethod, type Subscription } from "@/data/mockData";
 import { useClientInvoices, type ClientInvoice } from "@/store/clientInvoices";
 
@@ -29,9 +36,11 @@ function nextOccurrence(day: number, today: Date): Date {
 export function BillingAlerts({
   subs,
   paymentMethods,
+  compact = false,
 }: {
   subs: Subscription[];
   paymentMethods: PaymentMethod[];
+  compact?: boolean;
 }) {
   const { list: invoices } = useClientInvoices();
 
@@ -91,17 +100,132 @@ export function BillingAlerts({
   const overdueInvoices = invoices.filter((i) => i.status === "late7" || i.status === "late30");
   const overdue = items.filter((i) => i.daysLeft < 0).sort((a, b) => a.daysLeft - b.daysLeft);
 
-  if (upcoming.length === 0 && overdue.length === 0 && overdueInvoices.length === 0) {
-    return null;
+  const isEmpty = upcoming.length === 0 && overdue.length === 0 && overdueInvoices.length === 0;
+  const nextBill = items
+    .filter((i) => i.daysLeft >= 0)
+    .sort((a, b) => a.daysLeft - b.daysLeft)[0];
+
+  if (isEmpty) {
+    if (compact) {
+      const nextLabel = nextBill
+        ? `${nextBill.label}${
+            nextBill.daysLeft === 0
+              ? " · วันนี้"
+              : nextBill.daysLeft === 1
+                ? " · พรุ่งนี้"
+                : ` · อีก ${nextBill.daysLeft} วัน`
+          }`
+        : null;
+      return (
+        <Card className="animate-fade-up border-emerald-500/30 bg-gradient-to-br from-emerald-500/5 via-card to-card h-full">
+          <CardContent className="p-5">
+            <div className="flex items-start justify-between gap-2">
+              <div className="min-w-0 space-y-1">
+                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                  แจ้งเตือนบิล
+                </p>
+                <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-400">
+                  สบายใจได้
+                </p>
+                <p className="text-xs text-muted-foreground">ไม่มีบิลครบภายใน 7 วัน</p>
+                {nextLabel && (
+                  <p className="text-xs text-muted-foreground truncate">ถัดไป: {nextLabel}</p>
+                )}
+              </div>
+              <div className="rounded-xl bg-emerald-500/15 p-2.5 text-emerald-600 shrink-0">
+                <CheckCircle2 className="h-4 w-4" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      );
+    }
+
+    return (
+      <Card className="animate-fade-up border-emerald-500/30 bg-gradient-to-br from-emerald-500/5 via-card to-card h-full">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-base flex items-center gap-2">
+            <Bell className="h-4 w-4 text-emerald-600" /> แจ้งเตือนบิล
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-start gap-3 rounded-lg border border-emerald-500/25 bg-emerald-500/10 p-3">
+            <CheckCircle2 className="h-5 w-5 text-emerald-600 shrink-0 mt-0.5" />
+            <div className="text-xs space-y-1">
+              <p className="font-semibold text-emerald-700 dark:text-emerald-400">
+                ไม่มีบิลใกล้ครบกำหนด — สบายใจได้
+              </p>
+              <p className="text-muted-foreground">
+                ไม่มี subscription, บัตร หรือใบแจ้งหนี้ที่ครบภายใน 7 วัน
+              </p>
+              {nextBill && (
+                <p className="text-muted-foreground pt-0.5">
+                  บิลถัดไป:{" "}
+                  <span className="font-medium text-foreground">{nextBill.label}</span>
+                  {nextBill.daysLeft === 0
+                    ? " วันนี้"
+                    : nextBill.daysLeft === 1
+                      ? " พรุ่งนี้"
+                      : ` อีก ${nextBill.daysLeft} วัน`}
+                </p>
+              )}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  const alertCount = upcoming.length + overdue.length + overdueInvoices.length;
+
+  if (compact) {
+    const preview = [
+      ...overdueInvoices.map((inv) => ({ key: `ov-${inv.id}`, kind: "overdue-inv" as const, inv })),
+      ...overdue.map((it) => ({ key: it.key, kind: "overdue" as const, item: it })),
+      ...upcoming.map((it) => ({ key: it.key, kind: "upcoming" as const, item: it })),
+    ].slice(0, 3);
+    const more = alertCount - preview.length;
+
+    return (
+      <Card className="animate-fade-up border-primary/30 h-full">
+        <CardContent className="p-5 space-y-2">
+          <div className="flex items-center justify-between gap-2">
+            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+              แจ้งเตือนบิล
+            </p>
+            <Badge variant="secondary" className="text-[10px] rounded-full shrink-0">
+              {alertCount}
+            </Badge>
+          </div>
+          <div className="space-y-1.5 max-h-[88px] overflow-y-auto">
+            {preview.map((row) => {
+              if (row.kind === "overdue-inv") {
+                return <OverdueInvoiceRow key={row.key} inv={row.inv} />;
+              }
+              return (
+                <AlertRow
+                  key={row.key}
+                  item={row.item}
+                  overdue={row.kind === "overdue"}
+                />
+              );
+            })}
+          </div>
+          {more > 0 && (
+            <p className="text-[10px] text-muted-foreground">+ อีก {more} รายการ</p>
+          )}
+        </CardContent>
+      </Card>
+    );
   }
 
   return (
-    <Card className="animate-fade-up border-primary/30">
+    <Card className="animate-fade-up border-primary/30 h-full">
       <CardHeader className="pb-2">
         <CardTitle className="text-base flex items-center gap-2">
           <Bell className="h-4 w-4 text-primary" /> แจ้งเตือนบิล
           <Badge variant="secondary" className="text-[10px] rounded-full">
-            {upcoming.length + overdue.length + overdueInvoices.length}
+            {alertCount}
           </Badge>
         </CardTitle>
       </CardHeader>

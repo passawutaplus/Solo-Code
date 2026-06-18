@@ -21,6 +21,7 @@ import {
   Database,
   Kanban,
   Scale,
+  Mic,
 } from "lucide-react";
 import {
   Sidebar,
@@ -74,6 +75,7 @@ const GROUPS: NavGroup[] = [
     icon: Briefcase,
     items: [
       { label: "Pipeline", icon: Kanban, section: "finance", sub: "pipeline" },
+      { label: "Meeting", icon: Mic, section: "planner", sub: "meetings" },
       { label: "Smart Brief", icon: Lightbulb, section: "planner", sub: "briefs" },
       { label: "Quotation", icon: FileText, section: "finance", sub: "quotations" },
       { label: "Job Tracker", icon: Workflow, section: "finance", sub: "jobs" },

@@ -1,14 +1,14 @@
-import shotDashboard from "@/assets/landing/shot-dashboard.webp";
-import shotQuotation from "@/assets/landing/shot-quotation.webp";
-import shotTax from "@/assets/landing/shot-tax.webp";
-import shotBrief from "@/assets/landing/shot-brief.webp";
-import shotTrack from "@/assets/landing/shot-track.webp";
-import shotInvoice from "@/assets/landing/shot-invoice.webp";
-import shotJobs from "@/assets/landing/shot-jobs.webp";
-import shotFeedback from "@/assets/landing/shot-feedback.webp";
-import shotIncome from "@/assets/landing/shot-income.webp";
-import shotQtList from "@/assets/landing/shot-qt-list.webp";
-import shotWht from "@/assets/landing/shot-wht.webp";
+import shotDashboard from "@/assets/landing/mock-dashboard.svg";
+import shotQuotation from "@/assets/landing/mock-quotation.svg";
+import shotTax from "@/assets/landing/mock-tax.svg";
+import shotBrief from "@/assets/landing/mock-brief.svg";
+import shotTrack from "@/assets/landing/mock-track.svg";
+import shotInvoice from "@/assets/landing/mock-invoice.svg";
+import shotJobs from "@/assets/landing/mock-dashboard.svg";
+import shotFeedback from "@/assets/landing/mock-track.svg";
+import shotIncome from "@/assets/landing/mock-tax.svg";
+import shotQtList from "@/assets/landing/mock-quotation.svg";
+import shotWht from "@/assets/landing/mock-tax.svg";
 
 export type LandingMockup = {
   src: string;

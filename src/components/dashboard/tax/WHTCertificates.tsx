@@ -19,6 +19,14 @@ import { compressImageFile, dataUrlToBlob } from "@/lib/imageCompress";
 
 const SIGNED_URL_TTL_SEC = 60 * 60;
 
+function revokePreviewUrl(draft?: WhtDraft) {
+  if (draft?.previewUrl) URL.revokeObjectURL(draft.previewUrl);
+}
+
+function revokeAllPreviewUrls(drafts: WhtDraft[]) {
+  drafts.forEach(revokePreviewUrl);
+}
+
 export function WHTCertificates() {
   const { incomes, updateIncome, addIncome } = useFinance();
   const { user } = useAuth();
@@ -55,6 +63,7 @@ export function WHTCertificates() {
           let blob: Blob = f;
           let contentType = f.type || "application/octet-stream";
           let ext = (f.name.split(".").pop() ?? "bin").toLowerCase();
+          const previewUrl = URL.createObjectURL(f);
           if (f.type.startsWith("image/") && f.type !== "image/svg+xml") {
             const dataUrl = await compressImageFile(f);
             blob = dataUrlToBlob(dataUrl);
@@ -74,13 +83,14 @@ export function WHTCertificates() {
 
           try {
             const scan = await scanFn({ data: { storagePath: path, mimeType: contentType } });
-            newDrafts.push(whtDraftFromScan(signed.signedUrl, f.name, contentType, scan));
+            newDrafts.push(whtDraftFromScan(signed.signedUrl, f.name, contentType, scan, previewUrl));
             okCount++;
           } catch (e) {
             failCount++;
             const msg = e instanceof Error ? e.message : "AI อ่านไม่สำเร็จ";
             newDrafts.push({
               fileUrl: signed.signedUrl,
+              previewUrl,
               fileName: f.name,
               mimeType: contentType,
               scan: null,
@@ -101,6 +111,7 @@ export function WHTCertificates() {
           }
         } catch (e) {
           failCount++;
+          URL.revokeObjectURL(previewUrl);
           toast.error(`อัปโหลด ${f.name} ไม่สำเร็จ: ${e instanceof Error ? e.message : ""}`);
         }
       }
@@ -144,10 +155,21 @@ export function WHTCertificates() {
   }
   function advance() {
     setDrafts((arr) => {
-      const next = arr.slice(1);
+      const [removed, ...next] = arr;
+      revokePreviewUrl(removed);
       if (next.length === 0) setVerifyOpen(false);
       return next;
     });
+  }
+
+  function handleVerifyOpenChange(open: boolean) {
+    setVerifyOpen(open);
+    if (!open) {
+      setDrafts((arr) => {
+        revokeAllPreviewUrls(arr);
+        return [];
+      });
+    }
   }
 
   // Only incomes that have withholding > 0 are eligible for 50 ทวิ
@@ -240,7 +262,7 @@ export function WHTCertificates() {
         <WhtDropzone onFiles={handleFiles} busy={busy} progress={progress} />
         <WhtScanVerifyDialog
           open={verifyOpen}
-          onOpenChange={setVerifyOpen}
+          onOpenChange={handleVerifyOpenChange}
           drafts={drafts}
           onDraftChange={handleDraftChange}
           onConfirm={handleConfirm}
