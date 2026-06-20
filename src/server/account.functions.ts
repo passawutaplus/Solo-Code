@@ -11,13 +11,15 @@ export const exportUserData = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     const { userId, supabase } = context;
 
-    const [profile, clients, quotations, jobs, expenses, incomes] = await Promise.all([
+    const [profile, clients, quotations, jobs, expenses, incomes, kycRequests, payoutProfile] = await Promise.all([
       supabase.from("profiles").select("*").eq("user_id", userId).maybeSingle(),
       supabase.from("saved_clients").select("*").eq("user_id", userId),
       supabase.from("quotations").select("*").eq("user_id", userId),
       supabase.from("job_trackers").select("*").eq("user_id", userId),
       supabase.from("finance_expenses").select("*").eq("user_id", userId),
       supabase.from("finance_incomes").select("*").eq("user_id", userId),
+      supabase.schema("shared").from("kyc_requests").select("*").eq("user_id", userId),
+      supabase.schema("shared").from("payout_profiles").select("*").eq("user_id", userId).maybeSingle(),
     ]);
 
     return {
@@ -29,6 +31,10 @@ export const exportUserData = createServerFn({ method: "GET" })
       job_trackers: jobs.data ?? [],
       finance_expenses: expenses.data ?? [],
       finance_incomes: incomes.data ?? [],
+      kyc_requests: kycRequests.data ?? [],
+      payout_profile: payoutProfile.data ?? null,
+      note_kyc_documents:
+        "รูปบัตร/selfie เก็บใน Storage ส่วนตัว — ติดต่อ DPO หากต้องการสำเนาไฟล์เอกสาร",
       errors: [
         profile.error,
         clients.error,
@@ -36,6 +42,8 @@ export const exportUserData = createServerFn({ method: "GET" })
         jobs.error,
         expenses.error,
         incomes.error,
+        kycRequests.error,
+        payoutProfile.error,
       ]
         .filter(Boolean)
         .map(() => "export_partial_failure"),

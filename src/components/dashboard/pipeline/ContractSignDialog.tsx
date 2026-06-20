@@ -17,6 +17,7 @@ import { useAuth } from "@/auth/AuthProvider";
 import { buildContractClausesForQuotation, buildContractDocument } from "@/lib/contractTemplates";
 import type { UsageRightsInput } from "@/lib/usageRightsSchema";
 import type { Quotation } from "@/store/quotations";
+import { EsignDisclaimer } from "@/components/legal/EsignDisclaimer";
 
 export function ContractSignDialog({
   open,
@@ -93,6 +94,7 @@ export function ContractSignDialog({
             <li key={c.id}>• {c.title}</li>
           ))}
         </ul>
+        <EsignDisclaimer variant="freelancer" />
         <label className="flex items-start gap-2 text-sm cursor-pointer">
           <Checkbox checked={agreed} onCheckedChange={(v) => setAgreed(!!v)} />
           <span>ยืนยันว่าลูกค้าและผู้รับจ้างตกลงตามข้อความด้านบน (บันทึก timestamp)</span>

@@ -8,7 +8,7 @@ So1o is a freelancer management SaaS for Thai designers. Users sign up to manage
 
 | Actor | Trust | Allowed |
 |---|---|---|
-| **Anonymous visitor** | Untrusted | Read landing / blog / pricing. Submit signup. Access UUID-token pages (`/track/$token`, `/brief/$token`, etc.) |
+| **Anonymous visitor** | Untrusted | Read landing / blog / pricing. Submit signup. Access UUID-token pages (`/track/$token`, `/brief/$token`, `/sign/$token`, etc.) |
 | **Authenticated user (tester not approved)** | Low | Read own profile + `/apply` page only |
 | **Authenticated user (tester approved)** | Medium | Full app — own data only (enforced by RLS) |
 | **Admin** | High | Full app + admin panel + admin server fns |
@@ -29,7 +29,8 @@ So1o is a freelancer management SaaS for Thai designers. Users sign up to manage
 | Profile (name, avatar) | `public.profiles` | RLS self-write |
 | Financial records | `public.finance_*`, `client_invoices` | RLS self-scoped |
 | Quotations, jobs | `public.quotations`, `dashboard_jobs` | RLS self-scoped |
-| Public-token data | accessible via UUID token | opaque token, read-only |
+| Public-token data | accessible via UUID token | opaque token, read-only payload via RPC whitelist |
+| Client signatures | `quotations.client_*`, Storage `brand-logos/{quotationId}/client-sign-*` | anon sign via `sign_quotation_by_token` SECURITY DEFINER; no direct anon UPDATE on quotations |
 | Admin audit | `public.admin_audit_log` | admin-only |
 | AI quota / rate | `public.feature_usage` | per-user write |
 
@@ -51,14 +52,15 @@ So1o is a freelancer management SaaS for Thai designers. Users sign up to manage
 - `articles` (published=true)
 - `announcement_*` (active=true)
 - `auth_banners`, `dashboard_banners`
-- `/track/$token`, `/brief/$token`, `/planner/$token`, `/supplier/$token`, `/vision/$token` — opaque UUID tokens; treat as bearer-equivalent
+- `/track/$token`, `/brief/$token`, `/sign/$token`, `/planner/$token`, `/supplier/$token`, `/vision/$token` — opaque UUID tokens; treat as bearer-equivalent
+- `/sign/$token` — client draws signature or uploads wet-signed doc; writes via `sign_quotation_by_token` RPC only (idempotent)
 - `/api/public/payments/webhook` — Stripe webhook (signature verified)
 
 ## Defense in depth
 
 | Layer | Mechanism |
 |---|---|
-| Network | Cloudflare in front of Worker + Supabase TLS |
+| Network | Vercel edge (TLS + DDoS) + Supabase TLS — ดู [`../../docs/firewall.md`](../../docs/firewall.md) |
 | HTTP | `src/start.ts` security headers middleware (CSP, HSTS, X-Content-Type-Options, Permissions-Policy, Referrer-Policy, COOP, CORP) |
 | App | Zod input validation on every form + server fn |
 | DB | RLS on every user-data table; `has_role` SECURITY DEFINER for admin checks |

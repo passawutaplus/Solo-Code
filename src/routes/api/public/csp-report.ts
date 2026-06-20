@@ -25,32 +25,14 @@ const ReportSchema = z.object({
   disposition: z.string().max(32).optional(),
 });
 
-const ipCounts = new Map<string, { count: number; resetAt: number }>();
-const RATE_LIMIT = 30;
-const WINDOW_MS = 60_000;
-
-function isRateLimited(ip: string): boolean {
-  const now = Date.now();
-  const row = ipCounts.get(ip);
-  if (!row || now > row.resetAt) {
-    ipCounts.set(ip, { count: 1, resetAt: now + WINDOW_MS });
-    return false;
-  }
-  row.count += 1;
-  return row.count > RATE_LIMIT;
-}
+import { guardIpRateLimit, IP_RATE_LIMITS } from "@/lib/rateLimit.server";
 
 export const Route = createFileRoute("/api/public/csp-report")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const ip =
-          request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
-          request.headers.get("x-real-ip") ||
-          "unknown";
-        if (isRateLimited(ip)) {
-          return new Response(null, { status: 429 });
-        }
+        const limited = guardIpRateLimit(request, IP_RATE_LIMITS.cspReport);
+        if (limited) return limited;
 
         let raw: unknown;
         try {

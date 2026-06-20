@@ -2,7 +2,6 @@ import * as React from "react";
 import {
   ArrowLeft,
   Loader2,
-  Mic,
   Monitor,
   Upload,
   MapPin,
@@ -36,6 +35,8 @@ import { TranscriptReviewPanel } from "@/components/dashboard/briefs/TranscriptR
 import { readMediaDurationSec, useMediaRecorder } from "@/components/dashboard/briefs/useMediaRecorder";
 import { useSubscription } from "@/hooks/useSubscription";
 import { MeetingReportView } from "./MeetingReportView";
+import { MeetingRecordStartCard } from "./MeetingRecordStartCard";
+import { MeetingRecordingScreen } from "./MeetingRecordingScreen";
 import type { MeetingCaptureRow } from "./MeetingReportPdfTemplate";
 
 type Step = "mode" | "capture" | "processing" | "transcript" | "report";
@@ -75,13 +76,24 @@ export function MeetingCapturePanel({
     : MEETING_LIMITS.audioMaxSec;
 
   const recorderMode = mode === "online" ? "screen" : "audio";
-  const { state: recState, start: startRec, stop: stopRec } = useMediaRecorder(
-    recorderMode,
-    maxSec,
-  );
+  const {
+    state: recState,
+    activeStream,
+    start: startRec,
+    stop: stopRec,
+    pause: pauseRec,
+    resume: resumeRec,
+    cancel: cancelRec,
+  } = useMediaRecorder(recorderMode, maxSec);
 
   const fileInputRef = React.useRef<HTMLInputElement>(null);
   const processedBlobRef = React.useRef<Blob | null>(null);
+  const [liveTranscriptDraft, setLiveTranscriptDraft] = React.useState("");
+
+  const discardRecording = () => {
+    cancelRec();
+    setLiveTranscriptDraft("");
+  };
 
   const pickMode = (m: MeetingMode) => {
     setMode(m);
@@ -164,7 +176,7 @@ export function MeetingCapturePanel({
         },
       });
       setProgress(100);
-      setTranscript(tx.transcript);
+      setTranscript(tx.transcript || liveTranscriptDraft);
       setTranscribeCreditsUsed(tx.creditsUsed);
       setStep("transcript");
       toast.success("ถอดเสียงเสร็จแล้ว — ตรวจและแก้ก่อนสรุปรายงาน");
@@ -325,34 +337,25 @@ export function MeetingCapturePanel({
             </div>
           </div>
 
-          <div className="rounded-2xl border border-dashed border-primary/40 p-6 text-center space-y-3">
-            {!recState.recording ? (
-              <Button
-                className="gap-2"
-                disabled={!consent || busy}
-                onClick={() => void startRec()}
-              >
-                {mode === "online" ? (
-                  <Monitor className="h-4 w-4" />
-                ) : (
-                  <Mic className="h-4 w-4" />
-                )}
-                {mode === "online" ? "เริ่มอัดหน้าจอ + เสียง" : "กดเพื่อเริ่มอัดเสียง"}
-              </Button>
-            ) : (
-              <div className="space-y-2">
-                <p className="text-lg font-mono tabular-nums">{formatDuration(recState.elapsedSec)}</p>
-                <p className="text-xs text-red-600">● REC</p>
-                <Button variant="destructive" size="sm" onClick={stopRec}>
-                  หยุดอัด
-                </Button>
-              </div>
-            )}
-            <p className="text-[10px] text-muted-foreground">
-              สูงสุด {formatDuration(maxSec)}
-              {isFree && " (Free: 1 ครั้ง/เดือน · ≤15 นาที)"}
-            </p>
-          </div>
+          <MeetingRecordStartCard
+            modeLabel={mode === "online" ? "Screen + Audio" : "On-site"}
+            maxLabel={`สูงสุด ${formatDuration(maxSec)}${isFree ? " · Free ≤15 นาที" : ""}`}
+            disabled={!consent || busy || recState.recording}
+            onStart={() => void startRec()}
+          />
+
+          <MeetingRecordingScreen
+            open={recState.recording || recState.paused}
+            elapsedMs={recState.elapsedMs}
+            paused={recState.paused}
+            stream={activeStream}
+            modeLabel="Recording"
+            onBack={discardRecording}
+            onDiscard={discardRecording}
+            onPauseToggle={() => (recState.paused ? resumeRec() : pauseRec())}
+            onFinish={stopRec}
+            onTranscriptChange={setLiveTranscriptDraft}
+          />
 
           <div className="text-center text-xs text-muted-foreground">— หรือ —</div>
 
@@ -397,6 +400,7 @@ export function MeetingCapturePanel({
           reportCredits={meetingReportCredits(durationSec || 900)}
           onSummarize={() => void runReport()}
           busy={busy}
+          recordedAt={createdAt}
         />
       )}
 

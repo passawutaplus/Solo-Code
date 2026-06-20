@@ -14,6 +14,15 @@
 
 คอลัมน์ Pipeline/Contract บน `quotations`: `contract_accepted`, `contract_signed_at`, `contract_signer_ip`
 
+คอลัมน์ Document Signatures (`20260618120000_document_signatures`):
+
+| ตาราง | คอลัมน์ |
+|--------|--------|
+| `profiles` | `signature_url`, `esign_acknowledged_at` |
+| `quotations` | `signature_mode` (`none\|embedded\|online\|wet`), `include_freelancer_signature`, `sign_share_token`, `client_signer_name`, `client_signature_url`, `client_signed_at`, `client_sign_method`, `client_signer_ip`, `client_signer_user_agent`, `signed_document_url`, `signature_consent_version` |
+
+RPC: `resolve_quotation_id_by_sign_token`, `get_quotation_sign_payload_by_token`, `sign_quotation_by_token` — ลูกค้าเซ็นผ่าน `/sign/:token` (public, anon)
+
 ## การเงิน & ภาษี
 
 | ตาราง | บทบาท |

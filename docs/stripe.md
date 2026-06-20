@@ -55,8 +55,30 @@ https://solofreelancer.com/api/public/payments/webhook?env=sandbox
 |-----|--------|
 | `credits_100`, `credits_500`, `credits_2000` | So1o AI credits |
 | `px_500`, `px_2000`, `px_10000` | an1hem PX wallet top-up |
+| `boost_99_3d`, `boost_249_7d`, `boost_499_14d` | an1hem Boost โพสต์ตัวเอง |
+| `ad_basic`, `ad_standard`, `ad_premium` | an1hem โฆษณาแบรนด์ (admin อนุมัติ) |
 
 Source of truth: `scripts/stripe/provision-sandbox.mjs` + `src/lib/stripe.ts`
+
+### Boost (an1hem)
+
+1. กด Boost บนผลงาน/โพสต์ชุมชน → `create_post_boost` RPC
+2. Checkout `boost_*` lookup key (metadata `boostId`)
+3. Webhook `kind=boost` → `activate_post_boost_stripe` → badge Boosted + feed ranking
+
+### Brand Ads (an1hem)
+
+1. `/advertise` สมัครแคมเปญ → Checkout `ad_*` (metadata `applicationId`)
+2. Webhook `kind=ad` → `fulfill_ad_payment_stripe` → admin อนุมัติ → AdCard
+
+### Escrow marketplace
+
+1. สร้างจาก So1o Quotation หรือ an1hem Hire → `create_escrow_*` RPC (ต้อง Connect)
+2. ลูกค้าเปิด `/pay/:portal_token` → Stripe Checkout (เงินพักที่ platform)
+3. ลูกค้า approve → `pending_release` → admin `/admin?section=payments` → Connect Transfer
+4. ลูกค้า approve → `pending_release` → admin `/admin?section=payments` → Connect Transfer
+5. ค่าธรรมเนียม: **Free 5% · Pro+ 2.5%** (ทางเลือก — โอนตรง/Job Tracker ไม่ผ่านเรา)
+6. SQL: `scripts/ecosystem/payment-policy-2026.sql` + `boost-escrow-payments.sql`
 
 ## Flows
 

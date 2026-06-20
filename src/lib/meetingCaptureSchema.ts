@@ -33,11 +33,7 @@ export const AUDIO_MIME_TYPES = [
   "audio/ogg",
 ] as const;
 
-export const VIDEO_MIME_TYPES = [
-  "video/mp4",
-  "video/webm",
-  "video/quicktime",
-] as const;
+export const VIDEO_MIME_TYPES = ["video/mp4", "video/webm", "video/quicktime"] as const;
 
 export const AUDIO_EXTENSIONS = [".m4a", ".mp3", ".wav", ".webm", ".ogg", ".mpeg"] as const;
 export const VIDEO_EXTENSIONS = [".mp4", ".webm", ".mov"] as const;
@@ -55,11 +51,17 @@ export const MeetingModeSchema = z.enum(["onsite", "online"]);
 export type MeetingMode = z.infer<typeof MeetingModeSchema>;
 
 export function isAudioMime(mime: string): boolean {
-  return mime.startsWith("audio/") || AUDIO_MIME_TYPES.includes(mime as (typeof AUDIO_MIME_TYPES)[number]);
+  return (
+    mime.startsWith("audio/") ||
+    AUDIO_MIME_TYPES.includes(mime as (typeof AUDIO_MIME_TYPES)[number])
+  );
 }
 
 export function isVideoMime(mime: string): boolean {
-  return mime.startsWith("video/") || VIDEO_MIME_TYPES.includes(mime as (typeof VIDEO_MIME_TYPES)[number]);
+  return (
+    mime.startsWith("video/") ||
+    VIDEO_MIME_TYPES.includes(mime as (typeof VIDEO_MIME_TYPES)[number])
+  );
 }
 
 export function maxDurationForSource(sourceType: MeetingSourceType, isFreeTier: boolean): number {
@@ -87,4 +89,13 @@ export function formatDuration(sec: number): string {
   const s = Math.floor(sec % 60);
   if (h > 0) return `${h}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
   return `${m}:${String(s).padStart(2, "0")}`;
+}
+
+/** mm:ss:cs — centisecond timer for live recording UI */
+export function formatRecordingTimer(totalMs: number): string {
+  const cs = Math.floor((totalMs % 1000) / 10);
+  const totalSec = Math.floor(totalMs / 1000);
+  const m = Math.floor(totalSec / 60);
+  const s = totalSec % 60;
+  return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}:${String(cs).padStart(2, "0")}`;
 }

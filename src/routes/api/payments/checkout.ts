@@ -42,6 +42,8 @@ export const Route = createFileRoute("/api/payments/checkout")({
           successUrl: parsed.successUrl,
           cancelUrl: parsed.cancelUrl,
           quantity: parsed.quantity,
+          boostId: parsed.boostId,
+          applicationId: parsed.applicationId,
         });
 
         if ("error" in result) {

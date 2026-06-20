@@ -41,6 +41,8 @@ export interface Profile {
   line_notify_enabled?: boolean;
   line_notify_prefs?: Record<string, boolean>;
   document_theme?: Record<string, unknown> | null;
+  signature_url?: string | null;
+  esign_acknowledged_at?: string | null;
   subscription_tier?: string | null;
 }
 

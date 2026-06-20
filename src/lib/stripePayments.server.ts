@@ -121,6 +121,8 @@ export async function createCheckoutSessionForUser(opts: {
   successUrl: string;
   cancelUrl: string;
   quantity?: number;
+  boostId?: string;
+  applicationId?: string;
 }): Promise<{ url: string } | { error: string }> {
   try {
     const setupErr = getStripeSetupError(opts.environment);
@@ -143,6 +145,22 @@ export async function createCheckoutSessionForUser(opts: {
     const successUrl = assertAllowedPaymentRedirectUrl(opts.successUrl);
     const cancelUrl = assertAllowedPaymentRedirectUrl(opts.cancelUrl);
 
+    if (kind === "boost" && !opts.boostId) {
+      return { error: "boostId required for boost checkout" };
+    }
+    if (kind === "ad" && !opts.applicationId) {
+      return { error: "applicationId required for ad checkout" };
+    }
+
+    const metadata: Record<string, string> = {
+      userId: opts.userId,
+      priceId: opts.priceId,
+      quantity: String(quantity),
+      kind,
+    };
+    if (opts.boostId) metadata.boostId = opts.boostId;
+    if (opts.applicationId) metadata.applicationId = opts.applicationId;
+
     const session = await stripe.checkout.sessions.create({
       mode: oneTime ? "payment" : "subscription",
       customer: customerId,
@@ -153,16 +171,11 @@ export async function createCheckoutSessionForUser(opts: {
       success_url: successUrl,
       cancel_url: cancelUrl,
       client_reference_id: opts.userId,
-      metadata: {
-        userId: opts.userId,
-        priceId: opts.priceId,
-        quantity: String(quantity),
-        kind,
-      },
+      metadata,
       ...(oneTime
         ? {
             payment_intent_data: {
-              metadata: { userId: opts.userId, priceId: opts.priceId, kind },
+              metadata: { ...metadata },
             },
           }
         : {
@@ -352,6 +365,166 @@ export async function createClientJobCheckoutSession(opts: {
 
     if (!session.url) return { error: "Checkout session has no URL" };
     return { url: session.url };
+  } catch (error) {
+    return { error: getStripeErrorMessage(error) };
+  }
+}
+
+/** Escrow — client pays full amount; platform holds until approve + admin release transfer. */
+export async function createEscrowCheckoutSession(opts: {
+  portalToken: string;
+  environment: StripeEnv;
+  successUrl?: string;
+  cancelUrl?: string;
+}): Promise<{ url: string } | { error: string }> {
+  try {
+    const setupErr = getStripeSetupError(opts.environment);
+    if (setupErr) return { error: setupErr };
+
+    const sb = getServiceSupabase();
+    const sharedSb = getSharedSupabase();
+    const { data: escrow, error: escErr } = await sharedSb
+      .from("marketplace_escrows")
+      .select(
+        "id, freelancer_user_id, title, amount_thb, status, client_name, portal_token",
+      )
+      .eq("portal_token", opts.portalToken)
+      .maybeSingle();
+
+    if (escErr || !escrow) return { error: "ไม่พบลิงก์ชำระเงิน" };
+    if (escrow.status !== "pending_payment") return { error: "รายการนี้ชำระแล้วหรือไม่พร้อมรับชำระ" };
+
+    const { data: profile } = await sb
+      .from("profiles")
+      .select("connect_payouts_enabled, connect_onboarding_complete, brand_name, display_name")
+      .eq("user_id", escrow.freelancer_user_id)
+      .maybeSingle();
+
+    if (!profile?.connect_payouts_enabled || !profile?.connect_onboarding_complete) {
+      return { error: "ฟรีแลนซ์ยังไม่พร้อมรับชำระผ่าน Escrow" };
+    }
+
+    const stripe = createStripeClient(opts.environment);
+    const amountCents = thbToStripeCents(escrow.amount_thb);
+    const brandName = profile.brand_name || profile.display_name || "ฟรีแลนซ์";
+    const origin = resolveSiteOrigin();
+    const successUrl = assertAllowedPaymentRedirectUrl(
+      opts.successUrl ?? `${origin}/pay/${opts.portalToken}?paid=1`,
+    );
+    const cancelUrl = assertAllowedPaymentRedirectUrl(
+      opts.cancelUrl ?? `${origin}/pay/${opts.portalToken}?canceled=1`,
+    );
+
+    const session = await stripe.checkout.sessions.create({
+      mode: "payment",
+      line_items: [
+        {
+          price_data: {
+            currency: "thb",
+            product_data: {
+              name: `Escrow — ${escrow.title}`,
+              description: `ชำระให้ ${brandName} (เงินพักในระบบจนกว่าอนุมัติงาน)`,
+            },
+            unit_amount: amountCents,
+          },
+          quantity: 1,
+        },
+      ],
+      payment_intent_data: {
+        metadata: {
+          kind: "escrow",
+          userId: escrow.freelancer_user_id,
+          escrowId: escrow.id,
+          priceId: "escrow_deposit",
+          amountThb: String(escrow.amount_thb),
+        },
+      },
+      custom_text: {
+        submit: {
+          message: `ยอด ฿${escrow.amount_thb.toLocaleString("th-TH")} — ปล่อยให้ฟรีแลนซ์เมื่อคุณอนุมัติงาน`,
+        },
+      },
+      success_url: successUrl,
+      cancel_url: cancelUrl,
+      client_reference_id: escrow.freelancer_user_id,
+      metadata: {
+        kind: "escrow",
+        userId: escrow.freelancer_user_id,
+        escrowId: escrow.id,
+        priceId: "escrow_deposit",
+        amountThb: String(escrow.amount_thb),
+      },
+    });
+
+    if (!session.url) return { error: "Checkout session has no URL" };
+    return { url: session.url };
+  } catch (error) {
+    return { error: getStripeErrorMessage(error) };
+  }
+}
+
+export async function processEscrowRelease(opts: {
+  escrowId: string;
+  adminUserId: string;
+  environment: StripeEnv;
+}): Promise<{ transferId: string } | { error: string }> {
+  try {
+    await assertAdmin(opts.adminUserId);
+    const setupErr = getStripeSetupError(opts.environment);
+    if (setupErr) return { error: setupErr };
+
+    const sharedSb = getSharedSupabase();
+    const sb = getServiceSupabase();
+    const { data: escrow, error: escErr } = await sharedSb
+      .from("marketplace_escrows")
+      .select("*")
+      .eq("id", opts.escrowId)
+      .maybeSingle();
+
+    if (escErr || !escrow) return { error: "ไม่พบรายการ Escrow" };
+    if (escrow.status !== "pending_release") {
+      return { error: "สถานะไม่พร้อมปล่อยเงิน" };
+    }
+    if (escrow.stripe_transfer_id) {
+      return { transferId: escrow.stripe_transfer_id };
+    }
+
+    const accountId = await getConnectAccountIdForEnv(sb, escrow.freelancer_user_id, opts.environment);
+    if (!accountId) return { error: "ฟรีแลนซ์ยังไม่ได้เชื่อม Stripe Connect" };
+
+    const stripe = createStripeClient(opts.environment);
+    const transfer = await stripe.transfers.create({
+      amount: thbToStripeCents(escrow.net_payout_thb),
+      currency: "thb",
+      destination: accountId,
+      metadata: {
+        escrowId: escrow.id,
+        userId: escrow.freelancer_user_id,
+        kind: "escrow_release",
+      },
+    });
+
+    const { error: markErr } = await sb.rpc("mark_escrow_released_stripe", {
+      _escrow_id: escrow.id,
+      _transfer_id: transfer.id,
+    });
+    if (markErr) {
+      console.error("[escrow-release] mark failed:", markErr);
+      return { error: markErr.message };
+    }
+
+    await sb.from("payment_notifications").insert({
+      user_id: escrow.freelancer_user_id,
+      event_type: "escrow.released",
+      environment: opts.environment,
+      amount_cents: thbToStripeCents(escrow.net_payout_thb),
+      currency: "thb",
+      price_id: "escrow_release",
+      message: `ปล่อยเงิน Escrow ฿${escrow.net_payout_thb.toLocaleString("th-TH")} แล้ว`,
+      metadata: { escrowId: escrow.id, transferId: transfer.id },
+    });
+
+    return { transferId: transfer.id };
   } catch (error) {
     return { error: getStripeErrorMessage(error) };
   }

@@ -9,6 +9,7 @@ import {
 } from "@/lib/aiAssistantCore";
 import { debitAiCredits, getAiUsageSummary, refundAiCredits } from "@/lib/aiCreditsServer";
 import { defaultFastModel, geminiChatStream } from "@/lib/geminiServer";
+import { guardIpRateLimit, IP_RATE_LIMITS } from "@/lib/rateLimit.server";
 
 const PRESETS = new Set<AssistantPreset>(["mentor", "business", "copy", "legal"]);
 
@@ -51,6 +52,9 @@ export const Route = createFileRoute("/api/assistant/stream")({
   server: {
     handlers: {
       POST: async ({ request }) => {
+        const limited = guardIpRateLimit(request, IP_RATE_LIMITS.assistantStream);
+        if (limited) return limited;
+
         const auth = await authenticateRequest(request);
         if (auth instanceof Response) return auth;
 

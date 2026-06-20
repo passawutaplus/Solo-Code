@@ -135,6 +135,24 @@ function TermsPage() {
         </ul>
       </LegalSectionBlock>
 
+      <LegalSectionBlock id="esign" title="7.1 ลายเซ็นเอกสาร (E-sign tool)">
+        <ul className="list-disc pl-5 space-y-1.5">
+          <li>
+            ลิงก์ `/sign/:token` ให้ลูกค้าวาดลายเซ็นหรืออัปโหลดเอกสารที่เซ็นแล้ว (wet sign)
+            โดยไม่ต้องล็อกอิน So1o
+          </li>
+          <li>
+            ฟีเจอร์เป็นเครื่องมือช่วยจัดทำเอกสาร — ไม่ใช่บริการลงนามอิเล็กทรอนิกส์ตามกฎหมายเต็มรูปแบบ
+            หรือคำปรึกษาทางกฎหมาย
+          </li>
+          <li>
+            คุณต้องขอความยินยอมจากลูกค้าและรับผิดชอบความถูกต้องของเอกสาร — So1o
+            เป็นแพลตฟอร์มช่วยจัดการเท่านั้น
+          </li>
+          <li>ลูกค้าเซ็นซ้ำไม่ได้เมื่อบันทึกสำเร็จแล้ว</li>
+        </ul>
+      </LegalSectionBlock>
+
       <LegalSectionBlock id="payments-client" title="8. รับชำระจากลูกค้า">
         <ul className="list-disc pl-5 space-y-1.5">
           <li>

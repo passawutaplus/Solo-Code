@@ -7,6 +7,7 @@ import {
   syncConnectAccountFromStripe,
   upsertSubscriptionRecordFromStripe,
 } from "@/lib/stripePayments.server";
+import { guardIpRateLimit, IP_RATE_LIMITS } from "@/lib/rateLimit.server";
 
 let _supabase: SupabaseClient | null = null;
 function getSupabase(): SupabaseClient {
@@ -384,6 +385,118 @@ async function handleCheckoutCompleted(session: any, env: StripeEnv) {
     return;
   }
 
+  if (kind === "boost") {
+    const boostId = session.metadata?.boostId;
+    if (!boostId) throw new Error("boost checkout missing boostId");
+
+    const { error } = await sb.rpc("activate_post_boost_stripe", {
+      _stripe_session_id: session.id,
+      _boost_id: boostId,
+      _price_id: priceId,
+      _environment: env,
+    });
+    if (error) {
+      console.error("[stripe-webhook] activate_post_boost_stripe failed:", error);
+      throw error;
+    }
+
+    await logPaymentNotification({
+      userId,
+      eventType: "boost.purchased",
+      env,
+      amountCents: session.amount_total ?? null,
+      currency: session.currency ?? null,
+      priceId,
+      message: "Boost โพสต์สำเร็จ — กำลังแสดงในฟีด",
+      metadata: { sessionId: session.id, boostId },
+    });
+    return;
+  }
+
+  if (kind === "ad") {
+    const applicationId = session.metadata?.applicationId;
+    if (!applicationId) throw new Error("ad checkout missing applicationId");
+
+    const { error } = await sb.rpc("fulfill_ad_payment_stripe", {
+      _stripe_session_id: session.id,
+      _application_id: applicationId,
+      _price_id: priceId,
+      _environment: env,
+    });
+    if (error) {
+      console.error("[stripe-webhook] fulfill_ad_payment_stripe failed:", error);
+      throw error;
+    }
+
+    await logPaymentNotification({
+      userId,
+      eventType: "ad.paid",
+      env,
+      amountCents: session.amount_total ?? null,
+      currency: session.currency ?? null,
+      priceId,
+      message: "ชำระโฆษณาแล้ว · รอทีมอนุมัติ",
+      metadata: { sessionId: session.id, applicationId },
+    });
+    return;
+  }
+
+  if (kind === "escrow") {
+    const escrowId = session.metadata?.escrowId;
+    if (!escrowId) throw new Error("escrow checkout missing escrowId");
+
+    const paymentIntentId =
+      typeof session.payment_intent === "string"
+        ? session.payment_intent
+        : session.payment_intent?.id;
+
+    const { error } = await sb.rpc("fulfill_escrow_payment_stripe", {
+      _stripe_session_id: session.id,
+      _escrow_id: escrowId,
+      _payment_intent_id: paymentIntentId ?? null,
+      _environment: env,
+    });
+    if (error) {
+      console.error("[stripe-webhook] fulfill_escrow_payment_stripe failed:", error);
+      throw error;
+    }
+
+    const { data: escrowRow } = await getSupabase()
+      .schema("shared")
+      .from("marketplace_escrows")
+      .select("title, client_name, amount_thb, freelancer_user_id")
+      .eq("id", escrowId)
+      .maybeSingle();
+
+    const freelancerId = escrowRow?.freelancer_user_id ?? userId;
+    await enqueueEmail({
+      userId: freelancerId,
+      templateName: "deposit-received",
+      templateData: {
+        recipientName: "คุณ",
+        clientName: escrowRow?.client_name ?? "ลูกค้า",
+        projectName: escrowRow?.title ?? "งาน Escrow",
+        paymentType: "escrow",
+        amount: `฿${Math.round(escrowRow?.amount_thb ?? 0).toLocaleString("th-TH")}`,
+        note: "ลูกค้าชำระผ่าน Escrow — เงินอยู่ในระบบจนอนุมัติงาน",
+        actionUrl: "https://solofreelancer.com/dashboard?tab=finance",
+      },
+      idempotencyKey: `escrow-funded-${session.id}`,
+    });
+
+    await logPaymentNotification({
+      userId: freelancerId,
+      eventType: "escrow.funded",
+      env,
+      amountCents: session.amount_total ?? null,
+      currency: session.currency ?? null,
+      priceId,
+      message: "ลูกค้าชำระ Escrow แล้ว — เงินอยู่ในระบบ",
+      metadata: { sessionId: session.id, escrowId },
+    });
+    return;
+  }
+
   if (kind === "client_job") {
     const jobId = session.metadata?.jobId;
     const paymentType = session.metadata?.paymentType;
@@ -578,6 +691,9 @@ export const Route = createFileRoute("/api/public/payments/webhook")({
   server: {
     handlers: {
       POST: async ({ request }) => {
+        const limited = guardIpRateLimit(request, IP_RATE_LIMITS.webhook);
+        if (limited) return limited;
+
         const rawEnv = new URL(request.url).searchParams.get("env");
         if (rawEnv !== "sandbox" && rawEnv !== "live") {
           console.error("[stripe-webhook] invalid env:", rawEnv);

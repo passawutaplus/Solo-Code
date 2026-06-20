@@ -70,6 +70,16 @@ export function DealDrawer({
                 มีสิทธิลิขสิทธิ์
               </span>
             )}
+            {(q.signatureMode === "online" || q.signatureMode === "wet") && !q.clientSignedAt && (
+              <span className={cnBadge("bg-amber-50 text-amber-900 border-amber-200")}>
+                รอลูกค้าเซ็น
+              </span>
+            )}
+            {q.clientSignedAt && (
+              <span className={cnBadge("bg-emerald-50 text-emerald-800 border-emerald-200")}>
+                ลูกค้าเซ็นแล้ว
+              </span>
+            )}
           </div>
 
           <div className="grid grid-cols-2 gap-2 text-sm">

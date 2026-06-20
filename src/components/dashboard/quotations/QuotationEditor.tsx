@@ -28,6 +28,7 @@ import {
   ImageIcon,
   StickyNote,
   Coins,
+  PenLine,
   Users,
 } from "lucide-react";
 import { StickyToolbar, type ToolbarAction } from "../shared/StickyToolbar";
@@ -35,7 +36,7 @@ import { SettingsPanel } from "./SettingsPanel";
 import { ServicesPanel } from "./ServicesPanel";
 import { TimelinePanel } from "./TimelinePanel";
 import { PreviewPanel } from "./PreviewPanel";
-import { QuotationFormCard, QuotationCollapsibleBlock } from "./QuotationFormCard";
+import { EscrowQuotationActions } from "./EscrowQuotationActions";
 import { QuotationHeaderBannerField } from "./QuotationHeaderBannerField";
 import { QuotationCollaboratorsPanel } from "./QuotationCollaboratorsPanel";
 import { useQuotationCollaborators } from "@/hooks/useQuotationCollaborators";
@@ -45,6 +46,7 @@ import {
   type QuotationExportChoice,
 } from "./QuotationExportOptionsDialog";
 import { ShareTrackerDialog } from "./ShareTrackerDialog";
+import { ShareSignLinkDialog } from "./ShareSignLinkDialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/auth/AuthProvider";
 import { toast } from "sonner";
@@ -57,7 +59,7 @@ interface Props {
 export function QuotationEditor({ id, onBack }: Props) {
   const { get, update, markPdfExported, advanceStatus, isLoading } = useQuotations();
   const { upsertIncomeFromQuotation, removeIncomeBySource } = useFinance();
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const q = get(id);
   const { data: collabs = [] } = useQuotationCollaborators(
     q?.quotationKind && q.quotationKind !== "solo" ? q.id : undefined,
@@ -75,9 +77,12 @@ export function QuotationEditor({ id, onBack }: Props) {
   const [exportChoice, setExportChoice] = React.useState<QuotationExportChoice>({
     includeBrief: false,
     includeTimeline: false,
+    signatureMode: "none",
+    includeFreelancerSignature: false,
   });
 
   const [shareOpen, setShareOpen] = React.useState(false);
+  const [signShareOpen, setSignShareOpen] = React.useState(false);
   const [shareInfo, setShareInfo] = React.useState<{
     share_token: string;
     tracking_code: string;
@@ -170,21 +175,49 @@ export function QuotationEditor({ id, onBack }: Props) {
 
   function handleExportConfirm(choice: QuotationExportChoice) {
     if (!q) return;
-    setExportChoice(choice);
-    markPdfExported(q.id);
-    if (q.status === "draft") {
-      toast.success("เลื่อนสถานะเป็น 'รออนุมัติ' · กำลังเตรียมไฟล์ PDF...");
-    } else {
-      toast.info("กำลังเตรียมไฟล์ PDF...");
+    const patch: Partial<Quotation> = {
+      signatureMode: choice.signatureMode,
+      includeFreelancerSignature: choice.includeFreelancerSignature,
+    };
+    if (
+      (choice.signatureMode === "online" || choice.signatureMode === "wet") &&
+      !q.signShareToken
+    ) {
+      patch.signShareToken = crypto.randomUUID();
     }
-    setAutoPrint(true);
-    setMockupOpen(true);
+    void update(q.id, patch).then(() => {
+      setExportChoice(choice);
+      markPdfExported(q.id);
+      if (q.status === "draft") {
+        toast.success("เลื่อนสถานะเป็น 'รออนุมัติ' · กำลังเตรียมไฟล์ PDF...");
+      } else {
+        toast.info("กำลังเตรียมไฟล์ PDF...");
+      }
+      setAutoPrint(true);
+      setMockupOpen(true);
+      if (choice.signatureMode === "online" || choice.signatureMode === "wet") {
+        setSignShareOpen(true);
+      }
+    });
   }
 
   function handlePreviewConfirm(choice: QuotationExportChoice) {
-    setExportChoice(choice);
-    setAutoPrint(false);
-    setMockupOpen(true);
+    if (!q) return;
+    const patch: Partial<Quotation> = {
+      signatureMode: choice.signatureMode,
+      includeFreelancerSignature: choice.includeFreelancerSignature,
+    };
+    if (
+      (choice.signatureMode === "online" || choice.signatureMode === "wet") &&
+      !q.signShareToken
+    ) {
+      patch.signShareToken = crypto.randomUUID();
+    }
+    void update(q.id, patch).then(() => {
+      setExportChoice(choice);
+      setAutoPrint(false);
+      setMockupOpen(true);
+    });
   }
 
   function handleAdvance(next: QuotationStatus) {
@@ -330,6 +363,18 @@ export function QuotationEditor({ id, onBack }: Props) {
       title: "สร้าง/เปิดลิงก์ติดตามงานสำหรับลูกค้า (แนบใบบรีฟ + ใบเสนอราคา)",
     });
   }
+  if (
+    (q.signatureMode === "online" || q.signatureMode === "wet") &&
+    q.signShareToken
+  ) {
+    primaryActions.push({
+      label: "แชร์ลิงก์เซ็น",
+      onClick: () => setSignShareOpen(true),
+      icon: <PenLine className="h-4 w-4" />,
+      variant: "secondary",
+      title: "คัดลอกหรือส่งลิงก์ /sign/ ให้ลูกค้าเซ็น",
+    });
+  }
   primaryActions.push({
     label: "บันทึก PDF",
     onClick: handlePrint,
@@ -368,6 +413,7 @@ export function QuotationEditor({ id, onBack }: Props) {
           </span>
         </div>
         <SettingsPanel q={q} patch={patch} sections={["project", "brief", "payment", "due"]} />
+        <EscrowQuotationActions quotation={q} />
       </QuotationFormCard>
 
       <QuotationFormCard
@@ -543,6 +589,9 @@ export function QuotationEditor({ id, onBack }: Props) {
         onOpenChange={setExportOpen}
         hasBrief={!!q.briefId}
         hasTimeline={!!(q.startDate || q.endDate || (q.milestones && q.milestones.length > 0))}
+        hasFreelancerSignature={!!profile?.signature_url}
+        initialSignatureMode={q.signatureMode ?? "none"}
+        initialIncludeFreelancerSignature={!!q.includeFreelancerSignature}
         onConfirm={handleExportConfirm}
         mode="export"
       />
@@ -552,6 +601,9 @@ export function QuotationEditor({ id, onBack }: Props) {
         onOpenChange={setPreviewOptionsOpen}
         hasBrief={!!q.briefId}
         hasTimeline={!!(q.startDate || q.endDate || (q.milestones && q.milestones.length > 0))}
+        hasFreelancerSignature={!!profile?.signature_url}
+        initialSignatureMode={q.signatureMode ?? "none"}
+        initialIncludeFreelancerSignature={!!q.includeFreelancerSignature}
         onConfirm={handlePreviewConfirm}
         mode="preview"
       />
@@ -567,7 +619,12 @@ export function QuotationEditor({ id, onBack }: Props) {
           setMockupOpen(o);
           if (!o) {
             setAutoPrint(false);
-            setExportChoice({ includeBrief: false, includeTimeline: false });
+            setExportChoice({
+              includeBrief: false,
+              includeTimeline: false,
+              signatureMode: q.signatureMode ?? "none",
+              includeFreelancerSignature: !!q.includeFreelancerSignature,
+            });
           }
         }}
       />
@@ -581,6 +638,16 @@ export function QuotationEditor({ id, onBack }: Props) {
           hasBrief={!!q.briefId}
           hasQuotation={true}
           isNew={shareInfo.isNew}
+        />
+      )}
+
+      {q.signShareToken && (
+        <ShareSignLinkDialog
+          open={signShareOpen}
+          onOpenChange={setSignShareOpen}
+          signShareToken={q.signShareToken}
+          quotationNumber={q.number}
+          clientEmail={q.clientEmail}
         />
       )}
     </div>

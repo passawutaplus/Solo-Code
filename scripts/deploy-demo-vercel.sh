@@ -18,7 +18,7 @@ npx vercel whoami
 
 if [[ ! -f .vercel/project.json ]]; then
   echo "→ Linking project (first time)…"
-  npx vercel link --yes --project=solo-demo-liart
+  npx vercel link --yes --project=solo-demo
 fi
 
 # shellcheck disable=SC1091

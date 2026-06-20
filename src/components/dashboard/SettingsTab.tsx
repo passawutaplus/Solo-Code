@@ -19,6 +19,7 @@ import { SettingsQuickLinksSection } from "@/components/dashboard/settings/Setti
 import { DisplayThemeSection } from "@/components/dashboard/settings/DisplayThemeSection";
 import { DocumentBrandingSection } from "@/components/dashboard/settings/DocumentBrandingSection";
 import { PaymentSettingsSection } from "@/components/dashboard/settings/PaymentSettingsSection";
+import { SignatureSettingsSection } from "@/components/dashboard/settings/SignatureSettingsSection";
 import { TierMembershipCard } from "@/components/tier/TierMembershipCard";
 
 interface FormState {
@@ -341,6 +342,8 @@ export function SettingsTab() {
       </Card>
 
       <PaymentSettingsSection />
+
+      <SignatureSettingsSection />
 
       <SettingsQuickLinksSection />
 

@@ -264,7 +264,7 @@ export async function purgeUserStorageCategory(
   if (category === "photos") {
     await supabaseAdmin
       .from("profiles")
-      .update({ logo_url: null, payment_qr_url: null })
+      .update({ logo_url: null, payment_qr_url: null, signature_url: null })
       .eq("user_id", userId);
   }
 

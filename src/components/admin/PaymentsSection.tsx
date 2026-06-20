@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { AdminEscrowPanel } from "@/components/dashboard/admin/AdminEscrowPanel";
 
 type PaymentRow = {
   id: string;
@@ -109,6 +110,7 @@ export function PaymentsSection() {
           )}
         </CardContent>
       </Card>
+      <AdminEscrowPanel />
     </div>
   );
 }

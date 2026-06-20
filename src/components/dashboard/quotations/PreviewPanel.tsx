@@ -16,6 +16,7 @@ import {
   type ResolvedDocumentTheme,
 } from "@/lib/documentTheme";
 import { issuerFromQuotation } from "@/lib/quotationKinds";
+import { EsignDisclaimer } from "@/components/legal/EsignDisclaimer";
 
 interface Props {
   q: Quotation;
@@ -78,6 +79,12 @@ export function PreviewPanel({
   const issuerPhone = issuer?.phone ?? profile?.phone;
   const issuerEmail = issuer?.email ?? profile?.email;
   const issuerTaxId = issuer?.taxId ?? profile?.tax_id;
+  const signatureMode = q.signatureMode ?? "none";
+  const showFreelancerSig =
+    q.includeFreelancerSignature &&
+    (signatureMode === "embedded" || signatureMode === "online") &&
+    profile?.signature_url;
+  const showClientSigArea = signatureMode === "online" || signatureMode === "wet";
   const { colors } = docTheme;
   void docAccentForKind(colors, docKind);
   const accent = colors.primary;
@@ -442,16 +449,60 @@ export function PreviewPanel({
         <div className="grid grid-cols-2 gap-8 pt-3">
           <div>
             <p className="text-[10px] text-neutral-500">เตรียมโดย</p>
-            <p className="text-[12px] font-semibold text-neutral-900 mt-0.5">
-              {profile?.brand_name || profile?.display_name || "So1o Freelancer"}
-            </p>
+            <p className="text-[12px] font-semibold text-neutral-900 mt-0.5">{brandName}</p>
           </div>
-          <div className="pt-3">
+          <div />
+        </div>
+        <div className="grid grid-cols-2 gap-8 pt-2">
+          <div className="pt-2 min-h-[72px]">
+            <div className="border-t border-neutral-400 pt-1">
+              <p className="text-[10px] text-neutral-500">ลงนามลูกค้า</p>
+              {showClientSigArea && q.clientSignedAt ? (
+                <div className="mt-1">
+                  {q.clientSignatureUrl && q.clientSignMethod === "draw" ? (
+                    <img
+                      src={q.clientSignatureUrl}
+                      alt="ลายเซ็นลูกค้า"
+                      className="h-12 max-w-[140px] object-contain"
+                    />
+                  ) : q.signedDocumentUrl ? (
+                    <p className="text-[10px] text-neutral-600">เอกสารเซ็นแล้ว (wet sign)</p>
+                  ) : null}
+                  <p className="text-[11px] font-medium text-neutral-800 mt-1">
+                    {q.clientSignerName ?? q.clientName}
+                  </p>
+                  <p className="text-[9px] text-neutral-500">
+                    {fmtThaiShort(q.clientSignedAt)}
+                  </p>
+                </div>
+              ) : showClientSigArea ? (
+                <p className="text-[10px] text-neutral-400 mt-4 italic">รอลูกค้าเซ็น</p>
+              ) : (
+                <div className="h-10 mt-2" />
+              )}
+            </div>
+          </div>
+          <div className="pt-2 min-h-[72px]">
             <div className="border-t border-neutral-400 pt-1 text-right">
               <p className="text-[10px] text-neutral-500">ลงนามผู้เสนอราคา</p>
+              {showFreelancerSig ? (
+                <img
+                  src={profile!.signature_url!}
+                  alt="ลายเซ็นผู้เสนอราคา"
+                  className="h-12 max-w-[140px] object-contain ml-auto mt-1"
+                />
+              ) : (
+                <div className="h-10 mt-2" />
+              )}
             </div>
           </div>
         </div>
+
+        {signatureMode !== "none" && (
+          <div className="pt-2 print:text-[8px]">
+            <EsignDisclaimer variant="tool" className="text-[9px] py-1.5 px-2 border-neutral-200 bg-neutral-50" />
+          </div>
+        )}
 
         {/* ── USAGE RIGHTS ── */}
         {usageRights && docKind === "quotation" && (

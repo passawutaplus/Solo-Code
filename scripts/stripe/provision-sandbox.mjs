@@ -108,6 +108,26 @@ const CATALOG = [
       { lookup_key: "px_10000", unit_amount: 1000000, currency: "thb" },
     ],
   },
+  {
+    catalogKey: "an1hem_boost",
+    productName: "an1hem Post Boost",
+    productDescription: "Self-serve boost for portfolio or community posts",
+    prices: [
+      { lookup_key: "boost_99_3d", unit_amount: 9900, currency: "thb" },
+      { lookup_key: "boost_249_7d", unit_amount: 24900, currency: "thb" },
+      { lookup_key: "boost_499_14d", unit_amount: 49900, currency: "thb" },
+    ],
+  },
+  {
+    catalogKey: "an1hem_ads",
+    productName: "an1hem Brand Ads",
+    productDescription: "Sponsored brand/product campaigns (admin reviewed)",
+    prices: [
+      { lookup_key: "ad_basic", unit_amount: 99000, currency: "thb" },
+      { lookup_key: "ad_standard", unit_amount: 249000, currency: "thb" },
+      { lookup_key: "ad_premium", unit_amount: 590000, currency: "thb" },
+    ],
+  },
 ];
 
 const ALL_LOOKUP_KEYS = CATALOG.flatMap((g) => g.prices.map((p) => p.lookup_key));

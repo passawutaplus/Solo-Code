@@ -36,7 +36,9 @@ import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as VisionTokenRouteImport } from './routes/vision.$token'
 import { Route as TrackTokenRouteImport } from './routes/track.$token'
 import { Route as SupplierTokenRouteImport } from './routes/supplier.$token'
+import { Route as SignTokenRouteImport } from './routes/sign.$token'
 import { Route as PlannerTokenRouteImport } from './routes/planner.$token'
+import { Route as PayTokenRouteImport } from './routes/pay.$token'
 import { Route as PSlugRouteImport } from './routes/p.$slug'
 import { Route as LicenseTokenRouteImport } from './routes/license.$token'
 import { Route as InhouseOrgSlugRouteImport } from './routes/inhouse.$orgSlug'
@@ -78,6 +80,7 @@ import { Route as ApiPublicCronPaymentRemindersRouteImport } from './routes/api/
 import { Route as ApiPublicCronMeetingCaptureCleanupRouteImport } from './routes/api/public/cron/meeting-capture-cleanup'
 import { Route as ApiPublicCronFetchDailyTrendsRouteImport } from './routes/api/public/cron/fetch-daily-trends'
 import { Route as ApiPublicCronDeadlineRemindersRouteImport } from './routes/api/public/cron/deadline-reminders'
+import { Route as ApiPaymentsEscrowReleaseRouteImport } from './routes/api/payments/escrow/release'
 import { Route as ApiPaymentsConnectOnboardRouteImport } from './routes/api/payments/connect/onboard'
 import { Route as ApiPaymentsCashoutProcessRouteImport } from './routes/api/payments/cashout/process'
 
@@ -216,9 +219,19 @@ const SupplierTokenRoute = SupplierTokenRouteImport.update({
   path: '/supplier/$token',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SignTokenRoute = SignTokenRouteImport.update({
+  id: '/sign/$token',
+  path: '/sign/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PlannerTokenRoute = PlannerTokenRouteImport.update({
   id: '/planner/$token',
   path: '/planner/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PayTokenRoute = PayTokenRouteImport.update({
+  id: '/pay/$token',
+  path: '/pay/$token',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PSlugRoute = PSlugRouteImport.update({
@@ -441,6 +454,12 @@ const ApiPublicCronDeadlineRemindersRoute =
     path: '/api/public/cron/deadline-reminders',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPaymentsEscrowReleaseRoute =
+  ApiPaymentsEscrowReleaseRouteImport.update({
+    id: '/api/payments/escrow/release',
+    path: '/api/payments/escrow/release',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPaymentsConnectOnboardRoute =
   ApiPaymentsConnectOnboardRouteImport.update({
     id: '/api/payments/connect/onboard',
@@ -495,7 +514,9 @@ export interface FileRoutesByFullPath {
   '/inhouse/$orgSlug': typeof InhouseOrgSlugRouteWithChildren
   '/license/$token': typeof LicenseTokenRoute
   '/p/$slug': typeof PSlugRoute
+  '/pay/$token': typeof PayTokenRoute
   '/planner/$token': typeof PlannerTokenRoute
+  '/sign/$token': typeof SignTokenRoute
   '/supplier/$token': typeof SupplierTokenRoute
   '/track/$token': typeof TrackTokenRouteWithChildren
   '/vision/$token': typeof VisionTokenRoute
@@ -510,6 +531,7 @@ export interface FileRoutesByFullPath {
   '/track/$token/checkout': typeof TrackTokenCheckoutRoute
   '/api/payments/cashout/process': typeof ApiPaymentsCashoutProcessRoute
   '/api/payments/connect/onboard': typeof ApiPaymentsConnectOnboardRoute
+  '/api/payments/escrow/release': typeof ApiPaymentsEscrowReleaseRoute
   '/api/public/cron/deadline-reminders': typeof ApiPublicCronDeadlineRemindersRoute
   '/api/public/cron/fetch-daily-trends': typeof ApiPublicCronFetchDailyTrendsRoute
   '/api/public/cron/meeting-capture-cleanup': typeof ApiPublicCronMeetingCaptureCleanupRoute
@@ -568,7 +590,9 @@ export interface FileRoutesByTo {
   '/inhouse/$orgSlug': typeof InhouseOrgSlugRouteWithChildren
   '/license/$token': typeof LicenseTokenRoute
   '/p/$slug': typeof PSlugRoute
+  '/pay/$token': typeof PayTokenRoute
   '/planner/$token': typeof PlannerTokenRoute
+  '/sign/$token': typeof SignTokenRoute
   '/supplier/$token': typeof SupplierTokenRoute
   '/track/$token': typeof TrackTokenRouteWithChildren
   '/vision/$token': typeof VisionTokenRoute
@@ -583,6 +607,7 @@ export interface FileRoutesByTo {
   '/track/$token/checkout': typeof TrackTokenCheckoutRoute
   '/api/payments/cashout/process': typeof ApiPaymentsCashoutProcessRoute
   '/api/payments/connect/onboard': typeof ApiPaymentsConnectOnboardRoute
+  '/api/payments/escrow/release': typeof ApiPaymentsEscrowReleaseRoute
   '/api/public/cron/deadline-reminders': typeof ApiPublicCronDeadlineRemindersRoute
   '/api/public/cron/fetch-daily-trends': typeof ApiPublicCronFetchDailyTrendsRoute
   '/api/public/cron/meeting-capture-cleanup': typeof ApiPublicCronMeetingCaptureCleanupRoute
@@ -642,7 +667,9 @@ export interface FileRoutesById {
   '/inhouse/$orgSlug': typeof InhouseOrgSlugRouteWithChildren
   '/license/$token': typeof LicenseTokenRoute
   '/p/$slug': typeof PSlugRoute
+  '/pay/$token': typeof PayTokenRoute
   '/planner/$token': typeof PlannerTokenRoute
+  '/sign/$token': typeof SignTokenRoute
   '/supplier/$token': typeof SupplierTokenRoute
   '/track/$token': typeof TrackTokenRouteWithChildren
   '/vision/$token': typeof VisionTokenRoute
@@ -657,6 +684,7 @@ export interface FileRoutesById {
   '/track/$token/checkout': typeof TrackTokenCheckoutRoute
   '/api/payments/cashout/process': typeof ApiPaymentsCashoutProcessRoute
   '/api/payments/connect/onboard': typeof ApiPaymentsConnectOnboardRoute
+  '/api/payments/escrow/release': typeof ApiPaymentsEscrowReleaseRoute
   '/api/public/cron/deadline-reminders': typeof ApiPublicCronDeadlineRemindersRoute
   '/api/public/cron/fetch-daily-trends': typeof ApiPublicCronFetchDailyTrendsRoute
   '/api/public/cron/meeting-capture-cleanup': typeof ApiPublicCronMeetingCaptureCleanupRoute
@@ -717,7 +745,9 @@ export interface FileRouteTypes {
     | '/inhouse/$orgSlug'
     | '/license/$token'
     | '/p/$slug'
+    | '/pay/$token'
     | '/planner/$token'
+    | '/sign/$token'
     | '/supplier/$token'
     | '/track/$token'
     | '/vision/$token'
@@ -732,6 +762,7 @@ export interface FileRouteTypes {
     | '/track/$token/checkout'
     | '/api/payments/cashout/process'
     | '/api/payments/connect/onboard'
+    | '/api/payments/escrow/release'
     | '/api/public/cron/deadline-reminders'
     | '/api/public/cron/fetch-daily-trends'
     | '/api/public/cron/meeting-capture-cleanup'
@@ -790,7 +821,9 @@ export interface FileRouteTypes {
     | '/inhouse/$orgSlug'
     | '/license/$token'
     | '/p/$slug'
+    | '/pay/$token'
     | '/planner/$token'
+    | '/sign/$token'
     | '/supplier/$token'
     | '/track/$token'
     | '/vision/$token'
@@ -805,6 +838,7 @@ export interface FileRouteTypes {
     | '/track/$token/checkout'
     | '/api/payments/cashout/process'
     | '/api/payments/connect/onboard'
+    | '/api/payments/escrow/release'
     | '/api/public/cron/deadline-reminders'
     | '/api/public/cron/fetch-daily-trends'
     | '/api/public/cron/meeting-capture-cleanup'
@@ -863,7 +897,9 @@ export interface FileRouteTypes {
     | '/inhouse/$orgSlug'
     | '/license/$token'
     | '/p/$slug'
+    | '/pay/$token'
     | '/planner/$token'
+    | '/sign/$token'
     | '/supplier/$token'
     | '/track/$token'
     | '/vision/$token'
@@ -878,6 +914,7 @@ export interface FileRouteTypes {
     | '/track/$token/checkout'
     | '/api/payments/cashout/process'
     | '/api/payments/connect/onboard'
+    | '/api/payments/escrow/release'
     | '/api/public/cron/deadline-reminders'
     | '/api/public/cron/fetch-daily-trends'
     | '/api/public/cron/meeting-capture-cleanup'
@@ -926,7 +963,9 @@ export interface RootRouteChildren {
   EmailUnsubscribeRoute: typeof EmailUnsubscribeRoute
   LicenseTokenRoute: typeof LicenseTokenRoute
   PSlugRoute: typeof PSlugRoute
+  PayTokenRoute: typeof PayTokenRoute
   PlannerTokenRoute: typeof PlannerTokenRoute
+  SignTokenRoute: typeof SignTokenRoute
   SupplierTokenRoute: typeof SupplierTokenRoute
   TrackTokenRoute: typeof TrackTokenRouteWithChildren
   VisionTokenRoute: typeof VisionTokenRoute
@@ -937,6 +976,7 @@ export interface RootRouteChildren {
   LovableEmailSuppressionRoute: typeof LovableEmailSuppressionRoute
   ApiPaymentsCashoutProcessRoute: typeof ApiPaymentsCashoutProcessRoute
   ApiPaymentsConnectOnboardRoute: typeof ApiPaymentsConnectOnboardRoute
+  ApiPaymentsEscrowReleaseRoute: typeof ApiPaymentsEscrowReleaseRoute
   ApiPublicCronDeadlineRemindersRoute: typeof ApiPublicCronDeadlineRemindersRoute
   ApiPublicCronFetchDailyTrendsRoute: typeof ApiPublicCronFetchDailyTrendsRoute
   ApiPublicCronMeetingCaptureCleanupRoute: typeof ApiPublicCronMeetingCaptureCleanupRoute
@@ -1141,11 +1181,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SupplierTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/sign/$token': {
+      id: '/sign/$token'
+      path: '/sign/$token'
+      fullPath: '/sign/$token'
+      preLoaderRoute: typeof SignTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/planner/$token': {
       id: '/planner/$token'
       path: '/planner/$token'
       fullPath: '/planner/$token'
       preLoaderRoute: typeof PlannerTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pay/$token': {
+      id: '/pay/$token'
+      path: '/pay/$token'
+      fullPath: '/pay/$token'
+      preLoaderRoute: typeof PayTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/p/$slug': {
@@ -1435,6 +1489,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicCronDeadlineRemindersRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/payments/escrow/release': {
+      id: '/api/payments/escrow/release'
+      path: '/api/payments/escrow/release'
+      fullPath: '/api/payments/escrow/release'
+      preLoaderRoute: typeof ApiPaymentsEscrowReleaseRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/payments/connect/onboard': {
       id: '/api/payments/connect/onboard'
       path: '/api/payments/connect/onboard'
@@ -1584,7 +1645,9 @@ const rootRouteChildren: RootRouteChildren = {
   EmailUnsubscribeRoute: EmailUnsubscribeRoute,
   LicenseTokenRoute: LicenseTokenRoute,
   PSlugRoute: PSlugRoute,
+  PayTokenRoute: PayTokenRoute,
   PlannerTokenRoute: PlannerTokenRoute,
+  SignTokenRoute: SignTokenRoute,
   SupplierTokenRoute: SupplierTokenRoute,
   TrackTokenRoute: TrackTokenRouteWithChildren,
   VisionTokenRoute: VisionTokenRoute,
@@ -1595,6 +1658,7 @@ const rootRouteChildren: RootRouteChildren = {
   LovableEmailSuppressionRoute: LovableEmailSuppressionRoute,
   ApiPaymentsCashoutProcessRoute: ApiPaymentsCashoutProcessRoute,
   ApiPaymentsConnectOnboardRoute: ApiPaymentsConnectOnboardRoute,
+  ApiPaymentsEscrowReleaseRoute: ApiPaymentsEscrowReleaseRoute,
   ApiPublicCronDeadlineRemindersRoute: ApiPublicCronDeadlineRemindersRoute,
   ApiPublicCronFetchDailyTrendsRoute: ApiPublicCronFetchDailyTrendsRoute,
   ApiPublicCronMeetingCaptureCleanupRoute:

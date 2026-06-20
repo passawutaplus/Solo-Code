@@ -47,6 +47,9 @@ export interface QuotationMilestone {
 
 export type DepositPreset = 30 | 50 | 70 | 100;
 
+export type SignatureMode = "none" | "embedded" | "online" | "wet";
+export type ClientSignMethod = "draw" | "full_document";
+
 export interface Quotation {
   id: string;
   number: string;
@@ -103,6 +106,17 @@ export interface Quotation {
   studioSnapshot?: IssuerSnapshot | null;
   inhouseWorkspaceId?: string;
   ownerUserId?: string;
+  signatureMode?: SignatureMode;
+  includeFreelancerSignature?: boolean;
+  signShareToken?: string;
+  clientSignerName?: string;
+  clientSignatureUrl?: string;
+  clientSignedAt?: string;
+  clientSignMethod?: ClientSignMethod;
+  clientSignerIp?: string;
+  clientSignerUserAgent?: string;
+  signedDocumentUrl?: string;
+  signatureConsentVersion?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -170,6 +184,17 @@ interface QuotationRow {
   studio_id?: string | null;
   studio_snapshot?: unknown;
   inhouse_workspace_id?: string | null;
+  signature_mode?: string;
+  include_freelancer_signature?: boolean;
+  sign_share_token?: string | null;
+  client_signer_name?: string | null;
+  client_signature_url?: string | null;
+  client_signed_at?: string | null;
+  client_sign_method?: string | null;
+  client_signer_ip?: string | null;
+  client_signer_user_agent?: string | null;
+  signed_document_url?: string | null;
+  signature_consent_version?: string | null;
 }
 
 export function rowToQuotation(r: QuotationRow): Quotation {
@@ -231,6 +256,17 @@ export function rowToQuotation(r: QuotationRow): Quotation {
     studioSnapshot: (r.studio_snapshot as IssuerSnapshot | null) ?? undefined,
     inhouseWorkspaceId: r.inhouse_workspace_id ?? undefined,
     ownerUserId: r.user_id,
+    signatureMode: (r.signature_mode as SignatureMode) || "none",
+    includeFreelancerSignature: !!r.include_freelancer_signature,
+    signShareToken: r.sign_share_token ?? undefined,
+    clientSignerName: r.client_signer_name ?? undefined,
+    clientSignatureUrl: r.client_signature_url ?? undefined,
+    clientSignedAt: r.client_signed_at ?? undefined,
+    clientSignMethod: (r.client_sign_method as ClientSignMethod) ?? undefined,
+    clientSignerIp: r.client_signer_ip ?? undefined,
+    clientSignerUserAgent: r.client_signer_user_agent ?? undefined,
+    signedDocumentUrl: r.signed_document_url ?? undefined,
+    signatureConsentVersion: r.signature_consent_version ?? undefined,
     createdAt: r.created_at,
     updatedAt: r.updated_at,
   };
@@ -285,6 +321,17 @@ function quotationToRow(q: Quotation, userId: string) {
     studio_id: q.studioId ?? null,
     studio_snapshot: q.studioSnapshot ?? null,
     inhouse_workspace_id: q.inhouseWorkspaceId ?? null,
+    signature_mode: q.signatureMode ?? "none",
+    include_freelancer_signature: !!q.includeFreelancerSignature,
+    sign_share_token: q.signShareToken ?? null,
+    client_signer_name: q.clientSignerName ?? null,
+    client_signature_url: q.clientSignatureUrl ?? null,
+    client_signed_at: q.clientSignedAt ?? null,
+    client_sign_method: q.clientSignMethod ?? null,
+    client_signer_ip: q.clientSignerIp ?? null,
+    client_signer_user_agent: q.clientSignerUserAgent ?? null,
+    signed_document_url: q.signedDocumentUrl ?? null,
+    signature_consent_version: q.signatureConsentVersion ?? null,
   };
 }
 
@@ -342,6 +389,8 @@ export function makeBlankQuotation(num: string): Quotation {
     paidPartial: 0,
     timelineEnabled: true,
     quotationKind: "solo",
+    signatureMode: "none",
+    includeFreelancerSignature: false,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   };
@@ -467,6 +516,15 @@ export function useQuotations() {
         receiptIssuedAt: undefined,
         paidAt: undefined,
         pdfExportedAt: undefined,
+        signShareToken: undefined,
+        clientSignerName: undefined,
+        clientSignatureUrl: undefined,
+        clientSignedAt: undefined,
+        clientSignMethod: undefined,
+        signedDocumentUrl: undefined,
+        signatureConsentVersion: undefined,
+        signatureMode: "none",
+        includeFreelancerSignature: false,
       };
       const { data, error } = await supabase
         .from("quotations")

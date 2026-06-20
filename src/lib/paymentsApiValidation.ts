@@ -12,6 +12,8 @@ export const checkoutApiInput = z.object({
   successUrl: z.string().url().max(500),
   cancelUrl: z.string().url().max(500),
   quantity: z.number().int().min(1).max(50).optional(),
+  boostId: z.string().uuid().optional(),
+  applicationId: z.string().uuid().optional(),
 });
 
 export const connectOnboardApiInput = z.object({
@@ -24,6 +26,15 @@ export const cashoutProcessApiInput = z.object({
   cashoutId: z.string().uuid(),
   environment: paymentsEnvSchema.optional(),
 });
+
+export const escrowReleaseApiInput = z.object({
+  escrowId: z.string().uuid(),
+  environment: paymentsEnvSchema.optional(),
+});
+
+export function parseEscrowReleaseApiBody(body: unknown) {
+  return escrowReleaseApiInput.parse(body);
+}
 
 export function parseCheckoutApiBody(body: unknown) {
   return checkoutApiInput.parse(body);
@@ -39,7 +50,7 @@ export function parseCashoutProcessApiBody(body: unknown) {
 
 export const clientCheckoutApiInput = z.object({
   token: z.string().uuid(),
-  paymentType: z.enum(["deposit", "final"]),
+  paymentType: z.enum(["deposit", "final", "escrow"]).optional(),
   environment: paymentsEnvSchema.optional(),
   successUrl: z.string().url().max(500).optional(),
   cancelUrl: z.string().url().max(500).optional(),
@@ -53,19 +64,27 @@ const STATIC_ALLOWED_ORIGINS = [
   "https://solofreelancer.com",
   "https://www.solofreelancer.com",
   "https://so1o-freelancer-managment.lovable.app",
+  "https://an1hem.app",
+  "https://www.an1hem.app",
+  "https://1px-demo.vercel.app",
+  "https://pixel100.com",
   "http://localhost:5173",
   "http://localhost:3000",
+  "http://localhost:8080",
   "http://127.0.0.1:5173",
   "http://127.0.0.1:3000",
+  "http://127.0.0.1:8080",
 ] as const;
 
 const LOVABLE_PREVIEW_ORIGIN_RE = /^https:\/\/([a-z0-9-]+\.)*lovable\.app$/i;
+/** Vercel preview deployments for an1hem / 1px-demo. */
+const VERCEL_ANTHEM_PREVIEW_ORIGIN_RE = /^https:\/\/(1px-demo|an1hem)[a-z0-9-]*\.vercel\.app$/i;
 
 /** Origins permitted for Stripe checkout / portal / Connect redirect URLs. */
 export function getAllowedPaymentRedirectOrigins(): string[] {
   const origins = new Set<string>(STATIC_ALLOWED_ORIGINS);
 
-  for (const key of ["SITE_URL", "VITE_SITE_URL"] as const) {
+  for (const key of ["SITE_URL", "VITE_SITE_URL", "VITE_ANTHEM_APP_URL", "ANTHEM_APP_URL"] as const) {
     const raw = process.env[key]?.trim();
     if (!raw) continue;
     try {
@@ -93,7 +112,9 @@ export function getAllowedPaymentRedirectOrigins(): string[] {
 
 function isAllowedPaymentRedirectOrigin(origin: string): boolean {
   if (getAllowedPaymentRedirectOrigins().includes(origin)) return true;
-  return LOVABLE_PREVIEW_ORIGIN_RE.test(origin);
+  if (LOVABLE_PREVIEW_ORIGIN_RE.test(origin)) return true;
+  if (VERCEL_ANTHEM_PREVIEW_ORIGIN_RE.test(origin)) return true;
+  return false;
 }
 
 /**

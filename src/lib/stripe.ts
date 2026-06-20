@@ -28,6 +28,12 @@ export const PRICE_IDS = {
   px_500: "px_500",
   px_2000: "px_2000",
   px_10000: "px_10000",
+  boost_99_3d: "boost_99_3d",
+  boost_249_7d: "boost_249_7d",
+  boost_499_14d: "boost_499_14d",
+  ad_basic: "ad_basic",
+  ad_standard: "ad_standard",
+  ad_premium: "ad_premium",
 } as const;
 
 export type PriceId = (typeof PRICE_IDS)[keyof typeof PRICE_IDS];
@@ -54,15 +60,45 @@ export function isPxPrice(priceId: string): boolean {
   return priceId.startsWith("px_");
 }
 
-export function isOneTimePrice(priceId: string): boolean {
-  return isCreditsPrice(priceId) || isPxPrice(priceId);
+export function isBoostPrice(priceId: string): boolean {
+  return priceId.startsWith("boost_");
 }
 
-export type CheckoutKind = "subscription" | "credits" | "px" | "client_job";
+export function isAdPrice(priceId: string): boolean {
+  return priceId.startsWith("ad_");
+}
+
+export function isOneTimePrice(priceId: string): boolean {
+  return (
+    isCreditsPrice(priceId) ||
+    isPxPrice(priceId) ||
+    isBoostPrice(priceId) ||
+    isAdPrice(priceId)
+  );
+}
+
+export type CheckoutKind = "subscription" | "credits" | "px" | "client_job" | "boost" | "ad" | "escrow";
 
 export function checkoutKind(priceId: string): CheckoutKind {
   if (priceId.startsWith("client_job_")) return "client_job";
+  if (priceId.startsWith("escrow_")) return "escrow";
+  if (isBoostPrice(priceId)) return "boost";
+  if (isAdPrice(priceId)) return "ad";
   if (isPxPrice(priceId)) return "px";
   if (isCreditsPrice(priceId)) return "credits";
   return "subscription";
 }
+
+/** Boost package metadata (THB). */
+export const BOOST_PACKAGES = {
+  boost_99_3d: { package: "micro_3", amountThb: 99, days: 3 },
+  boost_249_7d: { package: "micro_7", amountThb: 249, days: 7 },
+  boost_499_14d: { package: "micro_14", amountThb: 499, days: 14 },
+} as const;
+
+/** Ad brand campaign prices (THB). */
+export const AD_STRIPE_PRICES = {
+  ad_basic: { package: "basic", amountThb: 990 },
+  ad_standard: { package: "standard", amountThb: 2490 },
+  ad_premium: { package: "premium", amountThb: 5900 },
+} as const;
