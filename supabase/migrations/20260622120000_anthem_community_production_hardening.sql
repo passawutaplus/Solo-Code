@@ -367,6 +367,22 @@ $publication$;
 
 ALTER TABLE anthem.community_post_views
   ADD COLUMN IF NOT EXISTS view_day date NOT NULL DEFAULT current_date;
+
+WITH ranked_views AS (
+  SELECT
+    id,
+    row_number() OVER (
+      PARTITION BY post_id, user_id, view_day
+      ORDER BY created_at ASC, id ASC
+    ) AS duplicate_rank
+  FROM anthem.community_post_views
+  WHERE user_id IS NOT NULL
+)
+DELETE FROM anthem.community_post_views views
+USING ranked_views ranked
+WHERE views.id = ranked.id
+  AND ranked.duplicate_rank > 1;
+
 CREATE UNIQUE INDEX IF NOT EXISTS uq_community_post_user_daily_view
   ON anthem.community_post_views (post_id, user_id, view_day)
   WHERE user_id IS NOT NULL;
