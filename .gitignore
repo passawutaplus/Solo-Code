@@ -11,6 +11,9 @@ node_modules
 bin/supabase
 dist
 dist-ssr
+test-results
+playwright-report
+*.tsbuildinfo
 .output
 .vinxi
 .tanstack/**
@@ -37,3 +40,7 @@ dist-ssr
 *.sln
 *.sw?
 .vercel
+supabase/.temp/
+supabase/.deploy-payloads/
+supabase/.mcp-payload.json
+supabase/.tmp-*
