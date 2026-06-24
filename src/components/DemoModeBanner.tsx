@@ -8,14 +8,15 @@ import { cn } from "@/lib/utils";
 const DISMISS_KEY = "so1o.demo-banner.dismissed";
 
 export function DemoModeBanner() {
-  const [dismissed, setDismissed] = React.useState(() => {
-    if (typeof window === "undefined") return false;
+  const [dismissed, setDismissed] = React.useState(false);
+
+  React.useEffect(() => {
     try {
-      return sessionStorage.getItem(DISMISS_KEY) === "1";
+      setDismissed(sessionStorage.getItem(DISMISS_KEY) === "1");
     } catch {
-      return false;
+      setDismissed(false);
     }
-  });
+  }, []);
 
   if (!isDemoMode() || dismissed) return null;
 

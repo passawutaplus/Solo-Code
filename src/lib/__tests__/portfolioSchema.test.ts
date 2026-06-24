@@ -48,9 +48,9 @@ describe("portfolioSchema", () => {
       if (!r.ok) expect(r.reason).toMatch(/สงวน/);
     });
 
-    it("rejects invalid characters", () => {
+    it("normalizes invalid characters", () => {
       const r = validateSlug("hello_world");
-      expect(r.ok).toBe(false);
+      expect(r).toEqual({ ok: true, slug: "hello-world" });
     });
   });
 

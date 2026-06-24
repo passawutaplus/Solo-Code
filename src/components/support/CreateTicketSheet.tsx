@@ -63,7 +63,7 @@ export function CreateTicketForm({
         </div>
         <h3 className="font-semibold text-gray-900 mb-1">เข้าสู่ระบบเพื่อแจ้งปัญหา</h3>
         <p className="text-sm text-gray-500 mb-4">ระบบจะออกเลขตั๋วให้ติดตามสถานะได้</p>
-        <Link to="/auth">
+        <Link to="/auth" search={{ redirect: undefined }}>
           <Button style={{ background: "#FF5F05" }} className="text-white hover:opacity-90">
             เข้าสู่ระบบ
           </Button>

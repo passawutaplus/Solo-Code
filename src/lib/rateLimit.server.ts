@@ -60,6 +60,10 @@ export function guardIpRateLimit(request: Request, opts: IpRateLimitOptions): Re
 export const IP_RATE_LIMITS = {
   cspReport: { key: "csp-report", limit: 30, windowMs: 60_000 },
   clientCheckout: { key: "client-checkout", limit: 20, windowMs: 60_000 },
+  authenticatedCheckout: { key: "authenticated-checkout", limit: 12, windowMs: 60_000 },
+  connectOnboard: { key: "connect-onboard", limit: 10, windowMs: 60_000 },
+  escrowRelease: { key: "escrow-release", limit: 6, windowMs: 60_000 },
+  cashoutProcess: { key: "cashout-process", limit: 6, windowMs: 60_000 },
   assistantStream: { key: "assistant-stream", limit: 30, windowMs: 60_000 },
   webhook: { key: "stripe-webhook", limit: 120, windowMs: 60_000 },
 } as const satisfies Record<string, IpRateLimitOptions>;

@@ -4,9 +4,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/auth/AuthProvider";
 import type { InhouseChannel, InhouseMessage } from "@/lib/inhouse/types";
 
-const inhouseFrom = (table: string) =>
-  (supabase as unknown as { from: (t: string) => ReturnType<typeof supabase.from> }).from(table);
-
 async function enrichMessages(messages: InhouseMessage[]): Promise<InhouseMessage[]> {
   const senderIds = [...new Set(messages.map((m) => m.sender_id))];
   if (senderIds.length === 0) return messages;
@@ -31,7 +28,8 @@ export function useInhouseChannels(workspaceId: string | undefined) {
     queryKey: ["inhouse-channels", workspaceId],
     enabled: !!workspaceId,
     queryFn: async () => {
-      const { data, error } = await inhouseFrom("inhouse_channels")
+      const { data, error } = await supabase
+        .from("inhouse_channels")
         .select("*")
         .eq("workspace_id", workspaceId!)
         .order("created_at", { ascending: true });
@@ -48,7 +46,8 @@ export function useInhouseMessages(channelId: string | undefined) {
     queryKey: ["inhouse-messages", channelId],
     enabled: !!channelId,
     queryFn: async () => {
-      const { data, error } = await inhouseFrom("inhouse_messages")
+      const { data, error } = await supabase
+        .from("inhouse_messages")
         .select("*")
         .eq("channel_id", channelId!)
         .order("created_at", { ascending: true })
@@ -87,7 +86,8 @@ export function useSendInhouseMessage(orgId: string) {
 
   return useMutation({
     mutationFn: async (opts: { channelId: string; workspaceId: string; body: string }) => {
-      const { data, error } = await inhouseFrom("inhouse_messages")
+      const { data, error } = await supabase
+        .from("inhouse_messages")
         .insert({
           channel_id: opts.channelId,
           sender_id: user!.id,

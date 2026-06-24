@@ -4,9 +4,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/auth/AuthProvider";
 import type { InhouseWorkspace } from "@/lib/inhouse/types";
 
-const inhouseFrom = (table: string) =>
-  (supabase as unknown as { from: (t: string) => ReturnType<typeof supabase.from> }).from(table);
-
 export function useInhouseWorkspaces(orgId: string | undefined) {
   const queryClient = useQueryClient();
 
@@ -14,7 +11,8 @@ export function useInhouseWorkspaces(orgId: string | undefined) {
     queryKey: ["inhouse-workspaces", orgId],
     enabled: !!orgId,
     queryFn: async () => {
-      const { data, error } = await inhouseFrom("inhouse_workspaces")
+      const { data, error } = await supabase
+        .from("inhouse_workspaces")
         .select("*")
         .eq("org_id", orgId!)
         .is("archived_at", null)
@@ -50,14 +48,16 @@ export function useInhouseWorkspace(
     queryKey: ["inhouse-workspace", orgSlug, workspaceSlug],
     enabled: !!orgSlug && !!workspaceSlug,
     queryFn: async () => {
-      const { data: org, error: orgErr } = await inhouseFrom("inhouse_orgs")
+      const { data: org, error: orgErr } = await supabase
+        .from("inhouse_orgs")
         .select("id")
         .eq("slug", orgSlug!)
         .maybeSingle();
       if (orgErr) throw orgErr;
       if (!org) return null;
 
-      const { data, error } = await inhouseFrom("inhouse_workspaces")
+      const { data, error } = await supabase
+        .from("inhouse_workspaces")
         .select("*")
         .eq("org_id", org.id)
         .eq("slug", workspaceSlug!)
@@ -81,7 +81,8 @@ export function useCreateInhouseWorkspace() {
           .replace(/[^a-z0-9]+/g, "-")
           .replace(/^-|-$/g, "") || "workspace";
 
-      const { data: ws, error } = await inhouseFrom("inhouse_workspaces")
+      const { data: ws, error } = await supabase
+        .from("inhouse_workspaces")
         .insert({
           org_id: opts.orgId,
           name: opts.name.trim(),
@@ -93,13 +94,14 @@ export function useCreateInhouseWorkspace() {
         .single();
       if (error) throw error;
 
-      await inhouseFrom("inhouse_channels").insert({
+      await supabase.from("inhouse_channels").insert({
         workspace_id: ws.id,
         name: "general",
         is_default: true,
       });
 
-      const { data: ownerMember } = await inhouseFrom("inhouse_org_members")
+      const { data: ownerMember } = await supabase
+        .from("inhouse_org_members")
         .select("id")
         .eq("org_id", opts.orgId)
         .eq("user_id", user!.id)
@@ -107,7 +109,7 @@ export function useCreateInhouseWorkspace() {
         .maybeSingle();
 
       if (ownerMember) {
-        await inhouseFrom("inhouse_workspace_members").insert({
+        await supabase.from("inhouse_workspace_members").insert({
           workspace_id: ws.id,
           org_member_id: ownerMember.id,
         });
@@ -139,11 +141,14 @@ export function useUpdateInhouseWorkspace() {
       description?: string | null;
       settings?: InhouseWorkspace["settings"];
     }) => {
-      const patch: Record<string, unknown> = { updated_at: new Date().toISOString() };
+      const patch: Partial<Pick<InhouseWorkspace, "name" | "description" | "settings">> & {
+        updated_at: string;
+      } = { updated_at: new Date().toISOString() };
       if (opts.name !== undefined) patch.name = opts.name;
       if (opts.description !== undefined) patch.description = opts.description;
       if (opts.settings !== undefined) patch.settings = opts.settings;
-      const { data, error } = await inhouseFrom("inhouse_workspaces")
+      const { data, error } = await supabase
+        .from("inhouse_workspaces")
         .update(patch)
         .eq("id", opts.id)
         .select("*")
@@ -163,7 +168,8 @@ export function useArchiveInhouseWorkspace() {
 
   return useMutation({
     mutationFn: async (opts: { id: string; orgId: string }) => {
-      const { error } = await inhouseFrom("inhouse_workspaces")
+      const { error } = await supabase
+        .from("inhouse_workspaces")
         .update({ archived_at: new Date().toISOString() })
         .eq("id", opts.id);
       if (error) throw error;
@@ -184,7 +190,8 @@ export function useCreateWorkspaceFromQuotation() {
         name: opts.title,
         description: `Linked to quotation ${opts.quotationId}`,
       });
-      await inhouseFrom("inhouse_workspaces")
+      await supabase
+        .from("inhouse_workspaces")
         .update({ linked_quotation_id: opts.quotationId })
         .eq("id", ws.id);
       return ws;

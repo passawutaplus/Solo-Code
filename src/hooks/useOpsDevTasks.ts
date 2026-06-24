@@ -40,7 +40,7 @@ export function useOpsDevTasks() {
 
       if (error) throw error;
       return {
-        project: project as { id: string; name: string },
+        project: project as unknown as { id: string; name: string },
         tasks: (data ?? []) as OpsDevTask[],
       };
     },

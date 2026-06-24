@@ -39,6 +39,7 @@ import { PreviewPanel } from "./PreviewPanel";
 import { EscrowQuotationActions } from "./EscrowQuotationActions";
 import { QuotationHeaderBannerField } from "./QuotationHeaderBannerField";
 import { QuotationCollaboratorsPanel } from "./QuotationCollaboratorsPanel";
+import { QuotationCollapsibleBlock, QuotationFormCard } from "./QuotationFormCard";
 import { useQuotationCollaborators } from "@/hooks/useQuotationCollaborators";
 import { QuotationMockupDialog } from "./QuotationMockupDialog";
 import {

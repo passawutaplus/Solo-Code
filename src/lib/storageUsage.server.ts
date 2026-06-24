@@ -11,6 +11,8 @@ import type {
   UserStorageUsageResponse,
 } from "@/lib/storageUsage.types";
 
+const untypedSupabaseAdmin = supabaseAdmin as any;
+
 interface ListedFile {
   bucket: string;
   path: string;
@@ -138,7 +140,7 @@ async function countUserRows(
     | "notifications",
   userId: string,
 ): Promise<number> {
-  const { count, error } = await supabaseAdmin
+  const { count, error } = await untypedSupabaseAdmin
     .from(table)
     .select("id", { count: "exact", head: true })
     .eq("user_id", userId);
@@ -244,12 +246,12 @@ export async function purgeUserStorageCategory(
 
     let freed = 0;
     for (const table of tables) {
-      const { count } = await supabaseAdmin
+      const { count } = await untypedSupabaseAdmin
         .from(table)
         .select("id", { count: "exact", head: true })
         .eq("user_id", userId);
       const est = (count ?? 0) * (table === "ai_chat_messages" ? 2_500 : 600);
-      const { error } = await supabaseAdmin.from(table).delete().eq("user_id", userId);
+      const { error } = await untypedSupabaseAdmin.from(table).delete().eq("user_id", userId);
       if (error) throw error;
       freed += est;
     }

@@ -14,7 +14,13 @@ type Props = {
 /** Deep-link to Anthem project editor with prefill + ecosystem_links tracking. */
 export function PostToAnthemBanner({ jobId, jobTitle, clientName, previewImageUrl, tags }: Props) {
   const [href, setHref] = React.useState(() =>
-    anthemPortfolioNewUrl({ jobTitle, clientName, jobId, coverUrl: previewImageUrl, tags }),
+    anthemPortfolioNewUrl({
+      jobTitle,
+      clientName,
+      jobId,
+      coverUrl: previewImageUrl ?? undefined,
+      tags,
+    }),
   );
 
   React.useEffect(() => {
@@ -33,8 +39,8 @@ export function PostToAnthemBanner({ jobId, jobTitle, clientName, previewImageUr
           jobTitle,
           clientName,
           jobId,
-          linkId,
-          coverUrl: previewImageUrl,
+          linkId: linkId ?? undefined,
+          coverUrl: previewImageUrl ?? undefined,
           tags,
         }),
       );

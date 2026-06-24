@@ -122,7 +122,11 @@ export function LoginForm({
             <span />
           )}
           {showForgot && (
-            <Link to="/auth/forgot" className="text-xs text-primary hover:underline">
+            <Link
+              to="/auth/forgot"
+              search={{ redirect: undefined }}
+              className="text-xs text-primary hover:underline"
+            >
               ลืมรหัสผ่าน?
             </Link>
           )}

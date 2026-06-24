@@ -25,7 +25,21 @@ export function FinanceTab({ sub = "quotations", onMoneySubChange, onSubChange, 
     [onMoneySubChange],
   );
 
-  const navigateSub = React.useCallback((next: FinanceSub) => onSubChange?.(next), [onSubChange]);
+  const navigateSub = React.useCallback(
+    (next: string) => {
+      if (
+        next === "pipeline" ||
+        next === "quotations" ||
+        next === "tax" ||
+        next === "income" ||
+        next === "subs" ||
+        next === "jobs"
+      ) {
+        onSubChange?.(next);
+      }
+    },
+    [onSubChange],
+  );
 
   const openQuotation = React.useCallback(
     (id: string) => {

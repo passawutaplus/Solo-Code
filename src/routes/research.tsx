@@ -166,7 +166,9 @@ function ResearchPage() {
             ))}
           </div>
           <Button asChild className="rounded-full">
-            <Link to="/auth">ไปหน้าเข้าสู่ระบบ</Link>
+            <Link to="/auth" search={{ redirect: undefined }}>
+              ไปหน้าเข้าสู่ระบบ
+            </Link>
           </Button>
         </section>
 

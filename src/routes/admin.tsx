@@ -169,7 +169,7 @@ function AdminPage() {
   const handleSetActive = React.useCallback(
     (section: AdminSection) => {
       setActive(section);
-      void navigate({ to: "/admin", search: { section }, replace: true });
+      void navigate({ to: "/admin", search: { section, q: urlQuery }, replace: true });
     },
     [navigate],
   );

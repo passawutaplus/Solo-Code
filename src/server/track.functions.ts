@@ -15,6 +15,8 @@ const TokenSchema = z.object({ token: z.string().uuid() });
 const PUBLIC_JOB_COLUMNS =
   "id, share_token, tracking_code, title, client_name, status, current_step, progress_percent, total_amount, deposit_percent, amount_due, deposit_paid, final_paid, payment_info, final_file_url, preview_image_url, watermark_text, unlocked, notes, deadline, start_date, payment_qr_url, updated_at, quotation_id, brief_id";
 
+type SerializableValue = string | number | boolean | null;
+
 // ===== Server-side totals (mirror of store/quotations computeTotals) =====
 type QItem = { name?: string; unit?: string; quantity?: number; unitPrice?: number };
 type QPct = { enabled?: boolean; percent?: number; label?: string };
@@ -83,10 +85,11 @@ export const getPublicTrackingJob = createServerFn({ method: "GET" })
     if (!job)
       return { job: null, events: [], slips: [], quotation: null, brief: null, portal: null };
 
-    const jobData = job as Record<string, unknown>;
+    const jobData = job as Record<string, SerializableValue>;
     const ownerUserId = typeof jobData.user_id === "string" ? jobData.user_id : undefined;
-    const { user_id: _omit, ...publicJob } = jobData;
-    void _omit;
+    const publicJob = Object.fromEntries(
+      Object.entries(jobData).filter(([key]) => key !== "user_id"),
+    ) as Record<string, SerializableValue>;
     const jobRow = publicJob as unknown as {
       id: string;
       quotation_id: string | null;

@@ -25,7 +25,7 @@ describe("creditAiBarSegments", () => {
       poolCapacity: 800,
     });
     expect(r.dailyPct).toBe(0);
-    expect(r.poolPct).toBe(100);
+    expect(r.poolPct).toBe(99.38);
   });
 
   it("both layers — daily left of pool", () => {

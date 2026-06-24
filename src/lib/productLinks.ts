@@ -1,6 +1,7 @@
 /** External products in the So1o ecosystem (not hosted in this app). */
 export const ANTHEM_SHOWCASE_URL =
-  (import.meta.env.VITE_ANTHEM_APP_URL as string | undefined) ?? "http://localhost:8081/";
+  (import.meta.env.VITE_ANTHEM_APP_URL as string | undefined) ??
+  (import.meta.env.DEV ? "http://localhost:8081/" : "https://1px-demo.vercel.app/");
 
 const OPS_HUB_FALLBACK = import.meta.env.DEV
   ? "http://localhost:3090"

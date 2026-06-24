@@ -10,6 +10,7 @@ export const exportUserData = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { userId, supabase } = context;
+    const sharedSupabase = supabase.schema("shared") as any;
 
     const [profile, clients, quotations, jobs, expenses, incomes, kycRequests, payoutProfile] = await Promise.all([
       supabase.from("profiles").select("*").eq("user_id", userId).maybeSingle(),
@@ -18,8 +19,8 @@ export const exportUserData = createServerFn({ method: "GET" })
       supabase.from("job_trackers").select("*").eq("user_id", userId),
       supabase.from("finance_expenses").select("*").eq("user_id", userId),
       supabase.from("finance_incomes").select("*").eq("user_id", userId),
-      supabase.schema("shared").from("kyc_requests").select("*").eq("user_id", userId),
-      supabase.schema("shared").from("payout_profiles").select("*").eq("user_id", userId).maybeSingle(),
+      sharedSupabase.from("kyc_requests").select("*").eq("user_id", userId),
+      sharedSupabase.from("payout_profiles").select("*").eq("user_id", userId).maybeSingle(),
     ]);
 
     return {

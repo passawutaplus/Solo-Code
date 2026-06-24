@@ -24,5 +24,14 @@ export const acceptInhouseInviteFn = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data: unknown) => AcceptInhouseInviteSchema.parse(data))
   .handler(async ({ context, data }) => {
-    return acceptInhouseInviteWithNotify(data.token, context.userId, context.supabase);
+    return acceptInhouseInviteWithNotify(
+      data.token,
+      context.userId,
+      context.supabase as unknown as {
+        rpc: (
+          fn: string,
+          args: Record<string, string>,
+        ) => Promise<{ data: unknown; error: { message: string } | null }>;
+      },
+    );
   });

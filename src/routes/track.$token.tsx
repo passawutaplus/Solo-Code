@@ -172,6 +172,20 @@ type PublicBrief = {
   notes: string;
 };
 
+type PublicTrackingPayload = {
+  job: Job | null;
+  events: JobEvent[];
+  slips: Slip[];
+  quotation: PublicQuotation | null;
+  brief: PublicBrief | null;
+  portal: PortalBranding | null;
+  payments?: {
+    stripeEnabled: boolean;
+    deposit?: ClientPaymentEstimate;
+    final?: ClientPaymentEstimate;
+  };
+};
+
 function TrackPage() {
   const { token } = Route.useParams();
   const [job, setJob] = React.useState<Job | null>(null);
@@ -191,23 +205,23 @@ function TrackPage() {
 
   const load = React.useCallback(async () => {
     try {
-      const res = await getPublicTrackingJob({ data: { token } });
+      const res = (await getPublicTrackingJob({ data: { token } })) as PublicTrackingPayload;
       const j = res.job;
       if (!j) {
         setNotFound(true);
         setLoading(false);
         return;
       }
-      const jt = j as Job;
+      const jt = j;
       if (jt.unlocked && !prevUnlocked.current && job) celebrate();
       prevUnlocked.current = jt.unlocked;
       setJob(jt);
-      setEvents((res.events ?? []) as JobEvent[]);
-      setSlips((res.slips ?? []) as Slip[]);
-      setQuotation((res.quotation ?? null) as PublicQuotation | null);
-      setBrief((res.brief ?? null) as PublicBrief | null);
-      setPortal((res.portal ?? null) as PortalBranding | null);
-      setPayments((res.payments as typeof payments) ?? { stripeEnabled: false });
+      setEvents(res.events ?? []);
+      setSlips(res.slips ?? []);
+      setQuotation(res.quotation ?? null);
+      setBrief(res.brief ?? null);
+      setPortal(res.portal ?? null);
+      setPayments(res.payments ?? { stripeEnabled: false });
     } catch {
       setNotFound(true);
     } finally {

@@ -46,7 +46,7 @@ export function SupportChat() {
         <p className="text-sm text-gray-500 mb-4">
           ล็อกอินก่อนเพื่อคุยกับทีมงาน So1o ได้แบบเรียลไทม์
         </p>
-        <Link to="/login">
+        <Link to="/auth" search={{ redirect: undefined }}>
           <Button style={{ background: "#FF5F05" }} className="text-white hover:opacity-90">
             เข้าสู่ระบบ
           </Button>

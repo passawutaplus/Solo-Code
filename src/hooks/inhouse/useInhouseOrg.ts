@@ -5,10 +5,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/auth/AuthProvider";
 import { useSubscription } from "@/hooks/useSubscription";
 import { acceptInhouseInviteFn, createInhouseInviteFn } from "@/server/inhouseInvite.functions";
-import type { InhouseOrg, InhouseOrgMember } from "@/lib/inhouse/types";
-
-const inhouseFrom = (table: string) =>
-  (supabase as unknown as { from: (t: string) => ReturnType<typeof supabase.from> }).from(table);
+import type { InhouseInvite, InhouseOrg, InhouseOrgMember } from "@/lib/inhouse/types";
+import type { Json } from "@/integrations/supabase/types";
 
 async function fetchMemberProfiles(members: InhouseOrgMember[]): Promise<InhouseOrgMember[]> {
   const userIds = [...new Set(members.map((m) => m.user_id))];
@@ -32,8 +30,8 @@ async function fetchMemberProfiles(members: InhouseOrgMember[]): Promise<Inhouse
 
 export function useMyInhouseOrgs() {
   const { user } = useAuth();
-  const { profileTier } = useSubscription();
-  const isProInhouse = profileTier === "inhouse";
+  const { tier } = useSubscription();
+  const isProInhouse = tier === "inhouse";
 
   return useQuery({
     queryKey: ["inhouse-orgs", user?.id],
@@ -42,14 +40,16 @@ export function useMyInhouseOrgs() {
       const orgs: InhouseOrg[] = [];
 
       if (isProInhouse) {
-        const { data: owned, error: ownedErr } = await inhouseFrom("inhouse_orgs")
+        const { data: owned, error: ownedErr } = await supabase
+          .from("inhouse_orgs")
           .select("*")
           .eq("owner_id", user!.id);
         if (ownedErr && !ownedErr.message.includes("does not exist")) throw ownedErr;
         if (owned) orgs.push(...(owned as InhouseOrg[]));
       }
 
-      const { data: memberships, error: memErr } = await inhouseFrom("inhouse_org_members")
+      const { data: memberships, error: memErr } = await supabase
+        .from("inhouse_org_members")
         .select("org_id")
         .eq("user_id", user!.id)
         .eq("status", "active");
@@ -58,7 +58,8 @@ export function useMyInhouseOrgs() {
       const memberOrgIds = (memberships ?? []).map((m: { org_id: string }) => m.org_id);
       const missingIds = memberOrgIds.filter((id) => !orgs.some((o) => o.id === id));
       if (missingIds.length > 0) {
-        const { data: memberOrgs, error } = await inhouseFrom("inhouse_orgs")
+        const { data: memberOrgs, error } = await supabase
+          .from("inhouse_orgs")
           .select("*")
           .in("id", missingIds);
         if (error && !error.message.includes("does not exist")) throw error;
@@ -75,7 +76,8 @@ export function useInhouseOrgBySlug(orgSlug: string | undefined) {
     queryKey: ["inhouse-org", orgSlug],
     enabled: !!orgSlug,
     queryFn: async () => {
-      const { data, error } = await inhouseFrom("inhouse_orgs")
+      const { data, error } = await supabase
+        .from("inhouse_orgs")
         .select("*")
         .eq("slug", orgSlug!)
         .maybeSingle();
@@ -92,7 +94,8 @@ export function useInhouseOrgMembers(orgId: string | undefined) {
     queryKey: ["inhouse-members", orgId],
     enabled: !!orgId,
     queryFn: async () => {
-      const { data, error } = await inhouseFrom("inhouse_org_members")
+      const { data, error } = await supabase
+        .from("inhouse_org_members")
         .select("*")
         .eq("org_id", orgId!)
         .order("created_at", { ascending: true });
@@ -167,11 +170,24 @@ export function useUpdateInhouseOrg() {
       phone?: string | null;
       email?: string | null;
     }) => {
-      const patch: Record<string, unknown> = { updated_at: new Date().toISOString() };
+      const patch: {
+        name?: string;
+        avatar_url?: string | null;
+        settings?: Json;
+        document_theme?: Json;
+        brand_name?: string | null;
+        brand_tagline?: string | null;
+        legal_name?: string | null;
+        tax_id?: string | null;
+        address?: string | null;
+        phone?: string | null;
+        email?: string | null;
+        updated_at: string;
+      } = { updated_at: new Date().toISOString() };
       if (opts.name !== undefined) patch.name = opts.name;
       if (opts.avatar_url !== undefined) patch.avatar_url = opts.avatar_url;
-      if (opts.settings !== undefined) patch.settings = opts.settings;
-      if (opts.document_theme !== undefined) patch.document_theme = opts.document_theme;
+      if (opts.settings !== undefined) patch.settings = opts.settings as Json;
+      if (opts.document_theme !== undefined) patch.document_theme = opts.document_theme as Json;
       if (opts.brand_name !== undefined) patch.brand_name = opts.brand_name;
       if (opts.brand_tagline !== undefined) patch.brand_tagline = opts.brand_tagline;
       if (opts.legal_name !== undefined) patch.legal_name = opts.legal_name;
@@ -179,7 +195,8 @@ export function useUpdateInhouseOrg() {
       if (opts.address !== undefined) patch.address = opts.address;
       if (opts.phone !== undefined) patch.phone = opts.phone;
       if (opts.email !== undefined) patch.email = opts.email;
-      const { data, error } = await inhouseFrom("inhouse_orgs")
+      const { data, error } = await supabase
+        .from("inhouse_orgs")
         .update(patch)
         .eq("id", opts.id)
         .select("*")
@@ -199,7 +216,8 @@ export function useRemoveInhouseMember() {
 
   return useMutation({
     mutationFn: async (opts: { memberId: string; orgId: string }) => {
-      const { error } = await inhouseFrom("inhouse_org_members")
+      const { error } = await supabase
+        .from("inhouse_org_members")
         .update({ status: "removed", removed_at: new Date().toISOString() })
         .eq("id", opts.memberId)
         .eq("org_id", opts.orgId);
@@ -242,14 +260,15 @@ export function useInhouseInvites(orgId: string | undefined) {
     queryKey: ["inhouse-invites", orgId],
     enabled: !!orgId,
     queryFn: async () => {
-      const { data, error } = await inhouseFrom("inhouse_invites")
+      const { data, error } = await supabase
+        .from("inhouse_invites")
         .select("*")
         .eq("org_id", orgId!)
         .is("accepted_at", null)
         .gt("expires_at", new Date().toISOString())
         .order("created_at", { ascending: false });
       if (error) throw error;
-      return data ?? [];
+      return (data ?? []) as InhouseInvite[];
     },
   });
 }

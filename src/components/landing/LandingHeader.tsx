@@ -90,7 +90,7 @@ export function LandingHeader({ user, isAdmin, theme, onToggleTheme }: Props) {
           {isAdmin && (
             <Link
               to="/admin"
-              search={{ section: undefined }}
+              search={{ section: undefined, q: undefined }}
               className="hidden sm:inline-flex items-center gap-1.5 rounded-full bg-foreground text-background px-3 py-2 text-xs font-semibold hover:bg-foreground/90 transition-colors"
             >
               <ShieldCheck className="h-3.5 w-3.5" /> Admin
@@ -191,7 +191,7 @@ export function LandingHeader({ user, isAdmin, theme, onToggleTheme }: Props) {
                 {isAdmin && (
                   <Link
                     to="/admin"
-                    search={{ section: undefined }}
+                    search={{ section: undefined, q: undefined }}
                     className="px-3 py-2.5 rounded-lg hover:bg-accent transition-colors flex items-center gap-2.5"
                   >
                     <ShieldCheck className="h-4 w-4 text-primary" /> Admin

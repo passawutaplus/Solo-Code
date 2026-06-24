@@ -21,7 +21,12 @@ import {
 } from "@/lib/storageQuota";
 import { cn } from "@/lib/utils";
 
-const TIER_LABEL = { free: "Free", pro: "Pro", inhouse: "In-House" } as const;
+const TIER_LABEL = {
+  free: "Free",
+  pro: "Pro",
+  pro_plus: "Pro+",
+  inhouse: "In-House",
+} as const;
 
 const MANAGE_LINKS: Partial<Record<StorageCategoryKey, string>> = {
   documents: "/dashboard?tab=finance&sub=quotations",

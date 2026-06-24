@@ -55,6 +55,7 @@ function ResetPage() {
       <div className="ambient-blobs" aria-hidden="true" />
       <Link
         to="/auth"
+        search={{ redirect: undefined }}
         className="absolute top-4 left-4 inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
       >
         <ArrowLeft className="h-3.5 w-3.5" /> กลับไปเข้าสู่ระบบ

@@ -137,7 +137,7 @@ export function OnboardingChecklist({
             <button
               key={step.id}
               type="button"
-              onClick={() => onGo(step.tab, step.sub)}
+              onClick={() => onGo(step.tab, "sub" in step ? step.sub : undefined)}
               className={cn(
                 "w-full flex items-center gap-2 rounded-lg border px-3 py-2 text-left text-sm transition hover:bg-muted/50",
                 isDone && "opacity-70",

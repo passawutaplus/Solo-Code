@@ -4,9 +4,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/auth/AuthProvider";
 import type { InhouseTask } from "@/lib/inhouse/types";
 
-const inhouseFrom = (table: string) =>
-  (supabase as unknown as { from: (t: string) => ReturnType<typeof supabase.from> }).from(table);
-
 async function enrichTasks(tasks: InhouseTask[]): Promise<InhouseTask[]> {
   const assigneeIds = [...new Set(tasks.map((t) => t.assignee_id).filter(Boolean))] as string[];
   if (assigneeIds.length === 0) return tasks;
@@ -34,7 +31,8 @@ export function useInhouseTasks(workspaceId: string | undefined) {
     queryKey: ["inhouse-tasks", workspaceId],
     enabled: !!workspaceId,
     queryFn: async () => {
-      const { data, error } = await inhouseFrom("inhouse_tasks")
+      const { data, error } = await supabase
+        .from("inhouse_tasks")
         .select("*")
         .eq("workspace_id", workspaceId!)
         .order("position", { ascending: true });
@@ -79,7 +77,8 @@ export function useCreateInhouseTask(orgId: string) {
       priority?: string;
       dueDate?: string | null;
     }) => {
-      const { data: existing } = await inhouseFrom("inhouse_tasks")
+      const { data: existing } = await supabase
+        .from("inhouse_tasks")
         .select("position")
         .eq("workspace_id", opts.workspaceId)
         .eq("column_key", opts.columnKey ?? "todo")
@@ -87,7 +86,8 @@ export function useCreateInhouseTask(orgId: string) {
         .limit(1);
       const nextPos = ((existing?.[0] as { position?: number } | undefined)?.position ?? -1) + 1;
 
-      const { data, error } = await inhouseFrom("inhouse_tasks")
+      const { data, error } = await supabase
+        .from("inhouse_tasks")
         .insert({
           workspace_id: opts.workspaceId,
           title: opts.title.trim(),
@@ -138,7 +138,8 @@ export function useUpdateInhouseTask(orgId: string) {
       >;
       eventType?: string;
     }) => {
-      const { data, error } = await inhouseFrom("inhouse_tasks")
+      const { data, error } = await supabase
+        .from("inhouse_tasks")
         .update({ ...opts.patch, updated_at: new Date().toISOString() })
         .eq("id", opts.id)
         .select("*")
@@ -167,7 +168,7 @@ export function useDeleteInhouseTask(orgId: string) {
 
   return useMutation({
     mutationFn: async (opts: { id: string; workspaceId: string }) => {
-      const { error } = await inhouseFrom("inhouse_tasks").delete().eq("id", opts.id);
+      const { error } = await supabase.from("inhouse_tasks").delete().eq("id", opts.id);
       if (error) throw error;
       await supabase.rpc("log_inhouse_activity", {
         _org_id: orgId,

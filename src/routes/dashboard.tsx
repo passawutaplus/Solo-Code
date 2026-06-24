@@ -61,6 +61,10 @@ import { useDailyTrendsPrefetch } from "@/hooks/useDailyTrendsPrefetch";
 import { OnboardingFlow } from "@/components/onboarding/OnboardingFlow";
 import logoUrl from "@/assets/solo-freelancer-logo.webp";
 
+const untypedSupabase = supabase as unknown as {
+  from: (table: string) => any;
+};
+
 export const Route = createFileRoute("/dashboard")({
   head: () => ({
     meta: [
@@ -161,13 +165,14 @@ function Dashboard() {
     const sp = new URLSearchParams(window.location.search);
     return sp.get("sub") ?? undefined;
   });
-  const updateSection = React.useCallback((next: DashSection, nextSub?: string) => {
-    setSection(next);
-    const resolvedSub = nextSub ?? DEFAULT_SUBS[next];
+  const updateSection = React.useCallback((next: DashSection | string, nextSub?: string) => {
+    const resolvedSection = parseDashSection(next);
+    setSection(resolvedSection);
+    const resolvedSub = nextSub ?? DEFAULT_SUBS[resolvedSection];
     setSub(resolvedSub);
     if (typeof window !== "undefined") {
       const url = new URL(window.location.href);
-      url.searchParams.set("tab", next);
+      url.searchParams.set("tab", resolvedSection);
       if (resolvedSub) url.searchParams.set("sub", resolvedSub);
       else url.searchParams.delete("sub");
       window.history.replaceState({}, "", url.toString());
@@ -245,7 +250,7 @@ function Dashboard() {
       let requestId = params.requestId;
 
       if (params.requestId) {
-        const { data: hire } = await supabase
+        const { data: hire } = await untypedSupabase
           .from("hiring_requests")
           .select("id, client_name, email, phone, message, deadline, project_title, budget_amount")
           .eq("id", params.requestId)
@@ -283,7 +288,7 @@ function Dashboard() {
         const ownsLink =
           !requestId ||
           (
-            await supabase
+            await untypedSupabase
               .from("hiring_requests")
               .select("id")
               .eq("id", requestId)

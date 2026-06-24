@@ -76,7 +76,9 @@ function AuthCallbackPage() {
         <button
           type="button"
           className="text-sm text-primary underline"
-          onClick={() => navigate({ to: "/auth", replace: true })}
+          onClick={() =>
+            navigate({ to: "/auth", search: { redirect: undefined }, replace: true })
+          }
         >
           กลับไปหน้าเข้าสู่ระบบ
         </button>

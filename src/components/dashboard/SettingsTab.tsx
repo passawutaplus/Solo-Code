@@ -323,7 +323,7 @@ export function SettingsTab() {
                   variant="outline"
                   className="gap-1.5 w-full sm:w-auto border-primary/40 text-foreground"
                 >
-                  <Link to="/admin">
+                  <Link to="/admin" search={{ section: undefined, q: undefined }}>
                     <ShieldCheck className="h-3.5 w-3.5" /> เข้าหน้า Admin
                   </Link>
                 </Button>

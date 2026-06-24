@@ -493,16 +493,19 @@ export async function processEscrowRelease(opts: {
     if (!accountId) return { error: "ฟรีแลนซ์ยังไม่ได้เชื่อม Stripe Connect" };
 
     const stripe = createStripeClient(opts.environment);
-    const transfer = await stripe.transfers.create({
-      amount: thbToStripeCents(escrow.net_payout_thb),
-      currency: "thb",
-      destination: accountId,
-      metadata: {
-        escrowId: escrow.id,
-        userId: escrow.freelancer_user_id,
-        kind: "escrow_release",
+    const transfer = await stripe.transfers.create(
+      {
+        amount: thbToStripeCents(escrow.net_payout_thb),
+        currency: "thb",
+        destination: accountId,
+        metadata: {
+          escrowId: escrow.id,
+          userId: escrow.freelancer_user_id,
+          kind: "escrow_release",
+        },
       },
-    });
+      { idempotencyKey: `escrow-release:${opts.environment}:${escrow.id}` },
+    );
 
     const { error: markErr } = await sb.rpc("mark_escrow_released_stripe", {
       _escrow_id: escrow.id,
@@ -748,10 +751,13 @@ export async function processCashoutTransferForAdmin(opts: {
     }
 
     const claimToken = `claim:${crypto.randomUUID()}`;
-    await sb.rpc("mark_cashout_processing", {
+    const { error: claimRpcError } = await sb.rpc("mark_cashout_processing", {
       _cashout_id: opts.cashoutId,
       _stripe_transfer_id: claimToken,
     });
+    if (claimRpcError) {
+      return { error: claimRpcError.message };
+    }
 
     const { data: claimed, error: claimErr } = await shared
       .from("cashout_requests")
@@ -784,17 +790,20 @@ export async function processCashoutTransferForAdmin(opts: {
     const stripe = createStripeClient(opts.environment);
     const amountSatang = Math.round(claimed.net_px * 100);
 
-    const transfer = await stripe.transfers.create({
-      amount: amountSatang,
-      currency: "thb",
-      destination: accountId,
-      metadata: {
-        cashoutId: claimed.id,
-        userId: claimed.user_id,
-        grossPx: String(claimed.gross_px),
-        netPx: String(claimed.net_px),
+    const transfer = await stripe.transfers.create(
+      {
+        amount: amountSatang,
+        currency: "thb",
+        destination: accountId,
+        metadata: {
+          cashoutId: claimed.id,
+          userId: claimed.user_id,
+          grossPx: String(claimed.gross_px),
+          netPx: String(claimed.net_px),
+        },
       },
-    });
+      { idempotencyKey: `cashout:${opts.environment}:${claimed.id}` },
+    );
 
     await sb.rpc("mark_cashout_processing", {
       _cashout_id: claimed.id,

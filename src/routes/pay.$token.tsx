@@ -7,6 +7,16 @@ import { Loader2, ShieldCheck, CreditCard, ThumbsUp, AlertTriangle } from "lucid
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
+const escrowRpc = (fn: string, args?: Record<string, unknown>) =>
+  (
+    supabase as unknown as {
+      rpc: (
+        fn: string,
+        args?: Record<string, unknown>,
+      ) => Promise<{ data: unknown; error: Error | null }>;
+    }
+  ).rpc(fn, args);
+
 export const Route = createFileRoute("/pay/$token")({
   head: ({ params }) => ({
     meta: [
@@ -51,7 +61,7 @@ function EscrowPayPage() {
   const load = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase.rpc("get_escrow_by_portal_token", {
+      const { data, error } = await escrowRpc("get_escrow_by_portal_token", {
         _portal_token: token,
       });
       if (error) throw error;
@@ -93,7 +103,7 @@ function EscrowPayPage() {
   const approve = async () => {
     setActing(true);
     try {
-      const { error } = await supabase.rpc("client_approve_escrow", { _portal_token: token });
+      const { error } = await escrowRpc("client_approve_escrow", { _portal_token: token });
       if (error) throw error;
       toast.success("อนุมัติงานแล้ว — ระบบจะปล่อยเงินให้ฟรีแลนซ์");
       await load();
@@ -108,7 +118,7 @@ function EscrowPayPage() {
     const reason = window.prompt("เหตุผลที่แจ้งข้อพิพาท (ถ้ามี)") ?? "";
     setActing(true);
     try {
-      const { error } = await supabase.rpc("client_dispute_escrow", {
+      const { error } = await escrowRpc("client_dispute_escrow", {
         _portal_token: token,
         _reason: reason,
       });

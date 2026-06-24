@@ -67,7 +67,7 @@ async function probeFeedbackTicketFields(): Promise<{ status: ProbeStatus; detai
 
 async function probeActivityFeedRpc(): Promise<{ status: ProbeStatus; detail?: string }> {
   const { error } = await (
-    supabase as {
+    supabase as unknown as {
       rpc: (
         fn: string,
         args: object,
@@ -167,7 +167,7 @@ async function probeQuotationCollabColumns(): Promise<{ status: ProbeStatus; det
 
 async function probeCoeditRlsHelpers(): Promise<{ status: ProbeStatus; detail?: string }> {
   const { error } = await (
-    supabase as {
+    supabase as unknown as {
       rpc: (
         fn: string,
         args: object,

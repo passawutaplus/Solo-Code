@@ -84,7 +84,23 @@ export function OverviewTab({ onGo }: OverviewTabProps) {
         unreadNotif: notifRes.count || 0,
         clients: clientsRes.count || 0,
         quotations: quotesRes.count || 0,
-        recentNotif: recentRes.data || [],
+        recentNotif: (recentRes.data ?? []).flatMap((notification) =>
+          notification.id &&
+          notification.message &&
+          notification.type &&
+          notification.created_at &&
+          notification.read !== null
+            ? [
+                {
+                  id: notification.id,
+                  message: notification.message,
+                  type: notification.type,
+                  created_at: notification.created_at,
+                  read: notification.read,
+                },
+              ]
+            : [],
+        ),
       });
     })();
 
