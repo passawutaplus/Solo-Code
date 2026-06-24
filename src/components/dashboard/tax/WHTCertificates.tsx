@@ -58,12 +58,13 @@ export function WHTCertificates() {
     try {
       for (let i = 0; i < files.length; i++) {
         const f = files[i];
+        let previewUrl: string | undefined;
         setProgress({ current: i + 1, total: files.length });
         try {
           let blob: Blob = f;
           let contentType = f.type || "application/octet-stream";
           let ext = (f.name.split(".").pop() ?? "bin").toLowerCase();
-          const previewUrl = URL.createObjectURL(f);
+          previewUrl = URL.createObjectURL(f);
           if (f.type.startsWith("image/") && f.type !== "image/svg+xml") {
             const dataUrl = await compressImageFile(f);
             blob = dataUrlToBlob(dataUrl);
@@ -111,7 +112,7 @@ export function WHTCertificates() {
           }
         } catch (e) {
           failCount++;
-          URL.revokeObjectURL(previewUrl);
+          if (previewUrl) URL.revokeObjectURL(previewUrl);
           toast.error(`อัปโหลด ${f.name} ไม่สำเร็จ: ${e instanceof Error ? e.message : ""}`);
         }
       }

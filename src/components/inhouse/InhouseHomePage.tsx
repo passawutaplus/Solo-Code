@@ -25,9 +25,6 @@ import { canCreateInhouseOrg, inhouseWorkspacePath } from "@/lib/inhouseAccess";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
-const inhouseFrom = (table: string) =>
-  (supabase as unknown as { from: (t: string) => ReturnType<typeof supabase.from> }).from(table);
-
 function OrgCard({ orgSlug, orgName, orgId }: { orgSlug: string; orgName: string; orgId: string }) {
   const { data: workspaces = [], isLoading } = useInhouseWorkspaces(orgId);
 
@@ -72,7 +69,7 @@ function OrgCard({ orgSlug, orgName, orgId }: { orgSlug: string; orgName: string
 export function InhouseHomePage() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { profileTier } = useSubscription();
+  const { tier } = useSubscription();
   const { data: orgs = [], isLoading } = useMyInhouseOrgs();
   const { data: pendingInvites = [] } = usePendingInhouseInvites();
   const acceptInvite = useAcceptInhouseInvite();
@@ -81,7 +78,7 @@ export function InhouseHomePage() {
   const [orgName, setOrgName] = React.useState("");
   const [wsName, setWsName] = React.useState("General");
 
-  const canCreate = canCreateInhouseOrg(profileTier);
+  const canCreate = canCreateInhouseOrg(tier);
   const ownedOrg = orgs.find((o) => o.owner_id === user?.id);
 
   const handleCreate = async () => {
@@ -96,8 +93,13 @@ export function InhouseHomePage() {
       setOrgName("");
 
       const [{ data: org }, { data: ws }] = await Promise.all([
-        inhouseFrom("inhouse_orgs").select("slug").eq("id", orgId).maybeSingle(),
-        inhouseFrom("inhouse_workspaces").select("slug").eq("org_id", orgId).limit(1).maybeSingle(),
+        supabase.from("inhouse_orgs").select("slug").eq("id", orgId).maybeSingle(),
+        supabase
+          .from("inhouse_workspaces")
+          .select("slug")
+          .eq("org_id", orgId)
+          .limit(1)
+          .maybeSingle(),
       ]);
       if (org?.slug && ws?.slug) {
         navigate({ to: inhouseWorkspacePath(org.slug, ws.slug) });

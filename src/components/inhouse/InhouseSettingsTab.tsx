@@ -83,12 +83,12 @@ export function InhouseSettingsTab({ org }: Props) {
 
   const handleInvite = async () => {
     try {
-      const inv = await createInvite.mutateAsync({
+      const inv = (await createInvite.mutateAsync({
         orgId: org.id,
         email: inviteEmail.trim() || undefined,
         role: inviteRole as "member" | "admin" | "viewer",
         workspaceIds: workspaces.map((w) => w.id),
-      });
+      })) as { token: string };
       const url = `${window.location.origin}/inhouse/invite/${inv.token}`;
       setLastInviteUrl(url);
       await navigator.clipboard.writeText(url);

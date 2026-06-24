@@ -1,6 +1,25 @@
 import * as React from "react";
 
-type SpeechRecognitionCtor = new () => SpeechRecognition;
+type SpeechRecognitionResultLike = {
+  isFinal: boolean;
+  0?: { transcript?: string };
+};
+type SpeechRecognitionEventLike = {
+  resultIndex: number;
+  results: ArrayLike<SpeechRecognitionResultLike>;
+};
+type SpeechRecognitionLike = {
+  continuous: boolean;
+  interimResults: boolean;
+  lang: string;
+  onresult: ((event: SpeechRecognitionEventLike) => void) | null;
+  onerror: (() => void) | null;
+  onend: (() => void) | null;
+  start: () => void;
+  stop: () => void;
+};
+
+type SpeechRecognitionCtor = new () => SpeechRecognitionLike;
 
 function getSpeechRecognition(): SpeechRecognitionCtor | null {
   if (typeof window === "undefined") return null;
@@ -34,7 +53,7 @@ export function useLiveTranscription(active: boolean, lang = "th-TH") {
     rec.interimResults = true;
     rec.lang = lang;
 
-    rec.onresult = (event: SpeechRecognitionEvent) => {
+    rec.onresult = (event: SpeechRecognitionEventLike) => {
       let interim = "";
       let finals = "";
       for (let i = event.resultIndex; i < event.results.length; i++) {

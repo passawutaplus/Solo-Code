@@ -5,11 +5,9 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import type { InhouseCanvas, InhouseOrg, InhouseWorkspace } from "@/lib/inhouse/types";
+import type { InhouseOrg, InhouseWorkspace } from "@/lib/inhouse/types";
 import { toast } from "sonner";
-
-const inhouseFrom = (table: string) =>
-  (supabase as unknown as { from: (t: string) => ReturnType<typeof supabase.from> }).from(table);
+import type { Json } from "@/integrations/supabase/types";
 
 interface Props {
   org: InhouseOrg;
@@ -23,28 +21,30 @@ export function InhouseCanvasTab({ org, workspace }: Props) {
     initialData?: { elements?: unknown[]; appState?: Record<string, unknown> };
     onChange?: (elements: unknown[], appState: Record<string, unknown>) => void;
   }> | null>(null);
-  const saveTimer = React.useRef<ReturnType<typeof setTimeout>>();
+  const saveTimer = React.useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   const { data: canvases = [], isLoading } = useQuery({
     queryKey: ["inhouse-canvases", workspace.id],
     queryFn: async () => {
-      const { data, error } = await inhouseFrom("inhouse_canvases")
+      const { data, error } = await supabase
+        .from("inhouse_canvases")
         .select("*")
         .eq("workspace_id", workspace.id)
         .order("updated_at", { ascending: false });
       if (error) throw error;
-      return (data ?? []) as InhouseCanvas[];
+      return data ?? [];
     },
   });
 
   const createCanvas = useMutation({
     mutationFn: async (name: string) => {
-      const { data, error } = await inhouseFrom("inhouse_canvases")
+      const { data, error } = await supabase
+        .from("inhouse_canvases")
         .insert({ workspace_id: workspace.id, name, scene_data: { elements: [], appState: {} } })
         .select("*")
         .single();
       if (error) throw error;
-      return data as InhouseCanvas;
+      return data;
     },
     onSuccess: (c) => {
       qc.invalidateQueries({ queryKey: ["inhouse-canvases", workspace.id] });
@@ -54,8 +54,12 @@ export function InhouseCanvasTab({ org, workspace }: Props) {
 
   const saveCanvas = useMutation({
     mutationFn: async (opts: { id: string; scene_data: Record<string, unknown> }) => {
-      const { error } = await inhouseFrom("inhouse_canvases")
-        .update({ scene_data: opts.scene_data, updated_at: new Date().toISOString() })
+      const { error } = await supabase
+        .from("inhouse_canvases")
+        .update({
+          scene_data: opts.scene_data as Json,
+          updated_at: new Date().toISOString(),
+        })
         .eq("id", opts.id);
       if (error) throw error;
     },
@@ -185,7 +189,7 @@ export function InhouseCanvasTab({ org, workspace }: Props) {
             onBlur={async (e) => {
               const v = e.target.value.trim();
               if (v && v !== active.name) {
-                await inhouseFrom("inhouse_canvases").update({ name: v }).eq("id", active.id);
+                await supabase.from("inhouse_canvases").update({ name: v }).eq("id", active.id);
                 qc.invalidateQueries({ queryKey: ["inhouse-canvases", workspace.id] });
               }
             }}

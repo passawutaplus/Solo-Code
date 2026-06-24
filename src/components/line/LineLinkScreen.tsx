@@ -95,8 +95,8 @@ export function LineLinkScreen() {
           redirect_uri: lineOAuthRedirectUri(),
         });
         setLineMeta({
-          displayName: result.display_name,
-          pictureUrl: result.picture_url,
+          displayName: result.displayName,
+          pictureUrl: result.pictureUrl,
         });
         await refreshProfile();
         setPhase("success");
@@ -123,8 +123,8 @@ export function LineLinkScreen() {
       const result = await callLineConnect({ mode: "id_token", id_token: idToken });
       const p = await liff.getProfile().catch(() => null);
       setLineMeta({
-        displayName: result.display_name ?? p?.displayName,
-        pictureUrl: result.picture_url ?? p?.pictureUrl,
+        displayName: result.displayName ?? p?.displayName,
+        pictureUrl: result.pictureUrl ?? p?.pictureUrl,
       });
       await refreshProfile();
       setPhase("success");

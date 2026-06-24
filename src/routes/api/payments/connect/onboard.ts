@@ -5,6 +5,7 @@ import {
   paymentsJsonResponse,
   paymentsCorsPreflightHeaders,
 } from "@/lib/stripePayments.server";
+import { guardIpRateLimit, IP_RATE_LIMITS } from "@/lib/rateLimit.server";
 import { parseConnectOnboardApiBody } from "@/lib/paymentsApiValidation";
 import { ZodError } from "zod";
 
@@ -14,6 +15,9 @@ export const Route = createFileRoute("/api/payments/connect/onboard")({
       OPTIONS: async ({ request }) =>
         new Response(null, { status: 204, headers: paymentsCorsPreflightHeaders(request) }),
       POST: async ({ request }) => {
+        const limited = guardIpRateLimit(request, IP_RATE_LIMITS.connectOnboard);
+        if (limited) return limited;
+
         const auth = await authenticateBearerToken(request);
         if ("error" in auth) {
           return paymentsJsonResponse(request, { error: auth.error }, auth.status);

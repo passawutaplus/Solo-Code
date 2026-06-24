@@ -6,6 +6,7 @@ import {
   paymentsCorsPreflightHeaders,
 } from "@/lib/stripePayments.server";
 import { parseCashoutProcessApiBody } from "@/lib/paymentsApiValidation";
+import { guardIpRateLimit, IP_RATE_LIMITS } from "@/lib/rateLimit.server";
 import { ZodError } from "zod";
 
 export const Route = createFileRoute("/api/payments/cashout/process")({
@@ -14,6 +15,9 @@ export const Route = createFileRoute("/api/payments/cashout/process")({
       OPTIONS: async ({ request }) =>
         new Response(null, { status: 204, headers: paymentsCorsPreflightHeaders(request) }),
       POST: async ({ request }) => {
+        const limited = guardIpRateLimit(request, IP_RATE_LIMITS.cashoutProcess);
+        if (limited) return limited;
+
         const auth = await authenticateBearerToken(request);
         if ("error" in auth) {
           return paymentsJsonResponse(request, { error: auth.error }, auth.status);

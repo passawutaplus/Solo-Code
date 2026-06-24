@@ -171,18 +171,18 @@ function OrgWorkspaceNav({ orgId, orgSlug, orgName, collapsed }: OrgNavProps) {
 }
 
 export function InhouseSidebarNav({ collapsed }: { collapsed: boolean }) {
-  const { profileTier } = useSubscription();
+  const { tier } = useSubscription();
   const { data: orgs = [] } = useMyInhouseOrgs();
   if (!isInhouseWorkspaceEnabled()) return null;
   if (
-    !canAccessInhouse(profileTier, []) &&
+    !canAccessInhouse(tier, []) &&
     orgs.length === 0 &&
-    !canCreateInhouseOrg(profileTier)
+    !canCreateInhouseOrg(tier)
   ) {
     return null;
   }
 
-  if (orgs.length === 0 && canCreateInhouseOrg(profileTier)) {
+  if (orgs.length === 0 && canCreateInhouseOrg(tier)) {
     return (
       <SidebarMenuItem>
         <SidebarMenuButton asChild tooltip="ตั้งค่า In-House" className={MENU_BTN}>

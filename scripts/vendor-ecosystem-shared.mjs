@@ -3,7 +3,7 @@
  * Run before Anthem build/CI to prevent drift.
  */
 import { cpSync, existsSync, readFileSync, writeFileSync } from "node:fs";
-import { dirname, join } from "node:path";
+import { dirname, join, relative, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const soloRoot = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -28,6 +28,11 @@ const copies = [
 for (const { src, dest } of copies) {
   let content = readFileSync(src, "utf8");
   content = `/** AUTO-GENERATED — do not edit. Source: Solo-Code/${src.split("/Solo-Code/")[1] ?? src} */\n${content}`;
+  const sourcePath = relative(soloRoot, src).split(sep).join("/");
+  content = content.replace(
+    /^\/\*\* AUTO-GENERATED.*\*\/\r?\n/,
+    `/** AUTO-GENERATED - do not edit. Source: Solo-Code/${sourcePath} */\n`,
+  );
   writeFileSync(dest, content);
 }
 

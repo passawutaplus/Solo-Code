@@ -4,9 +4,7 @@ import { enqueueLineNotificationForUser, findUserIdByEmail } from "@/server/line
 import { canonicalUrl } from "@/lib/siteUrl";
 
 const inhouseFrom = (table: string) =>
-  (supabaseAdmin as unknown as { from: (t: string) => ReturnType<typeof supabaseAdmin.from> }).from(
-    table,
-  );
+  (supabaseAdmin as unknown as { from: (t: string) => any }).from(table);
 
 export async function createInhouseInviteWithNotify(opts: {
   orgId: string;

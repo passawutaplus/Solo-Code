@@ -5,9 +5,6 @@ import type { InhouseActivityEvent, InhouseTask } from "@/lib/inhouse/types";
 import { useInhouseOrgMembers } from "./useInhouseOrg";
 import { useInhouseTasks } from "./useInhouseTasks";
 
-const inhouseFrom = (table: string) =>
-  (supabase as unknown as { from: (t: string) => ReturnType<typeof supabase.from> }).from(table);
-
 async function enrichActivity(events: InhouseActivityEvent[]): Promise<InhouseActivityEvent[]> {
   const userIds = [...new Set(events.map((e) => e.user_id).filter(Boolean))] as string[];
   if (userIds.length === 0) return events;
@@ -35,7 +32,8 @@ export function useInhouseActivity(orgId: string | undefined, workspaceId?: stri
     queryKey: ["inhouse-activity", orgId, workspaceId],
     enabled: !!orgId,
     queryFn: async () => {
-      let q = inhouseFrom("inhouse_activity_events")
+      let q = supabase
+        .from("inhouse_activity_events")
         .select("*")
         .eq("org_id", orgId!)
         .order("created_at", { ascending: false })

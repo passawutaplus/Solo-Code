@@ -3,6 +3,16 @@ import { supabase } from "@/integrations/supabase/client";
 import { getStripeEnvironment } from "@/lib/stripe";
 import { toast } from "sonner";
 
+const escrowRpc = (fn: string, args?: Record<string, unknown>) =>
+  (
+    supabase as unknown as {
+      rpc: (
+        fn: string,
+        args?: Record<string, unknown>,
+      ) => Promise<{ data: unknown; error: Error | null }>;
+    }
+  ).rpc(fn, args);
+
 export type MarketplaceEscrow = {
   id: string;
   freelancer_user_id: string;
@@ -36,7 +46,7 @@ export const useMyEscrows = () =>
   useQuery({
     queryKey: ["my-escrows"],
     queryFn: async () => {
-      const { data, error } = await supabase.rpc("list_my_escrows");
+      const { data, error } = await escrowRpc("list_my_escrows");
       if (error) throw error;
       return (data ?? []) as MarketplaceEscrow[];
     },
@@ -46,7 +56,7 @@ export const useCreateEscrowFromQuotation = () => {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (vars: { quotationId: string; amountThb: number }) => {
-      const { data, error } = await supabase.rpc("create_escrow_from_quotation", {
+      const { data, error } = await escrowRpc("create_escrow_from_quotation", {
         _quotation_id: vars.quotationId,
         _amount_thb: vars.amountThb,
       });
@@ -95,7 +105,7 @@ export const useAdminEscrows = () =>
   useQuery({
     queryKey: ["admin-escrows"],
     queryFn: async () => {
-      const { data, error } = await supabase.rpc("admin_list_escrows", { _limit: 100 });
+      const { data, error } = await escrowRpc("admin_list_escrows", { _limit: 100 });
       if (error) throw error;
       return (data ?? []) as MarketplaceEscrow[];
     },
@@ -105,7 +115,7 @@ export const useAdminDisputeEscrow = () => {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (vars: { id: string; action: "release" | "refund" | "reopen"; note?: string }) => {
-      const { data, error } = await supabase.rpc("admin_dispute_escrow", {
+      const { data, error } = await escrowRpc("admin_dispute_escrow", {
         _escrow_id: vars.id,
         _action: vars.action,
         _note: vars.note ?? "",

@@ -90,6 +90,7 @@ function LabsPage() {
             {isAdmin && (
               <Link
                 to="/admin"
+                search={{ section: undefined, q: undefined }}
                 className="hidden sm:inline-flex items-center gap-1.5 rounded-full bg-foreground text-background px-3 py-1.5 text-xs font-medium hover:bg-foreground/90 transition-colors"
               >
                 <ShieldCheck className="h-3.5 w-3.5" /> Admin

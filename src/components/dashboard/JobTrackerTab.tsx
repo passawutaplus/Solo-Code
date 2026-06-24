@@ -96,6 +96,7 @@ type Job = {
   deadline: string | null;
   start_date: string | null;
   payment_qr_url: string | null;
+  created_at: string;
   updated_at: string;
   quotation_id: string | null;
 };
@@ -1092,6 +1093,7 @@ function JobFormDialog({
     if (open && existing) {
       setForm({
         title: existing.title,
+        quotation_id: existing.quotation_id ?? "",
         client_id: existing.client_id ?? "",
         client_name: existing.client_name,
         total_amount: existing.total_amount,

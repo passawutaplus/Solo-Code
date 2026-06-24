@@ -296,7 +296,7 @@ export function EarlyAccessSection() {
             </p>
           </div>
           <Button asChild size="sm" variant="outline" className="h-8 shrink-0">
-            <Link to="/admin" search={{ section: "tickets" }}>
+            <Link to="/admin" search={{ section: "tickets", q: undefined }}>
               ไปดูฟีดแบ็ก
             </Link>
           </Button>

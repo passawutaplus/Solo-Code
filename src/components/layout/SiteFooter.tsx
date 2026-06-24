@@ -159,7 +159,11 @@ function FullFooter({ className }: { className?: string }) {
                 </Link>
               </li>
               <li>
-                <Link to="/auth" className="hover:text-primary transition-colors">
+                <Link
+                  to="/auth"
+                  search={{ redirect: undefined }}
+                  className="hover:text-primary transition-colors"
+                >
                   เข้าสู่ระบบ
                 </Link>
               </li>

@@ -1,6 +1,6 @@
 import { LEGAL } from "@/lib/legalMeta";
 
-const MEMBER_CODE_RE = /^S?[0-9A-Fa-f]{7}$/;
+const MEMBER_CODE_RE = /^s?[0-9A-F]{7}$/i;
 
 /** Stable short member code from auth user id (e.g. S4F2A1B8). */
 export function formatMemberCode(userId: string): string {

@@ -133,9 +133,12 @@ export async function runPaymentReminders(): Promise<{ sent: number; skipped: nu
       ? canonicalUrl(`/track/${job.share_token}`)
       : canonicalUrl("/dashboard");
 
+    const recipientEmail = q.clientEmail?.trim();
+    if (!recipientEmail) continue;
+
     const result = await enqueueTemplateEmail({
       templateName: "payment-followup",
-      recipientEmail: q.clientEmail.trim(),
+      recipientEmail,
       templateData: {
         clientName: q.clientName || "ลูกค้า",
         freelancerName: profile?.brand_name || profile?.display_name || "ฟรีแลนซ์",

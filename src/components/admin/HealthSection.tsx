@@ -123,7 +123,7 @@ export function HealthSection({ m }: { m: AdminMetrics }) {
             </p>
           </div>
           <Button asChild size="sm" variant="outline" className="h-8 shrink-0">
-            <Link to="/admin" search={{ section: "activity_feed" }}>
+            <Link to="/admin" search={{ section: "activity_feed", q: undefined }}>
               เปิดไทม์ไลน์
             </Link>
           </Button>

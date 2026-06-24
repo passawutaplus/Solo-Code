@@ -212,7 +212,9 @@ function CreativePartnerPage() {
           <div className="flex items-center gap-1.5 shrink-0">
             {!user && (
               <Button asChild size="sm" variant="outline" className="h-8 text-xs">
-                <Link to="/auth">เข้าสู่ระบบ</Link>
+                <Link to="/auth" search={{ redirect: undefined }}>
+                  เข้าสู่ระบบ
+                </Link>
               </Button>
             )}
             {usage.limitReached && user && (
@@ -245,7 +247,9 @@ function CreativePartnerPage() {
               พี่เลี้ยงด้านดีไซน์ สี คอนเซปต์ และข้อมูลธุรกิจ — เข้าสู่ระบบเพื่อเริ่มแชท
             </p>
             <Button asChild className="mt-6">
-              <Link to="/auth">เข้าสู่ระบบ</Link>
+              <Link to="/auth" search={{ redirect: undefined }}>
+                เข้าสู่ระบบ
+              </Link>
             </Button>
           </div>
         ) : (

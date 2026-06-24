@@ -31,6 +31,7 @@ export function AnthemJobsPanel({ onOpenQuotations }: { onOpenQuotations?: () =>
     enabled: !!user?.id,
     queryFn: async () => {
       const { data, error } = await supabase
+        .schema("anthem")
         .from("hiring_requests")
         .select(
           "id, project_title, client_name, email, phone, message, deadline, status, created_at",
@@ -39,7 +40,7 @@ export function AnthemJobsPanel({ onOpenQuotations }: { onOpenQuotations?: () =>
         .order("created_at", { ascending: false })
         .limit(12);
       if (error) throw error;
-      return (data ?? []) as HiringRow[];
+      return data ?? [];
     },
   });
 

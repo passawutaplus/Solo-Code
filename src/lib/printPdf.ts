@@ -184,8 +184,8 @@ export async function exportElementToPdfA4(element: HTMLElement, filename: strin
       useCORS: true,
       logging: false,
       allowTaint: false,
-      onclone: (_doc, clone) => {
-        const root = clone.querySelector("[data-pdf-export-root]") ?? clone.body;
+      onclone: (doc, clone) => {
+        const root = clone.querySelector("[data-pdf-export-root]") ?? doc.body;
         if (root instanceof HTMLElement) {
           root.style.transform = "none";
           root.style.maxHeight = "none";

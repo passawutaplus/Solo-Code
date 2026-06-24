@@ -39,9 +39,21 @@ type Job = {
   final_paid: boolean;
 };
 
+type CheckoutTrackingPayload = {
+  job: Job | null;
+  quotation: Parameters<typeof ClientCheckoutView>[0]["quotation"];
+  portal: PortalBranding | null;
+  payments?: {
+    stripeEnabled: boolean;
+    deposit?: ClientPaymentEstimate;
+    final?: ClientPaymentEstimate;
+  };
+};
+
 function CheckoutPage() {
   const { token } = Route.useParams();
   const { payment } = Route.useSearch();
+  const paymentType: "deposit" | "final" = payment === "final" ? "final" : "deposit";
   const navigate = useNavigate();
   const [loading, setLoading] = React.useState(true);
   const [notFound, setNotFound] = React.useState(false);
@@ -55,26 +67,22 @@ function CheckoutPage() {
     let cancelled = false;
     (async () => {
       try {
-        const res = await getPublicTrackingJob({ data: { token } });
+        const res = (await getPublicTrackingJob({ data: { token } })) as CheckoutTrackingPayload;
         if (cancelled) return;
-        const j = res.job as Job | null;
+        const j = res.job;
         if (!j) {
           setNotFound(true);
           return;
         }
 
-        const payments = res.payments as {
-          stripeEnabled: boolean;
-          deposit?: ClientPaymentEstimate;
-          final?: ClientPaymentEstimate;
-        } | null;
+        const payments = res.payments ?? null;
 
-        const est = payment === "final" ? payments?.final : payments?.deposit;
+        const est = paymentType === "final" ? payments?.final : payments?.deposit;
         const valid =
           payments?.stripeEnabled &&
           est &&
-          ((payment === "deposit" && !j.deposit_paid) ||
-            (payment === "final" && j.deposit_paid && !j.final_paid));
+          ((paymentType === "deposit" && !j.deposit_paid) ||
+            (paymentType === "final" && j.deposit_paid && !j.final_paid));
 
         if (!valid) {
           navigate({ to: "/track/$token", params: { token } });
@@ -82,8 +90,8 @@ function CheckoutPage() {
         }
 
         setJob(j);
-        setQuotation((res.quotation ?? null) as typeof quotation);
-        setPortal((res.portal ?? null) as PortalBranding | null);
+        setQuotation(res.quotation ?? null);
+        setPortal(res.portal ?? null);
         setEstimate(est!);
       } catch {
         if (cancelled) return;
@@ -95,7 +103,7 @@ function CheckoutPage() {
     return () => {
       cancelled = true;
     };
-  }, [token, payment]);
+  }, [token, paymentType]);
 
   if (loading) {
     return (
@@ -112,7 +120,7 @@ function CheckoutPage() {
   return (
     <ClientCheckoutView
       token={token}
-      paymentType={payment}
+      paymentType={paymentType}
       job={job}
       quotation={quotation}
       portal={portal}

@@ -12,6 +12,7 @@ import { useSubscription } from "@/hooks/useSubscription";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { resolveDocumentTheme, type DocumentThemeInput } from "@/lib/documentTheme";
+import type { Json } from "@/integrations/supabase/types";
 import {
   SOLO_DEFAULT_BRIEF,
   SOLO_DEFAULT_INVOICE,
@@ -249,7 +250,7 @@ export function DocumentBrandingSection() {
     setSaving(true);
     const { error } = await supabase
       .from("profiles")
-      .update({ document_theme: toInput(form, isPro) })
+      .update({ document_theme: toInput(form, isPro) as unknown as Json })
       .eq("user_id", user.id);
     setSaving(false);
     if (error) {

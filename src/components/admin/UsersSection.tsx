@@ -61,8 +61,7 @@ export function UsersSection({
       return (
         (p.email ?? "").toLowerCase().includes(lower) ||
         (p.display_name ?? "").toLowerCase().includes(lower) ||
-        (p.brand_name ?? "").toLowerCase().includes(lower) ||
-        (p.username ?? "").toLowerCase().includes(lower)
+        (p.brand_name ?? "").toLowerCase().includes(lower)
       );
     });
   }, [m.profiles, search]);
