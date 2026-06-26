@@ -16,6 +16,7 @@ import { DemoModeBanner } from "@/components/DemoModeBanner";
 import { installCspReporter } from "@/lib/cspReporter";
 import { initErrorMonitoring } from "@/lib/errorMonitoring";
 import { SITE_NAME, SITE_URL, DEFAULT_OG_IMAGE } from "@/lib/siteUrl";
+import { SpeedInsights } from "@vercel/speed-insights/react";
 
 import appCss from "../styles.css?url";
 
@@ -151,6 +152,7 @@ function RootComponent() {
           <AssistantSidebar />
         </AssistantProvider>
       </AuthProvider>
+      <SpeedInsights />
     </QueryClientProvider>
   );
 }
